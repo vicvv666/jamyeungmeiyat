@@ -236,7 +236,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <button class="tab" data-page="timeline" onclick="showPage('timeline')"><span class="tab-icon">🌐</span><span id="tab-timeline">動態</span></button>
   <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party">酒局</span></button>
   <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
-  <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
+   <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
+   <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
 </div>
 
 <div class="content">
@@ -276,6 +277,60 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div><div class="stat-num" id="st-week">0</div><div class="stat-label">本週</div></div>
     <div><div class="stat-num" id="st-today">0</div><div class="stat-label">今日</div></div></div>
   </div><div id="st-dist"></div>
+</div>
+
+<div class="page" id="page-dice">
+ <div class="card">
+  <div class="card-header">🎲 骰盅大挑戰</div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center">選擇骰數（免費最多2粒）</div>
+  <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px" id="dice-count-row"></div>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;min-height:80px;align-items:center;padding:12px 0" id="dice-area"></div>
+  <div style="text-align:center;font-size:14px;color:var(--amber);font-weight:600;min-height:22px" id="solo-result"></div>
+  <button class="btn btn-primary" style="width:100%;font-size:16px;font-weight:800;padding:14px" onclick="shakeSolo()" id="btn-shake">🍻 搖骰！</button>
+ </div>
+ <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
+  <div class="card-header">🎯 面對面對決 <span id="room-lock" style="font-size:11px;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:auto">🔒</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+   <button class="btn btn-outline" id="btn-create-room" onclick="createRoom()" style="border-color:var(--purple);color:var(--purple)">🏠 開房</button>
+   <button class="btn btn-outline" id="btn-join-room" onclick="showJoinRoom()" style="border-color:var(--purple);color:var(--purple)">🚪 加入</button>
+  </div>
+  <div id="join-panel" style="display:none;margin-top:10px">
+   <div style="display:flex;gap:8px">
+    <input id="join-code" maxlength="6" placeholder="房間號" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:20px;font-weight:800;text-align:center;letter-spacing:6px;text-transform:uppercase">
+    <button class="btn btn-primary" onclick="joinRoom()" style="padding:10px 16px">加入</button>
+   </div>
+  </div>
+ </div>
+ <div class="card" id="room-detail" style="display:none">
+  <div class="card-header">🏠 房間 <span id="room-status" style="color:var(--green);font-size:12px;margin-left:auto">等待中</span></div>
+  <div style="text-align:center;padding:12px;background:rgba(139,92,246,0.05);border-radius:12px;border:1px solid rgba(139,92,246,0.2)">
+   <div style="font-size:11px;color:var(--sub)">房間號</div>
+   <div style="font-size:32px;font-weight:800;color:var(--purple);letter-spacing:6px" id="room-code-display">------</div>
+   <div id="room-players" style="margin-top:6px;font-size:12px;color:var(--sub)"></div>
+  </div>
+  <div id="room-rules" style="margin-top:10px">
+   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:60px">🎲 骰數</label><select id="rule-dice" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="2">2粒</option><option value="3">3粒</option><option value="4">4粒</option><option value="5">5粒</option></select></div>
+   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:60px">🔄 輪數</label><select id="rule-rounds" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="1">1輪</option><option value="3">3輪</option><option value="5">5輪</option></select></div>
+   <button class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;background:var(--purple)" onclick="startRoomGame()" id="btn-start-room">🎯 開始對戰</button>
+  </div>
+  <div id="room-game" style="display:none">
+   <div style="text-align:center;font-size:12px;color:var(--sub);margin-bottom:8px" id="game-round-info"></div>
+   <div id="battle-grid" style="display:grid;gap:8px"></div>
+   <button class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;margin-top:10px" onclick="shakeRoom()" id="btn-room-shake">🎲 我要搖骰</button>
+   <button class="btn" style="width:100%;font-size:14px;padding:12px;margin-top:8px;background:linear-gradient(135deg,var(--pink),var(--red));color:#fff;border:none;border-radius:10px;font-weight:700" onclick="revealAll()" id="btn-reveal" disabled>🔥 開盅！</button>
+  </div>
+  <div id="chat-area" style="margin-top:10px;max-height:120px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;background:rgba(0,0,0,0.2)"></div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+   <input id="chat-input" placeholder="講嘢..." style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px" onkeydown="if(event.key==='Enter')sendDiceChat()">
+   <button class="btn btn-primary" onclick="sendDiceChat()" style="padding:8px 14px;font-size:12px">發送</button>
+  </div>
+  <button style="margin-top:10px;width:100%;padding:8px;border:1px solid var(--red);border-radius:8px;background:transparent;color:var(--red);cursor:pointer;font-size:13px" onclick="leaveRoom()">🚪 離開房間</button>
+ </div>
+ <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.08));border:1px solid rgba(139,92,246,0.15)">
+  <div style="font-size:28px">💎</div>
+  <div style="font-weight:700;font-size:14px;color:var(--pink)">解鎖更多骰盅玩法</div>
+  <div style="font-size:11px;color:var(--sub);margin-top:4px;line-height:1.6">🥉 酒友 ¥8/月 — 3粒骰 + 加入房間<br>🥈 酒鬼 ¥18/月 — 4粒骰 + 開房<br>🥇 酒神 ¥198/年 — 5粒骰 + 自訂規則</div>
+ </div>
 </div>
 
 <div class="page" id="page-member">
@@ -534,7 +589,7 @@ function showPage(name){
   if(_pgHist.length > 10) _pgHist.shift();
 
   // Determine slide direction based on tab index
-  const tabs = ['checkin','timeline','party','stats','member'];
+  const tabs = ['checkin','timeline','party','stats','dice','member'];
   const idx = tabs.indexOf(name);
   const prevIdx = tabs.indexOf(curName);
   let slideCls = '';
@@ -555,7 +610,7 @@ function showPage(name){
   if(tb)tb.classList.add('active');
   // Reset scroll position to top when switching pages
   window.scrollTo({top:0,behavior:'smooth'});
-  if(name==='timeline')loadTL();if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();
+  if(name==='timeline')loadTL();if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();
 }
 
 // ═══════ SWIPE GESTURE SUPPORT ═══════
@@ -590,7 +645,7 @@ document.addEventListener('touchend', function(e){
   if(Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
   if(e.target.closest('.tabs') || e.target.closest('.nav') || e.target.closest('.modal-overlay') || e.target.closest('.pay-modal')) return;
 
-  const tabs = ['checkin','timeline','party','stats','member'];
+  const tabs = ['checkin','timeline','party','stats','dice','member'];
   const cur = document.querySelector('.page.active');
   if(!cur) return;
   const curName = cur.id.replace('page-','');
@@ -671,8 +726,12 @@ async function doLogin(){
   const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value;
   if(!u||!p)return toast('填寫用戶名和密碼',1);
   try{
-    const { data, error } = await JYM.auth.signIn(u, p); if (error) throw error;
-    token=data.session?.access_token;me=data.user;lang=data.user.user_metadata?.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
+    const { data, error } = await JYM.auth.signIn(u, p);
+    if (error) throw error;
+    token = data.session?.access_token;
+    me = data.user;
+    lang = data.user.user_metadata?.lang || 'zh-HK';
+    document.getElementById('lang-switch').value=lang;
     adminToken='';localStorage.removeItem('jymy_admin_token');
     sessionStorage.setItem('jymy_pw', p);
     saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();
@@ -684,8 +743,17 @@ async function doRegister(){
     p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
   if(!u||p.length<4)return toast('用戶名或密碼太短',1);if(p!==p2)return toast('密碼不一致',1);
   try{
-    const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang}});
-    token=r.token;me=r.user;
+    const { data, error } = await JYM.auth.signUp(u, p, n || u);
+    if (error) throw error;
+    const user = data.user;
+    await JYM.supabase.from('users').upsert({
+      id: user.id,
+      username: u,
+      display_name: n || u,
+      created_at: new Date().toISOString()
+    });
+    token = data.session?.access_token;
+    me = user;
     adminToken='';localStorage.removeItem('jymy_admin_token');
     saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();
     toast('✅ 註冊成功');
@@ -1088,6 +1156,261 @@ async function admLoadAudit(){
   buildGrid();updTitles();
   restoreS().then(ok=>{updateNav();if(me){refreshAll()}else{setTimeout(showAuth,600);loadAdmin()}});
 })();
+
+// ═══════ 🎲 DICE GAME ═══════
+const DICE_MEM_LIMITS={free:2,jiuyau:3,jaugwai:4,jausan:5};
+const DICE_ROOM_LEVEL={free:false,jiuyau:false,jaugwai:true,jausan:true};
+let _diceCount=2,_diceVals=[],_diceShaking=false,_diceBC=null,_diceRoom=null,_diceIsHost=false;
+try{_diceBC=new BroadcastChannel('dice-room')}catch(e){}
+
+function _diceMem(){return(me&&me.membership)||'free'}
+function _diceName(){return(me&&me.nickname)||'玩家'}
+
+function initDice(){
+ const mem=_diceMem(),limit=DICE_MEM_LIMITS[mem]||2;
+ _diceCount=Math.min(_diceCount,limit);
+ const row=document.getElementById('dice-count-row');
+ if(!row)return;
+ row.innerHTML='';
+ for(let i=1;i<=5;i++){
+  const b=document.createElement('button');
+  b.className=i===_diceCount?'dice-num-btn active'+(i>limit?' locked':''):'dice-num-btn'+(i>limit?' locked':'');
+  b.textContent=i;
+  if(i<=limit)b.onclick=function(){_diceCount=i;initDice();renderDice(i)};
+  row.appendChild(b);
+ }
+ renderDice(_diceCount);
+ const rl=document.getElementById('room-lock');
+ if(rl)rl.style.display=DICE_ROOM_LEVEL[mem]?'none':'';
+ const bc1=document.getElementById('btn-create-room');
+ const bj1=document.getElementById('btn-join-room');
+ if(bc1)bc1.disabled=!DICE_ROOM_LEVEL[mem];
+ if(bj1)bj1.disabled=mem==='free';
+ if(_diceBC)_diceBC.onmessage=function(e){handleDiceMsg(e.data)};
+ // Style for dice buttons
+ if(!document.getElementById('dice-num-style')){
+  const s=document.createElement('style');s.id='dice-num-style';
+  s.textContent='.dice-num-btn{width:42px;height:42px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:18px;font-weight:700;cursor:pointer;transition:all .2s}.dice-num-btn.active{border-color:var(--amber);background:rgba(245,158,11,0.12);color:var(--amber)}.dice-num-btn.locked{opacity:0.3;cursor:not-allowed}.mini-die{width:26px;height:26px;background:#FEF3C7;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#1E1E2E;margin:2px}.mini-die.hid{background:var(--card);color:var(--sub)}';
+  document.head.appendChild(s);
+ }
+}
+
+function renderDice(n){
+ const area=document.getElementById('dice-area');
+ if(!area)return;
+ area.innerHTML='';_diceVals=[];
+ for(let i=0;i<n;i++){
+  const v=Math.floor(Math.random()*6)+1;
+  _diceVals.push(v);
+  const d=document.createElement('div');
+  d.className='mini-die';d.style.cssText='width:48px;height:48px;font-size:22px;border-radius:10px';
+  d.textContent=dieChar(v);d.setAttribute('data-idx',i);
+  area.appendChild(d);
+ }
+}
+
+function dieChar(v){return ['','⚀','⚁','⚂','⚃','⚄','⚅'][v]||'?'}
+
+function shakeSolo(){
+ if(_diceShaking)return;
+ _diceShaking=true;
+ const btn=document.getElementById('btn-shake');
+ if(btn){btn.disabled=true;btn.textContent='搖緊...'}
+ if(navigator.vibrate)navigator.vibrate([80,40,80,40,80]);
+ const area=document.getElementById('dice-area');
+ const dies=area?area.querySelectorAll('.mini-die'):[];
+ dies.forEach(function(d){d.style.transform='rotate('+Math.random()*30+'deg)';d.style.opacity='0.5'});
+ const sr=document.getElementById('solo-result');if(sr)sr.textContent='';
+ setTimeout(function(){
+  const res=[];
+  dies.forEach(function(d,i){
+   const v=Math.floor(Math.random()*6)+1;res.push(v);_diceVals[i]=v;
+   d.textContent=dieChar(v);d.style.transform='';d.style.opacity='1';
+  });
+  const total=res.reduce(function(a,b){return a+b},0);
+  if(sr)sr.textContent='擲出 '+res.join('+')+' = '+total+' 點 🎉';
+  _diceShaking=false;
+  if(btn){btn.disabled=false;btn.textContent='🍻 再搖！'}
+ },700);
+}
+
+// Room
+function genRoomCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
+
+function createRoom(){
+ if(!DICE_ROOM_LEVEL[_diceMem()]){diceToast('🔒 需酒鬼或以上會員');return}
+ _diceRoom={code:genRoomCode(),host:_diceName(),players:[_diceName()],rules:{dice:2,rounds:1},phase:'waiting',round:0,maxRounds:1,results:{},revealed:false};
+ _diceIsHost=true;saveDiceRoom();bcastDice({type:'room-created',room:_diceRoom});
+ showDiceRoom();diceToast('🏠 房間：'+_diceRoom.code);
+}
+
+function showJoinRoom(){
+ const p=document.getElementById('join-panel');
+ if(p)p.style.display=p.style.display==='none'?'':'none';
+}
+
+function joinRoom(){
+ if(_diceMem()==='free'){diceToast('🔒 需酒友或以上');return}
+ const code=(document.getElementById('join-code')||{}).value;if(!code||code.length!==6){diceToast('輸入6位房間號');return}
+ const saved=localStorage.getItem('dice_room_'+code.toUpperCase());
+ if(saved){
+  _diceRoom=JSON.parse(saved);
+  if(_diceRoom.phase==='waiting'&&!_diceRoom.players.includes(_diceName())){
+   _diceRoom.players.push(_diceName());_diceRoom.results[_diceName()]=[];
+   saveDiceRoom();bcastDice({type:'player-joined',room:_diceRoom,player:_diceName()});
+   showDiceRoom();diceToast('✅ 已加入');return;
+  }
+  if(_diceRoom.players.includes(_diceName())){showDiceRoom();return}
+ }
+ diceToast('❌ 搵唔到房間');
+}
+
+function showDiceRoom(){
+ document.getElementById('room-detail').style.display='';
+ document.getElementById('room-code-display').textContent=_diceRoom.code;
+ const canEdit=_diceIsHost&&_diceRoom.phase==='waiting';
+ document.getElementById('room-rules').style.display=canEdit?'':'none';
+ document.getElementById('room-game').style.display=(_diceRoom.phase==='playing'||_diceRoom.phase==='revealed')?'':'none';
+ document.getElementById('btn-start-room').style.display=(_diceIsHost&&_diceRoom.phase==='waiting')?'':'none';
+ updRoomPlayers();
+ if(_diceRoom.phase==='playing'||_diceRoom.phase==='revealed')renderBattle();
+}
+
+function updRoomPlayers(){
+ const el=document.getElementById('room-players');
+ if(el)el.innerHTML=_diceRoom.players.map(function(p){return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--card);padding:3px 8px;border-radius:6px;margin:2px;font-size:11px">'+(p===_diceRoom.host?'👑':'👤')+' '+p+'</span>'}).join('');
+ const st=document.getElementById('room-status');
+ if(st)st.textContent=_diceRoom.phase==='waiting'?'等待中...':_diceRoom.phase==='playing'?'🎲 對戰中':'✅ 已開盅';
+}
+
+function startRoomGame(){
+ if(!_diceIsHost)return;
+ _diceRoom.rules.dice=parseInt((document.getElementById('rule-dice')||{}).value)||2;
+ _diceRoom.rules.rounds=parseInt((document.getElementById('rule-rounds')||{}).value)||1;
+ _diceRoom.phase='playing';_diceRoom.round=1;_diceRoom.maxRounds=_diceRoom.rules.rounds;
+ _diceRoom.revealed=false;_diceRoom.results={};
+ _diceRoom.players.forEach(function(p){_diceRoom.results[p]=[]});
+ saveDiceRoom();bcastDice({type:'game-start',room:_diceRoom});
+ showDiceRoom();diceToast('🎲 開始！');
+}
+
+function shakeRoom(){
+ if(!_diceRoom||_diceRoom.phase!=='playing')return;
+ if(_diceRoom.results[_diceName()]&&_diceRoom.results[_diceName()].length>=_diceRoom.maxRounds){diceToast('你已搖完');return}
+ const vals=[];for(let i=0;i<_diceRoom.rules.dice;i++)vals.push(Math.floor(Math.random()*6)+1);
+ _diceRoom.results[_diceName()].push({round:_diceRoom.results[_diceName()].length+1,values:vals,revealed:false});
+ if(navigator.vibrate)navigator.vibrate([80,40,80]);
+ saveDiceRoom();bcastDice({type:'player-shook',room:_diceRoom,player:_diceName()});
+ renderBattle();diceToast('🎲 搖咗第 '+_diceRoom.results[_diceName()].length+' 輪');checkAllShook();
+}
+
+function checkAllShook(){
+ const done=_diceRoom.players.every(function(p){return _diceRoom.results[p]&&_diceRoom.results[p].length>=_diceRoom.maxRounds});
+ const btn=document.getElementById('btn-reveal');if(btn)btn.disabled=!done;
+}
+
+function revealAll(){
+ if(!_diceIsHost){diceToast('只有房主開盅');return}
+ _diceRoom.phase='revealed';_diceRoom.revealed=true;
+ _diceRoom.players.forEach(function(p){(_diceRoom.results[p]||[]).forEach(function(r){r.revealed=true})});
+ saveDiceRoom();bcastDice({type:'revealed',room:_diceRoom});
+ renderBattle();updRoomPlayers();diceToast('🔥 開盅！');
+}
+
+function renderBattle(){
+ const grid=document.getElementById('battle-grid');if(!grid)return;grid.innerHTML='';
+ const info=document.getElementById('game-round-info');
+ if(info)info.textContent='第 '+(_diceRoom.round||1)+'/'+_diceRoom.maxRounds+' 輪';
+ const shk=document.getElementById('btn-room-shake');
+ if(shk)shk.style.display=(_diceRoom.phase==='playing'&&_diceRoom.results[_diceName()]&&_diceRoom.results[_diceName()].length<_diceRoom.maxRounds)?'':'none';
+ const rvl=document.getElementById('btn-reveal');
+ if(rvl)rvl.style.display=_diceRoom.phase==='playing'?'':'none';
+
+ _diceRoom.players.forEach(function(p){
+  const res=_diceRoom.results[p]||[];
+  const div=document.createElement('div');
+  div.style.cssText='display:flex;align-items:center;gap:10px;background:var(--card);padding:10px;border-radius:10px';
+  const nm=document.createElement('div');nm.style.cssText='font-weight:700;font-size:13px;flex:1';
+  nm.textContent=(p===_diceRoom.host?'👑 ':'')+p;
+  const dd=document.createElement('div');dd.style.cssText='display:flex;gap:3px;flex-wrap:wrap';
+  let t=0;
+  if(res.length>0){
+   res.forEach(function(r){r.values.forEach(function(v){
+    const d=document.createElement('div');d.className='mini-die'+((_diceRoom.revealed||p===_diceName())?'':' hid');
+    d.textContent=(_diceRoom.revealed||p===_diceName())?dieChar(v):'?';if(_diceRoom.revealed||p===_diceName())t+=v;
+    dd.appendChild(d);
+   })});
+  }else{
+   for(let i=0;i<_diceRoom.rules.dice;i++){const d=document.createElement('div');d.className='mini-die hid';d.textContent='—';dd.appendChild(d)}
+  }
+  const tot=document.createElement('div');tot.style.cssText='font-weight:800;color:var(--amber);font-size:15px;min-width:28px;text-align:right';
+  tot.textContent=(_diceRoom.revealed||(p===_diceName()&&res.length>0))?t:'';
+  div.appendChild(nm);div.appendChild(dd);div.appendChild(tot);grid.appendChild(div);
+ });
+ if(_diceRoom.revealed){
+  let mx=0,win='';
+  _diceRoom.players.forEach(function(p){let t=0;(_diceRoom.results[p]||[]).forEach(function(r){r.values.forEach(function(v){t+=v})});if(t>mx){mx=t;win=p}});
+  const wd=document.createElement('div');wd.style.cssText='text-align:center;padding:12px;margin-top:8px;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(236,72,153,0.08));border-radius:10px';
+  wd.innerHTML='🏆 <b style="color:var(--amber)">'+win+'</b> 贏咗！共 <b style="color:var(--amber)">'+mx+'</b> 點 🎉';grid.appendChild(wd);
+ }
+}
+
+function leaveRoom(){
+ if(_diceRoom){
+  _diceRoom.players=_diceRoom.players.filter(function(p){return p!==_diceName()});
+  delete _diceRoom.results[_diceName()];
+  if(_diceRoom.players.length===0)localStorage.removeItem('dice_room_'+_diceRoom.code);
+  else{if(_diceIsHost&&_diceRoom.players.length>0)_diceRoom.host=_diceRoom.players[0];saveDiceRoom()}
+  bcastDice({type:'player-left',room:_diceRoom,player:_diceName()});
+ }
+ _diceRoom=null;_diceIsHost=false;localStorage.removeItem('dice_room_state');
+ const rd=document.getElementById('room-detail');if(rd)rd.style.display='none';
+ diceToast('🚪 已離開');
+}
+
+function saveDiceRoom(){
+ if(!_diceRoom)return;
+ localStorage.setItem('dice_room_'+_diceRoom.code,JSON.stringify(_diceRoom));
+ localStorage.setItem('dice_room_state',JSON.stringify(_diceRoom));
+}
+
+function bcastDice(data){if(_diceBC)try{_diceBC.postMessage(data)}catch(e){}}
+
+function handleDiceMsg(d){
+ if(!d||!d.type||!_diceRoom||!d.room||d.room.code!==_diceRoom.code)return;
+ if(d.type==='player-joined'||d.type==='player-left'||d.type==='game-start'||d.type==='player-shook'||d.type==='revealed'){
+  if(d.room)_diceRoom=d.room;saveDiceRoom();
+  if(d.type==='game-start')showDiceRoom();
+  else{updRoomPlayers();renderBattle()}
+  if(d.type==='player-joined')addDiceChat('系統',d.player+' 加入');
+  if(d.type==='player-left')addDiceChat('系統',d.player+' 離開');
+  if(d.type==='player-shook'){addDiceChat(d.player,'🎲 搖咗！');checkAllShook()}
+ }
+ if(d.type==='chat')addDiceChat(d.player,d.msg);
+}
+
+function sendDiceChat(){
+ const inp=document.getElementById('chat-input');if(!inp)return;
+ const msg=inp.value.trim();if(!msg||!_diceRoom)return;
+ addDiceChat(_diceName(),msg);bcastDice({type:'chat',room:_diceRoom.code,player:_diceName(),msg:msg});inp.value='';
+}
+
+function addDiceChat(name,msg){
+ const a=document.getElementById('chat-area');if(!a)return;
+ const d=document.createElement('div');d.style.cssText='font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03)';
+ d.innerHTML='<b style="color:var(--amber)">'+name+'</b>：'+msg;a.appendChild(d);a.scrollTop=a.scrollHeight;
+}
+
+let _diceToastT=null;
+function diceToast(msg){
+ let el=document.getElementById('dice-toast');
+ if(!el){el=document.createElement('div');el.id='dice-toast';el.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--amber);color:var(--amber);padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none';document.body.appendChild(el)}
+ el.textContent=msg;el.style.opacity='1';clearTimeout(_diceToastT);_diceToastT=setTimeout(function(){el.style.opacity='0'},2200);
+}
+
+// Init dice when page loads
+setTimeout(initDice,200);
+
 </script>
 </body>
 </html>
