@@ -1,0 +1,16 @@
+{
+  "name": "今晚飲咗未",
+  "bundleId": "com.vic.jamyeungmeiyat",
+  "version": "1.0.0",
+  "orientation": "portrait",
+  "fullScreen": true,
+  "statusBar": "dark",
+  "splashScreen": {
+    "backgroundColor": "#0D0D12",
+    "fadeDuration": 300
+  },
+  "icons": {
+    "iphone": "icon-192.png",
+    "ipad": "icon-512.png"
+  }
+}

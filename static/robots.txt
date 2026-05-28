@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+Allow: /manifest.json
+Allow: /sw.js
+Allow: /icon-192.png
+Allow: /icon-512.png
+Disallow: /api/
+Disallow: /static/uploads/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://drunk-tonight.app/sitemap.xml
+Sitemap: https://drunk-tonight.app/api/seo/sitemap

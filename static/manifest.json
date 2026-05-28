@@ -1,0 +1,60 @@
+{
+  "name": "🍺 今晚飲咗未 — 飲酒社交打卡",
+  "short_name": "今晚飲咗未",
+  "description": "一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D0D12",
+  "theme_color": "#0D0D12",
+  "orientation": "portrait",
+  "categories": ["social", "lifestyle", "entertainment", "food", "utilities"],
+  "lang": "zh-HK",
+  "dir": "ltr",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://drunk-tonight.app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "🍺 今晚飲咗未 — 飲酒社交打卡主畫面"
+    },
+    {
+      "src": "https://drunk-tonight.app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "🍺 今晚飲咗未 — 飲酒社交打卡桌面版"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "即時打卡",
+      "short_name": "打卡",
+      "description": "快速打開打卡頁面",
+      "url": "/?checkin=1"
+    },
+    {
+      "name": "酒局一覽",
+      "short_name": "酒局",
+      "description": "瀏覽附近嘅酒局",
+      "url": "/?tab=party"
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}

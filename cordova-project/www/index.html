@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0D0D12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="今晚飲咗未">
+<link rel="manifest" href="/manifest.json">
+<title>今晚飲咗未</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0D0D12;--card:#1A1A24;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glow:0 0 20px rgba(245,158,11,0.3)}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,18,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;justify-content:space-between}
+.nav-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-right{display:flex;gap:8px;align-items:center}
+.nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer}
+.lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:8px;font-size:12px}
+/* Tabs */
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(13,13,18,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:6px 0 env(safe-area-inset-bottom)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0;color:var(--sub);font-size:10px;cursor:pointer;border:none;background:none}
+.tab.active{color:var(--amber)}.tab-icon{font-size:20px;margin-bottom:2px}
+/* Content */
+.content{margin-top:56px;margin-bottom:70px;padding:16px;max-width:600px;margin-left:auto;margin-right:auto}
+.page{display:none}.page.active{display:block}
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
+.card-header{font-size:14px;font-weight:700;color:var(--amber);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+/* Status Grid */
+.status-grid{display:flex;flex-direction:column;gap:12px}
+.status-group{display:flex;flex-direction:column;gap:4px}
+.group-label{font-size:11px;color:var(--sub);padding:0 4px}
+.status-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.status-btn{padding:12px 4px;border-radius:12px;border:2px solid transparent;background:var(--card);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;text-align:center}
+.status-btn:hover{border-color:var(--amber);box-shadow:var(--glow);transform:translateY(-1px)}
+.status-btn.selected{border-color:var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(139,92,246,0.2))}
+/* Inputs */
+.input,.textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px}
+.input:focus,.textarea:focus{outline:none;border-color:var(--amber)}
+.textarea{resize:vertical;min-height:60px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,var(--amber),var(--purple));color:#fff;width:100%;justify-content:center;margin-top:4px}
+.btn-primary:active{opacity:0.8}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-sm{padding:6px 12px;font-size:12px}
+/* Toast */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:999;background:var(--card);border:1px solid var(--amber);padding:10px 20px;border-radius:12px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:fadeIn .3s;white-space:nowrap}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+/* Timeline */
+.tl-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.tl-avatar{width:40px;height:40px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.tl-body{flex:1;min-width:0}
+.tl-name{font-weight:700;font-size:14px}.tl-time{color:var(--sub);font-size:11px}.tl-status{font-size:16px;margin:4px 0}.tl-note{font-size:13px;color:var(--sub);word-break:break-word}.tl-actions{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap}
+/* Modal */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:380px;max-height:80dvh;overflow-y:auto}
+/* User Dropdown */
+.user-menu{position:relative}
+.user-menu-trigger{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px}
+.user-dropdown{position:absolute;top:44px;right:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 0;min-width:140px;z-index:150;box-shadow:0 8px 30px rgba(0,0,0,0.5)}
+.dd-item{padding:8px 16px;font-size:13px;cursor:pointer;white-space:nowrap}
+.dd-item:hover{background:var(--border)}
+.dd-divider{height:1px;background:var(--border);margin:4px 0}
+/* Payment */
+.pay-modal{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.pay-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:360px;text-align:center}
+.pay-qr-tabs{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.pay-qr-tab{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-size:12px}
+.pay-qr-tab.active{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,0.15)}
+.pay-qr-img{width:200px;height:200px;object-fit:contain;background:#fff;border-radius:12px;margin:12px auto;display:block}
+/* Plans */
+.plans-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.plan-card{border:1px solid var(--border);border-radius:16px;padding:12px 8px;cursor:pointer;text-align:center;transition:.2s}
+.plan-card:hover{border-color:var(--amber)}
+.plan-card.selected{border-color:var(--amber);background:rgba(245,158,11,0.1)}
+.plan-price{font-size:24px;font-weight:800;color:var(--amber)}.plan-name{font-size:14px;font-weight:700;margin:2px 0}.plan-feat{font-size:10px;color:var(--sub)}
+.plan-usd{font-size:11px;color:var(--sub)}
+/* Stats numbers */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center}
+.stat-num{font-size:28px;font-weight:800;color:var(--amber)}
+.stat-label{font-size:11px;color:var(--sub)}
+/* Empty */
+.empty{padding:40px 0;text-align:center;color:var(--sub)}.empty-icon{font-size:48px;margin-bottom:12px}
+/* Ad */
+.ad-banner{background:var(--card);border:1px dashed var(--border);border-radius:8px;padding:10px;text-align:center;font-size:11px;color:var(--sub);margin-bottom:12px;cursor:pointer}
+.ad-interstitial{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,0.9);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.ad-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,0.2);color:#fff;border:none;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer}
+/* Reply modal */
+.reply-list{max-height:200px;overflow-y:auto;margin:8px 0}
+.reply-item{padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+/* Checkin info */
+.chk-info{margin-top:4px;font-size:11px;color:var(--sub);text-align:center}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-title" id="nav-title">🍺 今晚飲咗未</div>
+  <div class="nav-right">
+    <select class="lang-select" id="lang-switch" onchange="switchLang(this.value)"><option value="zh-HK">繁</option><option value="zh-CN">简</option><option value="en">EN</option></select>
+    <button class="nav-btn" id="btn-auth" onclick="toggleAuth()">登入</button>
+    <div class="user-menu" id="user-menu">
+      <div class="user-menu-trigger" onclick="toggleUserMenu()" id="user-menu-trigger">👤</div>
+      <div class="user-dropdown" id="user-dropdown">
+        <div class="dd-item" id="dd-membership" style="font-weight:700"></div>
+        <div class="dd-item" id="dd-expires" style="font-size:10px;color:var(--sub)"></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" onclick="showPage('member');toggleUserMenu()">💎 會員中心</div>
+        <div class="dd-item" onclick="doLogout()">🚪 登出</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="tabs">
+  <button class="tab active" data-page="checkin" onclick="showPage('checkin')"><span class="tab-icon">🍺</span><span id="tab-checkin">報到</span></button>
+  <button class="tab" data-page="timeline" onclick="showPage('timeline')"><span class="tab-icon">🌐</span><span id="tab-timeline">動態</span></button>
+  <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party">酒局</span></button>
+  <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
+  <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
+</div>
+
+<div class="content">
+
+<!-- ===== CHECKIN ===== -->
+<div class="page active" id="page-checkin">
+  <div class="card">
+    <div class="card-header">📍 飲酒報到</div>
+    <div class="status-grid" id="status-grid"></div>
+    <textarea class="textarea" id="chk-note" placeholder="有咩想講？（可選）" style="margin-top:12px"></textarea>
+    <button class="btn btn-primary" onclick="doCheckin()">🍻 報到！</button>
+    <div class="chk-info" id="chk-remaining"></div>
+  </div>
+  <div class="ad-banner" onclick="clickAd()">📢 廣告合作：vichoo2020@gmail.com</div>
+</div>
+
+<!-- ===== TIMELINE ===== -->
+<div class="page" id="page-timeline">
+  <div id="tl-container"></div>
+</div>
+
+<!-- ===== PARTY ===== -->
+<div class="page" id="page-party">
+  <div class="card">
+    <div class="card-header">🎯 發起酒局</div>
+    <input class="input" id="party-title" placeholder="酒局名稱（必填）">
+    <input class="input" id="party-location" placeholder="地點（可選）">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <input class="input" id="party-date" type="date" style="margin-bottom:0">
+      <input class="input" id="party-time-val" type="time" style="margin-bottom:0">
+    </div>
+    <div style="font-size:11px;color:var(--sub);margin-bottom:8px">選擇日期和時間</div>
+    <button class="btn btn-primary" onclick="createParty()">📅 發起酒局</button>
+  </div>
+  <div id="party-list"></div>
+</div>
+
+<!-- ===== STATS ===== -->
+<div class="page" id="page-stats">
+  <div class="card">
+    <div class="card-header">📊 飲酒統計</div>
+    <div class="stats-row">
+      <div><div class="stat-num" id="stat-total">0</div><div class="stat-label">累計次數</div></div>
+      <div><div class="stat-num" id="stat-week">0</div><div class="stat-label">本週</div></div>
+      <div><div class="stat-num" id="stat-today">0</div><div class="stat-label">今日</div></div>
+    </div>
+  </div>
+  <div id="stats-dist"></div>
+</div>
+
+<!-- ===== MEMBER ===== -->
+<div class="page" id="page-member">
+  <div class="card" style="text-align:center">
+    <div style="font-size:40px;margin-bottom:8px">💎</div>
+    <div style="font-weight:700;font-size:16px" id="member-status">免費會員</div>
+    <div style="font-size:12px;color:var(--sub)" id="member-expiry"></div>
+  </div>
+  <div class="plans-row">
+    <div class="plan-card" id="plan-jiuyau" onclick="selectPlan('jiuyau')">
+      <div class="plan-name">🥉 酒友</div><div class="plan-price">¥8</div>
+      <div class="plan-feat">每月</div><div class="plan-feat">去廣告+無限打卡</div>
+    </div>
+    <div class="plan-card" id="plan-jaugwai" onclick="selectPlan('jaugwai')">
+      <div class="plan-name">🥈 酒鬼</div><div class="plan-price">¥18</div>
+      <div class="plan-feat">每月</div><div class="plan-feat">數據導出+優先</div>
+    </div>
+    <div class="plan-card" id="plan-jausan" onclick="selectPlan('jausan')">
+      <div class="plan-name">🥇 酒神</div><div class="plan-price">¥198</div>
+      <div class="plan-feat">每年</div><div class="plan-feat">自定義+徽章</div>
+    </div>
+  </div>
+  <button class="btn btn-primary" onclick="showPaymentModal()">💳 升級會員</button>
+  <div style="font-size:11px;color:var(--sub);text-align:center;margin-top:8px">支付寶/微信/PayPal | 廣告合作：vichoo2020@gmail.com</div>
+</div>
+
+</div><!-- /content -->
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="auth-modal" onclick="if(event.target===this)closeModal('auth-modal')">
+  <div class="modal">
+    <div id="auth-login">
+      <h3 style="margin-bottom:16px;color:var(--amber)">🍺 登入</h3>
+      <input class="input" id="login-user" placeholder="用戶名">
+      <input class="input" id="login-pass" type="password" placeholder="密碼">
+      <button class="btn btn-primary" onclick="doLogin()">登入</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showRegister()">未有帳號？註冊 →</div>
+    </div>
+    <div id="auth-register">
+      <h3 style="margin-bottom:16px;color:var(--amber)">🍺 註冊</h3>
+      <input class="input" id="reg-user" placeholder="用戶名">
+      <input class="input" id="reg-nick" placeholder="花名（可選）">
+      <input class="input" id="reg-pass" type="password" placeholder="密碼（最少4位）">
+      <input class="input" id="reg-pass2" type="password" placeholder="確認密碼">
+      <button class="btn btn-primary" onclick="doRegister()">註冊</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showLogin()">← 返回登入</div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal -->
+<div class="pay-modal" id="pay-modal" onclick="if(event.target===this)closePayModal()">
+  <div class="pay-card">
+    <h3 style="color:var(--amber)">💳 掃碼支付</h3>
+    <div style="font-size:14px;margin:4px 0" id="pay-plan-name">酒友 ¥8/月</div>
+    <div style="font-size:12px;color:var(--sub)" id="pay-plan-usd">≈ $1.20 USD</div>
+    <div class="pay-qr-tabs">
+      <button class="pay-qr-tab active" onclick="switchPayQR('alipay')">支付寶</button>
+      <button class="pay-qr-tab" onclick="switchPayQR('wechat')">微信</button>
+      <button class="pay-qr-tab" onclick="switchPayQR('paypal')">PayPal</button>
+    </div>
+    <img class="pay-qr-img" id="pay-qr-img" src="" onerror="this.style.display='none';document.getElementById('pay-qr-fb').style.display='block'">
+    <div id="pay-qr-fb" style="display:none;padding:40px;background:#fff;border-radius:12px;color:#333;font-size:13px">收款碼未上傳<br>聯絡：<b>vichoo2020@gmail.com</b></div>
+    <div style="font-size:10px;color:var(--sub);margin-top:4px">PayPal收款為美元</div>
+    <div style="font-size:11px;color:var(--sub);margin-top:8px">付款後點擊下方確認升級</div>
+    <button class="btn btn-primary" onclick="confirmPayment()">✅ 已完成付款，立即升級</button>
+    <div style="font-size:10px;color:var(--sub);margin-top:4px;cursor:pointer" onclick="closePayModal()">取消</div>
+  </div>
+</div>
+
+<!-- Ad Interstitial -->
+<div class="ad-interstitial" id="ad-interstitial">
+  <button class="ad-close" onclick="closeInterstitial()">✕</button>
+  <div style="color:var(--amber);font-size:18px">📢 廣告</div>
+  <div style="color:#fff;font-size:14px;text-align:center;max-width:280px">廣告合作：<br>vichoo2020@gmail.com</div>
+  <button class="btn btn-primary" style="width:auto" onclick="closeInterstitial()">關閉</button>
+</div>
+
+<!-- Reply Modal -->
+<div class="modal-overlay" id="reply-modal" onclick="if(event.target===this)document.getElementById('reply-modal').style.display='none'">
+  <div class="modal">
+    <h3 style="margin-bottom:12px;color:var(--amber)">💬 回覆</h3>
+    <div class="reply-list" id="reply-list"></div>
+    <textarea class="textarea" id="reply-input" placeholder="寫回覆..."></textarea>
+    <button class="btn btn-primary" onclick="doReply()">發送回覆</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════ STATE ═══════════════════
+let me=null, token=null, selStatus=-1, selPlan='jiuyau', lang='zh-HK', showAds=true;
+let currentReplyCid=null;
+const PAY_USD={jiuyau:'1.20', jaugwai:'2.50', jausan:'28.00'};
+const STATUSES=[
+  {k:'st_mai_yum',g:0},{k:'st_seung_yum',g:0},{k:'st_dou_cho',g:0},{k:'st_hoi_cho',g:0},
+  {k:'st_yum_gan',g:1},{k:'st_gai_juk',g:1},{k:'st_ga_jau',g:1},{k:'st_cheung_yum',g:1},
+  {k:'st_jui_gan',g:2},{k:'st_ho_jui',g:2},{k:'st_tou_jui',g:2},{k:'st_piu_piu',g:2},
+  {k:'st_dyun_pin',g:3},{k:'st_seung_au',g:3},{k:'st_wan_wan',g:3},{k:'st_pa_dai',g:3},
+  {k:'st_jyun_cheung',g:4},{k:'st_gau_jau',g:4},{k:'st_chaai_mui',g:4},{k:'st_jik_lok',g:4},
+  {k:'st_yum_cho',g:5},{k:'st_fan_gwai',g:5},{k:'st_sing_saai',g:5},{k:'st_ting_yat',g:5}
+];
+const GROUP_KEYS=['grp_hei_sau','grp_seung_gan','grp_jui_gan','grp_baau_cho','grp_jyun_cheung','grp_sau_mei'];
+const QR_MAP={alipay:'/qrcodes/alipay.jpg',wechat:'/qrcodes/wechat.png',paypal:'/qrcodes/paypal.jpg'};
+
+// ═══════════════════ i18n ═══════════════════
+const L={ 
+  'zh-HK':{app_name:'今晚飲咗未',checkin:'報到',timeline:'動態',party:'酒局',stats:'統計',member:'會員',login:'登入',logout:'登出',free:'免費',
+    st_mai_yum:'未飲',st_seung_yum:'想飲',st_dou_cho:'到咗',st_hoi_cho:'開咗',st_yum_gan:'飲緊',st_gai_juk:'繼續',st_ga_jau:'加酒',st_cheung_yum:'暢飲',
+    st_jui_gan:'醉緊',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飄飄',st_dyun_pin:'斷片',st_seung_au:'想嘔',st_wan_wan:'暈暈',st_pa_dai:'趴低',
+    st_jyun_cheung:'轉場',st_gau_jau:'溝酒',st_chaai_mui:'猜枚',st_jik_lok:'直落',st_yum_cho:'飲咗',st_fan_gwai:'返歸',st_sing_saai:'醒晒',st_ting_yat:'聽日',
+    grp_hei_sau:'起手',grp_seung_gan:'上緊',grp_jui_gan:'醉緊',grp_baau_cho:'爆咗',grp_jyun_cheung:'轉場',grp_sau_mei:'收尾'},
+  'zh-CN':{app_name:'今晚喝了没',checkin:'报到',timeline:'动态',party:'酒局',stats:'统计',member:'会员',login:'登录',logout:'退出',free:'免费',
+    st_mai_yum:'没喝',st_seung_yum:'想喝',st_dou_cho:'到了',st_hoi_cho:'开了',st_yum_gan:'喝着',st_gai_juk:'继续',st_ga_jau:'加酒',st_cheung_yum:'畅饮',
+    st_jui_gan:'醉着',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飘飘',st_dyun_pin:'断片',st_seung_au:'想吐',st_wan_wan:'晕晕',st_pa_dai:'趴下',
+    st_jyun_cheung:'转场',st_gau_jau:'混酒',st_chaai_mui:'猜拳',st_jik_lok:'直落',st_yum_cho:'喝了',st_fan_gwai:'回家',st_sing_saai:'醒了',st_ting_yat:'明天',
+    grp_hei_sau:'起手',grp_seung_gan:'上头',grp_jui_gan:'醉着',grp_baau_cho:'爆了',grp_jyun_cheung:'转场',grp_sau_mei:'收尾'},
+  'en':{app_name:'Drunk Tonight?',checkin:'Check In',timeline:'Feed',party:'Party',stats:'Stats',member:'Member',login:'Login',logout:'Logout',free:'Free',
+    st_mai_yum:'Sober',st_seung_yum:'Thirsty',st_dou_cho:'Here',st_hoi_cho:'Started',st_yum_gan:'Drinking',st_gai_juk:'More',st_ga_jau:'Top Up',st_cheung_yum:'Flowing',
+    st_jui_gan:'Buzzed',st_ho_jui:'Drunk',st_tou_jui:'Tipsy',st_piu_piu:'Floating',st_dyun_pin:'Wasted',st_seung_au:'Sick',st_wan_wan:'Dizzy',st_pa_dai:'Done',
+    st_jyun_cheung:'Hop',st_gau_jau:'Mix',st_chaai_mui:'Game',st_jik_lok:'On & On',st_yum_cho:'Done',st_fan_gwai:'Home',st_sing_saai:'Sober Up',st_ting_yat:'Tmrw',
+    grp_hei_sau:'Start',grp_seung_gan:'Going',grp_jui_gan:'Buzzed',grp_baau_cho:'Wasted',grp_jyun_cheung:'Hop',grp_sau_mei:'Done'}
+};
+function T(k){return (L[lang]||L['zh-HK'])[k]||k}
+
+// ═══════════════════ API ═══════════════════
+async function api(url,opts={}){
+  const h={}; if(token) h['Authorization']='Bearer '+token;
+  if(opts.body && typeof opts.body==='object'){h['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
+  const r=await fetch(url,{method:opts.method||'GET',headers:h,body:opts.body});
+  const d=await r.json();
+  if(!r.ok) throw new Error(d.error||'Error '+r.status);
+  return d;
+}
+
+// ═══════════════════ UI ═══════════════════
+function t(msg){const el=document.createElement('div');el.className='toast';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),2500)}
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name)?.classList.add('active');
+  document.querySelectorAll('.tab').forEach(tb=>tb.classList.remove('active'));
+  document.querySelector('[data-page="'+name+'"]')?.classList.add('active');
+  if(name==='timeline') loadTimeline();
+  if(name==='stats') loadStats();
+  if(name==='party') loadParties();
+  if(name==='member') updateMemberPage();
+}
+function toggleAuth(){if(me){toggleUserMenu()}else{document.getElementById('auth-modal').style.display='flex'}}
+function toggleUserMenu(){const d=document.getElementById('user-dropdown');d.style.display=d.style.display==='none'?'block':'none'}
+document.addEventListener('click',e=>{if(!e.target.closest('.user-menu'))document.getElementById('user-dropdown').style.display='none'})
+function closeModal(id){document.getElementById(id).style.display='none'}
+function showLogin(){document.getElementById('auth-login').style.display='block';document.getElementById('auth-register').style.display='none'}
+function showRegister(){document.getElementById('auth-login').style.display='none';document.getElementById('auth-register').style.display='block'}
+function selectPlan(p){selPlan=p;document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));document.getElementById('plan-'+p)?.classList.add('selected')}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+
+function updateNav(){
+  const menu=document.getElementById('user-menu'), btn=document.getElementById('btn-auth');
+  if(me){
+    btn.style.display='none'; menu.style.display='block';
+    document.getElementById('user-menu-trigger').textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase();
+    const ms=document.getElementById('dd-membership'), ex=document.getElementById('dd-expires');
+    if(me.membership && me.membership!=='free'){
+      ms.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');
+      ex.textContent='到期：'+(me.member_expires||'永久'); showAds=false;
+    }else{
+      ms.textContent='🆓 免費會員'; ex.textContent='點擊升級 💎'; showAds=true;
+    }
+  }else{btn.style.display='inline-flex';menu.style.display='none';showAds=true}
+}
+
+// ═══════════════════ STATUS GRID ═══════════════════
+function buildStatusGrid(){
+  const grid=document.getElementById('status-grid'); grid.innerHTML='';
+  const groups={};
+  STATUSES.forEach((s,i)=>{if(!groups[s.g])groups[s.g]=[];groups[s.g].push({...s,i})});
+  GROUP_KEYS.forEach((gk,gid)=>{
+    const gdiv=document.createElement('div');gdiv.className='status-group';
+    gdiv.innerHTML='<div class="group-label">'+T(gk)+'</div>';
+    const row=document.createElement('div');row.className='status-row';
+    (groups[gid]||[]).forEach(st=>{
+      const btn=document.createElement('button');btn.className='status-btn';btn.textContent=T(st.k);
+      btn.onclick=()=>{selStatus=st.i;buildStatusGrid()};
+      if(selStatus===st.i)btn.classList.add('selected');
+      row.appendChild(btn);
+    });
+    gdiv.appendChild(row);grid.appendChild(gdiv);
+  });
+}
+
+// ═══════════════════ AUTH ═══════════════════
+async function doLogin(){
+  const u=document.getElementById('login-user').value.trim(), p=document.getElementById('login-pass').value;
+  if(!u||!p)return t('請填寫用戶名和密碼');
+  try{
+    const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});
+    token=r.token;me=r.user;lang=me.lang||'zh-HK';
+    document.getElementById('lang-switch').value=lang;
+    localStorage.setItem('jymy_token',token);localStorage.setItem('jymy_me',JSON.stringify(me));
+    closeModal('auth-modal');updateNav();buildStatusGrid();updateUI();refreshAll();t('✅ 登入成功');
+  }catch(e){t('❌ '+e.message)}
+}
+async function doRegister(){
+  const u=document.getElementById('reg-user').value.trim(),n=document.getElementById('reg-nick').value.trim(),p=document.getElementById('reg-pass').value,p2=document.getElementById('reg-pass2').value;
+  if(!u||p.length<4)return t('用戶名或密碼太短');if(p!==p2)return t('密碼不一致');
+  try{
+    const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang}});
+    token=r.token;me=r.user;
+    localStorage.setItem('jymy_token',token);localStorage.setItem('jymy_me',JSON.stringify(me));
+    closeModal('auth-modal');updateNav();buildStatusGrid();updateUI();refreshAll();t('✅ 註冊成功');
+  }catch(e){t('❌ '+e.message)}
+}
+function doLogout(){token=null;me=null;selStatus=-1;localStorage.removeItem('jymy_token');localStorage.removeItem('jymy_me');updateNav();buildStatusGrid();updateUI();t('👋 已登出')}
+
+// ═══════════════════ CHECKIN ═══════════════════
+async function doCheckin(){
+  if(!me)return t('請先登入');if(selStatus<0)return t('請選擇飲酒狀態');
+  const note=document.getElementById('chk-note').value;
+  try{
+    const r=await api('/api/checkin',{method:'POST',body:{status:selStatus,note,lat:0,lng:0}});
+    selStatus=-1;document.getElementById('chk-note').value='';buildStatusGrid();
+    t('🍻 報到成功！');
+    document.getElementById('chk-remaining').textContent=r.remaining!==undefined?'剩餘次數：'+r.remaining:'';
+    if(showAds)setTimeout(()=>{document.getElementById('ad-interstitial').style.display='flex'},2000);
+  }catch(e){t('❌ '+e.message)}
+}
+
+// ═══════════════════ TIMELINE ═══════════════════
+async function loadTimeline(){
+  if(!me)return document.getElementById('tl-container').innerHTML='<div class="empty"><div class="empty-icon">🔒</div>請先登入查看動態</div>';
+  try{
+    const d=await api('/api/timeline?limit=30&lang='+lang); let html='';
+    d.timeline.forEach(item=>{
+      const st=STATUSES[item.status]||STATUSES[0];
+      html+=`<div class="tl-item">
+        <div class="tl-avatar">🍺</div><div class="tl-body">
+          <div class="tl-name">${esc(item.nickname)} <span class="tl-time">${item.created_at||''}</span></div>
+          <div class="tl-status">${T(st.k)}</div>
+          ${item.note?`<div class="tl-note">${esc(item.note)}</div>`:''}
+          <div class="tl-actions">
+            <button class="btn btn-outline btn-sm" onclick="doReaction(${item.id},'🍻')">🍻</button>
+            <button class="btn btn-outline btn-sm" onclick="doReaction(${item.id},'🫣')">🫣</button>
+            <button class="btn btn-outline btn-sm" onclick="doReaction(${item.id},'🤣')">🤣</button>
+            <button class="btn btn-outline btn-sm" onclick="openReply(${item.id})">💬 回覆</button>
+            <span style="font-size:11px;color:var(--sub)">${item.reactions||0}反應</span>
+          </div>
+        </div></div>`;
+    });
+    if(!d.timeline.length)html='<div class="empty"><div class="empty-icon">🍺</div>未有動態，去報到啦！</div>';
+    document.getElementById('tl-container').innerHTML=html;
+  }catch(e){}
+}
+async function doReaction(cid,emoji){
+  if(!me)return t('請先登入');
+  try{await api('/api/reaction',{method:'POST',body:{checkin_id:cid,emoji}});t(emoji+' 已反應');loadTimeline()}catch(e){}
+}
+
+// ═══════════════════ REPLY ═══════════════════
+function openReply(cid){
+  currentReplyCid=cid;
+  document.getElementById('reply-modal').style.display='flex';
+  document.getElementById('reply-input').value='';
+  loadReplies(cid);
+}
+async function loadReplies(cid){
+  try{
+    const d=await api('/api/replies/'+cid);
+    let html='';
+    (d.replies||[]).forEach(r=>{html+=`<div class="reply-item"><b>${esc(r.nickname)}</b>: ${esc(r.note)} <span style="color:var(--sub);font-size:10px">${r.created_at||''}</span></div>`});
+    if(!html)html='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有回覆，第一個留言吧！</div>';
+    document.getElementById('reply-list').innerHTML=html;
+  }catch(e){}
+}
+async function doReply(){
+  if(!me)return t('請先登入');
+  const note=document.getElementById('reply-input').value.trim();
+  if(!note)return t('請輸入回覆內容');
+  try{
+    await api('/api/checkin/'+currentReplyCid+'/reply',{method:'POST',body:{note}});
+    document.getElementById('reply-input').value='';
+    t('💬 已回覆');loadReplies(currentReplyCid);loadTimeline();
+  }catch(e){t('❌ '+e.message)}
+}
+
+// ═══════════════════ REPLY (BACKEND) ═══════════════════
+// Note: needs /api/checkin/<id>/reply endpoint — added via backend patch below
+
+// ═══════════════════ PARTY ═══════════════════
+async function createParty(){
+  if(!me)return t('請先登入');
+  const title=document.getElementById('party-title').value.trim();
+  const location=document.getElementById('party-location').value.trim();
+  const dateVal=document.getElementById('party-date').value;
+  const timeVal=document.getElementById('party-time-val').value;
+  if(!title)return t('請輸入酒局名稱');
+  if(!dateVal)return t('請選擇日期');
+  const meet_time=(dateVal + (timeVal?'T'+timeVal:'')) || '';
+  try{
+    await api('/api/party',{method:'POST',body:{title,location,meet_time,lat:0,lng:0}});
+    document.getElementById('party-title').value='';
+    document.getElementById('party-location').value='';
+    document.getElementById('party-date').value='';
+    document.getElementById('party-time-val').value='';
+    t('✅ 酒局已發起');loadParties();
+  }catch(e){t('❌ '+e.message)}
+}
+async function loadParties(){
+  if(!me)return;
+  try{
+    const d=await api('/api/parties');let html='';
+    d.parties.forEach(p=>{
+      html+=`<div class="card">
+        <div style="font-weight:700;font-size:15px">${esc(p.title)}</div>
+        <div style="font-size:12px;color:var(--sub);margin:6px 0">📍 ${esc(p.location||'未定')} · 🕐 ${p.meet_time||'未定'} · 👥 ${p.going_count||0}人參加</div>
+        <div style="font-size:11px;color:var(--amber)">發起人：${esc(p.creator_nickname)}</div>
+        <div style="display:flex;gap:6px;margin-top:10px">
+          <button class="btn btn-outline btn-sm" onclick="rsvp(${p.id},'going')">✅ 到</button>
+          <button class="btn btn-outline btn-sm" onclick="rsvp(${p.id},'maybe')">🤔 可能</button>
+          <button class="btn btn-outline btn-sm" onclick="rsvp(${p.id},'no')">❌ 唔到</button>
+        </div>
+      </div>`;
+    });
+    if(!d.parties.length)html='<div class="empty"><div class="empty-icon">🎯</div>未有酒局，發起第一個吧！</div>';
+    document.getElementById('party-list').innerHTML=html;
+  }catch(e){}
+}
+async function rsvp(pid,resp){try{await api('/api/party/'+pid+'/rsvp',{method:'POST',body:{response:resp}});t('已回覆');loadParties()}catch(e){t('❌ '+e.message)}}
+
+// ═══════════════════ STATS ═══════════════════
+async function loadStats(){
+  if(!me)return;
+  try{
+    const d=await api('/api/stats');
+    document.getElementById('stat-total').textContent=d.total||0;
+    document.getElementById('stat-week').textContent=d.week||0;
+    document.getElementById('stat-today').textContent=d.today||0;
+    let distHtml='<div class="card"><div class="card-header">📊 狀態分佈</div>';
+    const dist=d.status_dist||{};
+    if(Object.keys(dist).length===0){distHtml+='<div style="color:var(--sub);font-size:12px;padding:8px 0">未有數據，去報到啦！</div>'}
+    else Object.entries(dist).forEach(([k,v])=>{
+      const st=STATUSES[parseInt(k)]||{k:'st_mai_yum'};
+      distHtml+=`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span>${T(st.k)}</span><span style="color:var(--amber);font-weight:600">${v}次</span></div>`;
+    });
+    distHtml+='</div>';
+    document.getElementById('stats-dist').innerHTML=distHtml;
+  }catch(e){}
+}
+
+// ═══════════════════ MEMBER ═══════════════════
+function updateMemberPage(){
+  if(!me)return;
+  const s=document.getElementById('member-status'), e=document.getElementById('member-expiry');
+  if(me.membership && me.membership!=='free'){
+    s.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');
+    e.textContent='到期：'+(me.member_expires||'永久');
+  }else{s.textContent='🆓 免費會員';e.textContent='升級享受無廣告+無限打卡'}
+}
+
+// ═══════════════════ PAYMENT ═══════════════════
+let payQR='alipay';
+function showPaymentModal(){
+  if(!me)return t('請先登入');
+  const names={jiuyau:'🥉 酒友 ¥8/月',jaugwai:'🥈 酒鬼 ¥18/月',jausan:'🥇 酒神 ¥198/年'};
+  document.getElementById('pay-plan-name').textContent=names[selPlan]||'';
+  document.getElementById('pay-plan-usd').textContent='≈ $'+PAY_USD[selPlan]+' USD';
+  switchPayQR('alipay');
+  document.getElementById('pay-modal').style.display='flex';
+}
+function closePayModal(){document.getElementById('pay-modal').style.display='none'}
+function switchPayQR(type){
+  payQR=type;
+  document.querySelectorAll('.pay-qr-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.pay-qr-tab[onclick*=\"'+type+'\"]')?.classList.add('active');
+  const img=document.getElementById('pay-qr-img'), fb=document.getElementById('pay-qr-fb');
+  img.src=QR_MAP[type];img.style.display='block';fb.style.display='none';
+}
+async function confirmPayment(){
+  if(!me)return;
+  try{
+    const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});
+    me.membership=r.membership;me.member_expires=r.expires;
+    localStorage.setItem('jymy_me',JSON.stringify(me));
+    closePayModal();updateNav();updateMemberPage();t('✅ 升級成功！');
+  }catch(e){t('❌ '+e.message)}
+}
+
+// ═══════════════════ ADS ═══════════════════
+function clickAd(){window.open('mailto:vichoo2020@gmail.com','_blank')}
+function closeInterstitial(){document.getElementById('ad-interstitial').style.display='none'}
+
+// ═══════════════════ LANG ═══════════════════
+function switchLang(l){
+  lang=l;document.getElementById('lang-switch').value=l;
+  if(me&&token)api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{});
+  updateUI();buildStatusGrid();
+}
+function updateUI(){
+  document.title=T('app_name');
+  document.getElementById('nav-title').textContent='🍺 '+T('app_name');
+  ['checkin','timeline','party','stats','member'].forEach(k=>{
+    const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k);
+  });
+}
+
+// ═══════════════════ INIT ═══════════════════
+function refreshAll(){loadTimeline();loadStats();loadParties();updateMemberPage()}
+(function init(){
+  const saved=localStorage.getItem('jymy_token');
+  if(saved){token=saved;try{me=JSON.parse(localStorage.getItem('jymy_me')||'null');if(me)lang=me.lang||'zh-HK'}catch(e){}}
+  document.getElementById('lang-switch').value=lang;
+  updateNav();buildStatusGrid();updateUI();
+  if(me)refreshAll();
+  // Set today as default date
+  document.getElementById('party-date').value=new Date().toISOString().split('T')[0];
+})();
+</script>
+</body>
+</html>

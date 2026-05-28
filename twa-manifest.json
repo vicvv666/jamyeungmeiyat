@@ -1,0 +1,22 @@
+{
+  "packageId": "com.vic.jamyeungmeiyat",
+  "host": "localhost",
+  "name": "今晚飲咗未",
+  "launcherName": "今晚飲咗未",
+  "display": "standalone",
+  "themeColor": "#0D0D12",
+  "backgroundColor": "#0D0D12",
+  "startUrl": "/",
+  "iconUrl": "https://your-server.com/icon-512.png",
+  "maskableIconUrl": "https://your-server.com/icon-512.png",
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "android.keystore",
+    "alias": "jymy"
+  },
+  "enableNotifications": false,
+  "navigationColor": "#0D0D12",
+  "navigationColorDark": "#0D0D12",
+  "navigationDividerColor": "#2A2A3A",
+  "navigationDividerColorDark": "#2A2A3A"
+}

@@ -1,0 +1,1311 @@
+#!/usr/bin/env python3
+"""今晚飲咗未 — 飲酒社交打卡 App 後端"""
+
+import os, json, hashlib, uuid, time, base64, io, re, gzip, logging, random
+from datetime import datetime, date, timedelta
+from pathlib import Path
+from io import BytesIO
+import sqlite3
+from functools import wraps
+from flask import Flask, request, jsonify, g, send_from_directory, url_for, Response
+
+# ─── Logging ──────────────────────────────────────────
+logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(message)s')
+log = logging.getLogger(__name__)
+
+# ─── Config ──────────────────────────────────────────
+BASE_DIR     = Path(__file__).parent
+DB_PATH      = BASE_DIR / 'data' / 'app.db'
+UPLOAD_DIR   = BASE_DIR / 'static' / 'uploads'
+OUTPUT_DIR   = BASE_DIR / 'outputs'
+PWA_DIR      = BASE_DIR / 'static'
+ADMIN_TOKEN  = os.environ.get('ADMIN_TOKEN', uuid.uuid4().hex)
+
+for d in [DB_PATH.parent, UPLOAD_DIR, OUTPUT_DIR]:
+    d.mkdir(parents=True, exist_ok=True)
+
+app = Flask(__name__, static_folder='static', static_url_path='')
+app.secret_key = os.environ.get('SECRET_KEY', uuid.uuid4().hex + uuid.uuid4().hex)
+
+# ─── HTML Input Sanitizer ──────────────────────────
+_HTML_TAGS_RE = re.compile(r'<[^>]*>')
+
+def sanitize_html(text):
+    """Strip HTML tags to prevent XSS. Allow only common safe characters."""
+    if not text:
+        return ''
+    # Remove HTML tags
+    text = _HTML_TAGS_RE.sub('', text)
+    # Remove script injection attempts
+    text = text.replace('javascript:', '').replace('data:', '')
+    return text[:5000]
+
+# ─── CSRF exemption for API routes ─────────────────
+# Our API uses token-based auth (Bearer), which is inherently CSRF-safe.
+# No additional CSRF tokens needed.
+
+# ─── Security & GZIP Middleware ──────────────────────
+@app.after_request
+def gzip_response(response):
+    """Add security headers and compress JSON responses with GZIP if supported."""
+    # ── Security headers ──
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data: blob:; "
+        "font-src 'self' https://fonts.gstatic.com; "
+        "connect-src 'self'; "
+        "manifest-src 'self'; "
+        "frame-ancestors 'none'"
+    )
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    response.headers['Permissions-Policy'] = 'geolocation=self, camera=self, microphone=()'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+
+    # ── GZIP for JSON ──
+    if response.content_type == 'application/json' and \
+       request.headers.get('Accept-Encoding', '').find('gzip') != -1 and \
+       len(response.get_data()) > 500:
+        gzip_buffer = BytesIO()
+        with gzip.GzipFile(mode='wb', fileobj=gzip_buffer) as f:
+            f.write(response.get_data())
+        response.set_data(gzip_buffer.getvalue())
+        response.headers['Content-Encoding'] = 'gzip'
+        response.headers['Content-Length'] = str(len(response.get_data()))
+    return response
+
+# ─── Request Timing Decorator ────────────────────────
+def log_request_time(f):
+    """Decorator that logs the duration of each API request."""
+    @wraps(f)
+    def wrapper(*a, **kw):
+        start = time.time()
+        result = f(*a, **kw)
+        elapsed = time.time() - start
+        log.info('[TIMING] %s %s — %.3fs', request.method, request.path, elapsed)
+        return result
+    return wrapper
+
+# Apply timing decorator to all /api/ routes — simple approach: wrap jsonify
+_orig_jsonify = jsonify
+def _timed_jsonify(*a, **kw):
+    start = time.time()
+    resp = _orig_jsonify(*a, **kw)
+    elapsed = time.time() - start
+    log.info('[TIMING] %s %s — %.3fs', request.method, request.path, elapsed)
+    return resp
+import flask
+flask.jsonify = _timed_jsonify
+
+# ═══════════════════ DB ═══════════════════════════════
+def get_db():
+    db = getattr(g, '_db', None)
+    if db is None:
+        db = sqlite3.connect(str(DB_PATH))
+        db.row_factory = sqlite3.Row
+        db.execute("PRAGMA journal_mode=WAL")
+        g._db = db
+    return db
+
+@app.teardown_appcontext
+def close_db(_e=None):
+    db = g.pop('_db', None)
+    if db: db.close()
+
+def init_db():
+    db = sqlite3.connect(str(DB_PATH))
+    db.executescript("""
+CREATE TABLE IF NOT EXISTS users (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            username    TEXT UNIQUE NOT NULL,
+            password    TEXT NOT NULL,
+            nickname    TEXT DEFAULT '',
+            lang        TEXT DEFAULT 'zh-HK',
+            membership  TEXT DEFAULT 'free',
+            admin       INTEGER DEFAULT 0,
+            member_expires TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE TABLE IF NOT EXISTS checkins (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id    INTEGER NOT NULL,
+            status     INTEGER DEFAULT 0,
+            note       TEXT DEFAULT '',
+            photo      TEXT DEFAULT '',
+            lat        REAL DEFAULT 0,
+            lng        REAL DEFAULT 0,
+            party_id   INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE TABLE IF NOT EXISTS parties (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            creator_id  INTEGER NOT NULL,
+            title       TEXT DEFAULT '',
+            location    TEXT DEFAULT '',
+            lat         REAL DEFAULT 0,
+            lng         REAL DEFAULT 0,
+            meet_time   TEXT DEFAULT '',
+            status      TEXT DEFAULT 'upcoming',
+            created_at  TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE TABLE IF NOT EXISTS party_rsvp (
+            party_id  INTEGER NOT NULL,
+            user_id   INTEGER NOT NULL,
+            response  TEXT DEFAULT 'going',
+            PRIMARY KEY (party_id, user_id)
+        );
+        CREATE TABLE IF NOT EXISTS friends (
+            user_id   INTEGER NOT NULL,
+            friend_id INTEGER NOT NULL,
+            status    TEXT DEFAULT 'pending',
+            PRIMARY KEY (user_id, friend_id)
+        );
+        CREATE TABLE IF NOT EXISTS reactions (
+            checkin_id INTEGER NOT NULL,
+            user_id    INTEGER NOT NULL,
+            emoji      TEXT DEFAULT '🍻',
+            PRIMARY KEY (checkin_id, user_id)
+        );
+        CREATE TABLE IF NOT EXISTS ads (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            image_url TEXT DEFAULT '',
+            link_url  TEXT DEFAULT '',
+            type      TEXT DEFAULT 'banner',
+            active    INTEGER DEFAULT 1,
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        -- 默認廣告
+        INSERT OR IGNORE INTO ads (id, image_url, link_url, type) VALUES (1, '', 'mailto:vichoo2020@gmail.com', 'banner');
+        INSERT OR IGNORE INTO ads (id, image_url, link_url, type) VALUES (2, '', 'mailto:vichoo2020@gmail.com', 'interstitial');
+        -- checkin reactions + replies + notes
+        CREATE TABLE IF NOT EXISTS checkin_likes (
+            checkin_id INTEGER NOT NULL,
+            user_id    INTEGER NOT NULL,
+            PRIMARY KEY (checkin_id, user_id)
+        );
+        CREATE TABLE IF NOT EXISTS checkin_comments (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            checkin_id INTEGER NOT NULL,
+            user_id    INTEGER NOT NULL,
+            text       TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE TABLE IF NOT EXISTS checkin_replies (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            checkin_id INTEGER NOT NULL,
+            user_id    INTEGER NOT NULL,
+            note       TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        -- party journal entries
+        CREATE TABLE IF NOT EXISTS party_journal (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            party_id  INTEGER NOT NULL,
+            user_id   INTEGER NOT NULL,
+            content   TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        -- avatars directory
+        CREATE TABLE IF NOT EXISTS avatars (
+            user_id INTEGER PRIMARY KEY,
+            data    BLOB
+        );
+        -- payment records for membership tracking
+        CREATE TABLE IF NOT EXISTS payments (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id     INTEGER NOT NULL,
+            plan        TEXT NOT NULL DEFAULT 'jiuyau',
+            amount      REAL DEFAULT 0,
+            currency    TEXT DEFAULT 'CNY',
+            method      TEXT DEFAULT 'alipay',
+            receipt     TEXT DEFAULT '',
+            confirmed   INTEGER DEFAULT 0,
+            paid_at     TEXT DEFAULT (datetime('now','localtime'))
+        );
+        -- membership verification audit log
+        CREATE TABLE IF NOT EXISTS membership_audit (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id     INTEGER NOT NULL,
+            action      TEXT NOT NULL,
+            old_plan    TEXT DEFAULT '',
+            new_plan    TEXT DEFAULT '',
+            admin_id    INTEGER DEFAULT 0,
+            note        TEXT DEFAULT '',
+            created_at  TEXT DEFAULT (datetime('now','localtime'))
+        );
+    """)
+    db.commit()
+    db.close()
+
+init_db()
+
+# ═══════════════════ i18n ═════════════════════════════
+LANG = {
+    'zh-HK': {
+        'app_name':'今晚飲咗未', 'tagline':'飲酒社交打卡',
+        'checkin':'飲酒報到', 'stats':'飲酒統計', 'party':'酒局',
+        'friends':'酒友圈', 'member':'會員中心', 'settings':'設定',
+        'login':'登入', 'register':'註冊', 'logout':'登出',
+        'username':'用戶名', 'password':'密碼', 'nickname':'花名',
+        'confirm_pw':'確認密碼', 'please_login':'請先登入',
+        'free':'免費', 'jiuyau':'酒友', 'jaugwai':'酒鬼', 'jausan':'酒神',
+        'month':'月', 'year':'年',
+        # 24 status labels
+        'st_mai_yum':'未飲',   'st_seung_yum':'想飲',  'st_dou_cho':'到咗',  'st_hoi_cho':'開咗',
+        'st_yum_gan':'飲緊',   'st_gai_juk':'繼續',    'st_ga_jau':'加酒',   'st_cheung_yum':'暢飲',
+        'st_jui_gan':'醉緊',   'st_ho_jui':'好醉',    'st_tou_jui':'陶醉',   'st_piu_piu':'飄飄',
+        'st_dyun_pin':'斷片',  'st_seung_au':'想嘔',   'st_wan_wan':'暈暈',   'st_pa_dai':'趴低',
+        'st_jyun_cheung':'轉場','st_gau_jau':'溝酒',    'st_chaai_mui':'猜枚','st_jik_lok':'直落',
+        'st_yum_cho':'飲咗',   'st_fan_gwai':'返歸',   'st_sing_saai':'醒晒', 'st_ting_yat':'聽日',
+        # group labels
+        'grp_hei_sau':'起手', 'grp_seung_gan':'上緊', 'grp_jui_gan':'醉緊',
+        'grp_baau_cho':'爆咗', 'grp_jyun_cheung':'轉場', 'grp_sau_mei':'收尾',
+    },
+    'zh-CN': {
+        'app_name':'今晚喝了没', 'tagline':'饮酒社交打卡',
+        'checkin':'饮酒报到', 'stats':'饮酒统计', 'party':'酒局',
+        'friends':'酒友圈', 'member':'会员中心', 'settings':'设置',
+        'login':'登录', 'register':'注册', 'logout':'退出',
+        'username':'用户名', 'password':'密码', 'nickname':'昵称',
+        'confirm_pw':'确认密码', 'please_login':'请先登录',
+        'free':'免费', 'jiuyau':'酒友', 'jaugwai':'酒鬼', 'jausan':'酒神',
+        'month':'月', 'year':'年',
+        'st_mai_yum':'没喝',   'st_seung_yum':'想喝',  'st_dou_cho':'到了',  'st_hoi_cho':'开了',
+        'st_yum_gan':'喝着',   'st_gai_juk':'继续',    'st_ga_jau':'加酒',   'st_cheung_yum':'畅饮',
+        'st_jui_gan':'醉着',   'st_ho_jui':'好醉',    'st_tou_jui':'陶醉',   'st_piu_piu':'飘飘',
+        'st_dyun_pin':'断片',  'st_seung_au':'想吐',   'st_wan_wan':'晕晕',   'st_pa_dai':'趴下',
+        'st_jyun_cheung':'转场','st_gau_jau':'混酒',    'st_chaai_mui':'猜拳','st_jik_lok':'直落',
+        'st_yum_cho':'喝了',   'st_fan_gwai':'回家',   'st_sing_saai':'醒了', 'st_ting_yat':'明天',
+        'grp_hei_sau':'起手', 'grp_seung_gan':'上头', 'grp_jui_gan':'醉着',
+        'grp_baau_cho':'爆了', 'grp_jyun_cheung':'转场', 'grp_sau_mei':'收尾',
+    },
+    'en': {
+        'app_name':'Drunk Tonight?', 'tagline':'Drinking Check-in',
+        'checkin':'Check In', 'stats':'Stats', 'party':'Party',
+        'friends':'Crew', 'member':'Member', 'settings':'Settings',
+        'login':'Login', 'register':'Register', 'logout':'Logout',
+        'username':'Username', 'password':'Password', 'nickname':'Nickname',
+        'confirm_pw':'Confirm PW', 'please_login':'Please login first',
+        'free':'Free', 'jiuyau':'Buddy', 'jaugwai':'Booze', 'jausan':'Legend',
+        'month':'mo', 'year':'yr',
+        'st_mai_yum':'Sober',    'st_seung_yum':'Thirsty','st_dou_cho':'Here',     'st_hoi_cho':'Started',
+        'st_yum_gan':'Drinking', 'st_gai_juk':'More',   'st_ga_jau':'Top Up',    'st_cheung_yum':'Flowing',
+        'st_jui_gan':'Buzzed',   'st_ho_jui':'Drunk',  'st_tou_jui':'Tipsy',     'st_piu_piu':'Floating',
+        'st_dyun_pin':'Wasted',  'st_seung_au':'Sick',  'st_wan_wan':'Dizzy',     'st_pa_dai':'Done',
+        'st_jyun_cheung':'Hop',  'st_gau_jau':'Mix',    'st_chaai_mui':'Game',    'st_jik_lok':'On & On',
+        'st_yum_cho':'Done',     'st_fan_gwai':'Home',  'st_sing_saai':'Sober Up','st_ting_yat':'Tomorrow',
+        'grp_hei_sau':'Start', 'grp_seung_gan':'Going', 'grp_jui_gan':'Buzzed',
+        'grp_baau_cho':'Wasted', 'grp_jyun_cheung':'Hop', 'grp_sau_mei':'Done',
+    }
+}
+def t(key, lang='zh-HK'):
+    return LANG.get(lang, LANG['zh-HK']).get(key, key)
+
+# ═══════════════════ Helpers ═══════════════════════════
+def _hash(pw):
+    salt = b'jymy_salt_2026'
+    return hashlib.pbkdf2_hmac('sha256', pw.encode(), salt, 100000).hex()
+
+def _token_for(user_id):
+    expiry = time.time() + 7 * 86400  # 7 days
+    payload = f'{user_id}:{expiry}:{uuid.uuid4().hex[:8]}'
+    return base64.b64encode(payload.encode()).decode()
+
+def _decode_token(tok):
+    try:
+        parts = base64.b64decode(tok.encode()).decode().split(':')
+        uid = int(parts[0])
+        expiry = float(parts[1])
+        if time.time() > expiry:
+            return None
+        return uid
+    except: return None
+
+def auth_required(f):
+    @wraps(f)
+    def wrap(*a, **kw):
+        tok = request.headers.get('Authorization','').replace('Bearer ','')
+        uid = _decode_token(tok)
+        if not uid:
+            return jsonify({'error':'請先登入'}), 401
+        g.uid = uid
+        return f(*a, **kw)
+    return wrap
+
+# ─── Rate Limiter (in-memory) ────────────────────────
+_register_attempts = {}
+def _check_rate_limit(ip, limit=5, window=3600):
+    """Simple in-memory rate limiter: max `limit` requests per `window` seconds per IP."""
+    now = time.time()
+    key = f'register:{ip}'
+    entry = _register_attempts.get(key)
+    if entry:
+        timestamps, last_cleanup = entry
+        # cleanup old entries
+        timestamps = [t for t in timestamps if now - t < window]
+        if len(timestamps) >= limit:
+            return False
+        timestamps.append(now)
+        _register_attempts[key] = (timestamps, now)
+    else:
+        _register_attempts[key] = ([now], now)
+    # periodic cleanup of stale keys
+    if len(_register_attempts) > 1000:
+        for k, v in list(_register_attempts.items()):
+            if now - v[1] > window:
+                del _register_attempts[k]
+    return True
+
+# ═══════════════════ Auth ═══════════════════════════════
+@app.route('/api/register', methods=['POST'])
+def api_register():
+    # Rate limit: 5 registrations per hour per IP
+    ip = request.remote_addr or request.headers.get('X-Forwarded-For', 'unknown')
+    if not _check_rate_limit(ip, limit=5, window=3600):
+        return jsonify({'error':'註冊太頻繁，請一小時後再試'}), 429
+
+    d = request.get_json(force=True) or {}
+    username = (d.get('username','') or '').strip().lower()
+    pw = d.get('password','')
+    nickname = sanitize_html(d.get('nickname','') or username)[:30]
+    lang = d.get('lang','zh-HK')
+
+    if not username or len(pw) < 4:
+        return jsonify({'error':'用戶名或密碼太短'}), 400
+    if len(username) < 2 or len(username) > 30:
+        return jsonify({'error':'用戶名2-30字符'}), 400
+
+    db = get_db()
+    exist = db.execute('SELECT id FROM users WHERE username=?',(username,)).fetchone()
+    if exist:
+        return jsonify({'error':'用戶名已存在'}), 409
+
+    db.execute('INSERT INTO users (username,password,nickname,lang) VALUES (?,?,?,?)',
+               (username, _hash(pw), nickname, lang))
+    db.commit()
+    uid = db.execute('SELECT id FROM users WHERE username=?',(username,)).fetchone()['id']
+    tok = _token_for(uid)
+    return jsonify({'token':tok, 'user':{'id':uid,'username':username,'nickname':nickname,'lang':lang,'membership':'free'}})
+
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    d = request.get_json(force=True) or {}
+    username = (d.get('username','') or '').strip().lower()
+    pw = d.get('password','')
+    db = get_db()
+    u = db.execute('SELECT * FROM users WHERE username=? AND password=?',
+                   (username, _hash(pw))).fetchone()
+    if not u:
+        return jsonify({'error':'用戶名或密碼錯誤'}), 401
+    # Rate limit login attempts too
+    ip = request.remote_addr or 'unknown'
+    if not _check_rate_limit(ip, limit=10, window=3600):
+        return jsonify({'error':'登入嘗試過於頻繁，請稍後再試'}), 429
+    tok = _token_for(u['id'])
+    # Strip sensitive fields from user dict before returning
+    user_data = dict(u)
+    user_data.pop('password', None)
+    return jsonify({'token':tok, 'user':user_data})
+
+@app.route('/api/me')
+@auth_required
+def api_me():
+    db = get_db()
+    u = db.execute('SELECT * FROM users WHERE id=?',(g.uid,)).fetchone()
+    if not u: return jsonify({'error':'用戶不存在'}), 404
+    user_data = dict(u)
+    user_data.pop('password', None)
+    return jsonify({'user':user_data})
+
+@app.route('/api/update-profile', methods=['POST'])
+@auth_required
+def api_update_profile():
+    d = request.get_json(force=True) or {}
+    db = get_db()
+    if d.get('nickname'):
+        db.execute('UPDATE users SET nickname=? WHERE id=?',(d['nickname'],g.uid))
+    if d.get('lang'):
+        db.execute('UPDATE users SET lang=? WHERE id=?',(d['lang'],g.uid))
+    db.commit()
+    u = db.execute('SELECT * FROM users WHERE id=?',(g.uid,)).fetchone()
+    user_data = dict(u)
+    user_data.pop('password', None)
+    return jsonify({'user':user_data})
+
+@app.route('/api/change-password', methods=['POST'])
+@auth_required
+def api_change_password():
+    d = request.get_json(force=True) or {}
+    old_pw = d.get('old_password','')
+    new_pw = d.get('new_password','')
+    if len(new_pw) < 4:
+        return jsonify({'error':'新密碼最少4位'}), 400
+    db = get_db()
+    u = db.execute('SELECT * FROM users WHERE id=? AND password=?',
+                   (g.uid, _hash(old_pw))).fetchone()
+    if not u:
+        return jsonify({'error':'舊密碼錯誤'}), 403
+    db.execute('UPDATE users SET password=? WHERE id=?',(_hash(new_pw), g.uid))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/update-avatar', methods=['POST'])
+@auth_required
+def api_update_avatar():
+    d = request.get_json(force=True) or {}
+    avatar = d.get('avatar','')[:500000]
+    db = get_db()
+    if avatar.startswith('data:'):
+        # strip data:image/xxx;base64, prefix
+        try:
+            b64 = avatar.split(',',1)[1] if ',' in avatar else avatar
+            raw = base64.b64decode(b64)
+            db.execute('INSERT OR REPLACE INTO avatars (user_id,data) VALUES (?,?)',(g.uid, raw))
+            # also update url ref
+            url = f'/api/avatar/{g.uid}'
+            db.execute('UPDATE users SET avatar=? WHERE id=?',(url, g.uid))
+        except: pass
+    db.commit()
+    return jsonify({'ok':True, 'url':f'/api/avatar/{g.uid}'})
+
+@app.route('/api/avatar/<int:uid>')
+def api_avatar(uid):
+    db = get_db()
+    row = db.execute('SELECT data FROM avatars WHERE user_id=?',(uid,)).fetchone()
+    if not row or not row['data']:
+        # return fallback icon
+        from flask import Response
+        svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#2A2A3A" width="100" height="100"/><text fill="#F59E0B" x="50" y="65" text-anchor="middle" font-size="50">👤</text></svg>'
+        return Response(svg, mimetype='image/svg+xml')
+    from flask import Response
+    return Response(row['data'], mimetype='image/png')
+
+# ═══════════════════ Leaderboard ══════════════════════════
+@app.route('/api/leaderboard')
+@auth_required
+def api_leaderboard():
+    db = get_db()
+    rows = db.execute("""
+        SELECT u.id, u.username, u.nickname, u.avatar,
+               (SELECT COUNT(*) FROM checkins WHERE user_id=u.id) as checkin_count,
+               (SELECT COUNT(*) FROM checkin_likes cl 
+                JOIN checkins c ON cl.checkin_id=c.id WHERE c.user_id=u.id) as total_likes
+        FROM users u
+        ORDER BY total_likes DESC
+        LIMIT 20
+    """).fetchall()
+    return jsonify({'leaderboard':[dict(r) for r in rows]})
+
+# ═══════════════════ Check-in ═══════════════════════════
+@app.route('/api/checkin', methods=['POST'])
+@auth_required
+def api_checkin():
+    db = get_db()
+    today = date.today().isoformat()
+    u = db.execute('SELECT membership, member_expires FROM users WHERE id=?',(g.uid,)).fetchone()
+
+    # 免費限制每日5次
+    if u['membership'] == 'free' or not u['member_expires'] or u['member_expires'] < today:
+        cnt = db.execute("""SELECT COUNT(*) FROM checkins 
+            WHERE user_id=? AND date(created_at)=?""",(g.uid,today)).fetchone()[0]
+        if cnt >= 5:
+            return jsonify({'error':'今日免費次數已用完，請升級會員'}), 429
+
+    d = request.get_json(force=True) or {}
+    status = int(d.get('status',0))
+    note = sanitize_html(d.get('note',''))[:200]
+    photo_raw = d.get('photo','')
+    # 如果 photo 以 http:// 或 https:// 开头，保持原样（外部图片链接）
+    # 否则视为 base64，截断到 500KB 后存入数据库
+    if photo_raw.startswith(('http://','https://')):
+        photo = photo_raw[:2048]
+    else:
+        photo = photo_raw[:500000]
+    lat = float(d.get('lat',0) or 0)
+    lng = float(d.get('lng',0) or 0)
+    party_id = int(d.get('party_id',0) or 0)
+
+    db.execute("""INSERT INTO checkins (user_id,status,note,photo,lat,lng,party_id)
+        VALUES (?,?,?,?,?,?,?)""",(g.uid,status,note,photo,lat,lng,party_id))
+    db.commit()
+    cid = db.execute('SELECT last_insert_rowid()').fetchone()[0]
+    ci = db.execute('SELECT * FROM checkins WHERE id=?',(cid,)).fetchone()
+    return jsonify({'checkin':dict(ci), 'remaining':(5-cnt-1) if u['membership']=='free' else 999})
+
+@app.route('/api/timeline')
+@auth_required
+def api_timeline():
+    limit = int(request.args.get('limit',30))
+    offset = int(request.args.get('offset',0))
+    lang = request.args.get('lang','zh-HK')
+    db = get_db()
+    rows = db.execute("""SELECT c.*, u.nickname, u.avatar, u.lang
+        FROM checkins c JOIN users u ON c.user_id=u.id
+        ORDER BY c.created_at DESC LIMIT ? OFFSET ?""",(limit,offset)).fetchall()
+    items = []
+    for r in rows:
+        d = dict(r)
+        rc = db.execute('SELECT COUNT(*) FROM reactions WHERE checkin_id=?',(r['id'],)).fetchone()[0]
+        lc = db.execute('SELECT COUNT(*) FROM checkin_likes WHERE checkin_id=?',(r['id'],)).fetchone()[0]
+        cc = db.execute('SELECT COUNT(*) FROM checkin_comments WHERE checkin_id=?',(r['id'],)).fetchone()[0]
+        rpc = db.execute('SELECT COUNT(*) FROM checkin_replies WHERE checkin_id=?',(r['id'],)).fetchone()[0]
+        d['reactions'] = rc; d['likes'] = lc; d['comments'] = cc; d['replies_count'] = rpc
+        items.append(d)
+    return jsonify({'timeline':items, 'lang_map':LANG.get(lang, LANG['zh-HK'])})
+
+@app.route('/api/stats')
+@auth_required
+def api_stats():
+    db = get_db()
+    uid = request.args.get('user_id', g.uid)
+    period = request.args.get('period','month')
+    # simple stats
+    total = db.execute('SELECT COUNT(*) FROM checkins WHERE user_id=?',(uid,)).fetchone()[0]
+    today = db.execute("""SELECT COUNT(*) FROM checkins WHERE user_id=? 
+        AND date(created_at)=date('now','localtime')""",(uid,)).fetchone()[0]
+    week = db.execute("""SELECT COUNT(*) FROM checkins WHERE user_id=? 
+        AND created_at >= datetime('now','-7 days','localtime')""",(uid,)).fetchone()[0]
+    # status dist
+    dist = {}
+    for r in db.execute('SELECT status, COUNT(*) as cnt FROM checkins WHERE user_id=? GROUP BY status',(uid,)):
+        dist[r['status']] = r['cnt']
+    return jsonify({'total':total,'today':today,'week':week,'status_dist':dist})
+
+# ═══════════════════ Party ═══════════════════════════════
+@app.route('/api/party', methods=['POST'])
+@auth_required
+def api_create_party():
+    d = request.get_json(force=True) or {}
+    title = sanitize_html(d.get('title',''))[:50]
+    location = sanitize_html(d.get('location',''))[:100]
+    lat = float(d.get('lat',0) or 0)
+    lng = float(d.get('lng',0) or 0)
+    meet_time = d.get('meet_time','')
+    db = get_db()
+    db.execute("""INSERT INTO parties (creator_id,title,location,lat,lng,meet_time)
+        VALUES (?,?,?,?,?,?)""",(g.uid,title,location,lat,lng,meet_time))
+    db.commit()
+    pid = db.execute('SELECT last_insert_rowid()').fetchone()[0]
+    p = db.execute('SELECT * FROM parties WHERE id=?',(pid,)).fetchone()
+    return jsonify({'party':dict(p)})
+
+@app.route('/api/parties')
+@auth_required
+def api_parties():
+    db = get_db()
+    rows = db.execute("""SELECT p.*, u.nickname as creator_nickname,
+        (SELECT COUNT(*) FROM party_rsvp WHERE party_id=p.id AND response='going') as going_count
+        FROM parties p JOIN users u ON p.creator_id=u.id
+        WHERE p.status='upcoming' ORDER BY p.meet_time ASC LIMIT 20""").fetchall()
+    parties = []
+    for r in rows:
+        pd = dict(r)
+        # get rsvp users
+        rsvp_rows = db.execute("""SELECT pr.response, u.nickname, u.id as uid FROM party_rsvp pr 
+            JOIN users u ON pr.user_id=u.id WHERE pr.party_id=?""",(r['id'],)).fetchall()
+        pd['attendees'] = [dict(rr) for rr in rsvp_rows]
+        # get journal count
+        jc = db.execute('SELECT COUNT(*) FROM party_journal WHERE party_id=?',(r['id'],)).fetchone()[0]
+        pd['journal_count'] = jc
+        parties.append(pd)
+    return jsonify({'parties':parties})
+
+@app.route('/api/party/<int:pid>/rsvp', methods=['POST'])
+@auth_required
+def api_rsvp(pid):
+    d = request.get_json(force=True) or {}
+    resp = d.get('response','going')
+    db = get_db()
+    db.execute('INSERT OR REPLACE INTO party_rsvp (party_id,user_id,response) VALUES (?,?,?)',
+               (pid, g.uid, resp))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/party/<int:pid>/journal', methods=['POST'])
+@auth_required
+def api_party_journal(pid):
+    d = request.get_json(force=True) or {}
+    content = sanitize_html(d.get('content',''))[:1000]
+    db = get_db()
+    db.execute('INSERT INTO party_journal (party_id,user_id,content) VALUES (?,?,?)',
+               (pid, g.uid, content))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/party/<int:pid>/journal')
+@auth_required
+def api_get_party_journal(pid):
+    db = get_db()
+    rows = db.execute("""SELECT pj.*, u.nickname FROM party_journal pj
+        JOIN users u ON pj.user_id=u.id WHERE pj.party_id=? ORDER BY pj.created_at DESC LIMIT 30""",
+        (pid,)).fetchall()
+    return jsonify({'journal':[dict(r) for r in rows]})
+
+# ═══════════════════ Friends ═══════════════════════════
+@app.route('/api/friends')
+@auth_required
+def api_friends():
+    db = get_db()
+    rows = db.execute("""SELECT u.id, u.nickname, u.avatar, f.status
+        FROM friends f JOIN users u ON (CASE WHEN f.user_id=? THEN f.friend_id ELSE f.user_id END)=u.id
+        WHERE (f.user_id=? OR f.friend_id=?) AND u.id!=?""",
+        (g.uid,g.uid,g.uid,g.uid)).fetchall()
+    # 加好友数量统计
+    friend_count = db.execute("""SELECT COUNT(*) FROM friends 
+        WHERE (user_id=? OR friend_id=?) AND status='accepted'""",
+        (g.uid,g.uid)).fetchone()[0]
+    return jsonify({'friends':[dict(r) for r in rows], 'friend_count': friend_count})
+
+@app.route('/api/friends/add', methods=['POST'])
+@auth_required
+def api_add_friend():
+    d = request.get_json(force=True) or {}
+    friend_username = (d.get('username','') or '').strip().lower()
+    db = get_db()
+    fu = db.execute('SELECT id FROM users WHERE username=?',(friend_username,)).fetchone()
+    if not fu: return jsonify({'error':'用戶不存在'}), 404
+    if fu['id'] == g.uid: return jsonify({'error':'不能加自己'}), 400
+    db.execute('INSERT OR REPLACE INTO friends (user_id,friend_id,status) VALUES (?,?,?)',
+               (g.uid, fu['id'], 'pending'))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/friends/accept', methods=['POST'])
+@auth_required
+def api_accept_friend():
+    d = request.get_json(force=True) or {}
+    friend_id = int(d.get('user_id',0) or 0)
+    db = get_db()
+    db.execute("""UPDATE friends SET status='accepted' 
+        WHERE user_id=? AND friend_id=? AND status='pending'""",(friend_id, g.uid))
+    db.commit()
+    return jsonify({'ok':True})
+
+# ═══════════════════ Reactions + Likes + Comments ═══════
+@app.route('/api/reaction', methods=['POST'])
+@auth_required
+def api_reaction():
+    d = request.get_json(force=True) or {}
+    cid = int(d.get('checkin_id',0) or 0)
+    emoji = d.get('emoji','🍻')
+    db = get_db()
+    db.execute('INSERT OR REPLACE INTO reactions (checkin_id,user_id,emoji) VALUES (?,?,?)',
+               (cid, g.uid, emoji))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/checkin/<int:cid>/like', methods=['POST'])
+@auth_required
+def api_like(cid):
+    db = get_db()
+    db.execute('INSERT OR REPLACE INTO checkin_likes (checkin_id,user_id) VALUES (?,?)',(cid,g.uid))
+    db.commit()
+    cnt = db.execute('SELECT COUNT(*) FROM checkin_likes WHERE checkin_id=?',(cid,)).fetchone()[0]
+    return jsonify({'ok':True,'count':cnt})
+
+@app.route('/api/checkin/<int:cid>/unlike', methods=['POST'])
+@auth_required
+def api_unlike(cid):
+    db = get_db()
+    db.execute('DELETE FROM checkin_likes WHERE checkin_id=? AND user_id=?',(cid,g.uid))
+    db.commit()
+    cnt = db.execute('SELECT COUNT(*) FROM checkin_likes WHERE checkin_id=?',(cid,)).fetchone()[0]
+    return jsonify({'ok':True,'count':cnt})
+
+@app.route('/api/checkin/<int:cid>/comment', methods=['POST'])
+@auth_required
+def api_comment(cid):
+    d = request.get_json(force=True) or {}
+    text = sanitize_html(d.get('text',''))[:500]
+    db = get_db()
+    db.execute('INSERT INTO checkin_comments (checkin_id,user_id,text) VALUES (?,?,?)',(cid,g.uid,text))
+    db.commit()
+    rows = db.execute("""SELECT co.*, u.nickname FROM checkin_comments co 
+        JOIN users u ON co.user_id=u.id WHERE co.checkin_id=? ORDER BY co.created_at DESC LIMIT 20""",(cid,)).fetchall()
+    return jsonify({'comments':[dict(r) for r in reversed(rows)]})
+
+@app.route('/api/checkin/<int:cid>/comments')
+@auth_required
+def api_get_comments(cid):
+    db = get_db()
+    rows = db.execute("""SELECT co.*, u.nickname FROM checkin_comments co 
+        JOIN users u ON co.user_id=u.id WHERE co.checkin_id=? ORDER BY co.created_at ASC LIMIT 50""",(cid,)).fetchall()
+    return jsonify({'comments':[dict(r) for r in rows]})
+
+# ═══════════════════ Upload ═══════════════════════════
+ALLOWED_EXT = {'png','jpg','jpeg','gif','webp'}
+def _allowed_file(name):
+    return '.' in name and name.rsplit('.',1)[1].lower() in ALLOWED_EXT
+
+@app.route('/api/upload', methods=['POST'])
+@auth_required
+def api_upload():
+    if 'file' not in request.files:
+        return jsonify({'error':'冇上傳檔案'}), 400
+    f = request.files['file']
+    if not f.filename or not _allowed_file(f.filename):
+        return jsonify({'error':'唔支援嘅檔案格式'}), 400
+    ext = f.filename.rsplit('.',1)[1].lower()
+    new_name = f'{uuid.uuid4().hex[:12]}.{ext}'
+    path = UPLOAD_DIR / new_name
+    f.save(str(path))
+    url = f'/static/uploads/{new_name}'
+    return jsonify({'ok':True, 'url':url, 'path':str(path)})
+
+# ═══════════════════ Ads ═══════════════════════════════
+@app.route('/api/ads')
+def api_ads():
+    db = get_db()
+    rows = db.execute('SELECT * FROM ads WHERE active=1').fetchall()
+    return jsonify({'ads':[dict(r) for r in rows]})
+
+# ═══════════════════ Admin ═══════════════════════════════
+def _check_admin():
+    """Check if current user is an admin (based on their auth token)."""
+    tok = request.headers.get('X-Admin-Token','')
+    if not tok:
+        tok = request.args.get('token','')
+    if not tok:
+        d = request.get_json(silent=True) or {}
+        tok = d.get('token','')
+    if not tok:
+        return False
+    # Decode token - the token is the user_id (admin's user id)
+    try:
+        payload = base64.b64decode(tok.encode()).decode()
+        parts = payload.split(':')
+        uid = int(parts[0])
+        # Verify the user is an admin
+        db = get_db()
+        row = db.execute('SELECT admin FROM users WHERE id=?', (uid,)).fetchone()
+        return row and row['admin'] == 1
+    except:
+        return False
+
+@app.route('/api/admin/login', methods=['POST'])
+def api_admin_login():
+    """Login with regular account password, returns admin token if user is admin."""
+    d = request.get_json(force=True) or {}
+    username = d.get('username', '').strip().lower()
+    password = d.get('password', '')
+    if not username or not password:
+        return jsonify({'error':'請輸入用戶名和密碼'}), 400
+    db = get_db()
+    user = db.execute('SELECT id,password,admin FROM users WHERE username=?', (username,)).fetchone()
+    if not user or user['password'] != _hash(password):
+        return jsonify({'error':'用戶名或密碼錯誤'}), 403
+    if user['admin'] != 1:
+        return jsonify({'error':'該帳號無管理員權限'}), 403
+    # Generate token from user id
+    token = base64.b64encode(f'{user["id"]}:admin_login'.encode()).decode()
+    return jsonify({'token': token, 'user_id': user['id']})
+
+@app.route('/api/admin/setup', methods=['POST'])
+def api_admin_setup():
+    """Set a user as admin (requires ADMIN_TOKEN env var)."""
+    auth = request.headers.get('X-Setup-Key', '')
+    expected = os.environ.get('ADMIN_TOKEN', 'jymy_setup_key')
+    if auth != expected:
+        return jsonify({'error':'安裝密鑰錯誤'}), 403
+    d = request.get_json(force=True) or {}
+    username = d.get('username', '').strip().lower()
+    if not username:
+        return jsonify({'error':'請輸入用戶名'}), 400
+    db = get_db()
+    row = db.execute('SELECT id FROM users WHERE username=?', (username,)).fetchone()
+    if not row:
+        return jsonify({'error':'用戶不存在'}), 404
+    db.execute('UPDATE users SET admin=1 WHERE id=?', (row['id'],))
+    db.commit()
+    return jsonify({'ok':True, 'user_id':row['id'], 'username':username})
+
+@app.route('/api/admin/set-password', methods=['POST'])
+def api_admin_set_password():
+    """Admin can change any user's password, or their own."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
+    old_pw = d.get('old_password', '')
+    new_pw = d.get('password', '')
+    if not new_pw or len(new_pw) < 3:
+        return jsonify({'error':'密碼至少3位'}), 400
+    db = get_db()
+    if d.get('change_own') and bool(d.get('admin_id', 0)):
+        # Admin changing own password — verify old password
+        admin_id = int(d['admin_id'])
+        row = db.execute('SELECT password FROM users WHERE id=?', (admin_id,)).fetchone()
+        if not row:
+            return jsonify({'error':'管理員帳號不存在'}), 404
+        if row['password'] != _hash(old_pw):
+            return jsonify({'error':'舊密碼不正確'}), 403
+        db.execute('UPDATE users SET password=? WHERE id=?', (_hash(new_pw), admin_id))
+        msg = '管理員密碼已修改'
+    else:
+        if not uid:
+            return jsonify({'error':'請輸入用戶ID'}), 400
+        db.execute('UPDATE users SET password=? WHERE id=?', (_hash(new_pw), uid))
+        msg = '會員密碼已重置'
+    db.commit()
+    return jsonify({'ok':True, 'msg':msg})
+
+@app.route('/api/admin/become', methods=['POST'])
+def api_admin_become():
+    """Admin can mark any user as admin."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    username = d.get('username', '').strip().lower()
+    if not username:
+        return jsonify({'error':'請輸入用戶名'}), 400
+    db = get_db()
+    row = db.execute('SELECT id,admin FROM users WHERE username=?', (username,)).fetchone()
+    if not row:
+        return jsonify({'error':'用戶不存在'}), 404
+    if row['admin'] == 1:
+        return jsonify({'error':f'{username} 已經是管理員'}), 400
+    db.execute('UPDATE users SET admin=1 WHERE id=?', (row['id'],))
+    db.commit()
+    return jsonify({'ok':True, 'username':username, 'msg':f'{username} 已成為管理員'})
+
+@app.route('/api/admin/revoke', methods=['POST'])
+def api_admin_revoke():
+    """Admin can remove admin status from a user."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    username = d.get('username', '').strip().lower()
+    if not username:
+        return jsonify({'error':'請輸入用戶名'}), 400
+    db = get_db()
+    row = db.execute('SELECT id,admin FROM users WHERE username=?', (username,)).fetchone()
+    if not row:
+        return jsonify({'error':'用戶不存在'}), 404
+    if row['admin'] != 1:
+        return jsonify({'error':f'{username} 唔係管理員'}), 400
+    db.execute('UPDATE users SET admin=0 WHERE id=?', (row['id'],))
+    db.commit()
+    return jsonify({'ok':True, 'username':username, 'msg':f'{username} 管理員權限已取消'})
+
+@app.route('/api/admin/refresh-token', methods=['POST'])
+def api_admin_refresh_token():
+    """Refresh the admin token (returns the same token, as it's stable)."""
+    if not _check_admin():
+        return jsonify({'error':'未授權'}), 403
+    return jsonify({'token': 'admin'})
+
+@app.route('/api/admin/members')
+def api_admin_members():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    users = db.execute('SELECT id,username,nickname,membership,member_expires,created_at,admin FROM users ORDER BY id').fetchall()
+    return jsonify({'users':[dict(u) for u in users]})
+
+@app.route('/api/admin/member/set', methods=['POST'])
+def api_admin_set_member():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id',0))
+    plan = d.get('plan','')
+    days = int(d.get('days',30))
+    from datetime import timedelta
+    exp = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+    db = get_db()
+    if plan and plan in ('jiuyau','jaugwai','jausan'):
+        db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',(plan,exp,uid))
+    else:
+        db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',('free','',uid))
+    db.commit()
+    return jsonify({'ok':True, 'membership':plan or 'free', 'expires':exp})
+
+@app.route('/api/admin/ads', methods=['POST'])
+def api_admin_ads():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    db = get_db()
+    if d.get('action') == 'add':
+        db.execute('INSERT INTO ads (image_url,link_url,type) VALUES (?,?,?)',
+                   (d.get('image_url',''), d.get('link_url',''), d.get('type','banner')))
+    elif d.get('action') == 'toggle':
+        db.execute('UPDATE ads SET active=? WHERE id=?',(d.get('active',1), d.get('id',0)))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/admin/stats')
+def api_admin_stats():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    total_users = db.execute('SELECT COUNT(*) FROM users').fetchone()[0]
+    total_checkins = db.execute('SELECT COUNT(*) FROM checkins').fetchone()[0]
+    total_parties = db.execute('SELECT COUNT(*) FROM parties').fetchone()[0]
+    vip_count = db.execute("SELECT COUNT(*) FROM users WHERE membership!='free' AND membership!=''").fetchone()[0]
+    return jsonify({'stats':{'total_users':total_users,'total_checkins':total_checkins,'total_parties':total_parties,'vip_count':vip_count}})
+
+# ═══════════════════ Membership ═══════════════════════════
+@app.route('/api/member/upgrade', methods=['POST'])
+@auth_required
+def api_upgrade():
+    d = request.get_json(force=True) or {}
+    plan = d.get('plan','jiuyau')  # jiuyau / jaugwai / jausan
+    plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':365}
+    days = plan_days.get(plan, 30)
+    expires = datetime.now().strftime('%Y-%m-%d') if plan=='jausan' else \
+              f"{(datetime.now().timestamp() + days*86400):.0f}"
+    # 用 ISO date
+    from datetime import timedelta
+    exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+    db = get_db()
+    db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',
+               (plan, exp_date, g.uid))
+    db.commit()
+    return jsonify({'ok':True, 'membership':plan, 'expires':exp_date})
+
+# ═══════════════════ Payment Records ═════════════════════
+@app.route('/api/payments', methods=['GET'])
+@auth_required
+def api_my_payments():
+    """User sees their own payment history."""
+    db = get_db()
+    rows = db.execute('SELECT * FROM payments WHERE user_id=? ORDER BY id DESC LIMIT 50',
+                      (g.uid,)).fetchall()
+    return jsonify({'payments':[dict(r) for r in rows]})
+
+@app.route('/api/payment/submit', methods=['POST'])
+@auth_required
+def api_submit_payment():
+    """User submits a payment receipt for manual confirmation."""
+    d = request.get_json(force=True) or {}
+    plan = d.get('plan', 'jiuyau')
+    method = d.get('method', 'alipay')
+    receipt = d.get('receipt', '')[:500]
+    amount = float(d.get('amount', 0) or 0)
+    plan_amounts = {'jiuyau': 8, 'jaugwai': 18, 'jausan': 198}
+    if plan not in plan_amounts:
+        return jsonify({'error':'無效方案'}), 400
+    db = get_db()
+    db.execute(
+        'INSERT INTO payments (user_id,plan,amount,method,receipt,confirmed) VALUES (?,?,?,?,?,0)',
+        (g.uid, plan, amount or plan_amounts[plan], method, receipt))
+    db.commit()
+    pid = db.execute('SELECT last_insert_rowid()').fetchone()[0]
+    return jsonify({'ok':True, 'payment_id':pid, 'msg':'付款已提交，等待管理員確認'})
+
+# ═══════════════════ Admin: Payments & Verification ═════
+@app.route('/api/admin/payments')
+def api_admin_payments():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    rows = db.execute("""
+        SELECT p.*, u.username, u.nickname, u.membership, u.member_expires
+        FROM payments p JOIN users u ON p.user_id=u.id
+        ORDER BY p.id DESC LIMIT 200
+    """).fetchall()
+    return jsonify({'payments':[dict(r) for r in rows]})
+
+@app.route('/api/admin/payment/confirm', methods=['POST'])
+def api_admin_confirm_payment():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    pid = int(d.get('payment_id', 0))
+    confirm = bool(d.get('confirm', True))
+    db = get_db()
+    pmt = db.execute('SELECT * FROM payments WHERE id=?', (pid,)).fetchone()
+    if not pmt:
+        return jsonify({'error':'付款紀錄不存在'}), 404
+    if confirm:
+        # Update payment record
+        db.execute('UPDATE payments SET confirmed=1 WHERE id=?', (pid,))
+        # Upgrade user membership
+        plan = pmt['plan']
+        plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':365}
+        days = plan_days.get(plan, 30)
+        from datetime import timedelta
+        exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+        db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',
+                   (plan, exp_date, pmt['user_id']))
+        # Audit log
+        db.execute("""INSERT INTO membership_audit (user_id,action,new_plan,admin_id,note)
+            VALUES (?,'payment_confirm',?,?,'Admin confirmed payment #'+?)""",
+            (pmt['user_id'], plan, d.get('admin_id',0), str(pid)))
+        msg = f'✅ 已確認付款，會員已升級至 {plan}'
+    else:
+        db.execute('DELETE FROM payments WHERE id=?', (pid,))
+        msg = '❌ 付款已拒絕'
+    db.commit()
+    return jsonify({'ok':True, 'msg':msg})
+
+@app.route('/api/admin/member/verify', methods=['POST'])
+def api_admin_verify_member():
+    """Admin marks a membership as verified / manually adjusts expiry."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
+    plan = d.get('plan', 'free')
+    days = int(d.get('days', 30))
+    note = d.get('note', '')[:200]
+    from datetime import timedelta
+    exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d') if plan != 'free' else ''
+    db = get_db()
+    old = db.execute('SELECT membership FROM users WHERE id=?', (uid,)).fetchone()
+    old_plan = old['membership'] if old else ''
+    if plan in ('jiuyau','jaugwai','jausan'):
+        db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?', (plan, exp_date, uid))
+    else:
+        db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?', ('free', '', uid))
+    # Audit log
+    db.execute("""INSERT INTO membership_audit (user_id,action,old_plan,new_plan,admin_id,note)
+        VALUES (?,'admin_verify',?,?,?,?)""",
+        (uid, old_plan, plan, d.get('admin_id',0), note))
+    db.commit()
+    return jsonify({'ok':True, 'membership':plan, 'expires':exp_date, 'note':note})
+
+@app.route('/api/admin/member/audit')
+def api_admin_audit_log():
+    """View membership change audit log."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    limit = int(request.args.get('limit', 100))
+    rows = db.execute("""
+        SELECT ma.*, u.username, u.nickname
+        FROM membership_audit ma JOIN users u ON ma.user_id=u.id
+        ORDER BY ma.id DESC LIMIT ?""", (limit,)).fetchall()
+    return jsonify({'audit':[dict(r) for r in rows]})
+
+@app.route('/api/admin/member/expired')
+def api_admin_expired():
+    """List members with expired or soon-expiring membership."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    rows = db.execute("""
+        SELECT id, username, nickname, membership, member_expires, admin
+        FROM users
+        WHERE membership!='free' AND membership!=''
+        ORDER BY member_expires ASC LIMIT 200
+    """).fetchall()
+    return jsonify({'members':[dict(r) for r in rows]})
+
+@app.route('/api/admin/member/search')
+def api_admin_member_search():
+    """Search members by username or nickname."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    q = request.args.get('q', '').strip().lower()
+    if len(q) < 1:
+        return jsonify({'error':'請輸入搜索關鍵字'}), 400
+    db = get_db()
+    rows = db.execute("""
+        SELECT id, username, nickname, membership, member_expires, created_at, admin
+        FROM users WHERE username LIKE ? OR nickname LIKE ?
+        ORDER BY id LIMIT 50
+    """, (f'%{q}%', f'%{q}%')).fetchall()
+    return jsonify({'users':[dict(r) for r in rows]})
+
+# ═══════════════════ Replies ═══════════════════════════
+@app.route('/api/checkin/<int:cid>/reply', methods=['POST'])
+@auth_required
+def api_reply(cid):
+    d = request.get_json(force=True) or {}
+    note = sanitize_html(d.get('note',''))[:500]
+    db = get_db()
+    db.execute('INSERT INTO checkin_replies (checkin_id,user_id,note) VALUES (?,?,?)',
+               (cid, g.uid, note))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/replies/<int:cid>')
+@auth_required
+def api_replies(cid):
+    db = get_db()
+    rows = db.execute("""SELECT r.*, u.nickname FROM checkin_replies r 
+        JOIN users u ON r.user_id=u.id WHERE r.checkin_id=? ORDER BY r.created_at ASC""",
+        (cid,)).fetchall()
+    return jsonify({'replies':[dict(r) for r in rows]})
+
+# ═══════════════════ PWA ═══════════════════════════════
+@app.route('/')
+def index():
+    return send_from_directory(str(PWA_DIR), 'index.html')
+
+@app.route('/manifest.json')
+def manifest():
+    return send_from_directory(str(PWA_DIR), 'manifest.json')
+
+@app.route('/sw.js')
+def service_worker():
+    return send_from_directory(str(PWA_DIR), 'sw.js')
+
+@app.route('/robots.txt')
+def robots_txt():
+    return send_from_directory(str(PWA_DIR), 'robots.txt')
+
+@app.route('/sitemap.xml')
+def static_sitemap():
+    return send_from_directory(str(PWA_DIR), 'sitemap.xml')
+
+# ═══════════════════ SEO / Sitemap ═══════════════════════
+@app.route('/api/seo/sitemap')
+def api_seo_sitemap():
+    """Dynamic sitemap with user pages, checkins, and parties."""
+    from flask import Response
+    db = get_db()
+
+    # Base URLs
+    base = request.host_url.rstrip('/')
+    today = date.today().isoformat()
+
+    # Get active users with checkins
+    users = db.execute("""
+        SELECT DISTINCT u.id, u.nickname, u.username,
+               (SELECT MAX(created_at) FROM checkins WHERE user_id=u.id) as last_active
+        FROM users u
+        WHERE EXISTS (SELECT 1 FROM checkins WHERE user_id=u.id)
+        ORDER BY u.id
+    """).fetchall()
+
+    # Get recent checkins (last 500)
+    checkins = db.execute("""
+        SELECT c.id, c.created_at, u.username
+        FROM checkins c JOIN users u ON c.user_id=u.id
+        ORDER BY c.created_at DESC LIMIT 500
+    """).fetchall()
+
+    # Get public parties
+    parties = db.execute("""
+        SELECT id, created_at, title FROM parties WHERE status='upcoming'
+        ORDER BY created_at DESC LIMIT 100
+    """).fetchall()
+
+    xml_parts = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"'
+        ' xmlns:xhtml="http://www.w3.org/1999/xhtml"'
+        ' xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">'
+    ]
+
+    # Homepage
+    xml_parts.append(f'''  <url>
+    <loc>{base}/</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="zh-HK" href="{base}/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="{base}/" />
+    <xhtml:link rel="alternate" hreflang="en" href="{base}/en" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="{base}/" />
+    <image:image>
+      <image:loc>{base}/icon-512.png</image:loc>
+      <image:caption>今晚飲咗未 — 飲酒社交打卡</image:caption>
+    </image:image>
+  </url>''')
+
+    # /en page
+    xml_parts.append(f'''  <url>
+    <loc>{base}/en</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>''')
+
+    # User profile pages
+    for u in users:
+        lastmod = u['last_active'][:10] if u['last_active'] else today
+        url = f'{base}/user/{u["username"]}'
+        xml_parts.append(f'''  <url>
+    <loc>{url}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>''')
+
+    # Checkin detail pages
+    for c in checkins:
+        url = f'{base}/checkin/{c["id"]}'
+        lastmod = c['created_at'][:10] if c['created_at'] else today
+        xml_parts.append(f'''  <url>
+    <loc>{url}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>''')
+
+    # Party pages
+    for p in parties:
+        url = f'{base}/party/{p["id"]}'
+        lastmod = p['created_at'][:10] if p['created_at'] else today
+        xml_parts.append(f'''  <url>
+    <loc>{url}</loc>
+    <lastmod>{lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>''')
+
+    xml_parts.append('</urlset>')
+    xml = '\n'.join(xml_parts)
+
+    return Response(xml, mimetype='application/xml; charset=utf-8')
+
+
+@app.route('/api/sitemap')
+def api_sitemap():
+    """Alias for /api/seo/sitemap — dynamic sitemap."""
+    return api_seo_sitemap()
+
+
+@app.route('/api/seo/robots')
+def api_seo_robots():
+    """Dynamic robots.txt with correct Sitemap references."""
+    from flask import Response
+    base = request.host_url.rstrip('/')
+    content = f"""User-agent: *
+Allow: /
+Allow: /manifest.json
+Allow: /sw.js
+Allow: /icon-192.png
+Allow: /icon-512.png
+Disallow: /api/
+Disallow: /static/uploads/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: {base}/sitemap.xml
+Sitemap: {base}/api/seo/sitemap
+"""
+    return Response(content, mimetype='text/plain; charset=utf-8')
+
+
+@app.route('/api/seo/stats')
+def api_seo_stats():
+    """Return basic SEO/site stats for monitoring."""
+    db = get_db()
+    user_count = db.execute('SELECT COUNT(*) as c FROM users').fetchone()['c']
+    checkin_count = db.execute('SELECT COUNT(*) as c FROM checkins').fetchone()['c']
+    party_count = db.execute('SELECT COUNT(*) as c FROM parties').fetchone()['c']
+    active_today = db.execute(
+        "SELECT COUNT(DISTINCT user_id) as c FROM checkins WHERE date(created_at)=date('now','localtime')"
+    ).fetchone()['c']
+    return jsonify({
+        'total_users': user_count,
+        'total_checkins': checkin_count,
+        'total_parties': party_count,
+        'active_users_today': active_today,
+        'sitemap_url': '/api/seo/sitemap',
+        'static_sitemap_url': '/sitemap.xml',
+    })
+
+
+# ═══════════════════ Main ═══════════════════════════════
+if __name__ == '__main__':
+    # ─── Startup: clean old temp uploads ────────────────
+    if UPLOAD_DIR.exists():
+        cutoff = time.time() - 30 * 86400
+        cleaned = 0
+        for f in UPLOAD_DIR.iterdir():
+            if f.is_file():
+                mtime = f.stat().st_mtime
+                if mtime < cutoff:
+                    f.unlink()
+                    cleaned += 1
+        if cleaned:
+            log.info('🧹 Cleaned %d temp upload files older than 30d', cleaned)
+    print('🍺 今晚飲咗未 | http://0.0.0.0:5052')
+    app.run(host='0.0.0.0', port=5052, debug=False, threaded=True)
