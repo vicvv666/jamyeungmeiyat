@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>🎲 骰盅大挑戰 — 今晚飲咗未</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0D0D12;--card:#1A1A24;--card2:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--dice-bg:#FEF3C7;--dice-dot:#1E1E2E}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;max-width:480px;margin:0 auto;overflow-x:hidden;padding:16px;padding-bottom:100px}
+
+/* Header */
+.dice-header{text-align:center;padding:20px 0 12px}
+.dice-header h1{font-size:28px;background:linear-gradient(135deg,var(--amber),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:800}
+.dice-header p{font-size:13px;color:var(--sub);margin-top:4px}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px}
+.card-title{font-size:17px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.lock-badge{font-size:11px;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:auto}
+
+/* Dice Selector */
+.dice-count-row{display:flex;gap:8px;justify-content:center;margin-bottom:16px}
+.dice-count-btn{width:48px;height:48px;border-radius:12px;border:2px solid var(--border);background:var(--card2);color:var(--text);font-size:20px;font-weight:700;cursor:pointer;transition:all .2s}
+.dice-count-btn.active{border-color:var(--amber);background:rgba(245,158,11,0.15);color:var(--amber)}
+.dice-count-btn.locked{opacity:0.35;cursor:not-allowed;position:relative}
+
+/* Dice Area */
+.dice-area{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;min-height:90px;align-items:center;padding:16px 0}
+
+/* 3D Dice */
+.dice3d{width:64px;height:64px;perspective:200px;cursor:pointer}
+.dice3d-inner{width:64px;height:64px;position:relative;transform-style:preserve-3d;transition:transform 0.6s cubic-bezier(0.2,0.8,0.3,1)}
+.dice3d.shaking .dice3d-inner{animation:shake 0.08s linear infinite}
+@keyframes shake{0%{transform:rotateX(0) rotateY(0) rotateZ(0)}25%{transform:rotateX(90deg) rotateY(45deg) rotateZ(15deg)}50%{transform:rotateX(180deg) rotateY(90deg) rotateZ(-15deg)}75%{transform:rotateX(270deg) rotateY(135deg) rotateZ(15deg)}100%{transform:rotateX(360deg) rotateY(180deg) rotateZ(0)}}
+.dice-face{position:absolute;width:64px;height:64px;background:var(--dice-bg);border-radius:12px;border:2px solid rgba(0,0,0,0.08);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:8px;box-shadow:inset 0 2px 4px rgba(255,255,255,0.3)}
+.dot{width:12px;height:12px;background:var(--dice-dot);border-radius:50%;align-self:center;justify-self:center;box-shadow:0 1px 2px rgba(0,0,0,0.3)}
+.dot.hide{visibility:hidden}
+/* face transforms */
+.face-1{transform:translateZ(32px)}
+.face-6{transform:rotateY(180deg) translateZ(32px)}
+.face-2{transform:rotateY(90deg) translateZ(32px)}
+.face-5{transform:rotateY(-90deg) translateZ(32px)}
+.face-3{transform:rotateX(90deg) translateZ(32px)}
+.face-4{transform:rotateX(-90deg) translateZ(32px)}
+
+/* Result */
+.result-bar{text-align:center;margin-top:12px;font-size:15px;color:var(--amber);font-weight:600;min-height:24px}
+
+/* Shake Button */
+.btn-shake{display:block;width:100%;padding:16px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--amber),#D97706);color:#0D0D12;font-size:18px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:12px;letter-spacing:1px}
+.btn-shake:active{transform:scale(0.96);filter:brightness(0.9)}
+.btn-shake:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+/* Room Section */
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--sub);font-size:13px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.room-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.btn-room{padding:12px;border:2px solid var(--purple);border-radius:12px;background:rgba(139,92,246,0.08);color:var(--purple);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-room:active{transform:scale(0.96);background:rgba(139,92,246,0.2)}
+.btn-room:disabled{opacity:0.3;cursor:not-allowed}
+
+.room-info{text-align:center;padding:16px;background:rgba(139,92,246,0.05);border-radius:12px;border:1px solid rgba(139,92,246,0.2)}
+.room-code{font-size:36px;font-weight:800;color:var(--purple);letter-spacing:6px;margin:8px 0}
+.room-players{margin-top:8px;font-size:13px;color:var(--sub)}
+.room-player{display:inline-flex;align-items:center;gap:4px;background:var(--card2);padding:4px 10px;border-radius:8px;margin:3px;font-size:12px}
+
+/* Join input */
+.join-row{display:flex;gap:8px;margin-top:12px}
+.join-input{flex:1;padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--card2);color:var(--text);font-size:22px;font-weight:800;text-align:center;letter-spacing:6px;text-transform:uppercase}
+.join-input:focus{border-color:var(--purple);outline:none}
+
+/* Battle Area */
+.battle-grid{display:grid;gap:10px;margin-top:12px}
+.battle-player{display:flex;align-items:center;gap:12px;background:var(--card2);padding:12px;border-radius:12px}
+.battle-name{font-weight:700;font-size:14px;flex:1}
+.battle-dice-mini{display:flex;gap:4px}
+.mini-die{width:28px;height:28px;background:var(--dice-bg);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--dice-dot)}
+.mini-die.hidden-die{background:var(--card);color:var(--sub);font-size:16px}
+.battle-total{font-weight:800;color:var(--amber);font-size:16px;min-width:30px;text-align:right}
+
+.btn-reveal{display:block;width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,var(--pink),var(--red));color:#fff;font-size:16px;font-weight:700;cursor:pointer;margin-top:12px}
+.btn-reveal:disabled{opacity:0.3;cursor:not-allowed}
+
+/* Chat */
+.chat-area{margin-top:12px;max-height:150px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:8px;background:rgba(0,0,0,0.2)}
+.chat-msg{font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.chat-msg b{color:var(--amber)}
+.chat-input-row{display:flex;gap:8px;margin-top:8px}
+.chat-input{flex:1;padding:10px;border:1px solid var(--border);border-radius:10px;background:var(--card2);color:var(--text);font-size:13px}
+.chat-input:focus{border-color:var(--amber);outline:none}
+.btn-chat{padding:10px 16px;border:none;border-radius:10px;background:var(--amber);color:#0D0D12;font-weight:700;cursor:pointer}
+
+/* Membership tip */
+.mem-tip{text-align:center;padding:16px;background:linear-gradient(135deg,rgba(139,92,246,0.1),rgba(236,72,153,0.1));border-radius:14px;border:1px solid rgba(139,92,246,0.2);margin-top:14px}
+.mem-tip-icon{font-size:28px;margin-bottom:6px}
+.mem-tip h3{font-size:15px;color:var(--pink);margin-bottom:4px}
+.mem-tip p{font-size:12px;color:var(--sub);line-height:1.6}
+
+/* Rules setting */
+.rules-row{display:flex;gap:8px;align-items:center;margin-bottom:10px}
+.rules-row label{font-size:13px;color:var(--sub);min-width:70px}
+.rules-row select,.rules-row input{flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card2);color:var(--text);font-size:14px}
+
+/* Toast */
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--amber);color:var(--amber);padding:10px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<div class="dice-header">
+ <h1>🎲 骰盅大挑戰</h1>
+ <p>搖骰猜點，面對面對決！🍻</p>
+</div>
+
+<!-- 單人搖骰 -->
+<div class="card">
+ <div class="card-title">🎲 單人搖骰 <span class="lock-badge" id="solo-lock" style="display:none">🔒 需升級</span></div>
+ <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center">選擇骰數（免費最多2粒）</div>
+ <div class="dice-count-row" id="dice-count-row"></div>
+ <div class="dice-area" id="dice-area"></div>
+ <div class="result-bar" id="solo-result"></div>
+ <button class="btn-shake" id="btn-shake" onclick="shakeSolo()">🍻 搖骰！</button>
+</div>
+
+<div class="divider">🏠 房間對戰</div>
+
+<!-- 開房/加入 -->
+<div class="card" id="room-section">
+ <div class="card-title">🎯 面對面對決 <span class="lock-badge" id="room-lock" style="display:none">🔒 需酒鬼+</span></div>
+ <div class="room-actions">
+  <button class="btn-room" id="btn-create" onclick="createRoom()">🏠 開房</button>
+  <button class="btn-room" id="btn-join" onclick="showJoin()">🚪 加入</button>
+ </div>
+ <div id="join-panel" style="display:none">
+  <div class="join-row">
+   <input class="join-input" id="join-code" maxlength="6" placeholder="房間號" oninput="this.value=this.value.toUpperCase()">
+   <button class="btn-room" onclick="joinRoom()" style="padding:12px 20px">加入</button>
+  </div>
+ </div>
+</div>
+
+<!-- 房間詳情 -->
+<div class="card" id="room-detail" style="display:none">
+ <div class="card-title">🏠 房間 <span id="room-status" style="color:var(--green);font-size:13px;margin-left:auto">等待中</span></div>
+ <div class="room-info">
+  <div style="font-size:12px;color:var(--sub)">房間號</div>
+  <div class="room-code" id="room-code-display">------</div>
+  <div class="room-players" id="room-players"></div>
+ </div>
+
+ <div id="room-rules" style="margin-top:12px">
+  <div class="rules-row">
+   <label>🎲 骰數</label>
+   <select id="rule-dice"><option value="2">2粒</option><option value="3">3粒</option><option value="4">4粒</option><option value="5">5粒</option></select>
+  </div>
+  <div class="rules-row">
+   <label>🔄 輪數</label>
+   <select id="rule-rounds"><option value="1">1輪</option><option value="3">3輪</option><option value="5">5輪</option></select>
+  </div>
+  <button class="btn-shake" id="btn-start-room" onclick="startRoomGame()" style="background:linear-gradient(135deg,var(--purple),#6D28D9);font-size:15px;padding:12px">🎯 開始對戰</button>
+ </div>
+
+ <div id="room-game" style="display:none">
+  <div style="text-align:center;font-size:13px;color:var(--sub);margin-bottom:8px" id="game-round-info"></div>
+  <div class="battle-grid" id="battle-grid"></div>
+  <button class="btn-shake" id="btn-room-shake" onclick="shakeRoom()" style="background:linear-gradient(135deg,var(--amber),#D97706)">🎲 我要搖骰</button>
+  <button class="btn-reveal" id="btn-reveal" onclick="revealAll()" disabled>🔥 開盅！</button>
+ </div>
+
+ <div class="chat-area" id="chat-area"></div>
+ <div class="chat-input-row">
+  <input class="chat-input" id="chat-input" placeholder="講嘢..." onkeydown="if(event.key==='Enter')sendChat()">
+  <button class="btn-chat" onclick="sendChat()">發送</button>
+ </div>
+
+ <button style="margin-top:12px;width:100%;padding:10px;border:1px solid var(--red);border-radius:10px;background:transparent;color:var(--red);cursor:pointer" onclick="leaveRoom()">🚪 離開房間</button>
+</div>
+
+<!-- 會員提示 -->
+<div class="mem-tip">
+ <div class="mem-tip-icon">💎</div>
+ <h3>解鎖更多骰盅玩法</h3>
+ <p>🥉 酒友 ¥8/月 — 3粒骰 + 加入房間<br>🥈 酒鬼 ¥18/月 — 4粒骰 + 開房<br>🥇 酒神 ¥198/年 — 5粒骰 + 自訂規則</p>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════ CONFIG ═══════
+const MEM_LEVELS = {free:0, jiuyau:1, jaugwai:2, jausan:3};
+const DICE_LIMITS = {free:2, jiuyau:3, jaugwai:4, jausan:5};
+const ROOM_LEVELS = {free:false, jiuyau:false, jaugwai:true, jausan:true};
+
+// Get membership from parent app or default
+let myMembership = 'free';
+try { myMembership = localStorage.getItem('jmy_membership') || 'free'; } catch(e){}
+let myName = '我';
+try { myName = JSON.parse(localStorage.getItem('jmy_user')||'{}').nickname || '玩家'; } catch(e){}
+
+let selectedDice = Math.min(2, DICE_LIMITS[myMembership] || 2);
+let diceValues = [];
+let isShaking = false;
+
+// For standalone testing - override membership via URL param
+(function(){
+ try {
+  var params = new URLSearchParams(window.location.search);
+  var mem = params.get('mem');
+  if (mem && MEM_LEVELS[mem] !== undefined) { myMembership = mem; selectedDice = Math.min(2, DICE_LIMITS[mem]); }
+ } catch(e){}
+})();
+
+// ═══════ BROADCAST CHANNEL ═══════
+let bc = null;
+try { bc = new BroadcastChannel('dice-room'); } catch(e){}
+
+// Room state
+let roomState = null; // {code, host, players, rules, phase, round, maxRounds, results}
+let isHost = false;
+
+// ═══════ DICE DOT PATTERNS (3x3 grid, 1=show 0=hide) ═══════
+const DOT_MAP = {
+ 1: [0,0,0, 0,1,0, 0,0,0],
+ 2: [0,0,1, 0,0,0, 1,0,0],
+ 3: [0,0,1, 0,1,0, 1,0,0],
+ 4: [1,0,1, 0,0,0, 1,0,1],
+ 5: [1,0,1, 0,1,0, 1,0,1],
+ 6: [1,0,1, 1,0,1, 1,0,1]
+};
+
+// ═══════ INIT ═══════
+function init() {
+ renderDiceCountRow();
+ renderDice(selectedDice);
+ updateLocks();
+
+ // Listen for broadcast messages
+ if (bc) {
+  bc.onmessage = function(e) {
+   handleRoomMsg(e.data);
+  };
+ }
+
+ // Check if already in a room
+ const saved = localStorage.getItem('dice_room_state');
+ if (saved) {
+  try {
+   roomState = JSON.parse(saved);
+   if (roomState && roomState.players && roomState.players.includes(myName)) {
+    showRoomDetail();
+   } else {
+    roomState = null;
+    localStorage.removeItem('dice_room_state');
+   }
+  } catch(e) { roomState = null; }
+ }
+}
+
+function renderDiceCountRow() {
+ const row = document.getElementById('dice-count-row');
+ row.innerHTML = '';
+ const limit = DICE_LIMITS[myMembership];
+ for (let i = 1; i <= 5; i++) {
+  const btn = document.createElement('button');
+  btn.className = 'dice-count-btn' + (i === selectedDice ? ' active' : '') + (i > limit ? ' locked' : '');
+  btn.textContent = i;
+  if (i <= limit) {
+   btn.onclick = function() { selectedDice = i; renderDiceCountRow(); renderDice(i); };
+  } else {
+  btn.title = '需升級會員';
+  }
+  row.appendChild(btn);
+ }
+}
+
+function renderDice(count) {
+ const area = document.getElementById('dice-area');
+ area.innerHTML = '';
+ diceValues = [];
+ for (let i = 0; i < count; i++) {
+  const val = Math.floor(Math.random() * 6) + 1;
+  diceValues.push(val);
+  const el = createDice3D(val);
+  area.appendChild(el);
+ }
+}
+
+function createDice3D(val) {
+ const dice = document.createElement('div');
+ dice.className = 'dice3d';
+ const inner = document.createElement('div');
+ inner.className = 'dice3d-inner';
+
+ for (let f = 1; f <= 6; f++) {
+  const face = document.createElement('div');
+  face.className = 'dice-face face-' + f;
+  const dots = DOT_MAP[f];
+  for (let d = 0; d < 9; d++) {
+   const dot = document.createElement('div');
+   dot.className = 'dot' + (dots[d] ? '' : ' hide');
+   face.appendChild(dot);
+  }
+  inner.appendChild(face);
+ }
+
+ dice.appendChild(inner);
+ // Set initial rotation to show val
+ setDiceRotation(inner, val);
+ return dice;
+}
+
+function setDiceRotation(inner, val) {
+ const rotations = {
+  1: 'rotateX(0deg) rotateY(0deg)',
+  2: 'rotateY(-90deg)',
+  3: 'rotateX(-90deg)',
+  4: 'rotateX(90deg)',
+  5: 'rotateY(90deg)',
+  6: 'rotateY(180deg)'
+ };
+ inner.style.transform = rotations[val] || '';
+}
+
+function updateLocks() {
+ const level = MEM_LEVELS[myMembership] || 0;
+ document.getElementById('solo-lock').style.display = level < 1 ? '' : 'none';
+ document.getElementById('room-lock').style.display = level < 2 ? '' : 'none';
+ document.getElementById('btn-create').disabled = level < 2;
+ document.getElementById('btn-join').disabled = level < 1;
+}
+
+// ═══════ SOLO SHAKE ═══════
+function shakeSolo() {
+ if (isShaking) return;
+ isShaking = true;
+ const btn = document.getElementById('btn-shake');
+ btn.disabled = true;
+ btn.textContent = '搖緊...';
+
+ const area = document.getElementById('dice-area');
+ const dices = area.querySelectorAll('.dice3d');
+ dices.forEach(function(d) { d.classList.add('shaking'); });
+
+ // Vibrate if supported
+ if (navigator.vibrate) navigator.vibrate([100,50,100,50,100]);
+
+ document.getElementById('solo-result').textContent = '';
+
+ setTimeout(function() {
+  const results = [];
+  dices.forEach(function(d) {
+   const val = Math.floor(Math.random() * 6) + 1;
+   results.push(val);
+   d.classList.remove('shaking');
+   const inner = d.querySelector('.dice3d-inner');
+   setDiceRotation(inner, val);
+  });
+  diceValues = results;
+  const total = results.reduce(function(a,b){return a+b}, 0);
+  document.getElementById('solo-result').textContent = '擲出 ' + results.join(' + ') + ' = ' + total + ' 點 🎉';
+  isShaking = false;
+  btn.disabled = false;
+  btn.textContent = '🍻 再搖！';
+ }, 800);
+}
+
+// ═══════ ROOM FUNCTIONS ═══════
+function genCode() {
+ const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+ let code = '';
+ for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+ return code;
+}
+
+function createRoom() {
+ if (MEM_LEVELS[myMembership] < 2) { showToast('🔒 需酒鬼或以上會員先可以開房'); return; }
+ const code = genCode();
+ roomState = {
+  code: code,
+  host: myName,
+  players: [myName],
+  rules: { dice: 2, rounds: 1 },
+  phase: 'waiting', // waiting / playing / revealed
+  round: 0,
+  maxRounds: 1,
+  results: {}, // {name: [{round, values}]}
+  revealed: false
+ };
+ isHost = true;
+ saveRoom();
+ broadcastMsg({type: 'room-created', room: roomState});
+ showRoomDetail();
+ showToast('🏠 房間已開：' + code);
+}
+
+function showJoin() {
+ const panel = document.getElementById('join-panel');
+ panel.style.display = panel.style.display === 'none' ? '' : 'none';
+ if (panel.style.display === '') document.getElementById('join-code').focus();
+}
+
+function joinRoom() {
+ if (MEM_LEVELS[myMembership] < 1) { showToast('🔒 需酒友或以上會員先可以加入房間'); return; }
+ const code = document.getElementById('join-code').value.trim().toUpperCase();
+ if (code.length !== 6) { showToast('請輸入6位房間號'); return; }
+
+ // Check localStorage for room
+ const saved = localStorage.getItem('dice_room_' + code);
+ if (saved) {
+  roomState = JSON.parse(saved);
+  if (roomState.phase === 'waiting' && !roomState.players.includes(myName)) {
+   roomState.players.push(myName);
+   roomState.results[myName] = [];
+   saveRoom();
+   broadcastMsg({type: 'player-joined', room: roomState, player: myName});
+   showRoomDetail();
+   showToast('✅ 已加入房間：' + code);
+   return;
+  }
+  if (roomState.players.includes(myName)) {
+   showRoomDetail();
+   return;
+  }
+ }
+ showToast('❌ 搵唔到房間 ' + code);
+}
+
+function showRoomDetail() {
+ document.getElementById('room-section').style.display = 'none';
+ document.getElementById('room-detail').style.display = '';
+ document.getElementById('room-code-display').textContent = roomState.code;
+
+ const canEdit = isHost && roomState.phase === 'waiting';
+ document.getElementById('room-rules').style.display = canEdit ? '' : 'none';
+ document.getElementById('room-game').style.display = roomState.phase === 'playing' || roomState.phase === 'revealed' ? '' : 'none';
+ document.getElementById('btn-start-room').style.display = isHost && roomState.phase === 'waiting' ? '' : 'none';
+
+ updateRoomPlayers();
+ if (roomState.phase === 'playing' || roomState.phase === 'revealed') renderBattle();
+}
+
+function updateRoomPlayers() {
+ const el = document.getElementById('room-players');
+ el.innerHTML = roomState.players.map(function(p) {
+  return '<span class="room-player">' + (p === roomState.host ? '👑' : '👤') + ' ' + p + '</span>';
+ }).join('');
+ document.getElementById('room-status').textContent =
+  roomState.phase === 'waiting' ? '等待中...' :
+  roomState.phase === 'playing' ? '🎲 對戰中' : '✅ 已開盅';
+}
+
+function startRoomGame() {
+ if (!isHost) return;
+ const diceN = parseInt(document.getElementById('rule-dice').value) || 2;
+ const rounds = parseInt(document.getElementById('rule-rounds').value) || 1;
+ roomState.rules.dice = diceN;
+ roomState.rules.rounds = rounds;
+ roomState.phase = 'playing';
+ roomState.round = 1;
+ roomState.maxRounds = rounds;
+ roomState.revealed = false;
+ roomState.results = {};
+ roomState.players.forEach(function(p) { roomState.results[p] = []; });
+ saveRoom();
+ broadcastMsg({type: 'game-start', room: roomState});
+ showRoomDetail();
+ showToast('🎲 對戰開始！');
+}
+
+function shakeRoom() {
+ if (!roomState || roomState.phase !== 'playing') return;
+ if (roomState.results[myName] && roomState.results[myName].length >= roomState.maxRounds) {
+  showToast('你已經搖完所有輪'); return;
+ }
+
+ const values = [];
+ for (let i = 0; i < roomState.rules.dice; i++) {
+  values.push(Math.floor(Math.random() * 6) + 1);
+ }
+ roomState.results[myName].push({round: roomState.results[myName].length + 1, values: values, revealed: false});
+ saveRoom();
+ broadcastMsg({type: 'player-shook', room: roomState, player: myName});
+ renderBattle();
+ showToast('🎲 你搖咗第 ' + roomState.results[myName].length + ' 輪');
+
+ // Check if all players finished
+ checkAllDone();
+}
+
+function checkAllDone() {
+ const allDone = roomState.players.every(function(p) {
+  return roomState.results[p] && roomState.results[p].length >= roomState.maxRounds;
+ });
+ if (allDone) {
+  document.getElementById('btn-reveal').disabled = false;
+ }
+}
+
+function revealAll() {
+ if (!isHost && roomState.host !== myName) { showToast('只有房主可以開盅'); return; }
+ roomState.phase = 'revealed';
+ roomState.revealed = true;
+ // Mark all results as revealed
+ roomState.players.forEach(function(p) {
+  if (roomState.results[p]) {
+   roomState.results[p].forEach(function(r) { r.revealed = true; });
+  }
+ });
+ saveRoom();
+ broadcastMsg({type: 'revealed', room: roomState});
+ renderBattle();
+ updateRoomPlayers();
+ showToast('🔥 開盅！');
+}
+
+function renderBattle() {
+ const grid = document.getElementById('battle-grid');
+ grid.innerHTML = '';
+ const info = document.getElementById('game-round-info');
+ info.textContent = '第 ' + (roomState.round || 1) + '/' + roomState.maxRounds + ' 輪';
+
+ document.getElementById('btn-room-shake').style.display =
+  (roomState.phase === 'playing' && roomState.results[myName] && roomState.results[myName].length < roomState.maxRounds) ? '' : 'none';
+ document.getElementById('btn-reveal').style.display = roomState.phase === 'playing' ? '' : 'none';
+
+ roomState.players.forEach(function(p) {
+  const results = roomState.results[p] || [];
+  const div = document.createElement('div');
+  div.className = 'battle-player';
+
+  const nameEl = document.createElement('div');
+  nameEl.className = 'battle-name';
+  nameEl.textContent = (p === roomState.host ? '👑 ' : '') + p;
+
+  const diceEl = document.createElement('div');
+  diceEl.className = 'battle-dice-mini';
+  let totalVal = 0;
+
+  if (results.length > 0) {
+   results.forEach(function(r) {
+    r.values.forEach(function(v) {
+     const die = document.createElement('div');
+     if (roomState.revealed || p === myName) {
+      die.className = 'mini-die';
+      die.textContent = v;
+      totalVal += v;
+     } else {
+      die.className = 'mini-die hidden-die';
+      die.textContent = '?';
+     }
+     diceEl.appendChild(die);
+    });
+   });
+  } else {
+   for (let i = 0; i < roomState.rules.dice; i++) {
+    const die = document.createElement('div');
+    die.className = 'mini-die hidden-die';
+    die.textContent = '—';
+    diceEl.appendChild(die);
+   }
+  }
+
+  const totalEl = document.createElement('div');
+  totalEl.className = 'battle-total';
+  if (roomState.revealed && results.length > 0) {
+   results.forEach(function(r) { r.values.forEach(function(v) { totalVal += 0; }); });
+   // Recalculate total
+   let t = 0;
+   results.forEach(function(r) { r.values.forEach(function(v) { t += v; }); });
+   totalEl.textContent = t;
+  } else if (p === myName && results.length > 0) {
+   let t = 0;
+   results.forEach(function(r) { r.values.forEach(function(v) { t += v; }); });
+   totalEl.textContent = t;
+  } else {
+   totalEl.textContent = '';
+  }
+
+  div.appendChild(nameEl);
+  div.appendChild(diceEl);
+  div.appendChild(totalEl);
+  grid.appendChild(div);
+ });
+
+ // Show winner if revealed
+ if (roomState.revealed) {
+  let maxTotal = 0;
+  let winner = '';
+  roomState.players.forEach(function(p) {
+   let t = 0;
+   (roomState.results[p] || []).forEach(function(r) { r.values.forEach(function(v) { t += v; }); });
+   if (t > maxTotal) { maxTotal = t; winner = p; }
+  });
+  const winDiv = document.createElement('div');
+  winDiv.style.cssText = 'text-align:center;padding:14px;margin-top:8px;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(236,72,153,0.1));border-radius:12px';
+  winDiv.innerHTML = '🏆 <b style="color:var(--amber)">' + winner + '</b> 贏咗！共 <b style="color:var(--amber)">' + maxTotal + '</b> 點 🎉';
+  grid.appendChild(winDiv);
+ }
+}
+
+function leaveRoom() {
+ if (roomState) {
+  roomState.players = roomState.players.filter(function(p) { return p !== myName; });
+  delete roomState.results[myName];
+  if (roomState.players.length === 0) {
+   localStorage.removeItem('dice_room_' + roomState.code);
+  } else {
+   if (isHost && roomState.players.length > 0) roomState.host = roomState.players[0];
+   saveRoom();
+  }
+  broadcastMsg({type: 'player-left', room: roomState, player: myName});
+ }
+ roomState = null;
+ isHost = false;
+ localStorage.removeItem('dice_room_state');
+ document.getElementById('room-section').style.display = '';
+ document.getElementById('room-detail').style.display = 'none';
+ document.getElementById('join-panel').style.display = 'none';
+ showToast('🚪 已離開房間');
+}
+
+function saveRoom() {
+ if (!roomState) return;
+ localStorage.setItem('dice_room_' + roomState.code, JSON.stringify(roomState));
+ localStorage.setItem('dice_room_state', JSON.stringify(roomState));
+}
+
+function broadcastMsg(data) {
+ if (bc) {
+  try { bc.postMessage(data); } catch(e) {}
+ }
+}
+
+function handleRoomMsg(data) {
+ if (!data || !data.type) return;
+
+ if (data.type === 'room-created') {
+  // Another tab created a room - no action needed
+ }
+ else if (data.type === 'player-joined' && roomState && data.room && data.room.code === roomState.code) {
+  roomState = data.room;
+  saveRoom();
+  updateRoomPlayers();
+  addChatMsg('系統', data.player + ' 加入咗房間');
+ }
+ else if (data.type === 'player-left' && roomState && data.room && data.room.code === roomState.code) {
+  roomState = data.room;
+  saveRoom();
+  updateRoomPlayers();
+  addChatMsg('系統', data.player + ' 離開咗房間');
+ }
+ else if (data.type === 'game-start' && roomState && data.room && data.room.code === roomState.code) {
+  roomState = data.room;
+  saveRoom();
+  showRoomDetail();
+ }
+ else if (data.type === 'player-shook' && roomState && data.room && data.room.code === roomState.code) {
+  roomState = data.room;
+  saveRoom();
+  renderBattle();
+  addChatMsg(data.player, '🎲 已搖骰！');
+  checkAllDone();
+ }
+ else if (data.type === 'revealed' && roomState && data.room && data.room.code === roomState.code) {
+  roomState = data.room;
+  saveRoom();
+  renderBattle();
+  updateRoomPlayers();
+ }
+ else if (data.type === 'chat' && roomState && data.room === roomState.code) {
+  addChatMsg(data.player, data.msg);
+ }
+}
+
+// ═══════ CHAT ═══════
+function sendChat() {
+ const input = document.getElementById('chat-input');
+ const msg = input.value.trim();
+ if (!msg || !roomState) return;
+ addChatMsg(myName, msg);
+ broadcastMsg({type: 'chat', room: roomState.code, player: myName, msg: msg});
+ input.value = '';
+}
+
+function addChatMsg(name, msg) {
+ const area = document.getElementById('chat-area');
+ const div = document.createElement('div');
+ div.className = 'chat-msg';
+ div.innerHTML = '<b>' + name + '：</b>' + msg;
+ area.appendChild(div);
+ area.scrollTop = area.scrollHeight;
+}
+
+// ═══════ TOAST ═══════
+let toastTimer = null;
+function showToast(msg) {
+ const el = document.getElementById('toast');
+ el.textContent = msg;
+ el.classList.add('show');
+ clearTimeout(toastTimer);
+ toastTimer = setTimeout(function() { el.classList.remove('show'); }, 2500);
+}
+
+// ═══════ START ═══════
+init();
+</script>
+</body>
+</html>
