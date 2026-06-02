@@ -90,7 +90,12 @@
 </script>
 
 <!-- ─── Supabase (optional, non-blocking) ────────────── -->
-<script>var ASSET_BASE=location.protocol==='file:'?'file:///android_asset/www':'';</script>
+<!-- Supabase CDN + client (must load BEFORE main app script) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/supabase-client.js"></script>
+<script>
+var ASSET_BASE=location.protocol==='file:'?'file:///android_asset/www':'';
+</script>
 
 <title>🍺 今晚飲咗未 — 飲酒社交打卡</title>
 <style>
@@ -597,9 +602,27 @@ document.addEventListener('scroll',function(){
 function saveS(){if(token)localStorage.setItem('jymy_token',token);if(me)localStorage.setItem('jymy_me',JSON.stringify(me))}
 function clearS(){localStorage.removeItem('jymy_token');localStorage.removeItem('jymy_me')}
 async function restoreS(){
-  const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
-  try{me=JSON.parse(localStorage.getItem('jymy_me')||'null')}catch(e){me=null}
-  try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){token=null;me=null;clearS();return false}
+ // Try Supabase session first
+ if(window.JYM && window.JYM.auth){
+  try{
+   const session=await window.JYM.auth.getSession();
+   if(session && session.access_token){
+    token=session.access_token;
+    const authUser=await window.JYM.auth.getCurrentUser();
+    if(authUser){
+     let profile=null;
+     try{profile=await window.JYM.user.getUserProfile(authUser.id)}catch(e){}
+     if(!profile) profile={id:0,auth_uid:authUser.id,username:JYM.auth._fromEmail(authUser.email),nickname:'',lang:'zh-HK',membership:'free',admin:0,member_expires:'',avatar:''};
+     me={id:profile.id,auth_uid:authUser.id,username:profile.username||JYM.auth._fromEmail(authUser.email),nickname:profile.nickname||'',lang:profile.lang||'zh-HK',membership:profile.membership||'free',admin:profile.admin||0,member_expires:profile.member_expires||'',avatar:profile.avatar||''};
+     lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true;
+    }
+   }
+  }catch(e){console.warn('Supabase session restore failed:',e)}
+ }
+ // Fallback: local token
+ const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
+ try{me=JSON.parse(localStorage.getItem('jymy_me')||'null')}catch(e){me=null}
+ try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){token=null;me=null;clearS();return false}
 }
 
 // ═══════ NAV ═══════
@@ -730,7 +753,7 @@ const L={'zh-HK':{
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
-function switchLang(l){lang=l;document.getElementById('lang-switch').value=l;if(me&&token)api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{});updTitles();buildGrid()}
+function switchLang(l){lang=l;document.getElementById('lang-switch').value=l;if(me&&token){if(window.JYM&&window.JYM.user&&me.auth_uid){window.JYM.user.updateUserProfile(me.auth_uid,{lang}).catch(()=>{})}else{api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{})}}updTitles();buildGrid()}
 function updTitles(){
   document.getElementById('nav-title').textContent='🍺 '+(lang==='en'?'Drunk Tonight?':'今晚飲咗未');
   ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});
@@ -772,107 +795,178 @@ async function doLogin(){
  const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value;
  if(!u||!p)return toast('填寫用戶名和密碼',1);
  try{
- const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});
- token=r.token;me=r.user;
- lang=me.lang||'zh-HK';
- document.getElementById('lang-switch').value=lang;
- adminToken='';localStorage.removeItem('jymy_admin_token');
- sessionStorage.setItem('jymy_pw',p);
- saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();
- toast('✅ 登入成功');
- }catch(e){toast('❌ '+e.message,1)}
+ if(window.JYM && window.JYM.auth){
+  const data=await window.JYM.auth.signIn(u,p);
+  token=data.session.access_token;
+  const authUser=data.user;
+  let profile=null;
+  try{profile=await window.JYM.user.getUserProfile(authUser.id)}catch(e){
+   await new Promise(r=>setTimeout(r,1000));
+   try{profile=await window.JYM.user.getUserProfile(authUser.id)}catch(e2){}
+  }
+  if(!profile) profile={id:0,auth_uid:authUser.id,username:u,nickname:u,lang:'zh-HK',membership:'free',admin:0,member_expires:'',avatar:''};
+  me={id:profile.id,auth_uid:authUser.id,username:profile.username||u,nickname:profile.nickname||u,lang:profile.lang||'zh-HK',membership:profile.membership||'free',admin:profile.admin||0,member_expires:profile.member_expires||'',avatar:profile.avatar||''};
+ }else{
+  const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});
+  token=r.token;me=r.user;
+ }
+ lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
+ adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
+ saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();toast('✅ 登入成功');
+ }catch(e){let msg=e.message||'登入失敗';if(msg.includes('Invalid login'))msg='用戶名或密碼錯誤';if(msg.includes('Email not confirmed'))msg='帳號未確認，請稍後重試';toast('❌ '+msg,1)}
 }
 async function doRegister(){
- const u=document.getElementById('r-user').value.trim(),n=document.getElementById('r-nick').value.trim(),
- p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
+ const u=document.getElementById('r-user').value.trim(),n=document.getElementById('r-nick').value.trim(),p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
  if(!u||p.length<4)return toast('用戶名或密碼太短',1);if(p!==p2)return toast('密碼不一致',1);
  try{
- const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});
- token=r.token;me=r.user;
- adminToken='';localStorage.removeItem('jymy_admin_token');
- sessionStorage.setItem('jymy_pw',p);
- saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();
- toast('✅ 註冊成功');
- }catch(e){toast('❌ '+e.message,1)}
+ if(window.JYM && window.JYM.auth){
+  const data=await window.JYM.auth.signUp(u,p,n||u);
+  token=data.session.access_token;const authUser=data.user;
+  let profile=null;for(let i=0;i<5;i++){try{profile=await window.JYM.user.getUserProfile(authUser.id);break}catch(e){await new Promise(r=>setTimeout(r,500))}}
+  if(!profile) profile={id:0,auth_uid:authUser.id,username:u,nickname:n||u,lang,membership:'free',admin:0,member_expires:'',avatar:''};
+  me={id:profile.id,auth_uid:authUser.id,username:profile.username||u,nickname:profile.nickname||n||u,lang:profile.lang||lang,membership:profile.membership||'free',admin:profile.admin||0,member_expires:profile.member_expires||'',avatar:profile.avatar||''};
+ }else{
+  const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
+ }
+ adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
+ saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();toast('✅ 註冊成功');
+ }catch(e){let msg=e.message||'註冊失敗';if(msg.includes('already registered'))msg='用戶名已被註冊';if(msg.includes('password'))msg='密碼不符合要求（最少6位）';toast('❌ '+msg,1)}
 }
-function doLogout(){token=null;me=null;selStatus=-1;clearS();updateNav();buildGrid();updTitles();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-checkin').classList.add('active');toast('👋 已登出')}
+async function doLogout(){
+ if(window.JYM&&window.JYM.auth){try{await window.JYM.auth.signOut()}catch(e){}}
+ token=null;me=null;selStatus=-1;clearS();updateNav();buildGrid();updTitles();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-checkin').classList.add('active');toast('👋 已登出');
+}
 
 // ═══════ CHECKIN ═══════
 async function doCheckin(){
-  if(!me)return toast('請先登入',1);if(selStatus<0)return toast('請選擇狀態',1);
-  try{
-    const r=await api('/api/checkin',{method:'POST',body:{status:selStatus,note:document.getElementById('chk-note').value,lat:0,lng:0}});
-    selStatus=-1;document.getElementById('chk-note').value='';buildGrid();
-    toast('🍻 報到成功！');fireConfetti();document.getElementById('chk-remaining').textContent=r.remaining!==undefined?'剩餘：'+r.remaining+'次':'';
-    loadTL();
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!me)return toast('請先登入',1);if(selStatus<0)return toast('請選擇狀態',1);
+ try{
+ if(window.JYM&&window.JYM.checkin){
+  await window.JYM.checkin.createCheckin(me.id,selStatus,document.getElementById('chk-note').value,'');
+ }else{
+  await api('/api/checkin',{method:'POST',body:{status:selStatus,note:document.getElementById('chk-note').value,lat:0,lng:0}});
+ }
+ selStatus=-1;document.getElementById('chk-note').value='';buildGrid();
+ toast('🍻 報到成功！');fireConfetti();document.getElementById('chk-remaining').textContent='';
+ loadTL();
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 // ═══════ TIMELINE ═══════
 async function loadTL(){
-  const c=document.getElementById('tl-container');
-  if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>請登入查看</div>';return}
-  showLoader('tl-container');
-  try{
-    const d=await api('/api/timeline?limit=30&lang='+lang);let h='';
-    (d.timeline||[]).forEach(item=>{
-      const st=STATUSES[item.status]||STATUSES[0];
-      const av=item.avatar&&item.avatar.startsWith('/')?API_BASE+item.avatar:'';
-      h+='<div class="tl-item"><div class="tl-avatar">'+(av?'<img src="'+av+'">':'🍺')+'</div><div class="tl-body"><div class="tl-name">'+esc(item.nickname)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
-      h+='<button class="btn btn-outline btn-sm" onclick="doLike('+item.id+')">❤️ <span id="lk-'+item.id+'">'+(item.likes||0)+'</span></button>';
-      h+='<button class="btn btn-outline btn-sm" onclick="openCmt('+item.id+')">💬 <span id="ct-'+item.id+'">'+(item.comments||0)+'</span></button>';
-      h+='<div style="display:flex;gap:2px;flex-wrap:wrap">';
-      RE_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="doRe('+item.id+',\''+e+'\')">'+e+'</button>'});
-      h+='</div><span style="font-size:11px;color:var(--sub)">'+(item.reactions||0)+'</span></div></div></div>';
-    });
-    if(!d.timeline.length)h='<div class="empty"><div class="empty-icon">🍺</div>未有動態</div>';
-    c.innerHTML=h;
-  }catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>載入失敗</div>'}
+ const c=document.getElementById('tl-container');
+ if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>請登入查看</div>';return}
+ showLoader('tl-container');
+ try{
+ let items=[];
+ if(window.JYM&&window.JYM.checkin){
+  const data=await window.JYM.checkin.getCheckins(30);
+  (data||[]).forEach(row=>{
+   const u=row.users||{};
+   items.push({id:row.id,status:row.status,nickname:u.nickname||u.username||'',avatar:u.avatar||'',note:row.note||'',created_at:row.created_at?row.created_at.substring(0,16).replace('T',' '):'',likes:0,comments:0,reactions:0});
+  });
+ }else{
+  const d=await api('/api/timeline?limit=30&lang='+lang);
+  items=(d.timeline||[]);
+ }
+ let h='';
+ items.forEach(item=>{
+ const st=STATUSES[item.status]||STATUSES[0];
+ const av=item.avatar&&item.avatar.startsWith('/')?API_BASE+item.avatar:'';
+ h+='<div class="tl-item"><div class="tl-avatar">'+(av?'<img src="'+av+'">':'🍺')+'</div><div class="tl-body"><div class="tl-name">'+esc(item.nickname)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
+ h+='<button class="btn btn-outline btn-sm" onclick="doLike('+item.id+')">❤️ <span id="lk-'+item.id+'">'+(item.likes||0)+'</span></button>';
+ h+='<button class="btn btn-outline btn-sm" onclick="openCmt('+item.id+')">💬 <span id="ct-'+item.id+'">'+(item.comments||0)+'</span></button>';
+ h+='<div style="display:flex;gap:2px;flex-wrap:wrap">';
+ RE_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="doRe('+item.id+',\''+e+'\')">'+e+'</button>'});
+ h+='</div><span style="font-size:11px;color:var(--sub)">'+(item.reactions||0)+'</span></div></div></div>';
+ });
+ if(!items.length)h='<div class="empty"><div class="empty-icon">🍺</div>未有動態</div>';
+ c.innerHTML=h;
+ }catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>載入失敗</div>'}
 }
-async function doRe(cid,emoji){try{await api('/api/reaction',{method:'POST',body:{checkin_id:cid,emoji}});loadTL()}catch(e){}}
-async function doLike(cid){try{const r=await api('/api/checkin/'+cid+'/like',{method:'POST'});document.getElementById('lk-'+cid).textContent=r.count;loadTL()}catch(e){}}
+async function doRe(cid,emoji){
+ try{
+ if(window.JYM&&window.JYM.reaction){await window.JYM.reaction.addReaction(cid,me.id,emoji)}
+ else{await api('/api/reaction',{method:'POST',body:{checkin_id:cid,emoji}})}
+ loadTL();
+ }catch(e){}
+}
+async function doLike(cid){
+ try{
+ if(window.JYM&&window.JYM.like){await window.JYM.like.toggleLike(cid,me.id)}
+ else{await api('/api/checkin/'+cid+'/like',{method:'POST'})}
+ loadTL();
+ }catch(e){}
+}
 
 // ═══════ COMMENTS ═══════
 function openCmt(cid){curCid=cid;const el=document.getElementById('cmt-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';document.getElementById('cmt-inp').value='';loadCmt(cid)}
 function closeCmt(){const el=document.getElementById('cmt-mod');el.style.display='none';el.classList.remove('show');curCid=null}
 async function loadCmt(cid){
-  try{const d=await api('/api/checkin/'+cid+'/comments');let h='';
-    (d.comments||[]).forEach(c=>{h+='<div class="comment-item"><b>'+esc(c.nickname)+'</b>: '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
-    if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有留言</div>';
-    h+='<div class="emoji-picker">';CM_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="insEm(\''+e+'\')" style="font-size:22px">'+e+'</button>'});h+='</div>';
-    document.getElementById('cmt-list').innerHTML=h;
-  }catch(e){}
+ try{
+ let comments=[];
+ if(window.JYM&&window.JYM.supabase){
+  const{data,err}=await window.JYM.supabase.from('checkin_comments').select('*,users(username,nickname)').eq('checkin_id',cid).order('created_at',{ascending:true});
+  if(data)(data||[]).forEach(c=>{const u=c.users||{};comments.push({nickname:u.nickname||u.username||'',text:c.content,created_at:c.created_at?c.created_at.substring(0,16).replace('T',' '):''})});
+ }else{
+  const d=await api('/api/checkin/'+cid+'/comments');comments=d.comments||[];
+ }
+ let h='';comments.forEach(c=>{h+='<div class="comment-item"><b>'+esc(c.nickname)+'</b>: '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
+ if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有留言</div>';
+ h+='<div class="emoji-picker">';CM_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="insEm(\''+e+'\')" style="font-size:22px">'+e+'</button>'});h+='</div>';
+ document.getElementById('cmt-list').innerHTML=h;
+ }catch(e){}
 }
 function insEm(e){document.getElementById('cmt-inp').value+=e;document.getElementById('cmt-inp').focus()}
 async function doCmt(){
-  const t=document.getElementById('cmt-inp').value.trim();if(!t||!curCid)return;
-  try{await api('/api/checkin/'+curCid+'/comment',{method:'POST',body:{text:t}});document.getElementById('cmt-inp').value='';loadCmt(curCid);loadTL()}catch(e){toast('❌ '+e.message,1)}
+ const t=document.getElementById('cmt-inp').value.trim();if(!t||!curCid)return;
+ try{
+ if(window.JYM&&window.JYM.comment){await window.JYM.comment.addComment(curCid,me.id,t)}
+ else{await api('/api/checkin/'+curCid+'/comment',{method:'POST',body:{text:t}})}
+ document.getElementById('cmt-inp').value='';loadCmt(curCid);loadTL();
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 // ═══════ PARTY ═══════
 async function createParty(){
-  if(!me)return toast('請先登入',1);
-  const title=document.getElementById('pa-title').value.trim(),loc=document.getElementById('pa-loc').value.trim(),
-    d=document.getElementById('pa-date').value,tm=document.getElementById('pa-time').value;
-  if(!title)return toast('輸入名稱',1);if(!d)return toast('選擇日期',1);
-  try{await api('/api/party',{method:'POST',body:{title,location:loc,meet_time:d+(tm?'T'+tm:''),lat:0,lng:0}});
-    document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();toast('✅ 酒局已發起');
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!me)return toast('請先登入',1);
+ const title=document.getElementById('pa-title').value.trim(),loc=document.getElementById('pa-loc').value.trim(),
+ d=document.getElementById('pa-date').value,tm=document.getElementById('pa-time').value;
+ if(!title)return toast('輸入名稱',1);if(!d)return toast('選擇日期',1);
+ try{
+ if(window.JYM&&window.JYM.party){await window.JYM.party.createParty(me.id,title,'',loc,d+(tm?'T'+tm:''),0)}
+ else{await api('/api/party',{method:'POST',body:{title,location:loc,meet_time:d+(tm?'T'+tm:''),lat:0,lng:0}})}
+ document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();toast('✅ 酒局已發起');
+ }catch(e){toast('❌ '+e.message,1)}
 }
 async function loadParties(){
-  if(!me)return;
-  try{const d=await api('/api/parties');let h='';
-    (d.parties||[]).forEach(p=>{const atts=p.attendees||[];
-      h+='<div class="card"><div style="font-weight:700;font-size:15px">'+esc(p.title)+'</div><div style="font-size:12px;color:var(--sub);margin:6px 0">📍 '+(esc(p.location)||'未定')+' · 🕐 '+(p.meet_time||'未定')+'</div><div style="font-size:11px;color:var(--amber)">👑 '+esc(p.creator_nickname)+'</div>';
-      h+='<div style="margin:8px 0"><span class="clickable" onclick="this.nextElementSibling.classList.toggle(\'open\')">👥 '+p.going_count+'人參加 ▸</span><div class="attendee-list">';
-      atts.forEach(a=>{h+='<div class="attendee-row">'+(a.response==='going'?'✅':a.response==='maybe'?'🤔':'❌')+' <b>'+esc(a.nickname)+'</b></div>'});
-      h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">✅ 到</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">🤔 可能</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">❌ 唔到</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">📝 記錄 ('+(p.journal_count||0)+')</button></div></div>';
-    });
-    if(!d.parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>未有酒局</div>';
-    document.getElementById('party-list').innerHTML=h;
-  }catch(e){}
+ if(!me)return;
+ try{
+ let parties=[];
+ if(window.JYM&&window.JYM.party){
+  const data=await window.JYM.party.getParties();
+  (data||[]).forEach(p=>{const u=p.users||{};parties.push({id:p.id,title:p.title,location:p.location,meet_time:p.event_date?p.event_date.substring(0,16).replace('T',' '):'',creator_nickname:u.nickname||u.username||'',going_count:0,attendees:[],journal_count:0})});
+ }else{
+  const d=await api('/api/parties');parties=d.parties||[];
+ }
+ let h='';
+ parties.forEach(p=>{const atts=p.attendees||[];
+ h+='<div class="card"><div style="font-weight:700;font-size:15px">'+esc(p.title)+'</div><div style="font-size:12px;color:var(--sub);margin:6px 0">📍 '+(esc(p.location)||'未定')+' · 🕐 '+(p.meet_time||'未定')+'</div><div style="font-size:11px;color:var(--amber)">👑 '+esc(p.creator_nickname)+'</div>';
+ h+='<div style="margin:8px 0"><span class="clickable" onclick="this.nextElementSibling.classList.toggle(\'open\')">👥 '+p.going_count+'人參加 ▸</span><div class="attendee-list">';
+ atts.forEach(a=>{h+='<div class="attendee-row">'+(a.response==='going'?'✅':a.response==='maybe'?'🤔':'❌')+' <b>'+esc(a.nickname)+'</b></div>'});
+ h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">✅ 到</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">🤔 可能</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">❌ 唔到</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">📝 記錄 ('+(p.journal_count||0)+')</button></div></div>';
+ });
+ if(!parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>未有酒局</div>';
+ document.getElementById('party-list').innerHTML=h;
+ }catch(e){}
 }
-async function rsvp(pid,resp){try{await api('/api/party/'+pid+'/rsvp',{method:'POST',body:{response:resp}});loadParties()}catch(e){}}
+async function rsvp(pid,resp){
+ try{
+ if(window.JYM&&window.JYM.party){await window.JYM.party.rsvpParty(pid,me.id,resp)}
+ else{await api('/api/party/'+pid+'/rsvp',{method:'POST',body:{response:resp}})}
+ loadParties();
+ }catch(e){}
+}
 function openJnl(pid){curPid=pid;const el=document.getElementById('jnl-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';document.getElementById('jnl-inp').value='';loadJnl(pid)}
 function closeJnl(){const el=document.getElementById('jnl-mod');el.style.display='none';el.classList.remove('show');curPid=null}
 async function loadJnl(pid){
@@ -885,7 +979,28 @@ async function doJnl(){const t=document.getElementById('jnl-inp').value.trim();i
 
 // ═══════ STATS ═══════
 async function loadStats(){
-  if(!me)return;try{const d=await api('/api/stats');document.getElementById('st-total').textContent=d.total||0;document.getElementById('st-week').textContent=d.week||0;document.getElementById('st-today').textContent=d.today||0;let h='<div class="card"><div class="card-header">📊 狀態分佈</div>';const dist=d.status_dist||{};if(!Object.keys(dist).length)h+='<div style="color:var(--sub);font-size:12px;padding:8px">冇數據</div>';else Object.entries(dist).forEach(([k,v])=>{const st=STATUSES[parseInt(k)]||STATUSES[0];h+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span>'+T(st.k)+' '+st.e+'</span><span style="color:var(--amber);font-weight:600">'+v+'次</span></div>'});h+='</div>';document.getElementById('st-dist').innerHTML=h}catch(e){}}
+ if(!me)return;
+ try{
+ if(window.JYM&&window.JYM.supabase){
+  const sb=window.JYM.supabase;
+  const{count:total}=await sb.from('checkins').select('*',{count:'exact',head:true}).eq('user_id',me.id);
+  const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
+  const{count:week}=await sb.from('checkins').select('*',{count:'exact',head:true}).eq('user_id',me.id).gte('created_at',weekAgo.toISOString());
+  const today=new Date();today.setHours(0,0,0,0);
+  const{count:todayC}=await sb.from('checkins').select('*',{count:'exact',head:true}).eq('user_id',me.id).gte('created_at',today.toISOString());
+  document.getElementById('st-total').textContent=total||0;document.getElementById('st-week').textContent=week||0;document.getElementById('st-today').textContent=todayC||0;
+  // Status distribution
+  const{data:distData}=await sb.from('checkins').select('status').eq('user_id',me.id);
+  const dist={};(distData||[]).forEach(r=>{dist[r.status]=(dist[r.status]||0)+1});
+  let h='<div class="card"><div class="card-header">📊 狀態分佈</div>';
+  if(!Object.keys(dist).length)h+='<div style="color:var(--sub);font-size:12px;padding:8px">冇數據</div>';
+  else Object.entries(dist).forEach(([k,v])=>{const st=STATUSES[parseInt(k)]||STATUSES[0];h+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span>'+T(st.k)+' '+st.e+'</span><span style="color:var(--amber);font-weight:600">'+v+'次</span></div>'});
+  h+='</div>';document.getElementById('st-dist').innerHTML=h;
+ }else{
+  const d=await api('/api/stats');document.getElementById('st-total').textContent=d.total||0;document.getElementById('st-week').textContent=d.week||0;document.getElementById('st-today').textContent=d.today||0;let h='<div class="card"><div class="card-header">📊 狀態分佈</div>';const dist=d.status_dist||{};if(!Object.keys(dist).length)h+='<div style="color:var(--sub);font-size:12px;padding:8px">冇數據</div>';else Object.entries(dist).forEach(([k,v])=>{const st=STATUSES[parseInt(k)]||STATUSES[0];h+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span>'+T(st.k)+' '+st.e+'</span><span style="color:var(--amber);font-weight:600">'+v+'次</span></div>'});h+='</div>';document.getElementById('st-dist').innerHTML=h;
+ }
+ }catch(e){}
+}
 
 // ═══════ MEMBER ═══════
 function updMem(){const s=document.getElementById('mem-status'),e=document.getElementById('mem-exp');if(!me)return;if(me.membership&&me.membership!=='free'){s.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');e.textContent='到期：'+(me.member_expires||'永久')}else{s.textContent='🆓 免費會員';e.textContent='升級享受完整功能'}}
@@ -905,14 +1020,21 @@ function openProfile(){
 function closeProf(){const el=document.getElementById('prof-mod');el.style.display='none';el.classList.remove('show')}
 function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('av-prev').innerHTML='<img src="'+ev.target.result+'">'};r.readAsDataURL(f)}
 async function saveProf(){
-  if(!me)return toast('請先登入',1);
-  const nick=document.getElementById('p-nick').value.trim(),oldpw=document.getElementById('p-oldpw').value,newpw=document.getElementById('p-newpw').value,avatar=document.querySelector('#av-prev img')?.src||'';
-  try{
-    if(nick){me.nickname=nick;await api('/api/update-profile',{method:'POST',body:{nickname:nick,lang}})}
-    if(oldpw&&newpw){if(newpw.length<4)return toast('新密碼最少4位',1);await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}})}
-    if(avatar&&avatar.startsWith('data:')){const r=await api('/api/update-avatar',{method:'POST',body:{avatar}});me.avatar=r.url;saveS()}
-    saveS();updateNav();closeProf();toast('✅ 已更新')
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!me)return toast('請先登入',1);
+ const nick=document.getElementById('p-nick').value.trim(),oldpw=document.getElementById('p-oldpw').value,newpw=document.getElementById('p-newpw').value,avatar=document.querySelector('#av-prev img')?.src||'';
+ try{
+ if(window.JYM&&window.JYM.user){
+  if(nick){me.nickname=nick;await window.JYM.user.updateUserProfile(me.auth_uid,{nickname:nick,lang})}
+  if(oldpw&&newpw){if(newpw.length<4)return toast('新密碼最少4位',1);await window.JYM.supabase.auth.updateUser({password:newpw})}
+  // Avatar update: store as base64 in public.users
+  if(avatar&&avatar.startsWith('data:')){await window.JYM.user.updateUserProfile(me.auth_uid,{avatar:avatar});me.avatar=avatar;saveS()}
+ }else{
+  if(nick){me.nickname=nick;await api('/api/update-profile',{method:'POST',body:{nickname:nick,lang}})}
+  if(oldpw&&newpw){if(newpw.length<4)return toast('新密碼最少4位',1);await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}})}
+  if(avatar&&avatar.startsWith('data:')){const r=await api('/api/update-avatar',{method:'POST',body:{avatar}});me.avatar=r.url;saveS()}
+ }
+ saveS();updateNav();closeProf();toast('✅ 已更新')
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin()}
@@ -1572,8 +1694,5 @@ function dieChar(v){return ['','⚀','⚁','⚂','⚃','⚄','⚅'][v]||'?'}
 setTimeout(initDice,200);
 
 </script>
-<!-- Supabase (optional, loaded after everything else) -->
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="window.supabase=null"></script>
-<script defer src="/supabase-client.js" onerror="window.JYM=null"></script>
 </body>
 </html>
