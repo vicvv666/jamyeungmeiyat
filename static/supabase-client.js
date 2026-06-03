@@ -137,6 +137,7 @@ async function rsvpParty(partyId, userId, response) {
 
 // ══════ GLOBAL ══════
 window.JYM = {
+ _supabaseOnly: true,
  supabase: _supabase,
  auth: { signUp, signIn, signOut, getCurrentUser, getSession, _toEmail: toEmail, _fromEmail: fromEmail },
  user: { getUserProfile, updateUserProfile },

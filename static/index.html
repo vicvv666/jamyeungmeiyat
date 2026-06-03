@@ -97,6 +97,7 @@
 var ASSET_BASE=location.protocol==='file:'?'file:///android_asset/www':'';
 </script>
 
+
 <title>🍺 今晚飲咗未 — 飲酒社交打卡</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -797,6 +798,7 @@ async function doLogin(){
  try{
  if(window.JYM && window.JYM.auth){
   const data=await window.JYM.auth.signIn(u,p);
+  if(!data.session)throw new Error('登入失敗：無法取得 session');
   token=data.session.access_token;
   const authUser=data.user;
   let profile=null;
@@ -820,11 +822,18 @@ async function doRegister(){
  if(!u||p.length<4)return toast('用戶名或密碼太短',1);if(p!==p2)return toast('密碼不一致',1);
  try{
  if(window.JYM && window.JYM.auth){
-  const data=await window.JYM.auth.signUp(u,p,n||u);
-  token=data.session.access_token;const authUser=data.user;
-  let profile=null;for(let i=0;i<5;i++){try{profile=await window.JYM.user.getUserProfile(authUser.id);break}catch(e){await new Promise(r=>setTimeout(r,500))}}
-  if(!profile) profile={id:0,auth_uid:authUser.id,username:u,nickname:n||u,lang,membership:'free',admin:0,member_expires:'',avatar:''};
-  me={id:profile.id,auth_uid:authUser.id,username:profile.username||u,nickname:profile.nickname||n||u,lang:profile.lang||lang,membership:profile.membership||'free',admin:profile.admin||0,member_expires:profile.member_expires||'',avatar:profile.avatar||''};
+ const data=await window.JYM.auth.signUp(u,p,n||u);
+ const authUser=data.user;
+ if(!data.session){
+  // signUp 返回 null session → 自动登入获取 session
+  const loginData=await window.JYM.auth.signIn(u,p);
+  token=loginData.session.access_token;
+ }else{
+  token=data.session.access_token;
+ }
+ let profile=null;for(let i=0;i<5;i++){try{profile=await window.JYM.user.getUserProfile(authUser.id);break}catch(e){await new Promise(r=>setTimeout(r,500))}}
+ if(!profile) profile={id:0,auth_uid:authUser.id,username:u,nickname:n||u,lang,membership:'free',admin:0,member_expires:'',avatar:''};
+ me={id:profile.id,auth_uid:authUser.id,username:profile.username||u,nickname:profile.nickname||n||u,lang:profile.lang||lang,membership:profile.membership||'free',admin:profile.admin||0,member_expires:profile.member_expires||'',avatar:profile.avatar||''};
  }else{
   const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
  }
