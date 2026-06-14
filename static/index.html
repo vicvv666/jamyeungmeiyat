@@ -20,22 +20,22 @@
 <meta name="facebook-domain-verification" content="">
 
 <!-- ─── Canonical URL ─────────────────────────────── -->
-<link rel="canonical" href="https://drunk-tonight.app/">
+<link rel="canonical" href="https://drunk.vic999.com/">
 
 <!-- ─── Hreflang Tags ─────────────────────────────── -->
-<link rel="alternate" hreflang="zh-HK" href="https://drunk-tonight.app/">
-<link rel="alternate" hreflang="zh-CN" href="https://drunk-tonight.app/">
-<link rel="alternate" hreflang="en" href="https://drunk-tonight.app/en">
-<link rel="alternate" hreflang="x-default" href="https://drunk-tonight.app/">
+<link rel="alternate" hreflang="zh-HK" href="https://drunk.vic999.com/">
+<link rel="alternate" hreflang="zh-CN" href="https://drunk.vic999.com/">
+<link rel="alternate" hreflang="en" href="https://drunk.vic999.com/">
+<link rel="alternate" hreflang="x-default" href="https://drunk.vic999.com/">
 
 <!-- ─── Open Graph / Facebook ─────────────────────── -->
 <meta property="og:title" content="🍺 今晚飲咗未 — 飲酒社交打卡">
 <meta property="og:description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。">
-<meta property="og:image" content="https://drunk-tonight.app/icon-512.png">
+<meta property="og:image" content="https://drunk.vic999.com/icon-512.png">
 <meta property="og:image:width" content="512">
 <meta property="og:image:height" content="512">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://drunk-tonight.app/">
+<meta property="og:url" content="https://drunk.vic999.com/">
 <meta property="og:locale" content="zh_HK">
 <meta property="og:site_name" content="今晚飲咗未">
 
@@ -43,7 +43,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="🍺 今晚飲咗未 — 飲酒社交打卡">
 <meta name="twitter:description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。">
-<meta name="twitter:image" content="https://drunk-tonight.app/icon-512.png">
+<meta name="twitter:image" content="https://drunk.vic999.com/icon-512.png">
 
 <!-- ─── PWA / Mobile / Apple Touch ────────────────── -->
 <link rel="manifest" href="manifest.json">
@@ -80,12 +80,12 @@
   ],
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://drunk-tonight.app/?q={search_term_string}",
+    "target": "https://drunk.vic999.com/?q={search_term_string}",
     "query-input": "required name=search_term_string"
   },
-  "screenshot": "https://drunk-tonight.app/icon-512.png",
-  "image": "https://drunk-tonight.app/icon-512.png",
-  "url": "https://drunk-tonight.app/"
+  "screenshot": "https://drunk.vic999.com/icon-512.png",
+  "image": "https://drunk.vic999.com/icon-512.png",
+  "url": "https://drunk.vic999.com/"
 }
 </script>
 
@@ -304,8 +304,14 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px">喺手機安裝 App 體驗更佳！</div>
-  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.1.0/app-debug.apk" class="btn btn-primary" style="text-decoration:none" download>🚀 下載 Android APK</a>
+  <a id="apk-dl-link" href="https://drunk.vic999.com/apk/jymy.apk" class="btn btn-primary" style="text-decoration:none" download>🚀 下載 Android APK</a>
   <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · Debug 版 · 4.3MB</div>
+ </div>
+ <!-- Legal Footer on main page -->
+ <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
+  <a href="javascript:void(0)" onclick="openLegal('terms')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="terms">使用條款</a> · 
+  <a href="javascript:void(0)" onclick="openLegal('disc')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="disclaimer">免責聲明</a> · 
+  <a href="javascript:void(0)" onclick="openLegal('ct')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="contact">聯絡我們</a>
  </div>
 </div>
 
@@ -490,6 +496,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       <button class="btn btn-primary" onclick="doLogin()">登入</button>
       <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showReg()">未有帳號？註冊 →</div>
       <div class="ad-email">📧 vichoo2020@gmail.com</div>
+      <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px">聯絡我們</a></div>
     </div>
     <div id="reg-form" style="display:none">
       <div style="text-align:center;margin-bottom:20px">
@@ -501,10 +508,25 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       <input class="input" id="r-nick" placeholder="花名">
       <input class="input" id="r-pass" type="password" placeholder="密碼（最少4位）" autocomplete="new-password">
       <input class="input" id="r-pass2" type="password" placeholder="確認密碼" autocomplete="new-password">
+      <label style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--sub);margin:8px 0;cursor:pointer"><input type="checkbox" id="r-agree" style="margin-top:2px"><span id="r-agree-txt">我已閱讀並同意使用條款及免責聲明</span></label>
       <button class="btn btn-primary" onclick="doRegister()">註冊</button>
       <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showLogin()">← 返回登入</div>
       <div class="ad-email">📧 vichoo2020@gmail.com</div>
+      <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px">聯絡我們</a></div>
     </div>
+  </div>
+</div>
+
+<!-- LEGAL (Terms / Disclaimer / Contact) -->
+<div class="modal-overlay" id="legal-mod" style="display:none" onclick="if(event.target===this)closeLegal()">
+  <div class="modal" style="max-width:460px">
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+      <button class="pay-qr-tab active" id="lt-terms" onclick="swLegalTab('terms')">📋 <span id="lt-terms-txt">使用條款</span></button>
+      <button class="pay-qr-tab" id="lt-disc" onclick="swLegalTab('disc')">⚠️ <span id="lt-disc-txt">免責聲明</span></button>
+      <button class="pay-qr-tab" id="lt-ct" onclick="swLegalTab('ct')">📬 <span id="lt-ct-txt">聯絡我們</span></button>
+    </div>
+    <div id="legal-content" style="font-size:13px;line-height:1.8;white-space:pre-line;color:var(--text);max-height:50dvh;overflow-y:auto;padding:12px;background:rgba(0,0,0,0.2);border-radius:12px"></div>
+    <button class="btn btn-primary" onclick="closeLegal()" style="margin-top:14px;width:100%">✅ OK</button>
   </div>
 </div>
 
@@ -784,19 +806,31 @@ const L={'zh-HK':{
   st_jui_gan:'醉緊',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飄飄',st_dyun_pin:'斷片',st_seung_au:'想嘔',st_wan_wan:'暈暈',st_pa_dai:'趴低',
   st_jyun_cheung:'轉場',st_gau_jau:'溝酒',st_chaai_mui:'猜枚',st_jik_lok:'直落',st_yum_cho:'飲咗',st_fan_gwai:'返歸',st_sing_saai:'醒晒',st_ting_yat:'聽日',
   grp_hei_sau:'起手',grp_seung_gan:'上緊',grp_jui_gan:'醉緊',grp_baau_cho:'爆咗',grp_jyun_cheung:'轉場',grp_sau_mei:'收尾',
-  checkin:'報到',timeline:'動態',party:'酒局',stats:'統計',member:'會員',login:'登入',logout:'登出'
+  checkin:'報到',timeline:'動態',party:'酒局',stats:'統計',member:'會員',login:'登入',logout:'登出',
+  terms:'使用條款',disclaimer:'免責聲明',contact:'聯絡我們',agree:'我已閱讀並同意使用條款及免責聲明',
+  terms_content:'1. 本應用程式（「今晚飲咗未」）為社交打卡工具，供用戶記錄飲酒活動。\n\n2. 用戶須年滿法定飲酒年齡方可使用本應用。\n\n3. 用戶帳號及密碼由用戶自行保管，因帳號密碼洩露導致的一切損失由用戶自行承擔。\n\n4. 用戶不得利用本應用從事任何違法行為，包括但不限於教唆未成年人飲酒、酒後駕駛等。\n\n5. 本應可能有付費會員功能，付款後不予退款。\n\n6. 我們保留隨時修改條款的權利，繼續使用即表示接受修改後的條款。',
+  disclaimer_content:'⚠️ 免責聲明\n\n1. 本應用僅提供社交打卡功能，不鼓勵過量飲酒。\n\n2. 飲酒有害健康，請適量飲酒。孕婦及未成年人請勿飲酒。\n\n3. 飲酒後切勿駕駛，本應用對用戶因飲酒導致的任何直接或間接損失不承擔任何責任。\n\n4. 本應用中其他用戶發佈的內容不代表本應用立場，我們對此不承擔任何責任。\n\n5. 本應用按「現狀」提供，不作任何明示或暗示的保證。',
+  contact_content:'📬 聯絡我們\n\n電郵：vichoo2020@gmail.com\n\n如有任何問題、建議或投訴，歡迎通過以上電郵聯繫我們。'
 },'zh-CN':{
   st_mai_yum:'没喝',st_seung_yum:'想喝',st_dou_cho:'到了',st_hoi_cho:'开了',st_yum_gan:'喝着',st_gai_juk:'继续',st_ga_jau:'加酒',st_cheung_yum:'畅饮',
   st_jui_gan:'醉着',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飘飘',st_dyun_pin:'断片',st_seung_au:'想吐',st_wan_wan:'晕晕',st_pa_dai:'趴下',
   st_jyun_cheung:'转场',st_gau_jau:'混酒',st_chaai_mui:'猜拳',st_jik_lok:'直落',st_yum_cho:'喝了',st_fan_gwai:'回家',st_sing_saai:'醒了',st_ting_yat:'明天',
   grp_hei_sau:'起手',grp_seung_gan:'上头',grp_jui_gan:'醉着',grp_baau_cho:'爆了',grp_jyun_cheung:'转场',grp_sau_mei:'收尾',
-  checkin:'报到',timeline:'动态',party:'酒局',stats:'统计',member:'会员',login:'登录',logout:'退出'
+  checkin:'报到',timeline:'动态',party:'酒局',stats:'统计',member:'会员',login:'登录',logout:'退出',
+  terms:'使用条款',disclaimer:'免责声明',contact:'联系我们',agree:'我已阅读并同意使用条款及免责声明',
+  terms_content:'1. 本应用程序（「今晚饮咗未」）为社交打卡工具，供用户记录饮酒活动。\n\n2. 用户须年满法定饮酒年龄方可使用本应用。\n\n3. 用户帐号及密码由用户自行保管，因帐号密码泄露导致的一切损失由用户自行承担。\n\n4. 用户不得利用本应用从事任何违法行为，包括但不限于教唆未成年人饮酒、酒后驾驶等。\n\n5. 本应用可能有付费会员功能，付款后不予退款。\n\n6. 我们保留随时修改条款的权利，继续使用即表示接受修改后的条款。',
+  disclaimer_content:'⚠️ 免责声明\n\n1. 本应用仅提供社交打卡功能，不鼓励过量饮酒。\n\n2. 饮酒有害健康，请适量饮酒。孕妇及未成年人请勿饮酒。\n\n3. 饮酒后切勿驾驶，本应用对用户因饮酒导致的任何直接或间接损失不承担任何责任。\n\n4. 本应用中其他用户发布的内容不代表本应用立场，我们对此不承担任何责任。\n\n5. 本应用按「现状」提供，不作任何明示或暗示的保证。',
+  contact_content:'📬 联系我们\n\n邮箱：vichoo2020@gmail.com\n\n如有任何问题、建议或投诉，欢迎通过以上邮箱联系我们。'
 },'en':{
   st_mai_yum:'Sober',st_seung_yum:'Thirsty',st_dou_cho:'Here',st_hoi_cho:'Started',st_yum_gan:'Drinking',st_gai_juk:'More',st_ga_jau:'TopUp',st_cheung_yum:'Flowing',
   st_jui_gan:'Buzzed',st_ho_jui:'Drunk',st_tou_jui:'Tipsy',st_piu_piu:'Float',st_dyun_pin:'Wasted',st_seung_au:'Sick',st_wan_wan:'Dizzy',st_pa_dai:'Done',
   st_jyun_cheung:'Hop',st_gau_jau:'Mix',st_chaai_mui:'Game',st_jik_lok:'On&On',st_yum_cho:'Done',st_fan_gwai:'Home',st_sing_saai:'SoberUp',st_ting_yat:'Tmrw',
   grp_hei_sau:'Start',grp_seung_gan:'Going',grp_jui_gan:'Buzzed',grp_baau_cho:'Wasted',grp_jyun_cheung:'Hop',grp_sau_mei:'Done',
-  checkin:'Check In',timeline:'Feed',party:'Party',stats:'Stats',member:'Member',login:'Login',logout:'Logout'
+  checkin:'Check In',timeline:'Feed',party:'Party',stats:'Stats',member:'Member',login:'Login',logout:'Logout',
+  terms:'Terms',disclaimer:'Disclaimer',contact:'Contact',agree:'I have read and agree to the Terms and Disclaimer',
+  terms_content:'1. This application ("Drunk Tonight?") is a social check-in tool for users to record drinking activities.\n\n2. Users must be of legal drinking age to use this application.\n\n3. Users are responsible for safeguarding their account credentials. Any losses resulting from credential leaks are the user\'s responsibility.\n\n4. Users must not use this application for any illegal activities, including but not limited to encouraging underage drinking or drunk driving.\n\n5. This application may offer paid membership features. Payments are non-refundable.\n\n6. We reserve the right to modify these terms at any time. Continued use constitutes acceptance of the modified terms.',
+  disclaimer_content:'⚠️ Disclaimer\n\n1. This application only provides social check-in functionality and does not encourage excessive drinking.\n\n2. Drinking is harmful to health. Please drink responsibly. Pregnant women and minors should not drink alcohol.\n\n3. Never drink and drive. This application bears no responsibility for any direct or indirect losses caused by drinking.\n\n4. Content posted by other users does not represent the views of this application, and we bear no responsibility for it.\n\n5. This application is provided "as is" without any express or implied warranties.',
+  contact_content:'📬 Contact Us\n\nEmail: vichoo2020@gmail.com\n\nFor any questions, suggestions, or complaints, please contact us via the email above.'
 }};
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
@@ -805,6 +839,7 @@ function switchLang(l){lang=l;document.getElementById('lang-switch').value=l;if(
 function updTitles(){
   document.getElementById('nav-title').textContent='🍺 '+(lang==='en'?'Drunk Tonight?':'今晚飲咗未');
   ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});
+  if(typeof updLegalLinks==='function')updLegalLinks();
 }
 
 // ═══════ STATUS GRID ═══════
@@ -863,12 +898,14 @@ async function doLogin(){
  }
  lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
  adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
- saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();toast('✅ 登入成功');
+ saveS();toast('✅ 登入成功');closeAuth();updateNav();buildGrid();updTitles();
+ setTimeout(()=>refreshAll(),300);
  }catch(e){let msg=e.message||'登入失敗';if(msg.includes('Invalid login'))msg='用戶名或密碼錯誤';if(msg.includes('Email not confirmed'))msg='帳號未確認，請稍後重試';toast('❌ '+msg,1)}
 }
 async function doRegister(){
  const u=document.getElementById('r-user').value.trim(),n=document.getElementById('r-nick').value.trim(),p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
  if(!u||p.length<4)return toast('用戶名或密碼太短',1);if(p!==p2)return toast('密碼不一致',1);
+ const ag=document.getElementById('r-agree');if(ag&&!ag.checked)return toast('❌ 請先同意使用條款及免責聲明',1);
  try{
  if(window.JYM && window.JYM._flaskMode){
   const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
@@ -889,7 +926,8 @@ async function doRegister(){
   const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
  }
  adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
- saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();toast('✅ 註冊成功');
+ saveS();toast('✅ 註冊成功');closeAuth();updateNav();buildGrid();updTitles();
+ setTimeout(()=>refreshAll(),300);
  }catch(e){let msg=e.message||'註冊失敗';if(msg.includes('already registered'))msg='用戶名已被註冊';if(msg.includes('password'))msg='密碼不符合要求（最少6位）';toast('❌ '+msg,1)}
 }
 async function doLogout(){
@@ -1067,6 +1105,34 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
 function selP(p){selPlan=p;document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));const el=document.getElementById('plan-'+p);if(el)el.classList.add('selected');showPay()}
 function showPay(){if(!me)return toast('請先登入',1);document.getElementById('pay-plan-name').textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';document.getElementById('pay-usd').textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');document.getElementById('pay-mod').style.display='flex'}
 function closePay(){document.getElementById('pay-mod').style.display='none'}
+
+// ═══════ LEGAL (Terms / Disclaimer / Contact) ═══════
+let legalTab='terms';
+function openLegal(tab){
+  legalTab=tab||'terms';swLegalTab(legalTab);
+  document.getElementById('legal-mod').style.display='flex';
+}
+function closeLegal(){document.getElementById('legal-mod').style.display='none'}
+function swLegalTab(tab){
+  legalTab=tab;
+  const map={terms:'terms_content',disc:'disclaimer_content',ct:'contact_content'};
+  const tabMap={terms:'terms',disc:'disclaimer',ct:'contact'};
+  ['terms','disc','ct'].forEach(t=>document.getElementById('lt-'+t).classList.toggle('active',t===tab));
+  document.getElementById('legal-content').textContent=T(map[tab]||'terms_content');
+}
+function updLegalLinks(){
+  document.querySelectorAll('[data-legal-link]').forEach(a=>{
+    const k=a.getAttribute('data-legal-link');
+    if(k==='terms')a.textContent=T('terms');
+    else if(k==='disclaimer')a.textContent=T('disclaimer');
+    else if(k==='contact')a.textContent=T('contact');
+  });
+  const ag=document.getElementById('r-agree-txt');
+  if(ag)ag.textContent=T('agree');
+  const lt=document.getElementById('lt-terms-txt');if(lt)lt.textContent=T('terms');
+  const ld=document.getElementById('lt-disc-txt');if(ld)ld.textContent=T('disclaimer');
+  const lc=document.getElementById('lt-ct-txt');if(lc)lc.textContent=T('contact');
+}
 function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');var src=API_BASE+QR_M[t];img.src=src;img.style.display='block';document.getElementById('pay-fb').style.display='none';img.onerror=function(){img.style.display='none';document.getElementById('pay-fb').style.display='block'}}
 async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});me.membership=r.membership;me.member_expires=r.expires;saveS();closePay();updateNav();updMem();toast('✅ 升級成功')}catch(e){toast('❌ '+e.message,1)}}
 
@@ -1192,7 +1258,7 @@ async function loadAdmStats(){
  await _admCheck();
  const h = _admHeaders();
  const [users, checkins, vips, parties] = await Promise.all([
-  fetch('/api/admin/stats',{headers:h}).then(r=>r.json())
+  fetch(API_BASE+'/api/admin/stats',{headers:h}).then(r=>r.json())
  ]);
  document.getElementById('adm-users').textContent = users.length;
  document.getElementById('adm-checkins').textContent = checkins.length;
@@ -1216,7 +1282,7 @@ async function admLoadMembers(){
  try{
  await _admCheck();
  const h = _admHeaders();
- const data=await fetch('/api/admin/members',{headers:h}).then(r=>r.json()); const users=data.users||[];
+ const data=await fetch(API_BASE+'/api/admin/members',{headers:h}).then(r=>r.json()); const users=data.users||[];
  let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索用戶名/花名..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0"><button class="btn btn-outline btn-sm" onclick="admSearchMember()">搜索</button></div>';
  users.forEach(u => {
  const plan = u.membership || 'free';
@@ -1241,6 +1307,7 @@ async function admLoadMembers(){
  } else {
  html += '<button class="btn btn-outline btn-sm" onclick="admMakeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--purple);border-color:var(--purple)">👑 設管理</button>';
  }
+ html += ' <button class="btn btn-outline btn-sm" onclick="admDeleteUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">🗑 刪除</button>';
  html += '</div></div></div>';
  });
  if(!users.length) html += '<div class="empty"><div class="empty-icon">👥</div>暫無用戶</div>';
@@ -1254,7 +1321,7 @@ async function admSearchMember(){
  try{
  await _admCheck();
  const h = _admHeaders();
- const data=await fetch('/api/admin/member/search?q='+encodeURIComponent(q),{headers:h}).then(r=>r.json()); const users=data.users||[];
+ const data=await fetch(API_BASE+'/api/admin/member/search?q='+encodeURIComponent(q),{headers:h}).then(r=>r.json()); const users=data.users||[];
  let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0" value="'+esc(q)+'"><button class="btn btn-outline btn-sm" onclick="admLoadMembers()">顯示全部</button></div>';
  users.forEach(u => {
  const plan = u.membership || 'free';
@@ -1271,7 +1338,7 @@ async function admSetPlan(uid, plan){
  await _admCheck();
  const h = _admHeaders();
  const exp = plan==='free' ? null : new Date(Date.now()+30*86400000).toISOString().split('T')[0];
- await fetch('/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
+ await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
  toast('✅ 已更新');
  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
@@ -1286,7 +1353,7 @@ async function admVerifyMember(uid){
  await _admCheck();
  const h = _admHeaders();
  const exp = plan==='free' ? null : new Date(Date.now()+(parseInt(days)||30)*86400000).toISOString().split('T')[0];
- await fetch('/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
+ await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
  toast('✅ 資格已確認：'+plan+(exp?'，到期：'+exp:''));
  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
@@ -1303,7 +1370,7 @@ async function admMakeAdmin(uid, username){
  try{
  await _admCheck();
  const h = _admHeaders();
- await fetch('/api/admin/become',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
+ await fetch(API_BASE+'/api/admin/become',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
  toast('✅ 已設為管理員');
  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
@@ -1313,8 +1380,20 @@ async function admRevokeAdmin(uid, username){
  try{
  await _admCheck();
  const h = _admHeaders();
- await fetch('/api/admin/revoke',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
+ await fetch(API_BASE+'/api/admin/revoke',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
  toast('✅ 已取消管理員');
+ admLoadMembers();
+ }catch(e){toast('❌ '+e.message,1)}
+}
+
+async function admDeleteUser(uid, username){
+ if(!confirm('⚠️ 確定刪除用戶「'+username+'」？\n此操作將刪除該用戶及其所有報到記錄，不可撤銷！')) return;
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const r = await fetch(API_BASE+'/api/admin/delete-user',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
+ const d = await r.json();
+ toast(d.ok?'✅ '+d.msg:'❌ '+(d.error||'刪除失敗'));
  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
 }
@@ -1325,7 +1404,7 @@ async function admLoadPayments(){
  try{
  await _admCheck();
  const h = _admHeaders();
- const pData=await fetch('/api/admin/payments',{headers:h}).then(r=>r.json()); const payments=pData.payments||[];
+ const pData=await fetch(API_BASE+'/api/admin/payments',{headers:h}).then(r=>r.json()); const payments=pData.payments||[];
  let html = '';
  payments.forEach(p => {
  const isConfirmed = p.confirmed === 1;
@@ -1355,7 +1434,7 @@ async function admConfirmPayment(pid, confirm){
  await _admCheck();
  const h = _admHeaders();
  const patch = confirm ? {confirmed:1} : {confirmed:-1};
- await fetch('/api/admin/payment/confirm',{method:'POST',headers:h,body:JSON.stringify({payment_id:pid,confirm:patch.confirmed!==0})});
+ await fetch(API_BASE+'/api/admin/payment/confirm',{method:'POST',headers:h,body:JSON.stringify({payment_id:pid,confirm:patch.confirmed!==0})});
  toast(confirm?'✅ 已確認':'❌ 已拒絕');
  admLoadPayments();
  admLoadMembers();
@@ -1369,7 +1448,7 @@ async function admLoadExpired(){
  await _admCheck();
  const h = _admHeaders();
  const today = new Date().toISOString().split('T')[0];
- const mData=await fetch('/api/admin/member/expired',{headers:h}).then(r=>r.json()); const members=mData.members||[];
+ const mData=await fetch(API_BASE+'/api/admin/member/expired',{headers:h}).then(r=>r.json()); const members=mData.members||[];
  let html = '';
  members.forEach(m => {
  html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
@@ -1389,7 +1468,7 @@ async function admLoadAudit(){
  try{
  await _admCheck();
  const h = _admHeaders();
- const aData=await fetch('/api/admin/member/audit?limit=50',{headers:h}).then(r=>r.json()); const audit=aData.audit||[];
+ const aData=await fetch(API_BASE+'/api/admin/member/audit?limit=50',{headers:h}).then(r=>r.json()); const audit=aData.audit||[];
  let html = '';
  (audit||[]).forEach(a => {
  html += '<div class="tl-item" style="padding:6px 0"><div class="tl-body">';
@@ -1437,7 +1516,7 @@ function admBulkRenew(){
   const h=_admHeaders();
   const today=new Date().toISOString().split('T')[0];
   const newExp=new Date(Date.now()+30*86400000).toISOString().split('T')[0];
-  fetch('/api/admin/batch-extend',{method:'POST',headers:h,body:JSON.stringify({new_expires:newExp})})
+  fetch(API_BASE+'/api/admin/batch-extend',{method:'POST',headers:h,body:JSON.stringify({new_expires:newExp})})
   .then(()=>{toast('✅ 已續期');admLoadMembers();admLoadExpired()})
   .catch(e=>toast('❌ '+e.message,1));
  }).catch(e=>toast('❌ '+e.message,1));
@@ -1446,7 +1525,7 @@ function admBulkRenew(){
 function admExportCSV(){
  _admCheck().then(()=>{
   const h=_admHeaders();
-  fetch('/api/admin/members',{headers:h}).then(r=>r.json()).then(d=>{var users=d.users||[];
+  fetch(API_BASE+'/api/admin/members',{headers:h}).then(r=>r.json()).then(d=>{var users=d.users||[];
    var csv='ID,用戶名,花名,會員,到期日,註冊日\n';
    users.forEach(u=>{
     csv+=u.id+','+u.username+','+(u.nickname||'')+','+(u.membership||'free')+','+(u.member_expires||'')+','+(u.created_at||'')+'\n';
@@ -1465,7 +1544,7 @@ function admClearExpired(){
  _admCheck().then(()=>{
   const h=_admHeaders();
   const today=new Date().toISOString().split('T')[0];
-  fetch('/api/admin/batch-free',{method:'POST',headers:h})
+  fetch(API_BASE+'/api/admin/batch-free',{method:'POST',headers:h})
   .then(()=>{toast('✅ 已清除');admLoadMembers();admLoadExpired()})
   .catch(e=>toast('❌ '+e.message,1));
  }).catch(e=>toast('❌ '+e.message,1));
