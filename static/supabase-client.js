@@ -4,10 +4,13 @@
  * Supabase auto-confirm (DB trigger) → 无需email验证
  * DB trigger 自动创建 public.users 记录
  */
-try {
-if (typeof supabase === 'undefined' || !supabase.createClient) {
- throw new Error('Supabase CDN not loaded');
-}
+var JYM = window.JYM || {};
+
+(function initSupabase(){
+ if (typeof supabase === 'undefined' || !supabase.createClient) {
+ console.error('[JYM] Supabase SDK not loaded — auth/checkin disabled');
+ return;
+ }
 
 const SUPABASE_URL = 'https://ymunzmjnyermrdhmtsly.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_HqVJipoJktDVr-kFzKDd1Q_SK4UF2k-';
@@ -146,10 +149,7 @@ window.JYM = {
  reaction: { addReaction },
  comment: { addComment, getComments },
  party: { createParty, getParties, rsvpParty }
-};
+ };
 
-console.log('JYM Supabase client loaded');
-} catch (e) {
- console.warn('JYM Supabase client not loaded:', e.message);
- window.JYM = null;
-}
+ console.log('JYM Supabase client loaded');
+ })();

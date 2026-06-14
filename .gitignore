@@ -54,3 +54,5 @@ htmlcov/
 # Node (if using npm)
 node_modules/
 package-lock.jsonstatic/test-login.html
+
+.vercel
