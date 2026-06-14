@@ -1,0 +1,22 @@
+name: Deploy to Aliyun
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: 47.251.170.110
+          username: root
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            cd /opt/jamyeungmeiyat
+            git pull origin master
+            pip3 install -q -r requirements.txt 2>/dev/null || true
+            systemctl restart jamyeungmeiyat
+            echo "Deployed at $(date)"
