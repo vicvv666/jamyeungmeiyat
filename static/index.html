@@ -537,7 +537,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="avatar-preview" id="av-prev" onclick="document.getElementById('av-inp').click()">👤</div>
     <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="prevAv(event)">
     <input class="input" id="p-nick" placeholder="花名">
-    <input class="input" id="p-oldpw" type="password" placeholder="舊密碼"><input class="input" id="p-newpw" type="password" placeholder="新密碼">
+    <input class="input" id="p-phone" type="tel" placeholder="📞 電話號碼">
+    <input class="input" id="p-email" type="email" placeholder="📧 電郵地址">
+    <input class="input" id="p-oldpw" type="password" placeholder="舊密碼（不改留空）"><input class="input" id="p-newpw" type="password" placeholder="新密碼（不改留空）">
     <button class="btn btn-primary" onclick="saveProf()">💾 儲存</button>
     <div class="ad-email">📧 vichoo2020@gmail.com</div>
   </div>
@@ -1168,26 +1170,46 @@ async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade
 function openProfile(){
   const el=document.getElementById('prof-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
   document.getElementById('p-nick').value=me?.nickname||'';
+  document.getElementById('p-phone').value=me?.phone||'';
+  document.getElementById('p-email').value=me?.email||'';
   document.getElementById('p-oldpw').value='';document.getElementById('p-newpw').value='';
-  document.getElementById('av-prev').textContent=(me?.nickname||me?.username||'?').charAt(0).toUpperCase();
+  if(me?.avatar && me.avatar.startsWith('/api/avatar/')){
+    document.getElementById('av-prev').innerHTML='<img src="'+API_BASE+me.avatar+'">';
+  } else {
+    document.getElementById('av-prev').textContent=(me?.nickname||me?.username||'?').charAt(0).toUpperCase();
+  }
 }
 function closeProf(){const el=document.getElementById('prof-mod');el.style.display='none';el.classList.remove('show')}
 function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('av-prev').innerHTML='<img src="'+ev.target.result+'">'};r.readAsDataURL(f)}
 async function saveProf(){
  if(!me)return toast('請先登入',1);
- const nick=document.getElementById('p-nick').value.trim(),oldpw=document.getElementById('p-oldpw').value,newpw=document.getElementById('p-newpw').value,avatar=document.querySelector('#av-prev img')?.src||'';
+ const nick=document.getElementById('p-nick').value.trim(),
+       phone=document.getElementById('p-phone')?.value?.trim()||'',
+       email=document.getElementById('p-email')?.value?.trim()||'',
+       oldpw=document.getElementById('p-oldpw').value,
+       newpw=document.getElementById('p-newpw').value,
+       avatar=document.querySelector('#av-prev img')?.src||'';
  try{
- if(window.JYM&&window.JYM.user){
-  if(nick){me.nickname=nick;await window.JYM.user.updateUserProfile(me.auth_uid,{nickname:nick,lang})}
-  if(oldpw&&newpw){if(newpw.length<4)return toast('新密碼最少4位',1);await api('/api/change-password',{method:'POST',body:JSON.stringify({old_password:oldpw,new_password:newpw})})}
-  // Avatar update: store as base64 in public.users
-  if(avatar&&avatar.startsWith('data:')){await window.JYM.user.updateUserProfile(me.auth_uid,{avatar:avatar});me.avatar=avatar;saveS()}
- }else{
-  if(nick){me.nickname=nick;await api('/api/update-profile',{method:'POST',body:{nickname:nick,lang}})}
-  if(oldpw&&newpw){if(newpw.length<4)return toast('新密碼最少4位',1);await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}})}
-  if(avatar&&avatar.startsWith('data:')){const r=await api('/api/update-avatar',{method:'POST',body:{avatar}});me.avatar=r.url;saveS()}
- }
- saveS();updateNav();closeProf();toast('✅ 已更新')
+  // Update profile (nickname, phone, email)
+  const profileData = {nickname:nick};
+  if(phone) profileData.phone = phone;
+  if(email) profileData.email = email;
+  if(nick || phone || email){
+   const r=await api('/api/update-profile',{method:'POST',body:profileData});
+   if(r.user){Object.assign(me,r.user);me.avatar=me.avatar||'';}
+  }
+  // Change password
+  if(oldpw&&newpw){
+   if(newpw.length<4)return toast('新密碼最少4位',1);
+   await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}});
+   toast('✅ 密碼已更改');
+  }
+  // Avatar update
+  if(avatar&&avatar.startsWith('data:')){
+   const r=await api('/api/update-avatar',{method:'POST',body:{avatar}});
+   me.avatar=r.url||'';
+  }
+  saveS();updateNav();closeProf();toast('✅ 已更新');
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -1298,12 +1320,54 @@ async function loadAdmStats(){
 }
 
 // ── Admin: Change own password ──
-function admShowChangePw(){
- const pw = prompt('輸入新密碼（至少6位）：');
- if(!pw||pw.length<6){toast('❌ 密碼至少6位');return}
- const old = prompt('輸入舊密碼確認：');
- if(!old){return}
- JYM.auth.updateUser({password:pw}).then(()=>{toast('✅ 密碼已修改')}).catch(e=>toast('❌ '+e.message,1));
+async function admShowChangePw(){
+ const old = prompt('輸入舊密碼：');
+ if(!old) return;
+ const pw = prompt('輸入新密碼（至少4位）：');
+ if(!pw||pw.length<4){toast('❌ 密碼至少4位');return}
+ try{
+  const r=await fetch(API_BASE+'/api/change-password',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({old_password:old,new_password:pw})});
+  const d=await r.json();
+  if(d.ok) toast('✅ 密碼已修改');
+  else toast('❌ '+(d.error||'失敗'),1);
+ }catch(e){toast('❌ '+e.message,1)}
+}
+
+// ── Admin: Edit user profile ──
+async function admEditUser(uid, username){
+ const nick = prompt('花名 ('+username+')：');
+ if(nick===null) return;
+ const phone = prompt('電話：');
+ if(phone===null) return;
+ const email = prompt('電郵：');
+ if(email===null) return;
+ try{
+  await _admCheck();
+  const h = _admHeaders();
+  const body = {user_id:uid};
+  if(nick!=='') body.nickname = nick;
+  body.phone = phone||'';
+  body.email = email||'';
+  const r=await fetch(API_BASE+'/api/admin/update-profile',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify(body)});
+  const d=await r.json();
+  if(d.ok) toast('✅ 已更新');
+  else toast('❌ '+(d.error||'失敗'),1);
+  admLoadMembers();
+ }catch(e){toast('❌ '+e.message,1)}
+}
+
+// ── Admin: Reset user password ──
+async function admResetPw(uid, username){
+ const pw = prompt('為 '+username+' 設定新密碼（至少4位）：');
+ if(!pw||pw.length<4){if(pw!==null)toast('❌ 密碼至少4位');return}
+ try{
+  await _admCheck();
+  const h = _admHeaders();
+  const r=await fetch(API_BASE+'/api/admin/change-password',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify({user_id:uid,new_password:pw})});
+  const d=await r.json();
+  if(d.ok) toast('✅ 密碼已重設');
+  else toast('❌ '+(d.error||'失敗'),1);
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 // ── Members ──
@@ -1321,7 +1385,7 @@ async function admLoadMembers(){
  const isAdm = u.admin === 1;
  html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
  html += '<div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
- html += '<div style="font-size:11px;color:var(--sub);margin:2px 0">ID:'+u.id+' · 註冊:'+(u.created_at||'')+'</div>';
+ html += '<div style="font-size:11px;color:var(--sub);margin:2px 0">ID:'+u.id+' · 註冊:'+(u.created_at||'')+(u.phone?' · 📞 '+esc(u.phone):'')+(u.email?' · 📧 '+esc(u.email):'')+'</div>';
  html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
  html += '<span style="font-size:12px;padding:2px 8px;border-radius:4px;background:'+(plan==='free'?'var(--card)':isExp?'var(--red)':'linear-gradient(135deg,var(--amber),var(--purple))')+';color:#fff">'+(plan==='free'?'🆓':plan)+'</span>';
  if(isAdm) html += '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--pink);color:#fff">👑 管理員</span>';
@@ -1337,6 +1401,8 @@ async function admLoadMembers(){
  } else {
  html += '<button class="btn btn-outline btn-sm" onclick="admMakeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--purple);border-color:var(--purple)">👑 設管理</button>';
  }
+ html += ' <button class="btn btn-outline btn-sm" onclick="admEditUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--amber);border-color:var(--amber)">✏️ 編輯</button>';
+ html += ' <button class="btn btn-outline btn-sm" onclick="admResetPw('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--blue);border-color:var(--blue)">🔑 改密</button>';
  html += ' <button class="btn btn-outline btn-sm" onclick="admDeleteUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">🗑 刪除</button>';
  html += '</div></div></div>';
  });
@@ -1357,7 +1423,7 @@ async function admSearchMember(){
  const plan = u.membership || 'free';
  const isAdm = u.admin === 1;
  html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body"><div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
- html += '<div style="font-size:11px;color:var(--sub)">ID:'+u.id+' · '+plan+' · '+(u.member_expires||'—')+'</div>';
+ html += '<div style="font-size:11px;color:var(--sub)">ID:'+u.id+' · '+plan+' · '+(u.member_expires||'—')+(u.phone?' · 📞 '+esc(u.phone):'')+(u.email?' · 📧 '+esc(u.email):'')+'</div>';
  html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
  html += '<select onchange="admSetPlan('+u.id+',this.value)" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px">';
  ['free','jiuyau','jaugwai','jausan','admin'].forEach(p => {
@@ -1370,6 +1436,8 @@ async function admSearchMember(){
  } else {
   html += '<button class="btn btn-outline btn-sm" onclick="admMakeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--purple);border-color:var(--purple)">👑 設管理</button>';
  }
+ html += ' <button class="btn btn-outline btn-sm" onclick="admEditUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--amber);border-color:var(--amber)">✏️ 編輯</button>';
+ html += ' <button class="btn btn-outline btn-sm" onclick="admResetPw('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--blue);border-color:var(--blue)">🔑 改密</button>';
  html += ' <button class="btn btn-outline btn-sm" onclick="admDeleteUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">🗑 刪除</button>';
  html += '</div></div></div>';
  });

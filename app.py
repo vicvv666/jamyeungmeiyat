@@ -133,6 +133,9 @@ CREATE TABLE IF NOT EXISTS users (
             membership  TEXT DEFAULT 'free',
             admin       INTEGER DEFAULT 0,
             member_expires TEXT DEFAULT '',
+            phone       TEXT DEFAULT '',
+            email       TEXT DEFAULT '',
+            avatar      TEXT DEFAULT '',
             created_at TEXT DEFAULT (datetime('now','localtime'))
         );
         CREATE TABLE IF NOT EXISTS checkins (
@@ -243,6 +246,11 @@ CREATE TABLE IF NOT EXISTS users (
             created_at  TEXT DEFAULT (datetime('now','localtime'))
         );
     """)
+    db.commit()
+    # Migrate: add columns if missing (existing DB safe)
+    for col, typ in [('phone','TEXT'),('email','TEXT'),('avatar','TEXT')]:
+        try: db.execute(f'ALTER TABLE users ADD COLUMN {col} {typ} DEFAULT \"\"')
+        except: pass
     db.commit()
     db.close()
 
@@ -433,6 +441,10 @@ def api_update_profile():
     db = get_db()
     if d.get('nickname'):
         db.execute('UPDATE users SET nickname=? WHERE id=?',(d['nickname'],g.uid))
+    if d.get('phone'):
+        db.execute('UPDATE users SET phone=? WHERE id=?',(d['phone'],g.uid))
+    if d.get('email'):
+        db.execute('UPDATE users SET email=? WHERE id=?',(d['email'],g.uid))
     if d.get('lang'):
         db.execute('UPDATE users SET lang=? WHERE id=?',(d['lang'],g.uid))
     db.commit()
@@ -965,6 +977,42 @@ def api_admin_revoke_admin():
     db.commit()
     return jsonify({'ok':True})
 
+@app.route('/api/admin/change-password', methods=['POST'])
+def api_admin_change_password():
+    """Admin resets a user's password (no old password required)."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
+    new_pw = d.get('new_password', '')
+    if not uid: return jsonify({'error':'缺少 user_id'}), 400
+    if len(new_pw) < 4: return jsonify({'error':'新密碼最少4位'}), 400
+    db = get_db()
+    db.execute('UPDATE users SET password=? WHERE id=?', (_hash(new_pw), uid))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/admin/update-profile', methods=['POST'])
+def api_admin_update_profile():
+    """Admin edits a user's profile (nickname, phone, email)."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
+    if not uid: return jsonify({'error':'缺少 user_id'}), 400
+    db = get_db()
+    if d.get('nickname'):
+        db.execute('UPDATE users SET nickname=? WHERE id=?', (d['nickname'], uid))
+    if 'phone' in d:
+        db.execute('UPDATE users SET phone=? WHERE id=?', (d['phone'], uid))
+    if 'email' in d:
+        db.execute('UPDATE users SET email=? WHERE id=?', (d['email'], uid))
+    if d.get('membership'):
+        db.execute('UPDATE users SET membership=? WHERE id=?', (d['membership'], uid))
+    db.commit()
+    u = db.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
+    user_data = dict(u)
+    user_data.pop('password', None)
+    return jsonify({'ok':True, 'user':user_data})
+
 @app.route('/api/admin/ads', methods=['POST'])
 def api_admin_ads():
     if not _check_admin(): return jsonify({'error':'未授權'}), 403
@@ -1150,16 +1198,28 @@ def api_admin_audit_log():
         ORDER BY ma.id DESC LIMIT ?""", (limit,)).fetchall()
     return jsonify({'audit':[dict(r) for r in rows]})
 
+@app.route('/api/admin/member/list')
+def api_admin_member_list():
+    """List ALL users (not just paid members)."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    rows = db.execute("""
+        SELECT id, username, nickname, membership, member_expires, admin, phone, email, created_at
+        FROM users
+        ORDER BY id DESC LIMIT 200
+    """).fetchall()
+    return jsonify({'members':[dict(r) for r in rows]})
+
 @app.route('/api/admin/member/expired')
 def api_admin_expired():
     """List members with expired or soon-expiring membership."""
     if not _check_admin(): return jsonify({'error':'未授權'}), 403
     db = get_db()
     rows = db.execute("""
-        SELECT id, username, nickname, membership, member_expires, admin
+        SELECT id, username, nickname, membership, member_expires, admin, phone, email, created_at
         FROM users
-        WHERE membership!='free' AND membership!=''
-        ORDER BY member_expires ASC LIMIT 200
+        WHERE membership NOT IN ('free','') AND member_expires < date('now')
+        ORDER BY member_expires ASC LIMIT 100
     """).fetchall()
     return jsonify({'members':[dict(r) for r in rows]})
 
@@ -1172,7 +1232,7 @@ def api_admin_member_search():
         return jsonify({'error':'請輸入搜索關鍵字'}), 400
     db = get_db()
     rows = db.execute("""
-        SELECT id, username, nickname, membership, member_expires, created_at, admin
+        SELECT id, username, nickname, membership, member_expires, created_at, admin, phone, email
         FROM users WHERE username LIKE ? OR nickname LIKE ?
         ORDER BY id LIMIT 50
     """, (f'%{q}%', f'%{q}%')).fetchall()
