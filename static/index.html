@@ -1240,7 +1240,7 @@ function _admHeaders(){
  const h = {};
  h['Content-Type'] = 'application/json';
  h['X-Admin-Token'] = adminToken || '';
- if(me) h['Authorization'] = 'Bearer ' + localStorage.getItem('jym_token');
+ if(me) h['Authorization'] = 'Bearer ' + localStorage.getItem('jymy_token');
  h['Prefer'] = 'return=representation';
  return h;
 }

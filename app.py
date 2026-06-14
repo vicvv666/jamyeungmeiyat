@@ -1009,6 +1009,7 @@ def api_admin_update_profile():
         db.execute('UPDATE users SET membership=? WHERE id=?', (d['membership'], uid))
     db.commit()
     u = db.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
+    if not u: return jsonify({'error':'用戶不存在'}), 404
     user_data = dict(u)
     user_data.pop('password', None)
     return jsonify({'ok':True, 'user':user_data})
