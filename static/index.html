@@ -93,6 +93,48 @@
 <script src="flask-client.js"></script>
 <script>
 var ASSET_BASE='';
+// ── APK Debug Overlay ──
+(function(){
+  var errors=[];
+  window.__apkDebug=errors;
+  function showDebug(){
+    var el=document.getElementById('apk-debug');
+    if(!el){
+      el=document.createElement('div');
+      el.id='apk-debug';
+      el.style.cssText='position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow-y:auto;background:rgba(0,0,0,0.9);color:#0f0;font:11px/1.4 monospace;padding:8px;z-index:99999;border-top:2px solid #f00;display:none;';
+      document.body.appendChild(el);
+    }
+    if(errors.length>0){el.style.display='block';el.innerHTML=errors.map(function(e,i){return '<b>['+i+']</b> '+e;}).join('<br>');}
+  }
+  window.onerror=function(msg,url,line,col,err){
+    errors.push('ERROR: '+msg+' (line '+line+')');
+    showDebug();
+  };
+  window.addEventListener('unhandledrejection',function(e){
+    errors.push('REJECT: '+(e.reason&&e.reason.message||e.reason));
+    showDebug();
+  });
+  // Capture fetch errors
+  var origFetch=window.fetch;
+  window.fetch=function(){
+    return origFetch.apply(this,arguments).catch(function(e){
+      errors.push('FETCH FAIL: '+arguments[0]+' '+e.message);
+      showDebug();
+      throw e;
+    });
+  };
+  // Toggle debug with 5 taps
+  var tapCount=0,tapTimer=null;
+  document.addEventListener('click',function(){
+    tapCount++;
+    clearTimeout(tapTimer);
+    tapTimer=setTimeout(function(){tapCount=0},2000);
+    if(tapCount>=5){tapCount=0;var el=document.getElementById('apk-debug');if(el)el.style.display=el.style.display==='none'?'block':'none';}
+  });
+  // Auto-show errors after 3s
+  setTimeout(showDebug,3000);
+})();
 </script>
 
 
