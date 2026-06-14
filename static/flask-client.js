@@ -6,7 +6,17 @@
 var JYM = window.JYM || {};
 
 (function initFlaskClient(){
-  const API_BASE = window.location.origin;  // https://drunk.vic999.com
+  // Detect server URL: JymyNative bridge > localStorage > fallback
+  let API_BASE = '';
+  if (location.protocol === 'file:') {
+    if (window.JymyNative && window.JymyNative.getServerUrl) {
+      API_BASE = window.JymyNative.getServerUrl();
+    }
+    if (!API_BASE) API_BASE = localStorage.getItem('jymy_server') || '';
+    if (!API_BASE) API_BASE = 'https://drunk.vic999.com';
+  } else {
+    API_BASE = window.location.origin;
+  }
 
   // ── Token Storage ──
   function getToken() { return localStorage.getItem('jym_token') || ''; }
