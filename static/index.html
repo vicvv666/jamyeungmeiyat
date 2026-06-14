@@ -46,9 +46,9 @@
 <meta name="twitter:image" content="https://drunk-tonight.app/icon-512.png">
 
 <!-- ─── PWA / Mobile / Apple Touch ────────────────── -->
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png">
-<link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 
 <!-- ─── Structured Data (JSON-LD) ──────────────────── -->
 <script type="application/ld+json">
@@ -89,13 +89,12 @@
 }
 </script>
 
-<!-- ─── Supabase (optional, non-blocking) ────────────── -->
-<!-- Supabase CDN + client (must load BEFORE main app script) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="/supabase-client.js"></script>
+<!-- ─── Flask API Client (replaces Supabase for self-hosted mode) ─── -->
+<script src="flask-client.js"></script>
 <script>
-var ASSET_BASE=location.protocol==='file:'?'file:///android_asset/www':'';
+var ASSET_BASE='';
 </script>
+
 
 
 <title>🍺 今晚飲咗未 — 飲酒社交打卡</title>
@@ -263,8 +262,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px">喺手機安裝 App 體驗更佳！</div>
-  <a id="apk-dl-link" href="/jamyeungmeiyat-debug.apk" class="btn btn-primary" style="text-decoration:none" download>🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · Debug 版 · 2.1MB</div>
+  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.1.0/app-debug.apk" class="btn btn-primary" style="text-decoration:none" download>🚀 下載 Android APK</a>
+  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · Debug 版 · 4.3MB</div>
  </div>
 </div>
 
@@ -603,6 +602,12 @@ document.addEventListener('scroll',function(){
 function saveS(){if(token)localStorage.setItem('jymy_token',token);if(me)localStorage.setItem('jymy_me',JSON.stringify(me))}
 function clearS(){localStorage.removeItem('jymy_token');localStorage.removeItem('jymy_me')}
 async function restoreS(){
+ // Flask mode: use local token + /api/me
+ if(window.JYM && window.JYM._flaskMode){
+  const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
+  try{me=JSON.parse(localStorage.getItem('jymy_me')||'null')}catch(e){me=null}
+  try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){token=null;me=null;clearS();return false}
+ }
  // Try Supabase session first
  if(window.JYM && window.JYM.auth){
   try{
@@ -796,7 +801,9 @@ async function doLogin(){
  const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value;
  if(!u||!p)return toast('填寫用戶名和密碼',1);
  try{
- if(window.JYM && window.JYM.auth){
+ if(window.JYM && window.JYM._flaskMode){
+  const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});token=r.token;me=r.user;
+ }else if(window.JYM && window.JYM.auth){
   const data=await window.JYM.auth.signIn(u,p);
   if(!data.session)throw new Error('登入失敗：無法取得 session');
   token=data.session.access_token;
@@ -821,7 +828,9 @@ async function doRegister(){
  const u=document.getElementById('r-user').value.trim(),n=document.getElementById('r-nick').value.trim(),p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
  if(!u||p.length<4)return toast('用戶名或密碼太短',1);if(p!==p2)return toast('密碼不一致',1);
  try{
- if(window.JYM && window.JYM.auth){
+ if(window.JYM && window.JYM._flaskMode){
+  const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
+ }else if(window.JYM && window.JYM.auth){
  const data=await window.JYM.auth.signUp(u,p,n||u);
  const authUser=data.user;
  if(!data.session){
@@ -914,7 +923,7 @@ function closeCmt(){const el=document.getElementById('cmt-mod');el.style.display
 async function loadCmt(cid){
  try{
  let comments=[];
- if(window.JYM&&window.JYM.supabase){
+ if(window.JYM&&window.JYM._supabaseOnly){
   const{data,err}=await window.JYM.supabase.from('checkin_comments').select('*,users(username,nickname)').eq('checkin_id',cid).order('created_at',{ascending:true});
   if(data)(data||[]).forEach(c=>{const u=c.users||{};comments.push({nickname:u.nickname||u.username||'',text:c.content,created_at:c.created_at?c.created_at.substring(0,16).replace('T',' '):''})});
  }else{
@@ -990,7 +999,7 @@ async function doJnl(){const t=document.getElementById('jnl-inp').value.trim();i
 async function loadStats(){
  if(!me)return;
  try{
- if(window.JYM&&window.JYM.supabase){
+ if(window.JYM&&window.JYM._supabaseOnly){
   const sb=window.JYM.supabase;
   const{count:total}=await sb.from('checkins').select('*',{count:'exact',head:true}).eq('user_id',me.id);
   const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
@@ -1034,7 +1043,7 @@ async function saveProf(){
  try{
  if(window.JYM&&window.JYM.user){
   if(nick){me.nickname=nick;await window.JYM.user.updateUserProfile(me.auth_uid,{nickname:nick,lang})}
-  if(oldpw&&newpw){if(newpw.length<4)return toast('新密碼最少4位',1);await window.JYM.supabase.auth.updateUser({password:newpw})}
+  if(oldpw&&newpw){if(newpw.length<4)return toast('新密碼最少4位',1);await api('/api/change-password',{method:'POST',body:JSON.stringify({old_password:oldpw,new_password:newpw})})}
   // Avatar update: store as base64 in public.users
   if(avatar&&avatar.startsWith('data:')){await window.JYM.user.updateUserProfile(me.auth_uid,{avatar:avatar});me.avatar=avatar;saveS()}
  }else{
@@ -1048,17 +1057,48 @@ async function saveProf(){
 
 function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin()}
 
-// ═══════ ADMIN (独立弹窗) ═══════
+// ═══════ ADMIN (Supabase 直接查询，无需后端) ═══════
 let adminToken = localStorage.getItem('jymy_admin_token') || '';
 
-async function admApi(url, opts={}){
- const h={};
- if(adminToken) h['X-Admin-Token'] = adminToken;
- if(opts.body&&typeof opts.body==='object'){h['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
- const r=await fetch(API_BASE+url,{method:opts.method||'GET',headers:h,body:opts.body});
- const d=await r.json();
- if(!r.ok) throw new Error(d.error||'Error '+r.status);
- return d;
+// Supabase admin helper — 用当前登录用户 session token
+// 注意：Supabase v2 将 session 存喺 localStorage，key 格式系 sb-{projectRef}-auth-token
+function _admHeaders(){
+ const h = {};
+ h['Authorization']='Bearer '+localStorage.getItem('jym_token');
+ try{
+  // 直接从 localStorage 读 session（同步，Supabase v2 默认存喺 localStorage）
+  var storageKey = 'jym_token';
+  // 试多种 key 格式
+  var raw = localStorage.getItem('jym_token');
+  if(!raw){
+   // 遍历 localStorage 搵包含 auth-token 嘅 key
+   for(var i=0;i<localStorage.length;i++){
+    var k = localStorage.key(i);
+    if(k && k.includes('auth-token')){ raw = localStorage.getItem(k); break; }
+   }
+  }
+  if(raw){
+   var sess = JSON.parse(raw);
+   // Supabase v2 可能包一层 {session: {...}} 或直接 {access_token:...}
+   var token = sess.access_token || (sess.session && sess.session.access_token);
+   if(token) h['Authorization'] = 'Bearer ' + token;
+   else h['Authorization'] = 'Bearer ' + localStorage.getItem('jym_token');
+  } else {
+   h['Authorization'] = 'Bearer ' + localStorage.getItem('jym_token');
+  }
+ }catch(e){
+  h['Authorization'] = 'Bearer ' + localStorage.getItem('jym_token');
+ }
+ h['Content-Type'] = 'application/json';
+ h['Prefer'] = 'return=representation';
+ return h;
+}
+const _SB_REST = location.origin + '/api/admin/rest-redirect';  // Flask admin API proxy
+
+async function _admCheck(){
+ if(!me || me.admin !== 1) throw new Error('無管理員權限');
+ adminToken = 'sb_admin_' + me.id;
+ localStorage.setItem('jymy_admin_token', adminToken);
 }
 
 function admOpen(){
@@ -1081,244 +1121,248 @@ function admLogout(){
 }
 
 function admShowTab(name){
-  document.querySelectorAll('.adm-tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.adm-page').forEach(p=>p.classList.remove('active'));
-  const tb = document.querySelector('[data-adm="'+name+'"]');
-  if(tb) tb.classList.add('active');
-  const pg = document.getElementById('adm-'+name);
-  if(pg) pg.classList.add('active');
+ document.querySelectorAll('.adm-tab').forEach(t=>t.classList.remove('active'));
+ document.querySelectorAll('.adm-page').forEach(p=>p.classList.remove('active'));
+ const tb = document.querySelector('[data-adm="'+name+'"]');
+ if(tb) tb.classList.add('active');
+ const pg = document.getElementById('adm-'+name);
+ if(pg) pg.classList.add('active');
+ // 切换 tab 时加载对应数据
+ if(name==='stats') loadAdmStats();
+ else if(name==='members') admLoadMembers();
+ else if(name==='payments') admLoadPayments();
+ else if(name==='expired') admLoadExpired();
+ else if(name==='audit') admLoadAudit();
 }
 
 async function loadAdmin(){
- // Show/hide admin menu item in user dropdown
  const ddAdmin = document.getElementById('dd-admin');
  if(ddAdmin) ddAdmin.style.display = 'none';
- // If we already have a stored admin token, verify it
- if(adminToken){
- try{
- await admApi('/api/admin/stats');
- if(ddAdmin) ddAdmin.style.display = '';
- return;
- }catch(e){
- // Token expired/invalid
- adminToken = '';
- localStorage.removeItem('jymy_admin_token');
- }
- }
- // Try to login as admin using stored password
- if(!me) return;
- const pw = sessionStorage.getItem('jymy_pw');
- if(!pw) return;
- try{
- const r = await admApi('/api/admin/login',{method:'POST',body:{username:me.username,password:pw}});
- adminToken = r.token;
+ if(!me || me.admin !== 1) return;
+ // 标记为 admin
+ adminToken = 'sb_admin_' + me.id;
  localStorage.setItem('jymy_admin_token', adminToken);
  if(ddAdmin) ddAdmin.style.display = '';
- }catch(e){/* not an admin */}
 }
 
 async function loadAdmStats(){
-  try{
-    const s = await admApi('/api/admin/stats');
-    if(s.stats){
-      document.getElementById('adm-users').textContent = s.stats.total_users;
-      document.getElementById('adm-checkins').textContent = s.stats.total_checkins;
-      document.getElementById('adm-vips').textContent = s.stats.vip_count;
-      document.getElementById('adm-parties').textContent = s.stats.total_parties||0;
-    }
-  }catch(e){}
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const [users, checkins, vips, parties] = await Promise.all([
+  fetch('/api/admin/stats',{headers:h}).then(r=>r.json())
+ ]);
+ document.getElementById('adm-users').textContent = users.length;
+ document.getElementById('adm-checkins').textContent = checkins.length;
+ document.getElementById('adm-vips').textContent = vips.length;
+ document.getElementById('adm-parties').textContent = parties.length;
+ }catch(e){console.error('loadAdmStats', e)}
 }
 
 // ── Admin: Change own password ──
 function admShowChangePw(){
-  const pw = prompt('輸入新管理員密碼（至少3位）：');
-  if(!pw||pw.length<3){toast('❌ 密碼至少3位');return}
-  const old = prompt('輸入舊密碼確認：');
-  if(!old){return}
-  admApi('/api/admin/set-password',{method:'POST',body:{change_own:true,admin_id:me.id,password:pw,old_password:old}})
-    .then(r=>{toast('✅ '+r.msg);sessionStorage.setItem('jymy_pw',pw)})
-    .catch(e=>toast('❌ '+e.message,1));
+ const pw = prompt('輸入新密碼（至少6位）：');
+ if(!pw||pw.length<6){toast('❌ 密碼至少6位');return}
+ const old = prompt('輸入舊密碼確認：');
+ if(!old){return}
+ JYM.auth.updateUser({password:pw}).then(()=>{toast('✅ 密碼已修改')}).catch(e=>toast('❌ '+e.message,1));
 }
 
 // ── Members ──
 async function admLoadMembers(){
-  if(!adminToken) return;
-  try{
-    const m = await admApi('/api/admin/members');
-    let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索用戶名/花名..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0"><button class="btn btn-outline btn-sm" onclick="admSearchMember()">搜索</button></div>';
-    (m.users||[]).forEach(u => {
-      const plan = u.membership || 'free';
-      const exp = u.member_expires || '—';
-      const isExp = u.member_expires && u.member_expires < new Date().toISOString().split('T')[0];
-      const isAdm = u.admin === 1 || u.membership === 'admin';
-      html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
-      html += '<div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
-      html += '<div style="font-size:11px;color:var(--sub);margin:2px 0">ID:'+u.id+' · 註冊:'+u.created_at+'</div>';
-      html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
-      html += '<span style="font-size:12px;padding:2px 8px;border-radius:4px;background:'+(plan==='free'?'var(--card)':isExp?'var(--red)':'linear-gradient(135deg,var(--amber),var(--purple))')+';color:#fff">'+(plan==='free'?'🆓':plan)+'</span>';
-      if(isAdm) html += '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--pink);color:#fff">👑 管理員</span>';
-      html += '<span style="font-size:10px;color:var(--sub)">'+(isExp?'⚠️ 已到期':exp)+'</span>';
-      html += '<select onchange="admSetPlan('+u.id+',this.value)" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px">';
-      ['free','jiuyau','jaugwai','jausan','admin'].forEach(p => {
-        html += '<option value="'+p+'"'+(plan===p?' selected':'')+'>'+p+'</option>';
-      });
-      html += '</select>';
-      html += '<button class="btn btn-outline btn-sm" onclick="admVerifyMember('+u.id+')" style="font-size:10px;padding:2px 8px">✅ 確認</button>';
-      html += '<button class="btn btn-outline btn-sm" onclick="admResetMemberPw('+u.id+')" style="font-size:10px;padding:2px 8px">🔑 改密</button>';
-      if(isAdm){
-        html += '<button class="btn btn-outline btn-sm" onclick="admRevokeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">👑 取消</button>';
-      } else {
-        html += '<button class="btn btn-outline btn-sm" onclick="admMakeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--purple);border-color:var(--purple)">👑 設管理</button>';
-      }
-      html += '</div></div></div>';
-    });
-    if(!m.users.length) html += '<div class="empty"><div class="empty-icon">👥</div>暫無用戶</div>';
-    document.getElementById('adm-member-list').innerHTML = html;
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!adminToken) return;
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const data=await fetch('/api/admin/members',{headers:h}).then(r=>r.json()); const users=data.users||[];
+ let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索用戶名/花名..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0"><button class="btn btn-outline btn-sm" onclick="admSearchMember()">搜索</button></div>';
+ users.forEach(u => {
+ const plan = u.membership || 'free';
+ const exp = u.member_expires || '—';
+ const isExp = u.member_expires && u.member_expires < new Date().toISOString().split('T')[0];
+ const isAdm = u.admin === 1;
+ html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
+ html += '<div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
+ html += '<div style="font-size:11px;color:var(--sub);margin:2px 0">ID:'+u.id+' · 註冊:'+(u.created_at||'')+'</div>';
+ html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
+ html += '<span style="font-size:12px;padding:2px 8px;border-radius:4px;background:'+(plan==='free'?'var(--card)':isExp?'var(--red)':'linear-gradient(135deg,var(--amber),var(--purple))')+';color:#fff">'+(plan==='free'?'🆓':plan)+'</span>';
+ if(isAdm) html += '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--pink);color:#fff">👑 管理員</span>';
+ html += '<span style="font-size:10px;color:var(--sub)">'+(isExp?'⚠️ 已到期':exp)+'</span>';
+ html += '<select onchange="admSetPlan('+u.id+',this.value)" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px">';
+ ['free','jiuyau','jaugwai','jausan','admin'].forEach(p => {
+ html += '<option value="'+p+'"'+(plan===p?' selected':'')+'>'+p+'</option>';
+ });
+ html += '</select>';
+ html += '<button class="btn btn-outline btn-sm" onclick="admVerifyMember('+u.id+')" style="font-size:10px;padding:2px 8px">✅ 確認</button>';
+ if(isAdm){
+ html += '<button class="btn btn-outline btn-sm" onclick="admRevokeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">👑 取消</button>';
+ } else {
+ html += '<button class="btn btn-outline btn-sm" onclick="admMakeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--purple);border-color:var(--purple)">👑 設管理</button>';
+ }
+ html += '</div></div></div>';
+ });
+ if(!users.length) html += '<div class="empty"><div class="empty-icon">👥</div>暫無用戶</div>';
+ document.getElementById('adm-member-list').innerHTML = html;
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 async function admSearchMember(){
-  const q = document.getElementById('adm-search-q').value.trim();
-  if(!q) return admLoadMembers();
-  try{
-    const r = await admApi('/api/admin/member/search?q='+encodeURIComponent(q));
-    let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0" value="'+esc(q)+'"><button class="btn btn-outline btn-sm" onclick="admLoadMembers()">顯示全部</button></div>';
-    (r.users||[]).forEach(u => {
-      const plan = u.membership || 'free';
-      html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body"><div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
-      html += '<div style="font-size:11px;color:var(--sub)">ID:'+u.id+' · '+plan+' · '+(u.member_expires||'—')+'</div></div></div>';
-    });
-    if(!r.users.length) html += '<div class="empty"><div class="empty-icon">🔍</div>冇結果</div>';
-    document.getElementById('adm-member-list').innerHTML = html;
-  }catch(e){toast('❌ '+e.message,1)}
+ const q = document.getElementById('adm-search-q').value.trim();
+ if(!q) return admLoadMembers();
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const data=await fetch('/api/admin/member/search?q='+encodeURIComponent(q),{headers:h}).then(r=>r.json()); const users=data.users||[];
+ let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0" value="'+esc(q)+'"><button class="btn btn-outline btn-sm" onclick="admLoadMembers()">顯示全部</button></div>';
+ users.forEach(u => {
+ const plan = u.membership || 'free';
+ html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body"><div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
+ html += '<div style="font-size:11px;color:var(--sub)">ID:'+u.id+' · '+plan+' · '+(u.member_expires||'—')+'</div></div></div>';
+ });
+ if(!users.length) html += '<div class="empty"><div class="empty-icon">🔍</div>冇結果</div>';
+ document.getElementById('adm-member-list').innerHTML = html;
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 async function admSetPlan(uid, plan){
-  try{
-    await admApi('/api/admin/member/set',{method:'POST',body:{user_id:uid, plan:plan, days:30}});
-    toast('✅ 已更新');
-    admLoadMembers();
-  }catch(e){toast('❌ '+e.message,1)}
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const exp = plan==='free' ? null : new Date(Date.now()+30*86400000).toISOString().split('T')[0];
+ await fetch('/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
+ toast('✅ 已更新');
+ admLoadMembers();
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 async function admVerifyMember(uid){
-  const plan = prompt('設定會員方案 (jiuyau/jaugwai/jausan/free)：','jiuyau');
-  if(!plan) return;
-  const days = prompt('有效期天數（free 則輸入 0）：','30');
-  if(days===null) return;
-  const note = prompt('備註（可選）：','')||'';
-  try{
-    const r = await admApi('/api/admin/member/verify',{method:'POST',body:{user_id:uid, plan:plan, days:parseInt(days)||30, note:note}});
-    toast('✅ 資格已確認：'+r.membership+', 到期：'+r.expires);
-    admLoadMembers();
-  }catch(e){toast('❌ '+e.message,1)}
+ const plan = prompt('設定會員方案 (jiuyau/jaugwai/jausan/free)：','jiuyau');
+ if(!plan) return;
+ const days = prompt('有效期天數（free 則輸入 0）：','30');
+ if(days===null) return;
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const exp = plan==='free' ? null : new Date(Date.now()+(parseInt(days)||30)*86400000).toISOString().split('T')[0];
+ await fetch('/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
+ toast('✅ 資格已確認：'+plan+(exp?'，到期：'+exp:''));
+ admLoadMembers();
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
-// ── Admin: Reset member password ──
+// ── Admin: Reset member password (需后端，暂不可用) ──
 async function admResetMemberPw(uid){
-  const pw = prompt('輸入新密碼（至少3位）：');
-  if(!pw||pw.length<3){toast('❌ 密碼至少3位');return}
-  try{
-    const r = await admApi('/api/admin/set-password',{method:'POST',body:{user_id:uid, password:pw}});
-    toast('✅ '+r.msg);
-  }catch(e){toast('❌ '+e.message,1)}
+ toast('❌ Supabase 模式下暫不支持直接改密',1);
 }
 
 // ── Admin: Make/Revoke admin ──
 async function admMakeAdmin(uid, username){
-  if(!confirm('確定將「'+username+'」設定為管理員？')) return;
-  try{
-    const r = await admApi('/api/admin/become',{method:'POST',body:{username:username}});
-    toast('✅ '+r.msg);
-    admLoadMembers();
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!confirm('確定將「'+username+'」設定為管理員？')) return;
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ await fetch('/api/admin/become',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
+ toast('✅ 已設為管理員');
+ admLoadMembers();
+ }catch(e){toast('❌ '+e.message,1)}
 }
 async function admRevokeAdmin(uid, username){
-  if(!confirm('確定取消「'+username+'」的管理員權限？')) return;
-  try{
-    const r = await admApi('/api/admin/revoke',{method:'POST',body:{username:username}});
-    toast('✅ '+r.msg);
-    admLoadMembers();
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!confirm('確定取消「'+username+'」的管理員權限？')) return;
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ await fetch('/api/admin/revoke',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
+ toast('✅ 已取消管理員');
+ admLoadMembers();
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 // ── Payments ──
 async function admLoadPayments(){
-  if(!adminToken) return;
-  try{
-    const r = await admApi('/api/admin/payments');
-    let html = '';
-    (r.payments||[]).forEach(p => {
-      const isConfirmed = p.confirmed === 1;
-      html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">';
-      html += '<div><b>'+esc(p.nickname||p.username)+'</b> <span style="font-size:11px;color:var(--sub)">@'+esc(p.username)+'</span></div>';
-      html += '<span style="font-size:13px;font-weight:700;color:'+(isConfirmed?'var(--green)':'var(--amber)')+'">¥'+p.amount+' · '+p.plan+'</span>';
-      html += '</div>';
-      html += '<div style="font-size:11px;color:var(--sub);margin:4px 0">方式：'+p.method+' · '+(p.paid_at||'')+'</div>';
-      if(p.receipt) html += '<div style="font-size:10px;color:var(--sub);background:var(--bg);border-radius:4px;padding:4px;margin:4px 0;word-break:break-all">收據：'+esc(p.receipt)+'</div>';
-      html += '<div style="display:flex;gap:6px;margin-top:4px">';
-      if(!isConfirmed){
-        html += '<button class="btn btn-outline btn-sm" onclick="admConfirmPayment('+p.id+',true)" style="background:var(--green);color:#fff;border-color:var(--green)">✅ 確認</button>';
-        html += '<button class="btn btn-outline btn-sm" onclick="admConfirmPayment('+p.id+',false)" style="color:var(--red);border-color:var(--red)">❌ 拒絕</button>';
-      } else {
-        html += '<span style="font-size:11px;color:var(--green)">✅ 已確認</span>';
-      }
-      html += '</div></div></div>';
-    });
-    if(!r.payments.length) html = '<div class="empty"><div class="empty-icon">💳</div>暫無付款紀錄</div>';
-    document.getElementById('adm-payment-list').innerHTML = html;
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!adminToken) return;
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const pData=await fetch('/api/admin/payments',{headers:h}).then(r=>r.json()); const payments=pData.payments||[];
+ let html = '';
+ payments.forEach(p => {
+ const isConfirmed = p.confirmed === 1;
+ html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
+ html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">';
+ html += '<div><b>'+esc(p.nickname||p.username||'')+'</b> <span style="font-size:11px;color:var(--sub)">@'+esc(p.username||'')+'</span></div>';
+ html += '<span style="font-size:13px;font-weight:700;color:'+(isConfirmed?'var(--green)':'var(--amber)')+'">¥'+p.amount+' · '+p.plan+'</span>';
+ html += '</div>';
+ html += '<div style="font-size:11px;color:var(--sub);margin:4px 0">方式：'+p.method+' · '+(p.paid_at||'')+'</div>';
+ if(p.receipt) html += '<div style="font-size:10px;color:var(--sub);background:var(--bg);border-radius:4px;padding:4px;margin:4px 0;word-break:break-all">收據：'+esc(p.receipt)+'</div>';
+ html += '<div style="display:flex;gap:6px;margin-top:4px">';
+ if(!isConfirmed){
+ html += '<button class="btn btn-outline btn-sm" onclick="admConfirmPayment('+p.id+',true)" style="background:var(--green);color:#fff;border-color:var(--green)">✅ 確認</button>';
+ html += '<button class="btn btn-outline btn-sm" onclick="admConfirmPayment('+p.id+',false)" style="color:var(--red);border-color:var(--red)">❌ 拒絕</button>';
+ } else {
+ html += '<span style="font-size:11px;color:var(--green)">✅ 已確認</span>';
+ }
+ html += '</div></div></div>';
+ });
+ if(!payments.length) html = '<div class="empty"><div class="empty-icon">💳</div>暫無付款紀錄</div>';
+ document.getElementById('adm-payment-list').innerHTML = html;
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 async function admConfirmPayment(pid, confirm){
-  try{
-    const r = await admApi('/api/admin/payment/confirm',{method:'POST',body:{payment_id:pid, confirm:confirm}});
-    toast(r.msg);
-    admLoadPayments();
-    admLoadMembers();
-  }catch(e){toast('❌ '+e.message,1)}
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const patch = confirm ? {confirmed:1} : {confirmed:-1};
+ await fetch('/api/admin/payment/confirm',{method:'POST',headers:h,body:JSON.stringify({payment_id:pid,confirm:patch.confirmed!==0})});
+ toast(confirm?'✅ 已確認':'❌ 已拒絕');
+ admLoadPayments();
+ admLoadMembers();
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 // ── Expired Members ──
 async function admLoadExpired(){
-  if(!adminToken) return;
-  try{
-    const r = await admApi('/api/admin/member/expired');
-    let html = '';
-    (r.members||[]).forEach(m => {
-      const isExp = m.member_expires && m.member_expires < new Date().toISOString().split('T')[0];
-      html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
-      html += '<div class="tl-name">'+esc(m.nickname||m.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(m.username)+'</span></div>';
-      html += '<div style="font-size:11px;margin:4px 0;color:'+(isExp?'var(--red)':'var(--amber)')+'">'+(isExp?'⚠️ 已到期':'📅 到期：')+m.member_expires+'</div>';
-      html += '<div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="admVerifyMember('+m.id+')">🔄 續期</button></div>';
-      html += '</div></div>';
-    });
-    if(!r.members.length) html = '<div class="empty"><div class="empty-icon">✅</div>所有會員都係有效嘅</div>';
-    document.getElementById('adm-expired-list').innerHTML = html;
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!adminToken) return;
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const today = new Date().toISOString().split('T')[0];
+ const mData=await fetch('/api/admin/member/expired',{headers:h}).then(r=>r.json()); const members=mData.members||[];
+ let html = '';
+ members.forEach(m => {
+ html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
+ html += '<div class="tl-name">'+esc(m.nickname||m.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(m.username)+'</span></div>';
+ html += '<div style="font-size:11px;margin:4px 0;color:var(--red)">⚠️ 已到期：'+m.member_expires+'</div>';
+ html += '<div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="admVerifyMember('+m.id+')">🔄 續期</button></div>';
+ html += '</div></div>';
+ });
+ if(!members.length) html = '<div class="empty"><div class="empty-icon">✅</div>所有會員都係有效嘅</div>';
+ document.getElementById('adm-expired-list').innerHTML = html;
+ }catch(e){toast('❌ '+e.message,1)}
 }
 
 // ── Audit Log ──
 async function admLoadAudit(){
-  if(!adminToken) return;
-  try{
-    const r = await admApi('/api/admin/member/audit');
-    let html = '';
-    (r.audit||[]).forEach(a => {
-      html += '<div class="tl-item" style="padding:6px 0"><div class="tl-body">';
-      html += '<div style="font-size:12px"><b>'+esc(a.nickname||a.username)+'</b> ';
-      if(a.action==='payment_confirm') html += '💳 付款確認';
-      else if(a.action==='admin_verify') html += '🔐 資格確認';
-      else html += a.action;
-      html += ': '+esc(a.old_plan||'—')+' → '+esc(a.new_plan||'free');
-      html += '<span style="color:var(--sub);font-size:10px;margin-left:8px">'+a.created_at+'</span></div>';
-      if(a.note) html += '<div style="font-size:10px;color:var(--sub)">📝 '+esc(a.note)+'</div>';
-      html += '</div></div>';
-    });
-    if(!r.audit.length) html = '<div class="empty"><div class="empty-icon">📋</div>暫無操作紀錄</div>';
-    document.getElementById('adm-audit-list').innerHTML = html;
-  }catch(e){toast('❌ '+e.message,1)}
+ if(!adminToken) return;
+ try{
+ await _admCheck();
+ const h = _admHeaders();
+ const aData=await fetch('/api/admin/member/audit?limit=50',{headers:h}).then(r=>r.json()); const audit=aData.audit||[];
+ let html = '';
+ (audit||[]).forEach(a => {
+ html += '<div class="tl-item" style="padding:6px 0"><div class="tl-body">';
+ html += '<div style="font-size:12px"><b>'+esc(a.nickname||a.username||'')+'</b> ';
+ html += esc(a.action||'')+': '+esc(a.old_plan||'—')+' → '+esc(a.new_plan||'free');
+ html += '<span style="color:var(--sub);font-size:10px;margin-left:8px">'+(a.created_at||'')+'</span></div>';
+ if(a.note) html += '<div style="font-size:10px;color:var(--sub)">📝 '+esc(a.note)+'</div>';
+ html += '</div></div>';
+ });
+ if(!audit||!audit.length) html = '<div class="empty"><div class="empty-icon">📋</div>暫無操作紀錄</div>';
+ document.getElementById('adm-audit-list').innerHTML = html;
+ }catch(e){
+ // audit_log 表可能不存在，显示空
+ document.getElementById('adm-audit-list').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>暫無操作紀錄</div>';
+ }
 }
 
 // ═══════ INIT ═══════
@@ -1331,48 +1375,62 @@ async function admLoadAudit(){
  // Fix cover image src for APK mode
  if(ASSET_BASE){
  var ci=document.getElementById('cover-img');if(ci)ci.src=ASSET_BASE+'/cover.png';
- // Fix APK download link in APK mode — point to local asset
- var al=document.getElementById('apk-dl-link');if(al)al.href=ASSET_BASE+'/jamyeungmeiyat-debug.apk';
+ // APK 内部模式：隐藏 APK 下载按钮（已经喺 App 入面）
+ var al=document.getElementById('apk-dl-link');if(al){var card=al.closest('.card');if(card)card.style.display='none';}
  }
  buildGrid();updTitles();
- restoreS().then(ok=>{updateNav();if(me){refreshAll()}else{setTimeout(showAuth,600);loadAdmin()}});
+ // 等 JYM Supabase client 初始化完先恢复会话
+ function startApp(){ restoreS().then(ok=>{updateNav();if(me){refreshAll()}else{setTimeout(showAuth,600);loadAdmin()}}); }
+ if(window.JYM && window.JYM.auth){ startApp(); }
+ else{ // JYM 未初始化（Supabase SDK 加载中），等一下再试
+ var _jymWait=setInterval(function(){if(window.JYM&&window.JYM.auth){clearInterval(_jymWait);startApp();}},100);
+ setTimeout(function(){clearInterval(_jymWait);if(!window.JYM||!window.JYM.auth){console.error('[JYM] Supabase not available — showing auth anyway');showAuth();}},5000);
+ }
 })();
 
 // ═══════ ADMIN EXTRA FUNCTIONS ═══════
 function admBulkRenew(){
  if(!confirm('確定將所有到期會員續期30日？'))return;
- admApi('/api/admin/bulk-renew',{method:'POST',body:{days:30}})
- .then(r=>{toast('✅ '+r.msg);admLoadMembers();admLoadExpired()})
- .catch(e=>toast('❌ '+e.message,1));
+ _admCheck().then(()=>{
+  const h=_admHeaders();
+  const today=new Date().toISOString().split('T')[0];
+  const newExp=new Date(Date.now()+30*86400000).toISOString().split('T')[0];
+  fetch('/api/admin/batch-extend',{method:'POST',headers:h,body:JSON.stringify({new_expires:newExp})})
+  .then(()=>{toast('✅ 已續期');admLoadMembers();admLoadExpired()})
+  .catch(e=>toast('❌ '+e.message,1));
+ }).catch(e=>toast('❌ '+e.message,1));
 }
 
 function admExportCSV(){
- admApi('/api/admin/members').then(m=>{
- var csv='ID,用戶名,花名,會員,到期日,註冊日\n';
- (m.users||[]).forEach(u=>{
-  csv+=u.id+','+u.username+','+(u.nickname||'')+','+(u.membership||'free')+','+(u.member_expires||'')+','+u.created_at+'\n';
- });
- var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
- var url=URL.createObjectURL(blob);
- var a=document.createElement('a');a.href=url;a.download='members_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
- URL.revokeObjectURL(url);
- toast('✅ 已匯出');
+ _admCheck().then(()=>{
+  const h=_admHeaders();
+  fetch('/api/admin/members',{headers:h}).then(r=>r.json()).then(d=>{var users=d.users||[];
+   var csv='ID,用戶名,花名,會員,到期日,註冊日\n';
+   users.forEach(u=>{
+    csv+=u.id+','+u.username+','+(u.nickname||'')+','+(u.membership||'free')+','+(u.member_expires||'')+','+(u.created_at||'')+'\n';
+   });
+   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+   var url=URL.createObjectURL(blob);
+   var a=document.createElement('a');a.href=url;a.download='members_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
+   URL.revokeObjectURL(url);
+   toast('✅ 已匯出');
+  });
  }).catch(e=>toast('❌ '+e.message,1));
 }
 
 function admClearExpired(){
  if(!confirm('確定將所有到期會員降為免費？'))return;
- admApi('/api/admin/clear-expired',{method:'POST'})
- .then(r=>{toast('✅ '+r.msg);admLoadMembers();admLoadExpired()})
- .catch(e=>toast('❌ '+e.message,1));
+ _admCheck().then(()=>{
+  const h=_admHeaders();
+  const today=new Date().toISOString().split('T')[0];
+  fetch('/api/admin/batch-free',{method:'POST',headers:h})
+  .then(()=>{toast('✅ 已清除');admLoadMembers();admLoadExpired()})
+  .catch(e=>toast('❌ '+e.message,1));
+ }).catch(e=>toast('❌ '+e.message,1));
 }
 
 function admSendNotify(){
- var msg=prompt('輸入推送通知內容：');
- if(!msg)return;
- admApi('/api/admin/notify',{method:'POST',body:{message:msg}})
- .then(r=>toast('✅ '+r.msg))
- .catch(e=>toast('❌ '+e.message,1));
+ toast('ℹ️ 推送通知需後端支持，暫不可用',1);
 }
 
 function admSetServer(){

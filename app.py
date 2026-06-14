@@ -1105,6 +1105,34 @@ def api_admin_member_search():
     """, (f'%{q}%', f'%{q}%')).fetchall()
     return jsonify({'users':[dict(r) for r in rows]})
 
+@app.route('/api/admin/batch-extend', methods=['POST'])
+def api_admin_batch_extend():
+    """Batch extend expired members by N days."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    from datetime import timedelta
+    d = request.get_json(force=True) or {}
+    new_exp = d.get('new_expires', '')
+    if not new_exp:
+        days = int(d.get('days', 30))
+        new_exp = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+    db = get_db()
+    today = datetime.now().strftime('%Y-%m-%d')
+    cur = db.execute("UPDATE users SET member_expires=? WHERE membership!='free' AND membership!='' AND member_expires<?",
+                     (new_exp, today))
+    db.commit()
+    return jsonify({'ok':True, 'updated': cur.rowcount, 'new_expires': new_exp})
+
+@app.route('/api/admin/batch-free', methods=['POST'])
+def api_admin_batch_free():
+    """Batch demote expired members to free."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    today = datetime.now().strftime('%Y-%m-%d')
+    cur = db.execute("UPDATE users SET membership='free', member_expires='' WHERE membership!='free' AND membership!='' AND member_expires<?",
+                     (today,))
+    db.commit()
+    return jsonify({'ok':True, 'updated': cur.rowcount})
+
 # ═══════════════════ Replies ═══════════════════════════
 @app.route('/api/checkin/<int:cid>/reply', methods=['POST'])
 @auth_required
