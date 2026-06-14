@@ -14,6 +14,7 @@
 <meta name="author" content="Vic">
 <meta name="application-name" content="今晚飲咗未">
 <meta name="robots" content="index, follow">
+<link rel="sitemap" href="/sitemap.xml">
 
 <!-- ─── Site Verification ─────────────────────────── -->
 <meta name="google-site-verification" content="">
@@ -256,7 +257,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <body>
 
 <nav class="nav">
-  <div class="nav-title" id="nav-title">🍺 今晚飲咗未</div>
+  <div class="nav-title" id="nav-title" ontouchstart="admLongPressStart()" ontouchend="admLongPressCancel()" onmousedown="admLongPressStart()" onmouseup="admLongPressCancel()" onmouseleave="admLongPressCancel()" onclick="admTitleTap()">🍺 今晚飲咗未</div>
   <div class="nav-right">
     <select class="lang-select" id="lang-switch" onchange="switchLang(this.value)"><option value="zh-HK">繁</option><option value="zh-CN">简</option><option value="en">EN</option></select>
     <button class="nav-btn" id="btn-auth" onclick="showAuth()">登入</button>
@@ -666,6 +667,13 @@ document.addEventListener('scroll',function(){
 function saveS(){if(token)localStorage.setItem('jymy_token',token);if(me)localStorage.setItem('jymy_me',JSON.stringify(me))}
 function clearS(){localStorage.removeItem('jymy_token');localStorage.removeItem('jymy_me')}
 async function restoreS(){
+ // Restore admin session from localStorage
+ adminToken = localStorage.getItem('jymy_admin_token') || '';
+ if(adminToken && !localStorage.getItem('jymy_token')){
+  // Admin-only session (no regular user token)
+  me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
+  loadAdmin(); updateNav(); return true;
+ }
  // Flask mode: use local token + /api/me
  if(window.JYM && window.JYM._flaskMode){
   const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
@@ -706,7 +714,11 @@ function showReg(){document.getElementById('auth-form').style.display='none';doc
 
 function updateNav(){
   const menu=document.getElementById('user-menu'),btn=document.getElementById('btn-auth');
-  if(me){
+  if(me || adminToken){
+    if(!me && adminToken){
+      // Admin-only session (no regular user)
+      me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
+    }
     btn.style.display='none';menu.style.display='block';
     const trig=document.getElementById('user-trigger');
     const av=me.avatar;
@@ -877,6 +889,22 @@ function buildGrid(){
 async function doLogin(){
  const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value;
  if(!u||!p)return toast('填寫用戶名和密碼',1);
+ // Admin account: if username matches admin, try admin login first
+ if(u.toLowerCase()==='admin'){
+  try{
+   const r=await fetch(API_BASE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_user:u,admin_key:p})});
+   const d=await r.json();
+   if(r.ok){
+    adminToken=d.token;localStorage.setItem('jymy_admin_token',adminToken);
+    // Set virtual admin user so nav shows properly
+    me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
+    saveS();closeAuth();updateNav();buildGrid();updTitles();
+    admOpen();
+    toast('✅ 管理員登入成功');return;
+   }
+  }catch(e){}
+  toast('❌ 管理帳號或密碼錯誤',1);return;
+ }
  try{
  if(window.JYM && window.JYM._flaskMode){
   const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});token=r.token;me=r.user;
@@ -932,7 +960,7 @@ async function doRegister(){
 }
 async function doLogout(){
  if(window.JYM&&window.JYM.auth){try{await window.JYM.auth.signOut()}catch(e){}}
- token=null;me=null;selStatus=-1;clearS();updateNav();buildGrid();updTitles();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-checkin').classList.add('active');toast('👋 已登出');
+ token=null;me=null;adminToken='';selStatus=-1;clearS();localStorage.removeItem('jymy_admin_token');updateNav();buildGrid();updTitles();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-checkin').classList.add('active');toast('👋 已登出');
 }
 
 // ═══════ CHECKIN ═══════
@@ -1165,55 +1193,62 @@ async function saveProf(){
 
 function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin()}
 
-// ═══════ ADMIN (Supabase 直接查询，无需后端) ═══════
+// Admin entry: long-press brand name 3s or tap 5x opens login dialog (type 'admin' to enter admin mode)
 let adminToken = localStorage.getItem('jymy_admin_token') || '';
+let _admTimer = null;
+
+// Long press / 5x tap brand name → just open auth dialog (user types 'admin' as username)
+let _admTapCount = 0, _admTapTimer = null;
+function admTitleTap(){
+ _admTapCount++;
+ if(_admTapTimer) clearTimeout(_admTapTimer);
+ _admTapTimer = setTimeout(()=>{ _admTapCount = 0; }, 2000);
+ if(_admTapCount >= 5){ _admTapCount = 0; showAuth(); document.getElementById('l-user').value='admin'; document.getElementById('l-pass').focus(); }
+}
+function admLongPressStart(){
+ _admTimer = setTimeout(()=>{ showAuth(); document.getElementById('l-user').value='admin'; document.getElementById('l-pass').focus(); }, 3000);
+}
+function admLongPressCancel(){
+ if(_admTimer){ clearTimeout(_admTimer); _admTimer=null; }
+}
 
 // Supabase admin helper — 用当前登录用户 session token
 // 注意：Supabase v2 将 session 存喺 localStorage，key 格式系 sb-{projectRef}-auth-token
 function _admHeaders(){
  const h = {};
- h['Authorization']='Bearer '+localStorage.getItem('jym_token');
- try{
-  // 直接从 localStorage 读 session（同步，Supabase v2 默认存喺 localStorage）
-  var storageKey = 'jym_token';
-  // 试多种 key 格式
-  var raw = localStorage.getItem('jym_token');
-  if(!raw){
-   // 遍历 localStorage 搵包含 auth-token 嘅 key
-   for(var i=0;i<localStorage.length;i++){
-    var k = localStorage.key(i);
-    if(k && k.includes('auth-token')){ raw = localStorage.getItem(k); break; }
-   }
-  }
-  if(raw){
-   var sess = JSON.parse(raw);
-   // Supabase v2 可能包一层 {session: {...}} 或直接 {access_token:...}
-   var token = sess.access_token || (sess.session && sess.session.access_token);
-   if(token) h['Authorization'] = 'Bearer ' + token;
-   else h['Authorization'] = 'Bearer ' + localStorage.getItem('jym_token');
-  } else {
-   h['Authorization'] = 'Bearer ' + localStorage.getItem('jym_token');
-  }
- }catch(e){
-  h['Authorization'] = 'Bearer ' + localStorage.getItem('jym_token');
- }
  h['Content-Type'] = 'application/json';
+ h['X-Admin-Token'] = adminToken || '';
+ if(me) h['Authorization'] = 'Bearer ' + localStorage.getItem('jym_token');
  h['Prefer'] = 'return=representation';
  return h;
 }
 const _SB_REST = location.origin + '/api/admin/rest-redirect';  // Flask admin API proxy
 
 async function _admCheck(){
+ // Mode 1: Already logged in with admin key
+ if(adminToken){
+  try{
+   const payload = atob(adminToken);
+   if(payload.startsWith('0:admin_key_login')) return; // valid admin key token
+  }catch(e){}
+ }
+ // Mode 2: Current user is admin (legacy)
  if(!me || me.admin !== 1) throw new Error('無管理員權限');
  adminToken = 'sb_admin_' + me.id;
  localStorage.setItem('jymy_admin_token', adminToken);
 }
 
 function admOpen(){
+ if(!adminToken){ showAuth(); document.getElementById('l-user').value='admin'; document.getElementById('l-pass').focus(); return; }
+ // Ensure virtual admin user exists
+ if(!me || me.username !== 'admin'){
+  me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
+  saveS();updateNav();
+ }
  const el=document.getElementById('admin-mod');
  el.style.display='flex';el.style.position='fixed';el.classList.add('show');
  el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
- document.getElementById('adm-admin-name').textContent=me?me.nickname||me.username:'管理員';
+ document.getElementById('adm-admin-name').textContent='管理員';
  admShowTab('stats');
  loadAdmStats();
 }
@@ -1245,12 +1280,7 @@ function admShowTab(name){
 
 async function loadAdmin(){
  const ddAdmin = document.getElementById('dd-admin');
- if(ddAdmin) ddAdmin.style.display = 'none';
- if(!me || me.admin !== 1) return;
- // 标记为 admin
- adminToken = 'sb_admin_' + me.id;
- localStorage.setItem('jymy_admin_token', adminToken);
- if(ddAdmin) ddAdmin.style.display = '';
+ if(ddAdmin) ddAdmin.style.display = adminToken ? 'block' : 'none';
 }
 
 async function loadAdmStats(){
@@ -1325,8 +1355,23 @@ async function admSearchMember(){
  let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0" value="'+esc(q)+'"><button class="btn btn-outline btn-sm" onclick="admLoadMembers()">顯示全部</button></div>';
  users.forEach(u => {
  const plan = u.membership || 'free';
+ const isAdm = u.admin === 1;
  html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body"><div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
- html += '<div style="font-size:11px;color:var(--sub)">ID:'+u.id+' · '+plan+' · '+(u.member_expires||'—')+'</div></div></div>';
+ html += '<div style="font-size:11px;color:var(--sub)">ID:'+u.id+' · '+plan+' · '+(u.member_expires||'—')+'</div>';
+ html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
+ html += '<select onchange="admSetPlan('+u.id+',this.value)" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px">';
+ ['free','jiuyau','jaugwai','jausan','admin'].forEach(p => {
+ html += '<option value="'+p+'"'+(plan===p?' selected':'')+'>'+p+'</option>';
+ });
+ html += '</select>';
+ html += '<button class="btn btn-outline btn-sm" onclick="admVerifyMember('+u.id+')" style="font-size:10px;padding:2px 8px">✅ 確認</button>';
+ if(isAdm){
+  html += '<button class="btn btn-outline btn-sm" onclick="admRevokeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">👑 取消</button>';
+ } else {
+  html += '<button class="btn btn-outline btn-sm" onclick="admMakeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--purple);border-color:var(--purple)">👑 設管理</button>';
+ }
+ html += ' <button class="btn btn-outline btn-sm" onclick="admDeleteUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">🗑 刪除</button>';
+ html += '</div></div></div>';
  });
  if(!users.length) html += '<div class="empty"><div class="empty-icon">🔍</div>冇結果</div>';
  document.getElementById('adm-member-list').innerHTML = html;

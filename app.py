@@ -67,7 +67,7 @@ def gzip_response(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    response.headers['Permissions-Policy'] = 'geolocation=self, camera=self, microphone=()'
+    response.headers['Permissions-Policy'] = 'geolocation=(), camera=(), microphone=()'
     response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
     response.headers['X-XSS-Protection'] = '1; mode=block'
 
@@ -783,6 +783,10 @@ def _check_admin():
     try:
         payload = base64.b64decode(tok.encode()).decode()
         parts = payload.split(':')
+        # Mode 1: Standalone admin key login
+        if parts[0] == '0' and len(parts) > 1 and parts[1] == 'admin_key_login':
+            return True
+        # Mode 2: Regular admin user login
         uid = int(parts[0])
         # Verify the user is an admin
         db = get_db()
@@ -793,8 +797,21 @@ def _check_admin():
 
 @app.route('/api/admin/login', methods=['POST'])
 def api_admin_login():
-    """Login with regular account password, returns admin token if user is admin."""
+    """Login with independent admin account + key (or legacy user account)."""
     d = request.get_json(force=True) or {}
+    admin_user = d.get('admin_user', '').strip()
+    admin_key = d.get('admin_key', '')
+    
+    # Mode 1: Standalone admin account + key
+    if admin_key:
+        expected_user = os.environ.get('ADMIN_USER', 'admin')
+        expected_key = os.environ.get('ADMIN_KEY', 'jymy2026calc')
+        if admin_user != expected_user or admin_key != expected_key:
+            return jsonify({'error':'帳號或密碼錯誤'}), 403
+        token = base64.b64encode(f'0:admin_key_login:{admin_user}'.encode()).decode()
+        return jsonify({'token': token, 'user_id': 0, 'mode': 'key'})
+    
+    # Mode 2: Regular admin account (legacy)
     username = d.get('username', '').strip().lower()
     password = d.get('password', '')
     if not username or not password:
@@ -807,7 +824,7 @@ def api_admin_login():
         return jsonify({'error':'該帳號無管理員權限'}), 403
     # Generate token from user id
     token = base64.b64encode(f'{user["id"]}:admin_login'.encode()).decode()
-    return jsonify({'token': token, 'user_id': user['id']})
+    return jsonify({'token': token, 'user_id': user['id'], 'mode': 'user'})
 
 @app.route('/api/admin/setup', methods=['POST'])
 def api_admin_setup():
@@ -919,10 +936,34 @@ def api_admin_set_member():
     db = get_db()
     if plan and plan in ('jiuyau','jaugwai','jausan'):
         db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',(plan,exp,uid))
+    elif plan == 'admin':
+        db.execute('UPDATE users SET membership=?, member_expires=?, admin=1 WHERE id=?',(plan,exp,uid))
     else:
         db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',('free','',uid))
     db.commit()
     return jsonify({'ok':True, 'membership':plan or 'free', 'expires':exp})
+
+@app.route('/api/admin/make-admin', methods=['POST'])
+def api_admin_make_admin():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
+    if not uid: return jsonify({'error':'缺少 user_id'}), 400
+    db = get_db()
+    db.execute('UPDATE users SET admin=1 WHERE id=?', (uid,))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/admin/revoke-admin', methods=['POST'])
+def api_admin_revoke_admin():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
+    if not uid: return jsonify({'error':'缺少 user_id'}), 400
+    db = get_db()
+    db.execute('UPDATE users SET admin=0 WHERE id=?', (uid,))
+    db.commit()
+    return jsonify({'ok':True})
 
 @app.route('/api/admin/ads', methods=['POST'])
 def api_admin_ads():
@@ -945,7 +986,39 @@ def api_admin_stats():
     total_checkins = db.execute('SELECT COUNT(*) FROM checkins').fetchone()[0]
     total_parties = db.execute('SELECT COUNT(*) FROM parties').fetchone()[0]
     vip_count = db.execute("SELECT COUNT(*) FROM users WHERE membership!='free' AND membership!=''").fetchone()[0]
-    return jsonify({'stats':{'total_users':total_users,'total_checkins':total_checkins,'total_parties':total_parties,'vip_count':vip_count}})
+    today_checkins = db.execute("SELECT COUNT(*) FROM checkins WHERE date(created_at)=date('now','localtime')").fetchone()[0]
+    return jsonify({'stats':{'total_users':total_users,'total_checkins':total_checkins,'total_parties':total_parties,'vip_count':vip_count,'today_checkins':today_checkins}})
+
+@app.route('/api/admin/delete-user', methods=['POST'])
+def api_admin_delete_user():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
+    if not uid: return jsonify({'error':'請輸入用戶ID'}), 400
+    db = get_db()
+    row = db.execute('SELECT id,username,admin FROM users WHERE id=?', (uid,)).fetchone()
+    if not row: return jsonify({'error':'用戶不存在'}), 404
+    if row['admin'] == 1: return jsonify({'error':'不能刪除管理員'}), 403
+    uname = row['username']
+    db.execute('DELETE FROM checkins WHERE user_id=?', (uid,))
+    # Safe delete: try each table, skip if not exists
+    for tbl in ['party_members','payments','audit_log']:
+        try: db.execute(f'DELETE FROM {tbl} WHERE user_id=?', (uid,))
+        except: pass
+    db.execute('DELETE FROM users WHERE id=?', (uid,))
+    db.commit()
+    return jsonify({'ok':True, 'msg':f'已刪除用戶 {uname}'})
+
+@app.route('/api/admin/delete-checkin', methods=['POST'])
+def api_admin_delete_checkin():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    cid = int(d.get('checkin_id', 0))
+    if not cid: return jsonify({'error':'請輸入打卡ID'}), 400
+    db = get_db()
+    db.execute('DELETE FROM checkins WHERE id=?', (cid,))
+    db.commit()
+    return jsonify({'ok':True, 'msg':'已刪除打卡記錄'})
 
 # ═══════════════════ Membership ═══════════════════════════
 @app.route('/api/member/upgrade', methods=['POST'])
