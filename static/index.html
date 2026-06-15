@@ -1892,6 +1892,20 @@ function renderDice3D(n){
   // Random slight rotation for scattered feel
   var rx=Math.floor(Math.random()*10-5), ry=Math.floor(Math.random()*10-5);
   d.style.transform=(FACE_ROT[v]||'')+' rotateX('+rx+'deg) rotateY('+ry+'deg)';
+  // First die shows brand cover image initially
+  if(i===0){
+   d.dataset.cover='1';
+   var cover=d.querySelector('.f1');
+   if(cover){
+    cover.style.backgroundImage='url(https://drunk.vic999.com/icon-512.png)';
+    cover.style.backgroundSize='cover';
+    cover.style.backgroundPosition='center';
+    cover.style.borderRadius='8px';
+    cover.querySelectorAll('.ddot').forEach(function(dd){dd.style.display='none'});
+    cover.innerHTML='<img src="https://drunk.vic999.com/icon-512.png" style="width:52px;height:52px;border-radius:8px;object-fit:cover;position:absolute;top:2px;left:2px" onerror="this.remove()">';
+   }
+   d.style.transform='rotateY(0deg)';
+  }
   area.appendChild(d);
  }
 }
@@ -1954,6 +1968,20 @@ function shakeSolo(){
   dies.forEach(function(d,i){
    var v=Math.floor(Math.random()*6)+1;res.push(v);_diceVals[i]=v;
    d.classList.remove('rolling');
+   // Remove cover image from first die, restore normal face
+   if(d.dataset.cover){
+    delete d.dataset.cover;
+    var coverFace=d.querySelector('.f1');
+    if(coverFace){
+     coverFace.style.backgroundImage='';
+     coverFace.innerHTML='';
+     var dots=DOTS[1];
+     for(var k=0;k<9;k++){
+      var dot=document.createElement('div');dot.className='ddot'+(dots[k]?'':' off');
+      coverFace.appendChild(dot);
+     }
+    }
+   }
    d.style.transition='transform 0.6s cubic-bezier(0.22,0.9,0.36,1)';
    var rx2=Math.floor(Math.random()*10-5),ry2=Math.floor(Math.random()*10-5);
    d.style.transform=FACE_ROT[v]+' rotateX('+rx2+'deg) rotateY('+ry2+'deg)';
