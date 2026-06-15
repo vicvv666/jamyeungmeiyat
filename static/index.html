@@ -344,7 +344,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <div class="page" id="page-dice">
  <div class="card">
   <div class="card-header">🎲 骰盅大挑戰</div>
-  <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center">選擇骰數（免費最多2粒）</div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center" id="dice-mem-hint">選擇骰數</div>
   <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px" id="dice-count-row"></div>
   <div id="dice-table" style="position:relative;width:100%;min-height:160px;background:radial-gradient(ellipse at center,rgba(30,60,30,0.15) 0%,transparent 70%);border-radius:14px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:16px 8px;perspective:600px">
    <div id="dice-area"></div>
@@ -393,7 +393,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.08));border:1px solid rgba(139,92,246,0.15)">
   <div style="font-size:28px">💎</div>
   <div style="font-weight:700;font-size:14px;color:var(--pink)">解鎖更多骰盅玩法</div>
-  <div style="font-size:11px;color:var(--sub);margin-top:4px;line-height:1.6">🥉 酒友 ¥8/月 — 3粒骰 + 加入房間<br>🥈 酒鬼 ¥18/月 — 4粒骰 + 開房<br>🥇 酒神 ¥198/年 — 5粒骰 + 自訂規則</div>
+  <div id="dice-upgrade-hint" style="font-size:11px;color:var(--sub);margin-top:4px;line-height:1.6">🥉 酒友 ¥8/月 — 3粒骰 + 加入房間<br>🥈 酒鬼 ¥18/月 — 4粒骰 + 開房<br>🥇 酒神 ¥198/年 — 5粒骰 + 自訂規則</div>
  </div>
 </div>
 
@@ -688,6 +688,7 @@ async function restoreS(){
  // Flask mode: use local token + /api/me
  if(window.JYM && window.JYM._flaskMode){
   const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
+  adminToken = localStorage.getItem('jymy_admin_token') || '';
   try{me=JSON.parse(localStorage.getItem('jymy_me')||'null')}catch(e){me=null}
   try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){token=null;me=null;clearS();return false}
  }
@@ -938,7 +939,17 @@ async function doLogin(){
   token=r.token;me=r.user;
  }
  lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
- adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
+ // If user is admin, auto-acquire adminToken via Mode 2
+ if(me.admin === 1){
+  try{
+   const ar=await fetch(API_BASE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:me.username,password:p})});
+   const ad=await ar.json();
+   if(ar.ok && ad.token){adminToken=ad.token;localStorage.setItem('jymy_admin_token',adminToken);}
+  }catch(e){}
+ }else{
+  adminToken='';localStorage.removeItem('jymy_admin_token');
+ }
+ sessionStorage.setItem('jymy_pw',p);
  saveS();toast('✅ 登入成功');closeAuth();updateNav();buildGrid();updTitles();
  setTimeout(()=>refreshAll(),300);
  }catch(e){let msg=e.message||'登入失敗';if(msg.includes('Invalid login'))msg='用戶名或密碼錯誤';if(msg.includes('Email not confirmed'))msg='帳號未確認，請稍後重試';toast('❌ '+msg,1)}
@@ -1272,18 +1283,42 @@ async function _admCheck(){
   try{
    const payload = atob(adminToken);
    if(payload.startsWith('0:admin_key_login')) return; // valid admin key token
+   // Mode 2: Check if it's a valid user-based admin token (uid:admin_login)
+   const parts = payload.split(':');
+   if(parts.length >= 2 && parts[0] !== '0' && !isNaN(parseInt(parts[0]))){
+    return; // valid Mode 2 admin token
+   }
   }catch(e){}
  }
- // Mode 2: Current user is admin (legacy)
+ // Mode 2 fallback: Current user is admin but no adminToken yet
  if(!me || me.admin !== 1) throw new Error('無管理員權限');
- adminToken = 'sb_admin_' + me.id;
- localStorage.setItem('jymy_admin_token', adminToken);
+ // Try to acquire adminToken via Mode 2 login
+ const pw = sessionStorage.getItem('jymy_pw');
+ if(pw){
+  try{
+   const r=await fetch(API_BASE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:me.username,password:pw})});
+   const d=await r.json();
+   if(r.ok && d.token){adminToken=d.token;localStorage.setItem('jymy_admin_token',adminToken);return;}
+  }catch(e){}
+ }
+ throw new Error('管理員驗證失敗，請重新登入');
 }
 
 function admOpen(){
- if(!adminToken){ showAuth(); document.getElementById('l-user').value='admin'; document.getElementById('l-pass').focus(); return; }
- // Ensure virtual admin user exists
- if(!me || me.username !== 'admin'){
+ if(!adminToken){
+  // Try _admCheck first (may auto-acquire adminToken via Mode 2)
+  if(me && me.admin === 1){
+   _admCheck().then(()=>{admOpen()}).catch(()=>{showAuth();document.getElementById('l-user').value='admin';document.getElementById('l-pass').focus()});
+   return;
+  }
+  showAuth(); document.getElementById('l-user').value='admin'; document.getElementById('l-pass').focus(); return;
+ }
+ // Ensure virtual admin user exists for Mode 1 admin
+ if(me && me.id === 0 && me.username === 'admin'){
+  // Already virtual admin (Mode 1)
+ }else if(me && me.admin === 1){
+  // Mode 2 admin user — keep real me
+ }else if(!me || me.username !== 'admin'){
   me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
   saveS();updateNav();
  }
@@ -1469,12 +1504,15 @@ async function admSearchMember(){
 
 async function admSetPlan(uid, plan){
  try{
- await _admCheck();
- const h = _admHeaders();
- const exp = plan==='free' ? null : new Date(Date.now()+30*86400000).toISOString().split('T')[0];
- await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
- toast('✅ 已更新');
- admLoadMembers();
+  await _admCheck();
+  const h = _admHeaders();
+  const r = await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
+  const d = await r.json();
+  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
+  toast('✅ '+(d.msg||'已更新')+' → '+(d.membership||plan));
+  // If admin changed own membership, refresh me
+  if(me && me.id === uid){me.membership=d.membership||plan;me.member_expires=d.expires||'';saveS();updateNav();initDice();}
+  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -1484,16 +1522,18 @@ async function admVerifyMember(uid){
  const days = prompt('有效期天數（free 則輸入 0）：','30');
  if(days===null) return;
  try{
- await _admCheck();
- const h = _admHeaders();
- const exp = plan==='free' ? null : new Date(Date.now()+(parseInt(days)||30)*86400000).toISOString().split('T')[0];
- await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
- toast('✅ 資格已確認：'+plan+(exp?'，到期：'+exp:''));
- admLoadMembers();
+  await _admCheck();
+  const h = _admHeaders();
+  const r = await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:parseInt(days)||30})});
+  const d = await r.json();
+  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
+  toast('✅ '+(d.membership||plan)+' 已設置');
+  if(me && me.id === uid){me.membership=d.membership||plan;me.member_expires=d.expires||'';saveS();updateNav();initDice();}
+  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
-}
+ }
 
-// ── Admin: Reset member password (需后端，暂不可用) ──
+ // ── Admin: Reset member password (需后端，暂不可用) ──
 async function admResetMemberPw(uid){
  toast('❌ Supabase 模式下暫不支持直接改密',1);
 }
@@ -1502,21 +1542,25 @@ async function admResetMemberPw(uid){
 async function admMakeAdmin(uid, username){
  if(!confirm('確定將「'+username+'」設定為管理員？')) return;
  try{
- await _admCheck();
- const h = _admHeaders();
- await fetch(API_BASE+'/api/admin/become',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
- toast('✅ 已設為管理員');
- admLoadMembers();
+  await _admCheck();
+  const h = _admHeaders();
+  const r = await fetch(API_BASE+'/api/admin/become',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,username:username})});
+  const d = await r.json();
+  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
+  toast('✅ '+(d.msg||'已設為管理員'));
+  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
 }
 async function admRevokeAdmin(uid, username){
  if(!confirm('確定取消「'+username+'」的管理員權限？')) return;
  try{
- await _admCheck();
- const h = _admHeaders();
- await fetch(API_BASE+'/api/admin/revoke',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
- toast('✅ 已取消管理員');
- admLoadMembers();
+  await _admCheck();
+  const h = _admHeaders();
+  const r = await fetch(API_BASE+'/api/admin/revoke',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,username:username})});
+  const d = await r.json();
+  if(!r.ok) return toast('❌ '+(d.error||'取消失敗'),1);
+  toast('✅ '+(d.msg||'已取消管理員'));
+  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -1738,6 +1782,12 @@ var FACE_ROT={1:'rotateX(0deg) rotateY(0deg)',2:'rotateY(-90deg)',3:'rotateX(-90
 function initDice(){
  var mem=_diceMem(),limit=DICE_MEM_LIMITS[mem]||2;
  _diceCount=Math.min(_diceCount,limit);
+ // Update dice hint based on membership
+ var hint=document.getElementById('dice-mem-hint');
+ if(hint){
+  var memNames={free:'免費',jiuyau:'🥉酒友',jaugwai:'🥈酒鬼',jausan:'🥇酒神',admin:'👑管理'};
+  hint.textContent='選擇骰數（'+(memNames[mem]||mem)+'最多'+limit+'粒）';
+ }
  var row=document.getElementById('dice-count-row');
  if(!row)return;
  row.innerHTML='';
@@ -1753,6 +1803,9 @@ function initDice(){
  var bc1=document.getElementById('btn-create-room'),bj1=document.getElementById('btn-join-room');
  if(bc1)bc1.disabled=!DICE_ROOM_LEVEL[mem];
  if(bj1)bj1.disabled=mem==='free';
+ // Hide upgrade card for premium members
+ var uc=document.getElementById('dice-upgrade-hint')?.parentElement;
+ if(uc) uc.style.display=(mem==='jausan'||mem==='admin')?'none':'';
  if(_diceBC)_diceBC.onmessage=function(e){handleDiceMsg(e.data)};
 }
 

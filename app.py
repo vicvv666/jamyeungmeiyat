@@ -918,36 +918,45 @@ def api_admin_become():
     """Admin can mark any user as admin."""
     if not _check_admin(): return jsonify({'error':'未授權'}), 403
     d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
     username = d.get('username', '').strip().lower()
-    if not username:
-        return jsonify({'error':'請輸入用戶名'}), 400
+    # Accept either user_id or username
     db = get_db()
-    row = db.execute('SELECT id,admin FROM users WHERE username=?', (username,)).fetchone()
+    if uid:
+        row = db.execute('SELECT id,username,admin FROM users WHERE id=?', (uid,)).fetchone()
+    elif username:
+        row = db.execute('SELECT id,username,admin FROM users WHERE username=?', (username,)).fetchone()
+    else:
+        return jsonify({'error':'請提供用戶ID或用戶名'}), 400
     if not row:
         return jsonify({'error':'用戶不存在'}), 404
     if row['admin'] == 1:
-        return jsonify({'error':f'{username} 已經是管理員'}), 400
+        return jsonify({'error':f'{row["username"]} 已經是管理員'}), 400
     db.execute('UPDATE users SET admin=1 WHERE id=?', (row['id'],))
     db.commit()
-    return jsonify({'ok':True, 'username':username, 'msg':f'{username} 已成為管理員'})
+    return jsonify({'ok':True, 'username':row['username'], 'msg':f'{row["username"]} 已成為管理員'})
 
 @app.route('/api/admin/revoke', methods=['POST'])
 def api_admin_revoke():
     """Admin can remove admin status from a user."""
     if not _check_admin(): return jsonify({'error':'未授權'}), 403
     d = request.get_json(force=True) or {}
+    uid = int(d.get('user_id', 0))
     username = d.get('username', '').strip().lower()
-    if not username:
-        return jsonify({'error':'請輸入用戶名'}), 400
     db = get_db()
-    row = db.execute('SELECT id,admin FROM users WHERE username=?', (username,)).fetchone()
+    if uid:
+        row = db.execute('SELECT id,username,admin FROM users WHERE id=?', (uid,)).fetchone()
+    elif username:
+        row = db.execute('SELECT id,username,admin FROM users WHERE username=?', (username,)).fetchone()
+    else:
+        return jsonify({'error':'請提供用戶ID或用戶名'}), 400
     if not row:
         return jsonify({'error':'用戶不存在'}), 404
     if row['admin'] != 1:
-        return jsonify({'error':f'{username} 唔係管理員'}), 400
+        return jsonify({'error':f'{row["username"]} 唔係管理員'}), 400
     db.execute('UPDATE users SET admin=0 WHERE id=?', (row['id'],))
     db.commit()
-    return jsonify({'ok':True, 'username':username, 'msg':f'{username} 管理員權限已取消'})
+    return jsonify({'ok':True, 'username':row['username'], 'msg':f'{row["username"]} 管理員權限已取消'})
 
 @app.route('/api/admin/refresh-token', methods=['POST'])
 def api_admin_refresh_token():
