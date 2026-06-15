@@ -1746,7 +1746,7 @@ const DICE_ROOM_LEVEL={free:false,jiuyau:false,jaugwai:true,jausan:true};
 let _diceCount=2,_diceVals=[],_diceShaking=false,_diceBC=null,_diceRoom=null,_diceIsHost=false;
 try{_diceBC=new BroadcastChannel('dice-room')}catch(e){}
 
-function _diceMem(){return(me&&me.membership)||'free'}
+function _diceMem(){var m=(me&&me.membership)||'free';return(m==='admin'?'jausan':m)}
 function _diceName(){return(me&&me.nickname)||'玩家'}
 
 // Inject 3D dice CSS once

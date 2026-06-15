@@ -932,7 +932,8 @@ def api_admin_become():
         return jsonify({'error':'用戶不存在'}), 404
     if row['admin'] == 1:
         return jsonify({'error':f'{row["username"]} 已經是管理員'}), 400
-    db.execute('UPDATE users SET admin=1 WHERE id=?', (row['id'],))
+    # Set admin=1 + ensure at least jausan membership for full feature access
+    db.execute('UPDATE users SET admin=1, membership=CASE WHEN membership IN ("jiuyau","jaugwai","jausan") THEN membership ELSE "jausan" END, member_expires=CASE WHEN member_expires="" OR member_expires IS NULL THEN date("now","+365 days") ELSE member_expires END WHERE id=?', (row['id'],))
     db.commit()
     return jsonify({'ok':True, 'username':row['username'], 'msg':f'{row["username"]} 已成為管理員'})
 
@@ -985,11 +986,11 @@ def api_admin_set_member():
     if plan and plan in ('jiuyau','jaugwai','jausan'):
         db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',(plan,exp,uid))
     elif plan == 'admin':
-        db.execute('UPDATE users SET membership=?, member_expires=?, admin=1 WHERE id=?',(plan,exp,uid))
+        db.execute('UPDATE users SET membership=?, member_expires=?, admin=1 WHERE id=?',('jausan',exp,uid))
     else:
         db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',('free','',uid))
     db.commit()
-    return jsonify({'ok':True, 'membership':plan or 'free', 'expires':exp})
+    return jsonify({'ok':True, 'membership':'jausan' if plan=='admin' else (plan or 'free'), 'expires':exp})
 
 @app.route('/api/admin/make-admin', methods=['POST'])
 def api_admin_make_admin():
