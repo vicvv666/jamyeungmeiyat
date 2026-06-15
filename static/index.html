@@ -144,7 +144,7 @@ var ASSET_BASE='';
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0D0D12;--card:#1A1A24;--card-hover:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glass-bg:rgba(13,13,18,0.75);--glass-border:rgba(255,255,255,0.06);--max-width:480px;--fs-base:16px;--fs-sm:14px;--fs-xs:12px;--fs-title:24px;--fs-card:17px;--fs-stat:30px}
-body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:100px;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:120px;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
 /* Responsive: center content on large screens with max 480px */
 .nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
@@ -160,7 +160,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .tab.active::after{transform:translateX(-50%) scaleX(1)}
 .content{margin-top:52px;margin-bottom:68px;padding:16px;max-width:var(--max-width);margin-left:auto;margin-right:auto;min-height:calc(100dvh - 120px)}
 /* Page transitions: slide + fade */
-.page{display:none;animation:none}
+.page{display:none;animation:none;padding-bottom:90px}
 .page.active{display:block;animation:pageIn .35s cubic-bezier(.22,1,.36,1) forwards}
 .page.active.slide-left{animation:slideInLeft .35s cubic-bezier(.22,1,.36,1) forwards}
 .page.active.slide-right{animation:slideInRight .35s cubic-bezier(.22,1,.36,1) forwards}
@@ -380,7 +380,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   </div><div id="st-dist"></div>
 </div>
 
-<div class="page" id="page-dice" style="padding-bottom:80px">
+<div class="page" id="page-dice" style="padding-bottom:120px">
  <div class="card">
   <div class="card-header">🎲 骰盅大挑戰</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center" id="dice-mem-hint">選擇骰數</div>
