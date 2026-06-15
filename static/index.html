@@ -601,13 +601,7 @@ const API_BASE = (()=>{
  }
  const saved = localStorage.getItem('jymy_server');
  if(saved) return saved;
- const server = prompt('🌐 輸入伺服器地址\n(例如: http://192.168.1.100:5052)\n\n首次使用需要配置伺服器','');
- if(server && server.trim()){
- localStorage.setItem('jymy_server', server.trim());
- if(window.JymyNative && window.JymyNative.setServerUrl) window.JymyNative.setServerUrl(server.trim());
- return server.trim();
- }
- return 'http://10.0.2.2:5052';
+ return 'https://drunk.vic999.com';
  }
  return '';
 })();
