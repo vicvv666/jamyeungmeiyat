@@ -1945,7 +1945,7 @@ def dice_room_chat_get(code):
 @auth_required
 def dice_heartbeat():
     """User heartbeat — update last_seen, return online users & room state"""
-    d = request.get_json(force=True) or {}
+    d = request.get_json(silent=True) or {}
     room_id = (d.get('room_id') or '').strip().upper()
     db = get_db()
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -2081,17 +2081,32 @@ def dice_challenge_list():
     """Get pending challenges for current user (as challenged_id)"""
     db = get_db()
     _dice_clean_old(db)
-    rows = db.execute("SELECT * FROM dice_rooms WHERE status='challenge' AND challenge_json LIKE ?", (f'%"{g.uid}"%',)).fetchall()
-    # further verify challenged_id in challenge_json
+    rows = db.execute("SELECT * FROM dice_rooms WHERE status='challenge'").fetchall()
+    # verify challenged_id or challenger_id in challenge_json
     results = []
     for row in rows:
         try:
             cj = json.loads(row['challenge_json'] or '{}')
-            if cj.get('challenged_id') == g.uid:
-                results.append(_dice_room_to_dict(row))
+            if cj.get('challenged_id') == g.uid or cj.get('challenger_id') == g.uid:
+                r = _dice_room_to_dict(row)
+                r['my_role'] = 'challenger' if cj.get('challenger_id') == g.uid else 'challenged'
+                results.append(r)
         except:
             pass
     return jsonify({'ok': True, 'challenges': results})
+
+@app.route('/api/dice/online-players')
+@auth_required
+def dice_online_players():
+    """List players online (heartbeat within 30s)"""
+    db = get_db()
+    rows = db.execute("""SELECT h.user_id, u.username, u.nickname FROM dice_heartbeat h
+                         JOIN users u ON u.id=h.user_id
+                         WHERE datetime(h.last_seen) >= datetime('now','localtime','-30 seconds')
+                         AND h.user_id != ?
+                         ORDER BY h.last_seen DESC""", (g.uid,)).fetchall()
+    players = [{'id': r['user_id'], 'username': r['username'], 'nickname': r['nickname']} for r in rows]
+    return jsonify({'ok': True, 'online': players})
 
 # ═══════════════════ Matchmaking (隨機匹配) ═════════════
 @app.route('/api/dice/matchmaking', methods=['POST'])
