@@ -28,6 +28,9 @@ app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY', uuid.uuid4().hex + uuid.uuid4().hex)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB max upload
 
+# ─── Matchmaking queue (in-memory) ──────────────────
+_matchmaking_queue = []  # [{uid, dice, rounds, joined_at, room_created}, ...]
+
 # ─── HTML Input Sanitizer ──────────────────────────
 _HTML_TAGS_RE = re.compile(r'<[^>]*>')
 
@@ -49,8 +52,9 @@ def sanitize_html(text):
 _ALLOWED_ORIGINS = {'https://drunk.vic999.com','http://drunk.vic999.com','https://www.drunk.vic999.com','null'}
 _IP_BLACKLIST = set()
 _GENERAL_RATE = {}  # ip -> [timestamps]
-_GENERAL_LIMIT = 60   # 60 req/min per IP
+_GENERAL_LIMIT = 200   # 200 req/min per IP (static assets excluded)
 _GENERAL_WINDOW = 60
+_STATIC_EXTS = {'.png','.jpg','.jpeg','.gif','.webp','.svg','.ico','.js','.css','.woff2','.woff','.ttf','.json','.xml','.txt','.webmanifest'}
 
 @app.before_request
 def _security_check():
@@ -58,22 +62,27 @@ def _security_check():
     ip = request.remote_addr or request.headers.get('X-Forwarded-For','').split(',')[-1].strip() or '0'
     if ip in _IP_BLACKLIST:
         return jsonify({'error':'禁止訪問'}), 403
-    # General rate limiter: 60 req/min per IP
-    now = time.time()
-    entry = _GENERAL_RATE.get(ip)
-    if entry:
-        ts = [t for t in entry if now - t < _GENERAL_WINDOW]
-        if len(ts) >= _GENERAL_LIMIT:
-            return jsonify({'error':'請求過於頻繁，請稍後再試'}), 429
-        ts.append(now)
-        _GENERAL_RATE[ip] = ts
-    else:
-        _GENERAL_RATE[ip] = [now]
-    # cleanup every 500 requests
-    if len(_GENERAL_RATE) > 500:
-        for k,v in list(_GENERAL_RATE.items()):
-            if len(v)==0 or now - v[-1] > _GENERAL_WINDOW:
-                del _GENERAL_RATE[k]
+    # Skip rate limit for static assets
+    from urllib.parse import urlparse
+    path = request.path or ''
+    _ext = '.' + path.rsplit('.',1)[-1].lower() if '.' in path.rsplit('/',1)[-1] else ''
+    if _ext not in _STATIC_EXTS:
+        # General rate limiter
+        now = time.time()
+        entry = _GENERAL_RATE.get(ip)
+        if entry:
+            ts = [t for t in entry if now - t < _GENERAL_WINDOW]
+            if len(ts) >= _GENERAL_LIMIT:
+                return jsonify({'error':'請求過於頻繁，請稍後再試'}), 429
+            ts.append(now)
+            _GENERAL_RATE[ip] = ts
+        else:
+            _GENERAL_RATE[ip] = [now]
+        # cleanup every 500 requests
+        if len(_GENERAL_RATE) > 500:
+            for k,v in list(_GENERAL_RATE.items()):
+                if len(v)==0 or now - v[-1] > _GENERAL_WINDOW:
+                    del _GENERAL_RATE[k]
     # Request size limit
     if request.content_length and request.content_length > 2*1024*1024:
         return jsonify({'error':'請求過大'}), 413
@@ -338,6 +347,19 @@ CREATE TABLE IF NOT EXISTS users (
     for col, typ in [('players_json','TEXT'),('rules_json','TEXT'),('results_json','TEXT')]:
         try: db.execute(f'ALTER TABLE dice_rooms ADD COLUMN {col} {typ} DEFAULT ""')
         except: pass
+    # battle/challenge schema
+    for col, typ in [('battle_type','TEXT DEFAULT "classic"'),('challenge_json','TEXT DEFAULT ""')]:
+        try: db.execute(f'ALTER TABLE dice_rooms ADD COLUMN {col} {typ}')
+        except: pass
+    # dice_heartbeat table
+    try:
+        db.execute('''CREATE TABLE IF NOT EXISTS dice_heartbeat (
+            user_id  INTEGER NOT NULL,
+            room_id  TEXT NOT NULL DEFAULT '',
+            last_seen TEXT NOT NULL DEFAULT '',
+            PRIMARY KEY (user_id, room_id)
+        )''')
+    except: pass
     # post_likes / post_comments / post_replies
     for tbl_sql in [
         '''CREATE TABLE IF NOT EXISTS post_likes (
@@ -1688,9 +1710,15 @@ def api_replies(cid):
 
 # ═══════════════════ Dice Rooms ═════════════════════════
 def _dice_clean_old(db):
-    """Auto-delete rooms older than 2 hours"""
+    """Auto-delete rooms older than 2 hours, clean stale heartbeats and matchmaking"""
     db.execute("DELETE FROM dice_room_chat WHERE room_id IN (SELECT id FROM dice_rooms WHERE datetime(created_at) < datetime('now','localtime','-2 hours'))")
     db.execute("DELETE FROM dice_rooms WHERE datetime(created_at) < datetime('now','localtime','-2 hours')")
+    # clean stale heartbeat entries (>30s offline)
+    db.execute("DELETE FROM dice_heartbeat WHERE datetime(last_seen) < datetime('now','localtime','-30 seconds')")
+    # clean stale matchmaking entries (>5 min waiting)
+    now = time.time()
+    global _matchmaking_queue
+    _matchmaking_queue = [e for e in _matchmaking_queue if now - e.get('joined_at', 0) < 300]
 
 def _dice_room_to_dict(row):
     if not row: return None
@@ -1704,6 +1732,11 @@ def _dice_room_to_dict(row):
     r.pop('players_json', None)
     r.pop('rules_json', None)
     r.pop('results_json', None)
+    # battle/challenge fields
+    r['battle_type'] = r.get('battle_type', 'classic')
+    try: r['challenge'] = json.loads(r.get('challenge_json') or '{}')
+    except: r['challenge'] = {}
+    r.pop('challenge_json', None)
     return r
 
 @app.route('/api/dice/room/create', methods=['POST'])
@@ -1906,6 +1939,223 @@ def dice_room_chat_get(code):
     db = get_db()
     rows = db.execute('SELECT * FROM dice_room_chat WHERE room_id=? ORDER BY id DESC LIMIT 50', (code.upper(),)).fetchall()
     return jsonify({'messages': [dict(r) for r in reversed(rows)]})
+
+# ═══════════════════ Heartbeat ══════════════════════════
+@app.route('/api/dice/heartbeat', methods=['POST'])
+@auth_required
+def dice_heartbeat():
+    """User heartbeat — update last_seen, return online users & room state"""
+    d = request.get_json(force=True) or {}
+    room_id = (d.get('room_id') or '').strip().upper()
+    db = get_db()
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # upsert heartbeat
+    db.execute('INSERT OR REPLACE INTO dice_heartbeat (user_id, room_id, last_seen) VALUES (?, ?, ?)',
+               (g.uid, room_id, now_str))
+    # clean stale heartbeats (>30s offline)
+    db.execute("DELETE FROM dice_heartbeat WHERE datetime(last_seen) < datetime('now','localtime','-30 seconds')")
+    db.commit()
+    # gather online users grouped by room
+    online = {}
+    rows = db.execute("SELECT user_id, room_id FROM dice_heartbeat WHERE datetime(last_seen) >= datetime('now','localtime','-30 seconds')").fetchall()
+    for r in rows:
+        rid = r['room_id'] or '__lobby__'
+        online.setdefault(rid, []).append(r['user_id'])
+    result = {'ok': True, 'online': online}
+    # if room_id given, also return room state
+    if room_id:
+        room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (room_id,)).fetchone()
+        if room:
+            result['room'] = _dice_room_to_dict(room)
+    return jsonify(result)
+
+@app.route('/api/dice/room/<code>/online')
+@auth_required
+def dice_room_online(code):
+    """Get online users for a room (last_seen within 30s)"""
+    db = get_db()
+    code = code.upper()
+    rows = db.execute("SELECT user_id FROM dice_heartbeat WHERE room_id=? AND datetime(last_seen) >= datetime('now','localtime','-30 seconds')", (code,)).fetchall()
+    uids = [r['user_id'] for r in rows]
+    # enrich with user info
+    users = []
+    for uid in uids:
+        u = _user_info(uid)
+        users.append({'id': uid, 'nickname': u.get('nickname',''), 'username': u.get('username','')})
+    return jsonify({'ok': True, 'online': users})
+
+# ═══════════════════ Battle Challenge (波神約戰) ═════════
+@app.route('/api/dice/challenge', methods=['POST'])
+@auth_required
+def dice_challenge():
+    """Initiate a battle challenge"""
+    d = request.get_json(force=True) or {}
+    challenged_id = int(d.get('challenged_id') or 0)
+    dice_n = int(d.get('dice') or 2)
+    rounds = int(d.get('rounds') or 1)
+    wager = int(d.get('wager') or 0)
+    if not challenged_id or challenged_id == g.uid:
+        return jsonify({'error': '無效嘅挑戰對象'}), 400
+    db = get_db()
+    _dice_clean_old(db)
+    # check challenged user exists
+    target = db.execute('SELECT id, username, nickname FROM users WHERE id=?', (challenged_id,)).fetchone()
+    if not target:
+        return jsonify({'error': '對手唔存在'}), 404
+    # check challenged user is online (has heartbeat within 30s)
+    hb = db.execute("SELECT 1 FROM dice_heartbeat WHERE user_id=? AND datetime(last_seen) >= datetime('now','localtime','-30 seconds')", (challenged_id,)).fetchone()
+    if not hb:
+        return jsonify({'error': '對手唔在線'}), 400
+    # create challenge room
+    import random, string as _str
+    code = ''.join(random.choices('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', k=6))
+    while db.execute('SELECT 1 FROM dice_rooms WHERE id=?', (code,)).fetchone():
+        code = ''.join(random.choices('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', k=6))
+    challenger = _user_info(g.uid)
+    target_info = _user_info(challenged_id)
+    players_json = json.dumps([
+        {'id': g.uid, 'name': challenger['nickname'] or challenger['username'], 'host': True},
+        {'id': challenged_id, 'name': target_info['nickname'] or target_info['username'], 'host': False},
+    ])
+    challenge_json = json.dumps({
+        'challenger_id': g.uid,
+        'challenged_id': challenged_id,
+        'dice': dice_n,
+        'rounds': rounds,
+        'wager': wager,
+    })
+    rules_json = json.dumps({'dice': dice_n, 'rounds': rounds})
+    db.execute('INSERT INTO dice_rooms (id,name,creator_id,game_type,max_players,status,players_json,rules_json,battle_type,challenge_json) VALUES (?,?,?,?,?,?,?,?,?,?)',
+               (code, '', g.uid, 'classic', 8, 'challenge', players_json, rules_json, 'challenge', challenge_json))
+    db.commit()
+    # system chat
+    c_name = challenger['nickname'] or challenger['username']
+    t_name = target_info['nickname'] or target_info['username']
+    db.execute('INSERT INTO dice_room_chat (room_id,user_id,username,nickname,msg_type,content) VALUES (?,?,?,?,?,?)',
+               (code, 0, 'system', 'system', 'system', f'⚔️ {c_name} 向 {t_name} 發起波神約戰！'))
+    db.commit()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    return jsonify({'ok': True, 'room': _dice_room_to_dict(room)})
+
+@app.route('/api/dice/challenge/respond', methods=['POST'])
+@auth_required
+def dice_challenge_respond():
+    """Accept or reject a challenge"""
+    d = request.get_json(force=True) or {}
+    code = (d.get('code') or '').strip().upper()
+    accept = bool(d.get('accept', False))
+    db = get_db()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    if not room or room['status'] != 'challenge':
+        return jsonify({'error': '約戰不存在或已過期'}), 404
+    # verify current user is the challenged one
+    try:
+        cj = json.loads(room['challenge_json'] or '{}')
+    except:
+        cj = {}
+    if cj.get('challenged_id') != g.uid:
+        return jsonify({'error': '你唔係被挑戰者'}), 403
+    if accept:
+        db.execute("UPDATE dice_rooms SET status='waiting' WHERE id=?", (code,))
+        u = _user_info(g.uid)
+        name = u['nickname'] or u['username']
+        db.execute('INSERT INTO dice_room_chat (room_id,user_id,username,nickname,msg_type,content) VALUES (?,?,?,?,?,?)',
+                   (code, g.uid, u['username'], name, 'system', f'✅ {name} 接受咗約戰！'))
+        db.commit()
+        room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+        return jsonify({'ok': True, 'room': _dice_room_to_dict(room)})
+    else:
+        # reject — delete room
+        u = _user_info(g.uid)
+        name = u['nickname'] or u['username']
+        db.execute('INSERT INTO dice_room_chat (room_id,user_id,username,nickname,msg_type,content) VALUES (?,?,?,?,?,?)',
+                   (code, g.uid, u['username'], name, 'system', f'❌ {name} 拒絕咗約戰'))
+        db.execute('DELETE FROM dice_room_chat WHERE room_id=?', (code,))
+        db.execute('DELETE FROM dice_rooms WHERE id=?', (code,))
+        db.commit()
+        return jsonify({'ok': True, 'rejected': True})
+
+@app.route('/api/dice/challenge/list')
+@auth_required
+def dice_challenge_list():
+    """Get pending challenges for current user (as challenged_id)"""
+    db = get_db()
+    _dice_clean_old(db)
+    rows = db.execute("SELECT * FROM dice_rooms WHERE status='challenge' AND challenge_json LIKE ?", (f'%"{g.uid}"%',)).fetchall()
+    # further verify challenged_id in challenge_json
+    results = []
+    for row in rows:
+        try:
+            cj = json.loads(row['challenge_json'] or '{}')
+            if cj.get('challenged_id') == g.uid:
+                results.append(_dice_room_to_dict(row))
+        except:
+            pass
+    return jsonify({'ok': True, 'challenges': results})
+
+# ═══════════════════ Matchmaking (隨機匹配) ═════════════
+@app.route('/api/dice/matchmaking', methods=['POST'])
+@auth_required
+def dice_matchmaking():
+    """Find a random match or join queue"""
+    global _matchmaking_queue
+    d = request.get_json(force=True) or {}
+    dice_n = int(d.get('dice') or 2)
+    rounds = int(d.get('rounds') or 1)
+    now = time.time()
+    db = get_db()
+    _dice_clean_old(db)
+    # remove stale entries for current user from queue
+    _matchmaking_queue = [e for e in _matchmaking_queue if e['uid'] != g.uid and now - e.get('joined_at', 0) < 300]
+    # try to find a match with same dice + rounds
+    for i, entry in enumerate(_matchmaking_queue):
+        if entry['dice'] == dice_n and entry['rounds'] == rounds and not entry.get('room_created'):
+            # match found! create room
+            import random as _rng
+            code = ''.join(_rng.choices('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', k=6))
+            while db.execute('SELECT 1 FROM dice_rooms WHERE id=?', (code,)).fetchone():
+                code = ''.join(_rng.choices('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', k=6))
+            u1 = _user_info(g.uid)
+            u2 = _user_info(entry['uid'])
+            players_json = json.dumps([
+                {'id': g.uid, 'name': u1['nickname'] or u1['username'], 'host': True},
+                {'id': entry['uid'], 'name': u2['nickname'] or u2['username'], 'host': False},
+            ])
+            rules_json = json.dumps({'dice': dice_n, 'rounds': rounds})
+            challenge_json = json.dumps({
+                'challenger_id': g.uid,
+                'challenged_id': entry['uid'],
+                'dice': dice_n,
+                'rounds': rounds,
+                'wager': 0,
+                'mode': 'matchmaking',
+            })
+            db.execute('INSERT INTO dice_rooms (id,name,creator_id,game_type,max_players,status,players_json,rules_json,battle_type,challenge_json) VALUES (?,?,?,?,?,?,?,?,?,?)',
+                       (code, '', g.uid, 'classic', 8, 'waiting', players_json, rules_json, 'matchmaking', challenge_json))
+            db.commit()
+            # system chat
+            n1 = u1['nickname'] or u1['username']
+            n2 = u2['nickname'] or u2['username']
+            db.execute('INSERT INTO dice_room_chat (room_id,user_id,username,nickname,msg_type,content) VALUES (?,?,?,?,?,?)',
+                       (code, 0, 'system', 'system', 'system', f'🎯 隨機匹配成功！{n1} vs {n2}'))
+            db.commit()
+            # mark matched entry
+            entry['room_created'] = True
+            # remove matched entry from queue
+            _matchmaking_queue.pop(i)
+            room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+            return jsonify({'ok': True, 'matched': True, 'room': _dice_room_to_dict(room)})
+    # no match found — join queue
+    _matchmaking_queue.append({'uid': g.uid, 'dice': dice_n, 'rounds': rounds, 'joined_at': now, 'room_created': False})
+    return jsonify({'ok': True, 'matched': False})
+
+@app.route('/api/dice/matchmaking/cancel', methods=['POST'])
+@auth_required
+def dice_matchmaking_cancel():
+    """Cancel matchmaking — remove current user from queue"""
+    global _matchmaking_queue
+    _matchmaking_queue = [e for e in _matchmaking_queue if e['uid'] != g.uid]
+    return jsonify({'ok': True})
 
 # ═══════════════════ PWA ═══════════════════════════════
 @app.route('/')

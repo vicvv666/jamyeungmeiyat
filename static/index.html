@@ -231,6 +231,11 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .tab .tab-icon{font-size:24px;margin-bottom:4px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block}
 .tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:8px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3)}
 .tab.active{color:var(--amber)}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.pulse-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:4px}
+.pulse-dot.on{background:var(--green);animation:pulse 2s infinite}
+.pulse-dot.off{background:var(--sub)}
 .tab::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(0);width:24px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--amber),var(--purple));transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
 .tab.active::after{transform:translateX(-50%) scaleX(1)}
 .content{margin-top:52px;margin-bottom:68px;padding:16px;max-width:var(--max-width);margin-left:auto;margin-right:auto;min-height:calc(100dvh - 120px)}
@@ -468,9 +473,24 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  </div>
  <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
   <div class="card-header">🎯 面對面對決 <span id="room-lock" style="font-size:11px;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:auto">🔒</span></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
    <button class="btn btn-outline" id="btn-create-room" onclick="createRoom()" style="border-color:var(--purple);color:var(--purple)">🏠 開房</button>
    <button class="btn btn-outline" id="btn-join-room" onclick="showJoinRoom()" style="border-color:var(--purple);color:var(--purple)">🚪 加入</button>
+   <button class="btn btn-outline" id="btn-challenge" onclick="showChallengePanel()" style="border-color:var(--pink);color:var(--pink)">⚔️ <span data-i18n="challenge_title">約戰</span></button>
+  </div>
+  <!-- Challenge Panel -->
+  <div id="challenge-panel" style="display:none;margin-top:10px;padding:12px;background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.2);border-radius:12px">
+   <div style="font-weight:700;font-size:14px;color:var(--pink);margin-bottom:8px" id="challenge-panel-title">⚔️ 約戰</div>
+   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:50px">🎲</label><select id="challenge-dice" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><label style="font-size:12px;color:var(--sub);margin-left:8px;min-width:50px">🔄</label><select id="challenge-rounds" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="1">1</option><option value="3">3</option><option value="5">5</option></select></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <button class="btn btn-outline" onclick="challengeFriend()" style="border-color:var(--pink);color:var(--pink);font-size:13px">👤 <span data-i18n="challenge_friend">約戰酒友</span></button>
+    <button class="btn btn-outline" id="btn-match" onclick="startMatchmaking()" style="border-color:var(--amber);color:var(--amber);font-size:13px">🔥 <span data-i18n="random_match">隨機匹配</span></button>
+   </div>
+   <div id="matching-status" style="display:none;text-align:center;margin-top:8px">
+    <div style="animation:spin 1s linear infinite;display:inline-block;font-size:28px">🎲</div>
+    <div style="font-size:12px;color:var(--amber);margin-top:4px" id="matching-text">匹配中...</div>
+    <button class="btn btn-outline" onclick="cancelMatchmaking()" style="margin-top:6px;border-color:var(--red);color:var(--red);font-size:11px;padding:4px 12px">✕ <span data-i18n="match_cancel">取消</span></button>
+   </div>
   </div>
   <div id="join-panel" style="display:none;margin-top:10px">
    <div style="display:flex;gap:8px">
@@ -479,7 +499,15 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
    </div>
   </div>
  </div>
- <div class="card" id="room-detail" style="display:none">
+ <!-- Challenge Notification -->
+<div id="challenge-notify" style="display:none;position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:200;background:linear-gradient(135deg,rgba(236,72,153,0.95),rgba(239,68,68,0.95));color:#fff;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:700;box-shadow:0 8px 32px rgba(236,72,153,0.4);max-width:90vw;text-align:center">
+ <div id="challenge-notify-text"></div>
+ <div style="display:flex;gap:8px;margin-top:8px;justify-content:center">
+  <button onclick="respondChallenge(true)" style="background:var(--green);color:#fff;border:none;padding:6px 20px;border-radius:8px;font-weight:700;cursor:pointer">✓ 接受</button>
+  <button onclick="respondChallenge(false)" style="background:var(--red);color:#fff;border:none;padding:6px 20px;border-radius:8px;font-weight:700;cursor:pointer">✕ 拒絕</button>
+ </div>
+</div>
+<div class="card" id="room-detail" style="display:none">
   <div class="card-header">🏠 房間 <span id="room-status" style="color:var(--green);font-size:12px;margin-left:auto">等待中</span></div>
   <div style="text-align:center;padding:12px;background:rgba(139,92,246,0.05);border-radius:12px;border:1px solid rgba(139,92,246,0.2)">
    <div style="font-size:11px;color:var(--sub)">房間號</div>
@@ -968,7 +996,12 @@ const L={'zh-HK':{
   terms:'使用條款',disclaimer:'免責聲明',contact:'聯絡我們',agree:'我已閱讀並同意使用條款及免責聲明',
   terms_content:'1. 本應用程式（「今晚飲咗未」）為社交打卡工具，供用戶記錄飲酒活動。\n\n2. 用戶須年滿法定飲酒年齡方可使用本應用。\n\n3. 用戶帳號及密碼由用戶自行保管，因帳號密碼洩露導致的一切損失由用戶自行承擔。\n\n4. 用戶不得利用本應用從事任何違法行為，包括但不限於教唆未成年人飲酒、酒後駕駛等。\n\n5. 本應可能有付費會員功能，付款後不予退款。\n\n6. 我們保留隨時修改條款的權利，繼續使用即表示接受修改後的條款。',
   disclaimer_content:'⚠️ 免責聲明\n\n1. 本應用僅提供社交打卡功能，不鼓勵過量飲酒。\n\n2. 飲酒有害健康，請適量飲酒。孕婦及未成年人請勿飲酒。\n\n3. 飲酒後切勿駕駛，本應用對用戶因飲酒導致的任何直接或間接損失不承擔任何責任。\n\n4. 本應用中其他用戶發佈的內容不代表本應用立場，我們對此不承擔任何責任。\n\n5. 本應用按「現狀」提供，不作任何明示或暗示的保證。',
-  contact_content:'📬 聯絡我們\n\n電郵：vichoo2020@gmail.com\n\n如有任何問題、建議或投訴，歡迎通過以上電郵聯繫我們。'
+  contact_content:'📬 聯絡我們\n\n電郵：vichoo2020@gmail.com\n\n如有任何問題、建議或投訴，歡迎通過以上電郵聯繫我們。',
+  challenge_title:'⚔️ 約戰',challenge_friend:'約戰酒友',random_match:'🔥 隨機匹配',
+  matching:'匹配中...',match_found:'匹配成功！',match_cancel:'取消匹配',
+  challenge_received:'向你約戰！',accept:'接受',reject:'拒絕',
+  online:'在線',offline:'離線',waiting_accept:'等待對方接受...',challenge_rejected:'約戰被拒絕',
+  no_online_players:'暫無在線玩家',select_friend:'選擇酒友',challenge_sent:'約戰已發出！'
 },'zh-CN':{
   st_mai_yum:'没喝',st_seung_yum:'想喝',st_dou_cho:'到了',st_hoi_cho:'开了',st_yum_gan:'喝着',st_gai_juk:'继续',st_ga_jau:'加酒',st_cheung_yum:'畅饮',
   st_jui_gan:'醉着',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飘飘',st_dyun_pin:'断片',st_seung_au:'想吐',st_wan_wan:'晕晕',st_pa_dai:'趴下',
@@ -978,7 +1011,12 @@ const L={'zh-HK':{
   terms:'使用条款',disclaimer:'免责声明',contact:'联系我们',agree:'我已阅读并同意使用条款及免责声明',
   terms_content:'1. 本应用程序（「今晚饮咗未」）为社交打卡工具，供用户记录饮酒活动。\n\n2. 用户须年满法定饮酒年龄方可使用本应用。\n\n3. 用户帐号及密码由用户自行保管，因帐号密码泄露导致的一切损失由用户自行承担。\n\n4. 用户不得利用本应用从事任何违法行为，包括但不限于教唆未成年人饮酒、酒后驾驶等。\n\n5. 本应用可能有付费会员功能，付款后不予退款。\n\n6. 我们保留随时修改条款的权利，继续使用即表示接受修改后的条款。',
   disclaimer_content:'⚠️ 免责声明\n\n1. 本应用仅提供社交打卡功能，不鼓励过量饮酒。\n\n2. 饮酒有害健康，请适量饮酒。孕妇及未成年人请勿饮酒。\n\n3. 饮酒后切勿驾驶，本应用对用户因饮酒导致的任何直接或间接损失不承担任何责任。\n\n4. 本应用中其他用户发布的内容不代表本应用立场，我们对此不承担任何责任。\n\n5. 本应用按「现状」提供，不作任何明示或暗示的保证。',
-  contact_content:'📬 联系我们\n\n邮箱：vichoo2020@gmail.com\n\n如有任何问题、建议或投诉，欢迎通过以上邮箱联系我们。'
+  contact_content:'📬 联系我们\n\n邮箱：vichoo2020@gmail.com\n\n如有任何问题、建议或投诉，欢迎通过以上邮箱联系我们。',
+  challenge_title:'⚔️ 约战',challenge_friend:'约战酒友',random_match:'🔥 随机匹配',
+  matching:'匹配中...',match_found:'匹配成功！',match_cancel:'取消匹配',
+  challenge_received:'向你约战！',accept:'接受',reject:'拒绝',
+  online:'在线',offline:'离线',waiting_accept:'等待对方接受...',challenge_rejected:'约战被拒绝',
+  no_online_players:'暂无在线玩家',select_friend:'选择酒友',challenge_sent:'约战已发出！'
 },'en':{
   st_mai_yum:'Sober',st_seung_yum:'Thirsty',st_dou_cho:'Here',st_hoi_cho:'Started',st_yum_gan:'Drinking',st_gai_juk:'More',st_ga_jau:'TopUp',st_cheung_yum:'Flowing',
   st_jui_gan:'Buzzed',st_ho_jui:'Drunk',st_tou_jui:'Tipsy',st_piu_piu:'Float',st_dyun_pin:'Wasted',st_seung_au:'Sick',st_wan_wan:'Dizzy',st_pa_dai:'Done',
@@ -988,7 +1026,12 @@ const L={'zh-HK':{
   terms:'Terms',disclaimer:'Disclaimer',contact:'Contact',agree:'I have read and agree to the Terms and Disclaimer',
   terms_content:'1. This application ("Drunk Tonight?") is a social check-in tool for users to record drinking activities.\n\n2. Users must be of legal drinking age to use this application.\n\n3. Users are responsible for safeguarding their account credentials. Any losses resulting from credential leaks are the user\'s responsibility.\n\n4. Users must not use this application for any illegal activities, including but not limited to encouraging underage drinking or drunk driving.\n\n5. This application may offer paid membership features. Payments are non-refundable.\n\n6. We reserve the right to modify these terms at any time. Continued use constitutes acceptance of the modified terms.',
   disclaimer_content:'⚠️ Disclaimer\n\n1. This application only provides social check-in functionality and does not encourage excessive drinking.\n\n2. Drinking is harmful to health. Please drink responsibly. Pregnant women and minors should not drink alcohol.\n\n3. Never drink and drive. This application bears no responsibility for any direct or indirect losses caused by drinking.\n\n4. Content posted by other users does not represent the views of this application, and we bear no responsibility for it.\n\n5. This application is provided "as is" without any express or implied warranties.',
-  contact_content:'📬 Contact Us\n\nEmail: vichoo2020@gmail.com\n\nFor any questions, suggestions, or complaints, please contact us via the email above.'
+  contact_content:'📬 Contact Us\n\nEmail: vichoo2020@gmail.com\n\nFor any questions, suggestions, or complaints, please contact us via the email above.',
+  challenge_title:'⚔️ Challenge',challenge_friend:'Challenge Friend',random_match:'🔥 Random Match',
+  matching:'Matching...',match_found:'Match Found!',match_cancel:'Cancel Match',
+  challenge_received:'challenged you!',accept:'Accept',reject:'Reject',
+  online:'Online',offline:'Offline',waiting_accept:'Waiting for response...',challenge_rejected:'Challenge Rejected',
+  no_online_players:'No online players',select_friend:'Select Friend',challenge_sent:'Challenge Sent!'
 }};
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
@@ -2109,7 +2152,7 @@ function showDiceRoom(){
 
 function updRoomPlayers(){
  var el=document.getElementById('room-players');
- if(el)el.innerHTML=(_diceRoom.players||[]).map(function(p){return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--card);padding:3px 8px;border-radius:6px;margin:2px;font-size:11px">'+(p.host?'👑':'👤')+' '+p.name+'</span>'}).join('');
+ if(el)el.innerHTML=(_diceRoom.players||[]).map(function(p){return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--card);padding:3px 8px;border-radius:6px;margin:2px;font-size:11px">'+(p.host?'👑':'👤')+' '+p.name+'<span id="dot-'+p.id+'" class="pulse-dot off"></span></span>'}).join('');
  var st=document.getElementById('room-status');if(st)st.textContent=_diceRoom.status==='waiting'?'等待中...':_diceRoom.status==='playing'?'🎲 對戰中':'✅ 已開盅';
 }
 
@@ -2219,10 +2262,150 @@ function startDicePoll(){
       JSON.stringify(prev.results)!==JSON.stringify(_diceRoom.results)){
     showDiceRoom();
    }
+   updOnlineDots();
   });
  },3000);
+ startHeartbeat();
 }
-function stopDicePoll(){if(_dicePollT){clearInterval(_dicePollT);_dicePollT=null}}
+function stopDicePoll(){if(_dicePollT){clearInterval(_dicePollT);_dicePollT=null}stopHeartbeat()}
+
+// ═══════ Heartbeat ═══════
+var _diceHeartbeatT=null,_onlineUids=[];
+function startHeartbeat(){
+ stopHeartbeat();
+ _sendHeartbeat();
+ _diceHeartbeatT=setInterval(_sendHeartbeat,5000);
+}
+function stopHeartbeat(){if(_diceHeartbeatT){clearInterval(_diceHeartbeatT);_diceHeartbeatT=null}}
+function _sendHeartbeat(){
+ var body={};if(_diceRoom)body.room_id=_diceRoom.id;
+ _diceApi('POST','/api/dice/heartbeat',body).then(function(r){
+  if(r.ok&&r.online){
+   _onlineUids=r.online||{};
+   updOnlineDots();
+  }
+ });
+}
+function updOnlineDots(){
+ if(!_diceRoom)return;
+ _diceApi('GET','/api/dice/room/'+_diceRoom.id+'/online').then(function(r){
+  if(!r.online)return;
+  var onIds=r.online.map(function(u){return u.id});
+  (_diceRoom.players||[]).forEach(function(p){
+   var dot=document.getElementById('dot-'+p.id);
+   if(dot){dot.className='pulse-dot '+(onIds.indexOf(p.id)>=0?'on':'off');dot.title=onIds.indexOf(p.id)>=0?T('online'):T('offline')}
+  });
+ });
+}
+
+// ═══════ Challenge / Matchmaking ═══════
+var _matchmakingT=null,_pendingChallenge=null;
+function showChallengePanel(){
+ var p=document.getElementById('challenge-panel');
+ if(!p)return;
+ p.style.display=p.style.display==='none'?'':'none';
+ if(p.style.display!=='none')loadChallengeList();
+}
+function challengeFriend(){
+ if(!DICE_ROOM_LEVEL[_diceMem()]){diceToast('🔒 '+T('vip_required'));return}
+ var dice=parseInt(document.getElementById('challenge-dice').value)||2;
+ var rounds=parseInt(document.getElementById('challenge-rounds').value)||1;
+ // Show friend selector via party member list
+ api('/api/party-members').then(function(r){
+  var friends=(r.members||[]).filter(function(m){return m.id!==me.id});
+  if(!friends.length){diceToast(T('no_online_players'));return}
+  var html='<div style="max-height:200px;overflow-y:auto">';
+  friends.forEach(function(f){
+   html+='<div onclick="doChallenge('+f.id+')" style="padding:8px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;gap:8px;align-items:center">👤 '+(f.nickname||f.username)+'</div>';
+  });
+  html+='</div>';
+  var el=document.getElementById('friend-list-modal');
+  if(!el){el=document.createElement('div');el.id='friend-list-modal';el.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center';document.body.appendChild(el)}
+  el.innerHTML='<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:320px;width:90%"><div style="font-weight:700;margin-bottom:8px;color:var(--pink)">'+T('select_friend')+'</div>'+html+'<button onclick="document.getElementById(\'friend-list-modal\').style.display=\'none\'" style="margin-top:8px;width:100%;padding:8px;background:var(--card-hover);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer">✕ '+T('reject')+'</button></div>';
+  el.style.display='flex';
+ }).catch(function(){diceToast(T('no_online_players'))});
+}
+function doChallenge(friendId){
+ document.getElementById('friend-list-modal').style.display='none';
+ var dice=parseInt(document.getElementById('challenge-dice').value)||2;
+ var rounds=parseInt(document.getElementById('challenge-rounds').value)||1;
+ _diceApi('POST','/api/dice/challenge',{challenged_id:friendId,dice:dice,rounds:rounds}).then(function(r){
+  if(r.error){diceToast('❌ '+r.error);return}
+  diceToast(T('challenge_sent'));
+  if(r.room){_diceRoom=r.room;_diceIsHost=true;showDiceRoom();startDicePoll()}
+ });
+}
+function respondChallenge(accept){
+ var n=document.getElementById('challenge-notify');
+ if(n)n.style.display='none';
+ if(!_pendingChallenge)return;
+ _diceApi('POST','/api/dice/challenge/respond',{code:_pendingChallenge.code,accept:accept}).then(function(r){
+  if(r.error){diceToast('❌ '+r.error);return}
+  if(accept&&r.room){
+   _diceRoom=r.room;_diceIsHost=false;showDiceRoom();startDicePoll();
+   diceToast('⚔️ '+T('accept')+'!');
+  }else{
+   diceToast(T('challenge_rejected'));
+  }
+  _pendingChallenge=null;
+ });
+}
+function loadChallengeList(){
+ _diceApi('GET','/api/dice/challenge/list').then(function(r){
+  if(r.challenges&&r.challenges.length>0){
+   var c=r.challenges[0];
+   _pendingChallenge={code:c.id,from:c.players[0]};
+   var n=document.getElementById('challenge-notify');
+   var t=document.getElementById('challenge-notify-text');
+   if(n&&t){
+    t.textContent='⚔️ '+(c.players[0].name||'?')+' '+T('challenge_received');
+    n.style.display='block';
+    setTimeout(function(){n.style.display='none'},15000);
+   }
+  }
+ });
+}
+function startMatchmaking(){
+ if(!DICE_ROOM_LEVEL[_diceMem()]){diceToast('🔒 '+T('vip_required'));return}
+ var dice=parseInt(document.getElementById('challenge-dice').value)||2;
+ var rounds=parseInt(document.getElementById('challenge-rounds').value)||1;
+ var ms=document.getElementById('matching-status');
+ var mt=document.getElementById('matching-text');
+ var bm=document.getElementById('btn-match');
+ if(ms)ms.style.display='block';
+ if(mt)mt.textContent=T('matching');
+ if(bm)bm.disabled=true;
+ _diceApi('POST','/api/dice/matchmaking',{dice:dice,rounds:rounds}).then(function(r){
+  if(r.error){diceToast('❌ '+r.error);cancelMatchmaking();return}
+  if(r.matched&&r.room){
+   cancelMatchmaking();
+   _diceRoom=r.room;_diceIsHost=false;showDiceRoom();startDicePoll();
+   diceToast('🎉 '+T('match_found'));
+  }else{
+   _matchmakingT=setInterval(checkMatchResult,3000);
+  }
+ });
+}
+function checkMatchResult(){
+ _diceApi('GET','/api/dice/challenge/list').then(function(r){
+  if(r.challenges&&r.challenges.length>0){
+   var c=r.challenges[0];
+   if(c.battle_type==='matchmaking'&&c.status==='waiting'){
+    cancelMatchmaking();
+    _diceRoom=c;_diceIsHost=false;showDiceRoom();startDicePoll();
+    diceToast('🎉 '+T('match_found'));
+   }
+  }
+ });
+}
+function cancelMatchmaking(){
+ if(_matchmakingT){clearInterval(_matchmakingT);_matchmakingT=null}
+ var ms=document.getElementById('matching-status');
+ var bm=document.getElementById('btn-match');
+ if(ms)ms.style.display='none';
+ if(bm)bm.disabled=false;
+ _diceApi('POST','/api/dice/matchmaking/cancel').catch(function(){});
+}
 
 // Restore room on page load
 (function(){
@@ -2265,7 +2448,17 @@ function diceToast(msg){
 
 function dieChar(v){return ['','⚀','⚁','⚂','⚃','⚄','⚅'][v]||'?'}
 
-setTimeout(initDice,200);
+// Poll challenges every 8s when not in room
+var _challengePollT=null;
+function startChallengePoll(){
+ stopChallengePoll();
+ _challengePollT=setInterval(function(){
+  if(!_diceRoom)loadChallengeList();
+ },8000);
+}
+function stopChallengePoll(){if(_challengePollT){clearInterval(_challengePollT);_challengePollT=null}}
+
+setTimeout(initDice,200);setTimeout(startChallengePoll,3000);
 
 
 // ═══════════ ADMIN: Checkins / Parties / Posts ═══════════
