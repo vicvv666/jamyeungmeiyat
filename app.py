@@ -250,11 +250,39 @@ CREATE TABLE IF NOT EXISTS users (
             key   TEXT PRIMARY KEY,
             value TEXT NOT NULL DEFAULT ''
         );
+        -- dice rooms (auto-cleaned after 2 hours)
+        CREATE TABLE IF NOT EXISTS dice_rooms (
+            id         TEXT PRIMARY KEY,
+            name       TEXT DEFAULT '',
+            creator_id INTEGER NOT NULL,
+            game_type  TEXT DEFAULT 'classic',
+            max_players INTEGER DEFAULT 8,
+            status     TEXT DEFAULT 'waiting',
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        -- dice room chat messages
+        CREATE TABLE IF NOT EXISTS dice_room_chat (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            room_id    TEXT NOT NULL,
+            user_id    INTEGER NOT NULL,
+            username   TEXT DEFAULT '',
+            nickname   TEXT DEFAULT '',
+            msg_type   TEXT DEFAULT 'chat',
+            content    TEXT DEFAULT '',
+            dice_count INTEGER DEFAULT 0,
+            dice_sides INTEGER DEFAULT 6,
+            dice_results TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
     """)
     db.commit()
     # Migrate: add columns if missing (existing DB safe)
     for col, typ in [('phone','TEXT'),('email','TEXT'),('avatar','TEXT')]:
         try: db.execute(f'ALTER TABLE users ADD COLUMN {col} {typ} DEFAULT ""')
+        except: pass
+    # dice_rooms extra columns
+    for col, typ in [('players_json','TEXT'),('rules_json','TEXT'),('results_json','TEXT')]:
+        try: db.execute(f'ALTER TABLE dice_rooms ADD COLUMN {col} {typ} DEFAULT ""')
         except: pass
     db.commit()
     db.close()
@@ -364,6 +392,12 @@ def _decode_token(tok):
             return None
         return uid
     except: return None
+
+def _user_info(uid):
+    """Get user info dict by id"""
+    db = get_db()
+    u = db.execute('SELECT id,username,nickname,membership,avatar FROM users WHERE id=?',(uid,)).fetchone()
+    return dict(u) if u else {'id':uid,'username':'','nickname':'','membership':'free','avatar':''}
 
 def auth_required(f):
     @wraps(f)
@@ -1337,6 +1371,227 @@ def api_replies(cid):
         JOIN users u ON r.user_id=u.id WHERE r.checkin_id=? ORDER BY r.created_at ASC""",
         (cid,)).fetchall()
     return jsonify({'replies':[dict(r) for r in rows]})
+
+# ═══════════════════ Dice Rooms ═════════════════════════
+def _dice_clean_old(db):
+    """Auto-delete rooms older than 2 hours"""
+    db.execute("DELETE FROM dice_room_chat WHERE room_id IN (SELECT id FROM dice_rooms WHERE datetime(created_at) < datetime('now','localtime','-2 hours'))")
+    db.execute("DELETE FROM dice_rooms WHERE datetime(created_at) < datetime('now','localtime','-2 hours')")
+
+def _dice_room_to_dict(row):
+    if not row: return None
+    r = dict(row)
+    try: r['players'] = json.loads(r.get('players_json') or '[]')
+    except: r['players'] = []
+    try: r['rules'] = json.loads(r.get('rules_json') or '{}')
+    except: r['rules'] = {}
+    try: r['results'] = json.loads(r.get('results_json') or '{}')
+    except: r['results'] = {}
+    r.pop('players_json', None)
+    r.pop('rules_json', None)
+    r.pop('results_json', None)
+    return r
+
+@app.route('/api/dice/room/create', methods=['POST'])
+@auth_required
+def dice_room_create():
+    """Create a new dice room"""
+    import random, string
+    code = ''.join(random.choices('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', k=6))
+    db = get_db()
+    _dice_clean_old(db)
+    # make sure code is unique
+    while db.execute('SELECT 1 FROM dice_rooms WHERE id=?', (code,)).fetchone():
+        code = ''.join(random.choices('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', k=6))
+    u = _user_info(g.uid)
+    players_json = json.dumps([{'id': g.uid, 'name': u['nickname'] or u['username'], 'host': True}])
+    rules_json = json.dumps({'dice': 2, 'rounds': 1})
+    db.execute('INSERT INTO dice_rooms (id,name,creator_id,game_type,max_players,status,players_json,rules_json) VALUES (?,?,?,?,?,?,?,?)',
+               (code, '', g.uid, 'classic', 8, 'waiting', players_json, rules_json))
+    db.commit()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    return jsonify({'ok': True, 'room': _dice_room_to_dict(room)})
+
+@app.route('/api/dice/room/join', methods=['POST'])
+@auth_required
+def dice_room_join():
+    """Join a dice room by code"""
+    d = request.get_json(force=True) or {}
+    code = (d.get('code') or '').strip().upper()
+    if not code or len(code) != 6:
+        return jsonify({'error': '請輸入6位房間號'}), 400
+    db = get_db()
+    _dice_clean_old(db)
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    if not room:
+        return jsonify({'error': '搵唔到房間'}), 404
+    players = json.loads(room['players_json'] or '[]')
+    # check if already joined
+    if any(p['id'] == g.uid for p in players):
+        return jsonify({'ok': True, 'room': _dice_room_to_dict(room)})
+    # check max players
+    if len(players) >= room['max_players']:
+        return jsonify({'error': '房間已滿'}), 400
+    if room['status'] not in ('waiting',):
+        return jsonify({'error': '遊戲已開始，無法加入'}), 400
+    u = _user_info(g.uid)
+    players.append({'id': g.uid, 'name': u['nickname'] or u['username'], 'host': False})
+    db.execute('UPDATE dice_rooms SET players_json=? WHERE id=?', (json.dumps(players), code))
+    db.commit()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    # system chat
+    db.execute('INSERT INTO dice_room_chat (room_id,user_id,username,nickname,msg_type,content) VALUES (?,?,?,?,?,?)',
+               (code, g.uid, u['username'], u['nickname'] or u['username'], 'system', (u['nickname'] or u['username']) + ' 加入咗房間'))
+    db.commit()
+    return jsonify({'ok': True, 'room': _dice_room_to_dict(room)})
+
+@app.route('/api/dice/room/<code>')
+@auth_required
+def dice_room_get(code):
+    """Get room state (for polling)"""
+    db = get_db()
+    _dice_clean_old(db)
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code.upper(),)).fetchone()
+    if not room:
+        return jsonify({'error': '房間不存在'}), 404
+    return jsonify({'ok': True, 'room': _dice_room_to_dict(room)})
+
+@app.route('/api/dice/room/start', methods=['POST'])
+@auth_required
+def dice_room_start():
+    """Host starts the game"""
+    d = request.get_json(force=True) or {}
+    code = (d.get('code') or '').upper()
+    dice_n = int(d.get('dice', 2))
+    rounds = int(d.get('rounds', 1))
+    db = get_db()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    if not room or room['creator_id'] != g.uid:
+        return jsonify({'error': '只有房主可以開始'}), 403
+    if room['status'] != 'waiting':
+        return jsonify({'error': '遊戲已開始'}), 400
+    players = json.loads(room['players_json'] or '[]')
+    results = {str(p['id']): [] for p in players}
+    rules = json.dumps({'dice': dice_n, 'rounds': rounds})
+    db.execute('UPDATE dice_rooms SET status=?, rules_json=?, results_json=? WHERE id=?',
+               ('playing', rules, json.dumps(results), code))
+    db.commit()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    return jsonify({'ok': True, 'room': _dice_room_to_dict(room)})
+
+@app.route('/api/dice/room/shake', methods=['POST'])
+@auth_required
+def dice_room_shake():
+    """Player submits their dice roll"""
+    d = request.get_json(force=True) or {}
+    code = (d.get('code') or '').upper()
+    values = d.get('values') or []
+    if not values:
+        return jsonify({'error': '冇骰子結果'}), 400
+    db = get_db()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    if not room:
+        return jsonify({'error': '房間不存在'}), 404
+    if room['status'] != 'playing':
+        return jsonify({'error': '遊戲未開始'}), 400
+    results = json.loads(room['results_json'] or '{}')
+    uid_str = str(g.uid)
+    if uid_str not in results:
+        return jsonify({'error': '你唔喺呢個房間'}), 403
+    rules = json.loads(room['rules_json'] or '{}')
+    max_rounds = rules.get('rounds', 1)
+    if len(results[uid_str]) >= max_rounds:
+        return jsonify({'error': '你已搖完'}), 400
+    results[uid_str].append({'round': len(results[uid_str])+1, 'values': values, 'revealed': False})
+    db.execute('UPDATE dice_rooms SET results_json=? WHERE id=?', (json.dumps(results), code))
+    u = _user_info(g.uid)
+    name = u['nickname'] or u['username']
+    db.execute('INSERT INTO dice_room_chat (room_id,user_id,username,nickname,msg_type,content,dice_count,dice_results) VALUES (?,?,?,?,?,?,?,?)',
+               (code, g.uid, u['username'], name, 'dice', name + ' 搖咗骰', len(values), json.dumps(values)))
+    db.commit()
+    # check if all players finished
+    players = json.loads(room['players_json'] or '[]')
+    all_done = all(len(results.get(str(p['id']), [])) >= max_rounds for p in players)
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    return jsonify({'ok': True, 'room': _dice_room_to_dict(room), 'all_done': all_done})
+
+@app.route('/api/dice/room/reveal', methods=['POST'])
+@auth_required
+def dice_room_reveal():
+    """Host reveals all dice"""
+    d = request.get_json(force=True) or {}
+    code = (d.get('code') or '').upper()
+    db = get_db()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    if not room or room['creator_id'] != g.uid:
+        return jsonify({'error': '只有房主可以開盅'}), 403
+    results = json.loads(room['results_json'] or '{}')
+    for uid_str in results:
+        for rnd in results[uid_str]:
+            rnd['revealed'] = True
+    db.execute('UPDATE dice_rooms SET status=?, results_json=? WHERE id=?',
+               ('revealed', json.dumps(results), code))
+    db.commit()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    return jsonify({'ok': True, 'room': _dice_room_to_dict(room)})
+
+@app.route('/api/dice/room/leave', methods=['POST'])
+@auth_required
+def dice_room_leave():
+    """Player leaves a room"""
+    d = request.get_json(force=True) or {}
+    code = (d.get('code') or '').upper()
+    db = get_db()
+    room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    if not room:
+        return jsonify({'error': '房間不存在'}), 404
+    players = json.loads(room['players_json'] or '[]')
+    new_players = [p for p in players if p['id'] != g.uid]
+    if not new_players:
+        # last player left, delete room
+        db.execute('DELETE FROM dice_room_chat WHERE room_id=?', (code,))
+        db.execute('DELETE FROM dice_rooms WHERE id=?', (code,))
+    else:
+        # if host left, transfer host to first remaining player
+        if room['creator_id'] == g.uid:
+            new_players[0]['host'] = True
+            db.execute('UPDATE dice_rooms SET creator_id=?, players_json=? WHERE id=?',
+                       (new_players[0]['id'], json.dumps(new_players), code))
+        else:
+            db.execute('UPDATE dice_rooms SET players_json=? WHERE id=?',
+                       (json.dumps(new_players), code))
+    u = _user_info(g.uid)
+    db.execute('INSERT INTO dice_room_chat (room_id,user_id,username,nickname,msg_type,content) VALUES (?,?,?,?,?,?)',
+               (code, g.uid, u['username'], u['nickname'] or u['username'], 'system', (u['nickname'] or u['username']) + ' 離開咗房間'))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/dice/room/chat', methods=['POST'])
+@auth_required
+def dice_room_chat_post():
+    """Send chat message in a room"""
+    d = request.get_json(force=True) or {}
+    code = (d.get('code') or '').upper()
+    text = (d.get('text') or '').strip()[:200]
+    if not text:
+        return jsonify({'error': 'empty'}), 400
+    db = get_db()
+    room = db.execute('SELECT 1 FROM dice_rooms WHERE id=?', (code,)).fetchone()
+    if not room:
+        return jsonify({'error': '房間不存在'}), 404
+    u = _user_info(g.uid)
+    db.execute('INSERT INTO dice_room_chat (room_id,user_id,username,nickname,msg_type,content) VALUES (?,?,?,?,?,?)',
+               (code, g.uid, u['username'], u['nickname'] or u['username'], 'chat', text))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/dice/room/<code>/chat')
+@auth_required
+def dice_room_chat_get(code):
+    """Get recent chat messages"""
+    db = get_db()
+    rows = db.execute('SELECT * FROM dice_room_chat WHERE room_id=? ORDER BY id DESC LIMIT 50', (code.upper(),)).fetchall()
+    return jsonify({'messages': [dict(r) for r in reversed(rows)]})
 
 # ═══════════════════ PWA ═══════════════════════════════
 @app.route('/')

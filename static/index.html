@@ -1893,14 +1893,21 @@ function shakeSolo(){
  },1600);
 }
 
-// Room
-function genRoomCode(){var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s='';for(var i=0;i<6;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
+// Room — Server API based
+var _dicePollT=null;
+function _diceApi(method,path,body){
+ return fetch(API_BASE+path,{method:method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('token')||'')},body:body?JSON.stringify(body):undefined}).then(function(r){return r.json()}).catch(function(e){return {error:'網絡錯誤'}})
+}
 
 function createRoom(){
  if(!DICE_ROOM_LEVEL[_diceMem()]){diceToast('🔒 需酒鬼或以上會員');return}
- _diceRoom={code:genRoomCode(),host:_diceName(),players:[_diceName()],rules:{dice:2,rounds:1},phase:'waiting',round:0,maxRounds:1,results:{},revealed:false};
- _diceIsHost=true;saveDiceRoom();bcastDice({type:'room-created',room:_diceRoom});
- showDiceRoom();diceToast('🏠 房間：'+_diceRoom.code);
+ _diceApi('POST','/api/dice/room/create').then(function(r){
+  if(r.error){diceToast('❌ '+r.error);return}
+  _diceRoom=r.room;_diceIsHost=true;
+  localStorage.setItem('dice_room_state',JSON.stringify(_diceRoom));
+  showDiceRoom();diceToast('🏠 房間：'+_diceRoom.id);
+  startDicePoll();
+ }).catch(function(){diceToast('❌ 建立失敗')});
 }
 
 function showJoinRoom(){var p=document.getElementById('join-panel');if(p)p.style.display=p.style.display==='none'?'':'none'}
@@ -1908,104 +1915,105 @@ function showJoinRoom(){var p=document.getElementById('join-panel');if(p)p.style
 function joinRoom(){
  if(_diceMem()==='free'){diceToast('🔒 需酒友或以上');return}
  var code=(document.getElementById('join-code')||{}).value;if(!code||code.length!==6){diceToast('輸入6位房間號');return}
- var saved=localStorage.getItem('dice_room_'+code.toUpperCase());
- if(saved){
-  _diceRoom=JSON.parse(saved);
-  if(_diceRoom.phase==='waiting'&&!_diceRoom.players.includes(_diceName())){
-   _diceRoom.players.push(_diceName());_diceRoom.results[_diceName()]=[];
-   saveDiceRoom();bcastDice({type:'player-joined',room:_diceRoom,player:_diceName()});
-   showDiceRoom();diceToast('✅ 已加入');return;
-  }
-  if(_diceRoom.players.includes(_diceName())){showDiceRoom();return}
- }
- diceToast('❌ 搵唔到房間');
+ _diceApi('POST','/api/dice/room/join',{code:code}).then(function(r){
+  if(r.error){diceToast('❌ '+r.error);return}
+  _diceRoom=r.room;
+  _diceIsHost=(_diceRoom.creator_id===(me&&me.id));
+  localStorage.setItem('dice_room_state',JSON.stringify(_diceRoom));
+  showDiceRoom();diceToast('✅ 已加入');
+  startDicePoll();
+ }).catch(function(){diceToast('❌ 加入失敗')});
 }
 
 function showDiceRoom(){
  document.getElementById('room-detail').style.display='';
- document.getElementById('room-code-display').textContent=_diceRoom.code;
- var canEdit=_diceIsHost&&_diceRoom.phase==='waiting';
+ document.getElementById('room-code-display').textContent=_diceRoom.id;
+ var canEdit=_diceIsHost&&_diceRoom.status==='waiting';
  document.getElementById('room-rules').style.display=canEdit?'':'none';
- document.getElementById('room-game').style.display=(_diceRoom.phase==='playing'||_diceRoom.phase==='revealed')?'':'none';
- document.getElementById('btn-start-room').style.display=(_diceIsHost&&_diceRoom.phase==='waiting')?'':'none';
+ document.getElementById('room-game').style.display=(_diceRoom.status==='playing'||_diceRoom.status==='revealed')?'':'none';
+ document.getElementById('btn-start-room').style.display=(_diceIsHost&&_diceRoom.status==='waiting')?'':'none';
  updRoomPlayers();
- if(_diceRoom.phase==='playing'||_diceRoom.phase==='revealed')renderBattle();
+ if(_diceRoom.status==='playing'||_diceRoom.status==='revealed')renderBattle();
 }
 
 function updRoomPlayers(){
  var el=document.getElementById('room-players');
- if(el)el.innerHTML=_diceRoom.players.map(function(p){return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--card);padding:3px 8px;border-radius:6px;margin:2px;font-size:11px">'+(p===_diceRoom.host?'👑':'👤')+' '+p+'</span>'}).join('');
- var st=document.getElementById('room-status');
- if(st)st.textContent=_diceRoom.phase==='waiting'?'等待中...':_diceRoom.phase==='playing'?'🎲 對戰中':'✅ 已開盅';
+ if(el)el.innerHTML=(_diceRoom.players||[]).map(function(p){return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--card);padding:3px 8px;border-radius:6px;margin:2px;font-size:11px">'+(p.host?'👑':'👤')+' '+p.name+'</span>'}).join('');
+ var st=document.getElementById('room-status');if(st)st.textContent=_diceRoom.status==='waiting'?'等待中...':_diceRoom.status==='playing'?'🎲 對戰中':'✅ 已開盅';
 }
 
 function startRoomGame(){
  if(!_diceIsHost)return;
- _diceRoom.rules.dice=parseInt((document.getElementById('rule-dice')||{}).value)||2;
- _diceRoom.rules.rounds=parseInt((document.getElementById('rule-rounds')||{}).value)||1;
- _diceRoom.phase='playing';_diceRoom.round=1;_diceRoom.maxRounds=_diceRoom.rules.rounds;
- _diceRoom.revealed=false;_diceRoom.results={};
- _diceRoom.players.forEach(function(p){_diceRoom.results[p]=[]});
- saveDiceRoom();bcastDice({type:'game-start',room:_diceRoom});
- showDiceRoom();diceToast('🎲 開始！');
+ var dice_n=parseInt((document.getElementById('rule-dice')||{}).value)||2;
+ var rounds=parseInt((document.getElementById('rule-rounds')||{}).value)||1;
+ _diceApi('POST','/api/dice/room/start',{code:_diceRoom.id,dice:dice_n,rounds:rounds}).then(function(r){
+  if(r.error){diceToast('❌ '+r.error);return}
+  _diceRoom=r.room;showDiceRoom();diceToast('🎲 開始！');
+ }).catch(function(){diceToast('❌ 開始失敗')});
 }
 
 function shakeRoom(){
- if(!_diceRoom||_diceRoom.phase!=='playing')return;
- if(_diceRoom.results[_diceName()]&&_diceRoom.results[_diceName()].length>=_diceRoom.maxRounds){diceToast('你已搖完');return}
- var vals=[];for(var i=0;i<_diceRoom.rules.dice;i++)vals.push(Math.floor(Math.random()*6)+1);
- _diceRoom.results[_diceName()].push({round:_diceRoom.results[_diceName()].length+1,values:vals,revealed:false});
+ if(!_diceRoom||_diceRoom.status!=='playing')return;
+ var myId=''+(me&&me.id);
+ var myRes=_diceRoom.results[myId]||[];
+ var maxR=((_diceRoom.rules||{}).rounds||1);
+ if(myRes.length>=maxR){diceToast('你已搖完');return}
+ var vals=[];for(var i=0;i<((_diceRoom.rules||{}).dice||2);i++)vals.push(Math.floor(Math.random()*6)+1);
  if(navigator.vibrate)navigator.vibrate([80,40,80]);
- saveDiceRoom();bcastDice({type:'player-shook',room:_diceRoom,player:_diceName()});
- renderBattle();diceToast('🎲 搖咗第 '+_diceRoom.results[_diceName()].length+' 輪');checkAllShook();
+ _diceApi('POST','/api/dice/room/shake',{code:_diceRoom.id,values:vals}).then(function(r){
+  if(r.error){diceToast('❌ '+r.error);return}
+  _diceRoom=r.room;renderBattle();diceToast('🎲 已搖骰！');
+ }).catch(function(){diceToast('❌ 搖骰失敗')});
 }
 
 function checkAllShook(){
- var done=_diceRoom.players.every(function(p){return _diceRoom.results[p]&&_diceRoom.results[p].length>=_diceRoom.maxRounds});
+ var maxR=((_diceRoom.rules||{}).rounds||1);
+ var done=(_diceRoom.players||[]).every(function(p){var res=_diceRoom.results[''+p.id]||[];return res.length>=maxR});
  var btn=document.getElementById('btn-reveal');if(btn)btn.disabled=!done;
 }
 
 function revealAll(){
  if(!_diceIsHost){diceToast('只有房主開盅');return}
- _diceRoom.phase='revealed';_diceRoom.revealed=true;
- _diceRoom.players.forEach(function(p){(_diceRoom.results[p]||[]).forEach(function(r){r.revealed=true})});
- saveDiceRoom();bcastDice({type:'revealed',room:_diceRoom});
- renderBattle();updRoomPlayers();diceToast('🔥 開盅！');
+ _diceApi('POST','/api/dice/room/reveal',{code:_diceRoom.id}).then(function(r){
+  if(r.error){diceToast('❌ '+r.error);return}
+  _diceRoom=r.room;renderBattle();updRoomPlayers();diceToast('🔥 開盅！');
+ }).catch(function(){diceToast('❌ 開盅失敗')});
 }
 
 function renderBattle(){
  var grid=document.getElementById('battle-grid');if(!grid)return;grid.innerHTML='';
  var info=document.getElementById('game-round-info');
- if(info)info.textContent='第 '+(_diceRoom.round||1)+'/'+_diceRoom.maxRounds+' 輪';
+ if(info)info.textContent='第 1/'+((_diceRoom.rules||{}).rounds||1)+' 輪';
+ var myId=''+(me&&me.id);
+ var myRes=_diceRoom.results[myId]||[];
+ var maxR=((_diceRoom.rules||{}).rounds||1);
  var shk=document.getElementById('btn-room-shake');
- if(shk)shk.style.display=(_diceRoom.phase==='playing'&&_diceRoom.results[_diceName()]&&_diceRoom.results[_diceName()].length<_diceRoom.maxRounds)?'':'none';
- var rvl=document.getElementById('btn-reveal');
- if(rvl)rvl.style.display=_diceRoom.phase==='playing'?'':'none';
+ if(shk)shk.style.display=(_diceRoom.status==='playing'&&myRes.length<maxR)?'':'none';
+ var rvl=document.getElementById('btn-reveal');if(rvl)rvl.style.display=_diceRoom.status==='playing'?'':'none';
 
- _diceRoom.players.forEach(function(p){
-  var res=_diceRoom.results[p]||[];
-  var div=document.createElement('div');
-  div.style.cssText='display:flex;align-items:center;gap:10px;background:var(--card);padding:10px;border-radius:10px';
+ (_diceRoom.players||[]).forEach(function(p){
+  var res=_diceRoom.results[''+p.id]||[];
+  var div=document.createElement('div');div.style.cssText='display:flex;align-items:center;gap:10px;background:var(--card);padding:10px;border-radius:10px';
   var nm=document.createElement('div');nm.style.cssText='font-weight:700;font-size:13px;flex:1';
-  nm.textContent=(p===_diceRoom.host?'👑 ':'')+p;
+  nm.textContent=(p.host?'👑 ':'')+p.name;
   var dd=document.createElement('div');dd.style.cssText='display:flex;gap:3px;flex-wrap:wrap';
-  var t=0;
+  var t=0;var revealed=_diceRoom.status==='revealed';var isMe=''+p.id===myId;
   if(res.length>0){
    res.forEach(function(r){r.values.forEach(function(v){
-    var d=document.createElement('div');d.className='mini-die'+((_diceRoom.revealed||p===_diceName())?'':' hid');
-    d.textContent=(_diceRoom.revealed||p===_diceName())?dieChar(v):'?';if(_diceRoom.revealed||p===_diceName())t+=v;
+    var d=document.createElement('div');d.className='mini-die'+((revealed||isMe)?'':' hid');
+    d.textContent=(revealed||isMe)?dieChar(v):'?';if(revealed||isMe)t+=v;
     dd.appendChild(d);
    })});
   }else{
-   for(var i=0;i<_diceRoom.rules.dice;i++){var d=document.createElement('div');d.className='mini-die hid';d.textContent='—';dd.appendChild(d)}
+   for(var i=0;i<((_diceRoom.rules||{}).dice||2);i++){var d=document.createElement('div');d.className='mini-die hid';d.textContent='—';dd.appendChild(d)}
   }
   var tot=document.createElement('div');tot.style.cssText='font-weight:800;color:var(--amber);font-size:15px;min-width:28px;text-align:right';
-  tot.textContent=(_diceRoom.revealed||(p===_diceName()&&res.length>0))?t:'';
+  tot.textContent=(revealed||(isMe&&res.length>0))?t:'';
   div.appendChild(nm);div.appendChild(dd);div.appendChild(tot);grid.appendChild(div);
  });
- if(_diceRoom.revealed){
+ if(revealed){
   var mx=0,win='';
-  _diceRoom.players.forEach(function(p){var tt=0;(_diceRoom.results[p]||[]).forEach(function(r){r.values.forEach(function(v){tt+=v})});if(tt>mx){mx=tt;win=p}});
+  (_diceRoom.players||[]).forEach(function(p){var tt=0;(_diceRoom.results[''+p.id]||[]).forEach(function(r){r.values.forEach(function(v){tt+=v})});if(tt>mx){mx=tt;win=p.name}});
   var wd=document.createElement('div');wd.style.cssText='text-align:center;padding:12px;margin-top:8px;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(236,72,153,0.08));border-radius:10px';
   wd.innerHTML='🏆 <b style="color:var(--amber)">'+win+'</b> 贏咗！共 <b style="color:var(--amber)">'+mx+'</b> 點 🎉';grid.appendChild(wd);
  }
@@ -2013,12 +2021,9 @@ function renderBattle(){
 
 function leaveRoom(){
  if(_diceRoom){
-  _diceRoom.players=_diceRoom.players.filter(function(p){return p!==_diceName()});
-  delete _diceRoom.results[_diceName()];
-  if(_diceRoom.players.length===0)localStorage.removeItem('dice_room_'+_diceRoom.code);
-  else{if(_diceIsHost&&_diceRoom.players.length>0)_diceRoom.host=_diceRoom.players[0];saveDiceRoom()}
-  bcastDice({type:'player-left',room:_diceRoom,player:_diceName()});
+  _diceApi('POST','/api/dice/room/leave',{code:_diceRoom.id});
  }
+ stopDicePoll();
  _diceRoom=null;_diceIsHost=false;localStorage.removeItem('dice_room_state');
  var rd=document.getElementById('room-detail');if(rd)rd.style.display='none';
  diceToast('🚪 已離開');
@@ -2026,30 +2031,53 @@ function leaveRoom(){
 
 function saveDiceRoom(){
  if(!_diceRoom)return;
- localStorage.setItem('dice_room_'+_diceRoom.code,JSON.stringify(_diceRoom));
  localStorage.setItem('dice_room_state',JSON.stringify(_diceRoom));
 }
 
 function bcastDice(data){if(_diceBC)try{_diceBC.postMessage(data)}catch(e){}}
 
-function handleDiceMsg(d){
- if(!d||!d.type||!_diceRoom||!d.room||d.room.code!==_diceRoom.code)return;
- if(d.type==='player-joined'||d.type==='player-left'||d.type==='game-start'||d.type==='player-shook'||d.type==='revealed'){
-  if(d.room)_diceRoom=d.room;saveDiceRoom();
-  if(d.type==='game-start')showDiceRoom();
-  else{updRoomPlayers();renderBattle()}
-  if(d.type==='player-joined')addDiceChat('系統',d.player+' 加入');
-  if(d.type==='player-left')addDiceChat('系統',d.player+' 離開');
-  if(d.type==='player-shook'){addDiceChat(d.player,'🎲 搖咗！');checkAllShook()}
- }
- if(d.type==='chat')addDiceChat(d.player,d.msg);
+function startDicePoll(){
+ stopDicePoll();
+ _dicePollT=setInterval(function(){
+  if(!_diceRoom)return;
+  _diceApi('GET','/api/dice/room/'+_diceRoom.id).then(function(r){
+   if(r.error){stopDicePoll();return}
+   var prev=_diceRoom;_diceRoom=r.room;
+   if(prev.status!==_diceRoom.status||
+      JSON.stringify(prev.players)!==JSON.stringify(_diceRoom.players)||
+      JSON.stringify(prev.results)!==JSON.stringify(_diceRoom.results)){
+    showDiceRoom();
+   }
+  });
+ },3000);
 }
+function stopDicePoll(){if(_dicePollT){clearInterval(_dicePollT);_dicePollT=null}}
+
+// Restore room on page load
+(function(){
+ var saved=localStorage.getItem('dice_room_state');
+ if(!saved)return;
+ try{
+  var rm=JSON.parse(saved);
+  if(rm&&rm.id){
+   _diceApi('GET','/api/dice/room/'+rm.id).then(function(r){
+    if(r.error){localStorage.removeItem('dice_room_state');return}
+    _diceRoom=r.room;
+    _diceIsHost=(_diceRoom.creator_id===(me&&me.id));
+    showDiceRoom();startDicePoll();
+   });
+  }
+ }catch(e){}
+})();
 
 function sendDiceChat(){
  var inp=document.getElementById('chat-input');if(!inp)return;
  var msg=inp.value.trim();if(!msg||!_diceRoom)return;
- addDiceChat(_diceName(),msg);bcastDice({type:'chat',room:_diceRoom.code,player:_diceName(),msg:msg});inp.value='';
+ _diceApi('POST','/api/dice/room/'+_diceRoom.id+'/chat',{message:msg}).then(function(r){
+  if(!r.error){addDiceChat(_diceName(),msg);inp.value=''}
+ });
 }
+
 
 function addDiceChat(name,msg){
  var a=document.getElementById('chat-area');if(!a)return;
