@@ -2376,8 +2376,8 @@ async function loadPostComments(pid){
    h+='</div>';
   });
   h+='<div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end">';
-  h+='<textarea class="textarea" id="comment-input-'+pid+'" placeholder="寫評論..." style="flex:1;padding:8px 12px;font-size:14px;min-height:40px;max-height:120px;resize:vertical"></textarea>';
-  h+='<button class="btn btn-primary" onclick="addPostComment('+pid+')" style="padding:8px 14px;font-size:14px;white-space:nowrap;height:fit-content">發送</button>';
+  h+='<textarea class="textarea" id="comment-input-'+pid+'" placeholder="寫評論..." style="flex:1;padding:10px 14px;font-size:15px;min-height:56px;max-height:140px;resize:vertical;line-height:1.5;border-radius:12px"></textarea>';
+  h+='<button class="btn btn-primary" onclick="addPostComment('+pid+')" style="padding:6px 10px;font-size:13px;white-space:nowrap;height:40px;min-width:56px;border-radius:10px">發送</button>';
   h+='</div></div>';
   el.innerHTML=h;
  }catch(e){console.error('loadPostComments',e)}
