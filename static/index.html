@@ -832,7 +832,7 @@ function showPage(name){
   if(tb)tb.classList.add('active');
   // Reset scroll position to top when switching pages
   window.scrollTo({top:0,behavior:'smooth'});
-  if(name==='timeline')loadTL();if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();
+  if(name==='timeline'){loadTL();loadPosts()}if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();
 }
 
 // ═══════ SWIPE GESTURE SUPPORT ═══════
