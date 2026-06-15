@@ -284,6 +284,19 @@ CREATE TABLE IF NOT EXISTS users (
     for col, typ in [('players_json','TEXT'),('rules_json','TEXT'),('results_json','TEXT')]:
         try: db.execute(f'ALTER TABLE dice_rooms ADD COLUMN {col} {typ} DEFAULT ""')
         except: pass
+    # posts 朋友圈帖子表
+    try:
+        db.execute('''CREATE TABLE IF NOT EXISTS posts (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id     INTEGER NOT NULL,
+            content     TEXT DEFAULT '',
+            images      TEXT DEFAULT '',
+            created_at  TEXT DEFAULT (datetime('now','localtime'))
+        )''')
+    except: pass
+    # avatars表加mime列
+    try: db.execute('ALTER TABLE avatars ADD COLUMN mime TEXT DEFAULT "image/png"')
+    except: pass
     db.commit()
     db.close()
 
@@ -763,6 +776,57 @@ def api_accept_friend():
     db.commit()
     return jsonify({'ok':True})
 
+@app.route('/api/friends/reject', methods=['POST'])
+@auth_required
+def api_reject_friend():
+    d = request.get_json(force=True) or {}
+    friend_id = int(d.get('user_id',0) or 0)
+    db = get_db()
+    db.execute('DELETE FROM friends WHERE user_id=? AND friend_id=? AND status=?',(friend_id, g.uid, 'pending'))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/friends/remove', methods=['POST'])
+@auth_required
+def api_remove_friend():
+    d = request.get_json(force=True) or {}
+    friend_id = int(d.get('user_id',0) or 0)
+    db = get_db()
+    db.execute('DELETE FROM friends WHERE (user_id=? AND friend_id=?) OR (user_id=? AND friend_id=?)',
+               (g.uid, friend_id, friend_id, g.uid))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/friends/suggest')
+@auth_required
+def api_friends_suggest():
+    db = get_db()
+    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, u.membership
+        FROM users u WHERE u.id!=? AND u.id NOT IN (
+            SELECT CASE WHEN user_id=? THEN friend_id ELSE user_id END FROM friends
+            WHERE user_id=? OR friend_id=?
+        ) ORDER BY RANDOM() LIMIT 10""", (g.uid, g.uid, g.uid, g.uid)).fetchall()
+    return jsonify({'suggest':[dict(r) for r in rows]})
+
+@app.route('/api/friends/pending')
+@auth_required
+def api_friends_pending():
+    db = get_db()
+    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, f.user_id as from_uid
+        FROM friends f JOIN users u ON f.user_id=u.id
+        WHERE f.friend_id=? AND f.status='pending' ORDER BY f.rowid DESC""", (g.uid,)).fetchall()
+    return jsonify({'pending':[dict(r) for r in rows]})
+
+@app.route('/api/user/<int:uid>')
+@auth_required
+def api_user_profile(uid):
+    db = get_db()
+    u = db.execute('SELECT id,username,nickname,avatar,membership,member_expires,created_at FROM users WHERE id=?',(uid,)).fetchone()
+    if not u: return jsonify({'error':'用戶不存在'}), 404
+    cnt = db.execute('SELECT COUNT(*) FROM checkins WHERE user_id=?',(uid,)).fetchone()[0]
+    r = dict(u); r['checkin_count'] = cnt
+    return jsonify(r)
+
 # ═══════════════════ Reactions + Likes + Comments ═══════
 @app.route('/api/reaction', methods=['POST'])
 @auth_required
@@ -833,6 +897,47 @@ def api_upload():
     f.save(str(path))
     url = f'/static/uploads/{new_name}'
     return jsonify({'ok':True, 'url':url, 'path':str(path)})
+
+# ═══════════════════ Posts (朋友圈) ═══════════════════
+@app.route('/api/posts', methods=['POST'])
+@auth_required
+def api_create_post():
+    d = request.get_json(force=True) or {}
+    content = sanitize_html(d.get('content',''))[:2000]
+    images = d.get('images','')  # JSON array of image URLs
+    if not content and not images:
+        return jsonify({'error':'請輸入內容或上傳圖片'}), 400
+    db = get_db()
+    db.execute('INSERT INTO posts (user_id, content, images) VALUES (?,?,?)',
+               (g.uid, content, images if isinstance(images,str) else json.dumps(images)))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/posts')
+@auth_required
+def api_get_posts():
+    db = get_db()
+    page = max(1, int(request.args.get('page',1)))
+    per = min(50, int(request.args.get('per_page',20)))
+    off = (page-1)*per
+    rows = db.execute("""SELECT p.*, u.username, u.nickname, u.avatar,
+        (SELECT COUNT(*) FROM checkin_likes cl WHERE cl.checkin_id=p.id) as like_count
+        FROM posts p JOIN users u ON p.user_id=u.id
+        ORDER BY p.id DESC LIMIT ? OFFSET ?""", (per, off)).fetchall()
+    total = db.execute('SELECT COUNT(*) FROM posts').fetchone()[0]
+    return jsonify({'posts':[dict(r) for r in rows], 'total':total, 'page':page})
+
+@app.route('/api/posts/<int:pid>', methods=['DELETE'])
+@auth_required
+def api_delete_post(pid):
+    db = get_db()
+    row = db.execute('SELECT user_id FROM posts WHERE id=?',(pid,)).fetchone()
+    if not row: return jsonify({'error':'帖子不存在'}), 404
+    if row['user_id'] != g.uid and not _check_admin():
+        return jsonify({'error':'無權刪除'}), 403
+    db.execute('DELETE FROM posts WHERE id=?',(pid,))
+    db.commit()
+    return jsonify({'ok':True})
 
 # ═══════════════════ Ads ═══════════════════════════════
 @app.route('/api/ads')
@@ -1152,6 +1257,71 @@ def api_admin_delete_checkin():
     db.execute('DELETE FROM checkins WHERE id=?', (cid,))
     db.commit()
     return jsonify({'ok':True, 'msg':'已刪除打卡記錄'})
+
+@app.route('/api/admin/checkins')
+def api_admin_checkins():
+    """管理後台：列出所有報到動態，支持分頁"""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    page = max(1, int(request.args.get('page', 1)))
+    per_page = max(1, min(100, int(request.args.get('per_page', 20))))
+    offset = (page - 1) * per_page
+    total = db.execute('SELECT COUNT(*) FROM checkins').fetchone()[0]
+    rows = db.execute("""
+        SELECT c.*, u.username, u.nickname
+        FROM checkins c JOIN users u ON c.user_id=u.id
+        ORDER BY c.id DESC LIMIT ? OFFSET ?
+    """, (per_page, offset)).fetchall()
+    return jsonify({'checkins':[dict(r) for r in rows], 'total':total, 'page':page, 'per_page':per_page})
+
+@app.route('/api/admin/parties')
+def api_admin_parties():
+    """管理後台：列出所有酒局"""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    rows = db.execute("""
+        SELECT p.*, u.username, u.nickname
+        FROM parties p JOIN users u ON p.creator_id=u.id
+        ORDER BY p.id DESC LIMIT 200
+    """).fetchall()
+    return jsonify({'parties':[dict(r) for r in rows]})
+
+@app.route('/api/admin/delete-party', methods=['DELETE','POST'])
+def api_admin_delete_party():
+    """管理後台：刪除酒局"""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    pid = int(d.get('pid', 0))
+    if not pid: return jsonify({'error':'請輸入酒局ID'}), 400
+    db = get_db()
+    row = db.execute('SELECT id,title FROM parties WHERE id=?', (pid,)).fetchone()
+    if not row: return jsonify({'error':'酒局不存在'}), 404
+    db.execute('DELETE FROM party_rsvp WHERE party_id=?', (pid,))
+    db.execute('DELETE FROM party_journal WHERE party_id=?', (pid,))
+    db.execute('DELETE FROM parties WHERE id=?', (pid,))
+    db.commit()
+    return jsonify({'ok':True, 'msg':f'已刪除酒局「{row["title"]}」'})
+
+
+@app.route('/api/admin/posts')
+def api_admin_posts():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    rows = db.execute("""SELECT p.*, u.username, u.nickname
+        FROM posts p JOIN users u ON p.user_id=u.id
+        ORDER BY p.id DESC LIMIT 200""").fetchall()
+    return jsonify({'posts':[dict(r) for r in rows]})
+
+@app.route('/api/admin/delete-post', methods=['DELETE','POST'])
+def api_admin_delete_post():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    pid = int(d.get('pid', 0))
+    if not pid: return jsonify({'error':'請輸入帖子ID'}), 400
+    db = get_db()
+    db.execute('DELETE FROM posts WHERE id=?', (pid,))
+    db.commit()
+    return jsonify({'ok':True, 'msg':'已刪除帖子'})
 
 # ═══════════════════ Membership ═══════════════════════════
 @app.route('/api/member/upgrade', methods=['POST'])

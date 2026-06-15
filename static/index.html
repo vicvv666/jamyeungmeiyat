@@ -316,7 +316,21 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  </div>
 </div>
 
-<div class="page" id="page-timeline"><div id="tl-container"></div></div>
+<div class="page" id="page-timeline">
+  <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
+    <div class="card-header">📸 發朋友圈</div>
+    <textarea class="textarea" id="post-content" placeholder="分享你嘅飲酒時刻..." style="margin-bottom:8px;min-height:60px"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+     <label style="cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--sub)">
+      🖼️ 加圖<input type="file" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
+     </label>
+     <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+    </div>
+    <button class="btn btn-primary" onclick="createPost()" style="width:100%">📱 發佈</button>
+  </div>
+  <div id="tl-container"></div>
+  <div id="posts-container" style="margin-top:12px"></div>
+</div>
 
 <div class="page" id="page-party">
   <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
@@ -408,6 +422,14 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name">🥇 酒神</div><div class="plan-price">¥198</div><div class="plan-feat">每年/徽章</div></div>
   </div>
   <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'">📢 廣告合作<br>vichoo2020@gmail.com</div>
+  <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
+    <div class="card-header">👫 酒友圈</div>
+    <div id="friends-section">
+     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--pink);margin-bottom:6px">📨 待處理請求</div><div id="friend-pending" style="font-size:12px;color:var(--sub)">載入中...</div></div>
+     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px">🤝 我嘅酒友</div><div id="friend-list" style="font-size:12px;color:var(--sub)">載入中...</div></div>
+     <div><div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:6px">🔍 推薦酒友</div><div id="friend-suggest" style="font-size:12px;color:var(--sub)">載入中...</div></div>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -431,6 +453,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <button class="adm-tab" data-adm="expired" onclick="admShowTab('expired');admLoadExpired()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚠️ 到期</button>
     <button class="adm-tab" data-adm="audit" onclick="admShowTab('audit');admLoadAudit()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📋 日誌</button>
     <button class="adm-tab" data-adm="config" onclick="admShowTab('config')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚙️ 設定</button>
+    <button class="adm-tab" data-adm="checkins" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🌐 動態</button>
+    <button class="adm-tab" data-adm="parties" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🎯 酒局</button>
+    <button class="adm-tab" data-adm="posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📸 圈子</button>
    </div>
    <!-- Stats page -->
    <div class="adm-page active" id="adm-stats">
@@ -478,6 +503,21 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       <button class="btn btn-primary" onclick="admSetServer()" style="white-space:nowrap;margin-top:0;padding:8px 12px">儲存</button>
      </div>
     </div>
+   </div>
+   <!-- Checkins page -->
+   <div class="adm-page" id="adm-checkins">
+    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadCheckins()" style="border-color:var(--amber);color:var(--amber)">🔄 刷新</button></div>
+    <div id="adm-checkin-list" style="font-size:12px"></div>
+   </div>
+   <!-- Parties page -->
+   <div class="adm-page" id="adm-parties">
+    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadParties()" style="border-color:var(--purple);color:var(--purple)">🔄 刷新</button></div>
+    <div id="adm-party-list" style="font-size:12px"></div>
+   </div>
+   <!-- Posts page -->
+   <div class="adm-page" id="adm-posts">
+    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadAdmPosts()" style="border-color:var(--pink);color:var(--pink)">🔄 刷新</button></div>
+    <div id="adm-post-list" style="font-size:12px"></div>
    </div>
   </div>
  </div>
@@ -1198,6 +1238,18 @@ function openProfile(){
 function closeProf(){const el=document.getElementById('prof-mod');el.style.display='none';el.classList.remove('show')}
 function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('av-prev').innerHTML='<img src="'+ev.target.result+'">'};r.readAsDataURL(f)}
 async function saveProf(){
+ // Handle avatar upload first
+ var avFile=document.getElementById('av-inp').files[0];
+ if(avFile){
+  var reader=new FileReader();
+  reader.onload=async function(ev){
+   try{await api('/api/update-avatar',{method:'POST',body:{avatar:ev.target.result}});console.log('头像上伝成功');_doSaveProf()}catch(e){alert('头像上伝失敗：'+e.message)}
+  };
+  reader.readAsDataURL(avFile);return;
+ }
+ _doSaveProf();
+}
+async function _doSaveProf(){
  if(!me)return toast('請先登入',1);
  const nick=document.getElementById('p-nick').value.trim(),
        phone=document.getElementById('p-phone')?.value?.trim()||'',
@@ -2096,6 +2148,169 @@ function dieChar(v){return ['','⚀','⚁','⚂','⚃','⚄','⚅'][v]||'?'}
 
 setTimeout(initDice,200);
 
+
+// ═══════════ ADMIN: Checkins / Parties / Posts ═══════════
+async function admLoadCheckins(){
+ try{const d=await api('/api/admin/checkins');const el=document.getElementById('adm-checkin-list');
+  if(!d.checkins.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無動態</div>';return}
+  el.innerHTML=d.checkins.map(c=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+   <div><span style="color:var(--amber);font-weight:700">@${c.username||c.nickname}</span>
+   <span style="color:var(--sub);margin-left:6px">${['酒鬼','微醺','清醒'][c.status]||'報到'}</span>
+   <span style="color:var(--sub);margin-left:6px;font-size:11px">${c.note||''}</span>
+   <span style="color:var(--sub);margin-left:6px;font-size:10px">${c.created_at||''}</span></div>
+   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteCheckin(${c.id})">刪除</button></div>`).join('')
+ }catch(e){console.error('admLoadCheckins',e)}
+}
+async function admLoadParties(){
+ try{const d=await api('/api/admin/parties');const el=document.getElementById('adm-party-list');
+  if(!d.parties.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無酒局</div>';return}
+  el.innerHTML=d.parties.map(p=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+   <div><span style="color:var(--purple);font-weight:700">${p.title||'無標題'}</span>
+   <span style="color:var(--sub);margin-left:6px">📍${p.location||'-'}</span>
+   <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.meet_time||p.created_at||''}</span>
+   <span style="background:var(--${p.status==='upcoming'?'amber':'green'});color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px">${p.status}</span></div>
+   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteParty(${p.id})">刪除</button></div>`).join('')
+ }catch(e){console.error('admLoadParties',e)}
+}
+async function admLoadAdmPosts(){
+ try{const d=await api('/api/admin/posts');const el=document.getElementById('adm-post-list');
+  if(!d.posts.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無帖子</div>';return}
+  el.innerHTML=d.posts.map(p=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+   <div><span style="color:var(--pink);font-weight:700">@${p.username||p.nickname}</span>
+   <span style="color:var(--sub);margin-left:6px">${(p.content||'').substring(0,40)}</span>
+   <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.created_at||''}</span></div>
+   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeletePost(${p.id})">刪除</button></div>`).join('')
+ }catch(e){console.error('admLoadAdmPosts',e)}
+}
+async function admDeleteCheckin(cid){
+ if(!confirm('確認刪除呢條動態？'))return;
+ try{await api('/api/admin/delete-checkin',{method:'POST',body:{checkin_id:cid}});admLoadCheckins()}catch(e){alert('刪除失敗')}
+}
+async function admDeleteParty(pid){
+ if(!confirm('確認刪除呢個酒局？'))return;
+ try{await api('/api/admin/delete-party',{method:'POST',body:{pid:pid}});admLoadParties()}catch(e){alert('刪除失敗')}
+}
+async function admDeletePost(pid){
+ if(!confirm('確認刪除呢條帖子？'))return;
+ try{await api('/api/admin/delete-post',{method:'POST',body:{pid:pid}});admLoadAdmPosts()}catch(e){alert('刪除失敗')}
+}
+
+// ═══════════ FRIENDS ═══════════
+async function loadFriendsAll(){
+ loadFriendsPending();loadFriendsList();loadFriendsSuggest();
+}
+async function loadFriendsPending(){
+ try{const d=await api('/api/friends/pending');const el=document.getElementById('friend-pending');
+  if(!d.pending.length){el.innerHTML='<span style="color:var(--sub)">冇待處理請求</span>';return}
+  el.innerHTML=d.pending.map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+   <img src="${API_BASE+'/api/avatar/'+f.id}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2228%22 height=%2228%22><rect fill=%22%232A2A3A%22 width=%2228%22 height=%2228%22/><text y=%2218%22 x=%2214%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2216%22>👤</text></svg>'">
+   <span style="color:var(--text);font-weight:600">${f.nickname||f.username}</span>
+   <button style="padding:2px 8px;border:1px solid var(--green);border-radius:6px;background:none;color:var(--green);cursor:pointer;font-size:10px" onclick="acceptFriend(${f.id})">✅ 接受</button>
+   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="rejectFriend(${f.id})">❌ 拒絕</button>
+  </div>`).join('')
+ }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+}
+async function loadFriendsList(){
+ try{const d=await api('/api/friends');const el=document.getElementById('friend-list');
+  if(!d.friends.length){el.innerHTML='<span style="color:var(--sub)">仲未有酒友，去推薦區添加啦！</span>';return}
+  el.innerHTML=d.friends.filter(f=>f.status==='accepted').map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+   <img src="${API_BASE+'/api/avatar/'+f.id}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2228%22 height=%2228%22><rect fill=%22%232A2A3A%22 width=%2228%22 height=%2228%22/><text y=%2218%22 x=%2214%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2216%22>👤</text></svg>'">
+   <span style="color:var(--text);font-weight:600">${f.nickname||f.username}</span>
+   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px;margin-left:auto" onclick="removeFriend(${f.id})">移除</button>
+  </div>`).join('')
+ }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+}
+async function loadFriendsSuggest(){
+ try{const d=await api('/api/friends/suggest');const el=document.getElementById('friend-suggest');
+  if(!d.suggest.length){el.innerHTML='<span style="color:var(--sub)">冇推薦酒友</span>';return}
+  el.innerHTML=d.suggest.map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+   <img src="${API_BASE+'/api/avatar/'+f.id}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2228%22 height=%2228%22><rect fill=%22%232A2A3A%22 width=%2228%22 height=%2228%22/><text y=%2218%22 x=%2214%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2216%22>👤</text></svg>'">
+   <span style="color:var(--text);font-weight:600">${f.nickname||f.username}</span>
+   <span style="font-size:10px;color:var(--amber);margin-left:4px">${f.membership||''}</span>
+   <button style="padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:var(--pink);color:#fff;cursor:pointer;font-size:10px;margin-left:auto" onclick="addFriend(${f.id})">➕ 加友</button>
+  </div>`).join('')
+ }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+}
+async function addFriend(uid){
+ try{await api('/api/friends/add',{method:'POST',body:{username:await _getUsername(uid)}});loadFriendsAll()}catch(e){alert(e.message)}
+}
+async function _getUsername(uid){
+ const d=await api('/api/user/'+uid);return d.username||''
+}
+async function acceptFriend(uid){
+ try{await api('/api/friends/accept',{method:'POST',body:{user_id:uid}});loadFriendsAll()}catch(e){alert(e.message)}
+}
+async function rejectFriend(uid){
+ try{await api('/api/friends/reject',{method:'POST',body:{user_id:uid}});loadFriendsAll()}catch(e){alert(e.message)}
+}
+async function removeFriend(uid){
+ if(!confirm('確認移除呢位酒友？'))return;
+ try{await api('/api/friends/remove',{method:'POST',body:{user_id:uid}});loadFriendsAll()}catch(e){alert(e.message)}
+}
+
+// ═══════════ POSTS (朋友圈) ═══════════
+let postImages=[]; // 存已上传图片URL
+function previewPostImgs(e){
+ const files=e.target.files;const prev=document.getElementById('post-img-preview');
+ Array.from(files).forEach(f=>{
+  const reader=new FileReader();
+  reader.onload=async(ev)=>{
+   prev.innerHTML+=`<img src="${ev.target.result}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">`;
+  };reader.readAsDataURL(f);
+ });
+}
+async function createPost(){
+ const content=document.getElementById('post-content').value.trim();
+ const preview=document.getElementById('post-img-preview');
+ const imgs=preview.querySelectorAll('img');
+ let imageUrls=[];
+ // Upload each image file if any
+ const fileInput=document.getElementById('post-img-input');
+ if(fileInput.files.length){
+  for(let i=0;i<fileInput.files.length;i++){
+   try{
+    const fd=new FormData();fd.append('file',fileInput.files[i]);
+    const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+token},body:fd});
+    const d=await r.json();if(d.url)imageUrls.push(d.url);
+   }catch(e){console.error('upload fail',e)}
+  }
+ }
+ if(!content&&!imageUrls.length){alert('請輸入內容或上傳圖片');return}
+ try{
+  await api('/api/posts',{method:'POST',body:{content:content,images:JSON.stringify(imageUrls)}});
+  document.getElementById('post-content').value='';
+  preview.innerHTML='';fileInput.value='';
+  loadPosts();
+ }catch(e){alert('發佈失敗：'+e.message)}
+}
+async function loadPosts(){
+ try{
+  const d=await api('/api/posts');const el=document.getElementById('posts-container');
+  if(!d.posts.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--sub)">暫無朋友圈動態</div>';return}
+  el.innerHTML=d.posts.map(p=>{
+   let imgs='';try{const arr=JSON.parse(p.images||'[]');imgs=arr.map(u=>`<img src="${API_BASE+u}" style="width:calc(33% - 4px);height:120px;object-fit:cover;border-radius:8px;margin:2px" onclick="window.open('${API_BASE+u}')">`).join('')}catch(e){}
+   const avSrc=p.avatar&&p.avatar.startsWith('/api/')?API_BASE+p.avatar:'';
+   const avHtml=avSrc?`<img src="${avSrc}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.outerHTML='<span style=font-size:28px>👤</span>'">`:'<span style="font-size:28px">👤</span>';
+   return `<div class="card" style="margin-bottom:10px">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
+     ${avHtml}
+     <div><div style="font-weight:700;font-size:14px;color:var(--text)">${p.nickname||p.username}</div>
+     <div style="font-size:11px;color:var(--sub)">${p.created_at||''}</div></div>
+     ${p.user_id===me.id?`<button style="margin-left:auto;padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="deletePost(${p.id})">刪除</button>`:''}
+    </div>
+    <div style="font-size:14px;line-height:1.6;margin-bottom:8px;white-space:pre-wrap">${p.content||''}</div>
+    ${imgs?`<div style="display:flex;flex-wrap:wrap;margin-bottom:4px">${imgs}</div>`:''}
+   </div>`
+  }).join('');
+ }catch(e){console.error('loadPosts',e)}
+}
+async function deletePost(pid){
+ if(!confirm('確認刪除？'))return;
+ try{await api('/api/posts/'+pid,{method:'DELETE'});loadPosts()}catch(e){alert('刪除失敗')}
+}
+
+// ═══════════ AVATAR UPLOAD in saveProf ═══════════
+// Override saveProf to include avatar upload
 </script>
 </body>
 </html>
