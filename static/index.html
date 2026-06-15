@@ -103,7 +103,7 @@ var ASSET_BASE='';
     if(!el){
       el=document.createElement('div');
       el.id='apk-debug';
-      el.style.cssText='position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow-y:auto;background:rgba(0,0,0,0.9);color:#0f0;font:11px/1.4 monospace;padding:8px;z-index:99999;border-top:2px solid #f00;display:none;';
+      el.style.cssText='position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow-y:auto;background:rgba(0,0,0,0.95);color:#0f0;font:11px/1.4 monospace;padding:8px;z-index:99999;display:none;';
       document.body.appendChild(el);
     }
     if(errors.length>0){el.style.display='block';el.innerHTML=errors.map(function(e,i){return '<b>['+i+']</b> '+e;}).join('<br>');}
@@ -1319,16 +1319,17 @@ async function loadAdmStats(){
  }catch(e){console.error('loadAdmStats', e)}
 }
 
-// ── Admin: Change own password ──
+// ── Admin: Change admin key (Mode 1) or DB admin password ──
 async function admShowChangePw(){
- const old = prompt('輸入舊密碼：');
- if(!old) return;
- const pw = prompt('輸入新密碼（至少4位）：');
+ const pw = prompt('輸入新管理密碼（至少4位）：');
  if(!pw||pw.length<4){toast('❌ 密碼至少4位');return}
+ const pw2 = prompt('確認新密碼：');
+ if(pw!==pw2){toast('❌ 兩次密碼唔一致',1);return}
  try{
-  const r=await fetch(API_BASE+'/api/change-password',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({old_password:old,new_password:pw})});
+  // Update admin_key in DB config (no restart needed)
+  const r=await fetch(API_BASE+'/api/admin/change-own-key',{method:'POST',headers:_admHeaders(),body:JSON.stringify({new_key:pw})});
   const d=await r.json();
-  if(d.ok) toast('✅ 密碼已修改');
+  if(d.ok) toast('✅ 管理密碼已修改，下次請用新密碼登入');
   else toast('❌ '+(d.error||'失敗'),1);
  }catch(e){toast('❌ '+e.message,1)}
 }

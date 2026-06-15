@@ -245,11 +245,16 @@ CREATE TABLE IF NOT EXISTS users (
             note        TEXT DEFAULT '',
             created_at  TEXT DEFAULT (datetime('now','localtime'))
         );
+        -- runtime config (admin_key, etc.)
+        CREATE TABLE IF NOT EXISTS config (
+            key   TEXT PRIMARY KEY,
+            value TEXT NOT NULL DEFAULT ''
+        );
     """)
     db.commit()
     # Migrate: add columns if missing (existing DB safe)
     for col, typ in [('phone','TEXT'),('email','TEXT'),('avatar','TEXT')]:
-        try: db.execute(f'ALTER TABLE users ADD COLUMN {col} {typ} DEFAULT \"\"')
+        try: db.execute(f'ALTER TABLE users ADD COLUMN {col} {typ} DEFAULT ""')
         except: pass
     db.commit()
     db.close()
@@ -317,6 +322,28 @@ LANG = {
 }
 def t(key, lang='zh-HK'):
     return LANG.get(lang, LANG['zh-HK']).get(key, key)
+
+def _get_admin_key():
+    """Get admin key from DB config, fallback to env var."""
+    try:
+        db = get_db()
+        row = db.execute('SELECT value FROM config WHERE key=?', ('admin_key',)).fetchone()
+        if row and row['value']:
+            return row['value']
+    except:
+        pass
+    return os.environ.get('ADMIN_KEY', 'jymy2026calc')
+
+def _get_admin_user():
+    """Get admin username from DB config, fallback to env var."""
+    try:
+        db = get_db()
+        row = db.execute('SELECT value FROM config WHERE key=?', ('admin_user',)).fetchone()
+        if row and row['value']:
+            return row['value']
+    except:
+        pass
+    return os.environ.get('ADMIN_USER', 'admin')
 
 # ═══════════════════ Helpers ═══════════════════════════
 def _hash(pw):
@@ -816,8 +843,8 @@ def api_admin_login():
     
     # Mode 1: Standalone admin account + key
     if admin_key:
-        expected_user = os.environ.get('ADMIN_USER', 'admin')
-        expected_key = os.environ.get('ADMIN_KEY', 'jymy2026calc')
+        expected_user = _get_admin_user()
+        expected_key = _get_admin_key()
         if admin_user != expected_user or admin_key != expected_key:
             return jsonify({'error':'帳號或密碼錯誤'}), 403
         token = base64.b64encode(f'0:admin_key_login:{admin_user}'.encode()).decode()
@@ -989,6 +1016,19 @@ def api_admin_change_password():
     db = get_db()
     db.execute('UPDATE users SET password=? WHERE id=?', (_hash(new_pw), uid))
     db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/admin/change-own-key', methods=['POST'])
+def api_admin_change_own_key():
+    """Admin changes the admin_key stored in DB config. Takes effect immediately (no restart)."""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    new_key = d.get('new_key', '')
+    if len(new_key) < 4: return jsonify({'error':'管理密碼最少4位'}), 400
+    db = get_db()
+    db.execute('INSERT OR REPLACE INTO config (key, value) VALUES (?, ?)', ('admin_key', new_key))
+    db.commit()
+    log.info('admin_key updated in DB config')
     return jsonify({'ok':True})
 
 @app.route('/api/admin/update-profile', methods=['POST'])
