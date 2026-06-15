@@ -671,9 +671,18 @@ function clearS(){localStorage.removeItem('jymy_token');localStorage.removeItem(
 async function restoreS(){
  // Restore admin session from localStorage
  adminToken = localStorage.getItem('jymy_admin_token') || '';
- if(adminToken && !localStorage.getItem('jymy_token')){
-  // Admin-only session (no regular user token)
-  me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
+ // Check if jymy_token is an admin token (starts with "0:")
+ const savedToken = localStorage.getItem('jymy_token') || '';
+ const isAdminToken = savedToken && atob(savedToken).startsWith('0:');
+ if(adminToken && isAdminToken){
+  // Admin-only session
+  token = savedToken || adminToken;
+  const savedMe = localStorage.getItem('jymy_me');
+  if(savedMe){try{me=JSON.parse(savedMe)}catch(e){}}
+  if(!me || me.id!==0){
+   me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
+   saveS();
+  }
   loadAdmin(); updateNav(); return true;
  }
  // Flask mode: use local token + /api/me
@@ -898,6 +907,8 @@ async function doLogin(){
    const d=await r.json();
    if(r.ok){
     adminToken=d.token;localStorage.setItem('jymy_admin_token',adminToken);
+    // Also set global token so api() calls include Authorization
+    token=adminToken;localStorage.setItem('jymy_token',token);
     // Set virtual admin user so nav shows properly
     me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
     saveS();closeAuth();updateNav();buildGrid();updTitles();
@@ -1190,22 +1201,31 @@ async function saveProf(){
        newpw=document.getElementById('p-newpw').value,
        avatar=document.querySelector('#av-prev img')?.src||'';
  try{
-  // Update profile (nickname, phone, email)
-  const profileData = {nickname:nick};
-  if(phone) profileData.phone = phone;
-  if(email) profileData.email = email;
-  if(nick || phone || email){
-   const r=await api('/api/update-profile',{method:'POST',body:profileData});
-   if(r.user){Object.assign(me,r.user);me.avatar=me.avatar||'';}
+  // Update profile (nickname, phone, email) — skip for admin (id=0, not in DB)
+  if(me?.id !== 0){
+   const profileData = {nickname:nick};
+   if(phone) profileData.phone = phone;
+   if(email) profileData.email = email;
+   if(nick || phone || email){
+    const r=await api('/api/update-profile',{method:'POST',body:profileData});
+    if(r.user){Object.assign(me,r.user);me.avatar=me.avatar||'';}
+   }
   }
   // Change password
   if(oldpw&&newpw){
    if(newpw.length<4)return toast('新密碼最少4位',1);
-   await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}});
+   if(me?.id===0 && adminToken){
+    // Admin Mode 1: change admin key via DB config
+    const r=await fetch(API_BASE+'/api/admin/change-own-key',{method:'POST',headers:_admHeaders(),body:JSON.stringify({new_key:newpw})});
+    const dd=await r.json();if(!dd.ok)throw new Error(dd.error||'改密失敗');
+   } else {
+    // Normal user: change with old password
+    await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}});
+   }
    toast('✅ 密碼已更改');
   }
-  // Avatar update
-  if(avatar&&avatar.startsWith('data:')){
+  // Avatar update — skip for admin (id=0, not in DB)
+  if(me?.id !== 0 && avatar&&avatar.startsWith('data:')){
    const r=await api('/api/update-avatar',{method:'POST',body:{avatar}});
    me.avatar=r.url||'';
   }
