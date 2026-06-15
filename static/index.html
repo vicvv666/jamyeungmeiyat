@@ -144,7 +144,7 @@ var ASSET_BASE='';
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0D0D12;--card:#1A1A24;--card-hover:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glass-bg:rgba(13,13,18,0.75);--glass-border:rgba(255,255,255,0.06);--max-width:480px;--fs-base:16px;--fs-sm:14px;--fs-xs:12px;--fs-title:24px;--fs-card:17px;--fs-stat:30px}
-body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:100px;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
 /* Responsive: center content on large screens with max 480px */
 .nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
@@ -319,6 +319,31 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <div class="page" id="page-timeline">
   <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
     <div class="card-header">📸 發朋友圈</div>
+    <div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap" id="emoji-bar">
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍺')">🍺</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍻')">🍻</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥂')">🥂</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥃')">🥃</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍷')">🍷</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍶')">🍶</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍹')">🍹</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🧊')">🧊</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍸')">🍸</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥤')">🥤</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍾')">🍾</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🫗')">🫗</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('😵')">😵</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🤪')">🤪</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('😴')">😴</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥴')">🥴</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💃')">💃</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🕺')">🕺</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🎉')">🎉</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🤢')">🤢</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('❤️')">❤️</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🔥')">🔥</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💪')">💪</span>
+    </div>
     <textarea class="textarea" id="post-content" placeholder="分享你嘅飲酒時刻..." style="margin-bottom:8px;min-height:60px"></textarea>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
      <label style="cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--sub)">
@@ -2283,6 +2308,8 @@ async function createPost(){
   loadPosts();
  }catch(e){alert('發佈失敗：'+e.message)}
 }
+function insertEmoji(e){const ta=document.getElementById('post-content');const s=ta.selectionStart;ta.value=ta.value.substring(0,s)+e+ta.value.substring(ta.selectionEnd);ta.focus();ta.selectionStart=ta.selectionEnd=s+e.length}
+
 async function loadPosts(){
  try{
   const d=await api('/api/posts');const el=document.getElementById('posts-container');
@@ -2300,6 +2327,11 @@ async function loadPosts(){
     </div>
     <div style="font-size:14px;line-height:1.6;margin-bottom:8px;white-space:pre-wrap">${p.content||''}</div>
     ${imgs?`<div style="display:flex;flex-wrap:wrap;margin-bottom:4px">${imgs}</div>`:''}
+    <div style="display:flex;gap:16px;padding-top:8px;border-top:1px solid var(--border);font-size:13px">
+     <span style="${p.liked?'color:var(--pink);font-weight:700':'color:var(--sub)'};cursor:pointer" onclick="togglePostLike(${p.id})">${p.liked?'❤️':'🤍'} ${p.like_count||0}</span>
+     <span style="color:var(--sub);cursor:pointer" onclick="togglePostComments(${p.id})">💬 ${p.comment_count||0}</span>
+    </div>
+    <div id="post-comments-${p.id}" style="display:none;margin-top:8px"></div>
    </div>`
   }).join('');
  }catch(e){console.error('loadPosts',e)}
@@ -2307,6 +2339,62 @@ async function loadPosts(){
 async function deletePost(pid){
  if(!confirm('確認刪除？'))return;
  try{await api('/api/posts/'+pid,{method:'DELETE'});loadPosts()}catch(e){alert('刪除失敗')}
+
+// ═══════════════════════════ POST Like/Comment/Reply ═══════════════════════════
+async function togglePostLike(pid){
+ try{await api('/api/posts/'+pid+'/like',{method:'POST'});loadPosts()}catch(e){console.error(e)}
+}
+async function togglePostComments(pid){
+ const el=document.getElementById('post-comments-'+pid);
+ if(el.style.display==='none'){el.style.display='block';loadPostComments(pid)}
+ else{el.style.display='none'}
+}
+async function loadPostComments(pid){
+ try{
+  const d=await api('/api/posts/'+pid+'/comments');const el=document.getElementById('post-comments-'+pid);
+  let h='<div style="padding:8px 0">';
+  d.comments.forEach(c=>{
+   const cav=c.avatar&&c.avatar.startsWith('/api/')?API_BASE+c.avatar:'';
+   const cavHtml=cav?'<img src="'+cav+'" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'👤';
+   h+='<div style="margin-bottom:8px;padding-left:4px">';
+   h+='<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">'+cavHtml;
+   h+=' <span style="font-weight:600;font-size:12px;color:var(--text)">'+esc(c.nickname||c.username)+'</span>';
+   h+=' <span style="font-size:11px;color:var(--sub)">'+(c.created_at||'')+'</span></div>';
+   h+='<div style="font-size:13px;color:var(--text);margin-left:30px">'+esc(c.text)+'</div>';
+   const cname=esc(c.nickname||c.username).replace(/'/g,"\\'");
+   h+='<div style="margin-left:30px;margin-top:4px"><span style="font-size:11px;color:var(--pink);cursor:pointer" onclick="showReplyInput('+pid+','+c.id+',\''+cname+'\')">回覆</span></div>';
+   if(c.replies&&c.replies.length){
+    h+='<div style="margin-left:30px;margin-top:4px;padding:4px 8px;background:var(--card);border-radius:8px">';
+    c.replies.forEach(rp=>{
+     h+='<div style="margin-bottom:4px"><span style="font-weight:600;font-size:11px;color:var(--text)">'+esc(rp.nickname||rp.username)+'</span>';
+     h+=' <span style="font-size:12px;color:var(--text);margin-left:4px">'+esc(rp.text)+'</span>';
+     h+=' <span style="font-size:10px;color:var(--sub);margin-left:4px">'+(rp.created_at||'')+'</span></div>';
+    });
+    h+='</div>';
+   }
+   h+='</div>';
+  });
+  h+='<div style="display:flex;gap:6px;margin-top:8px">';
+  h+='<input class="input" id="comment-input-'+pid+'" placeholder="寫評論..." style="flex:1;padding:6px 10px;font-size:12px">';
+  h+='<button class="btn btn-primary" onclick="addPostComment('+pid+')" style="padding:6px 12px;font-size:12px">發送</button>';
+  h+='</div></div>';
+  el.innerHTML=h;
+ }catch(e){console.error('loadPostComments',e)}
+}
+async function addPostComment(pid){
+ const inp=document.getElementById('comment-input-'+pid);
+ const text=inp.value.trim();if(!text)return;
+ const cid=inp.dataset.replyCid;
+ if(cid){
+  try{await api('/api/posts/'+pid+'/comments/'+cid+'/reply',{method:'POST',body:{text:text}});inp.value='';delete inp.dataset.replyCid;inp.placeholder='寫評論...';loadPostComments(pid);loadPosts()}catch(e){alert('回覆失敗')}
+ }else{
+  try{await api('/api/posts/'+pid+'/comments',{method:'POST',body:{text:text}});inp.value='';loadPostComments(pid);loadPosts()}catch(e){alert('評論失敗')}
+ }
+}
+function showReplyInput(pid,cid,name){
+ const el=document.getElementById('comment-input-'+pid);
+ if(el){el.placeholder='回覆 '+name+'...';el.dataset.replyCid=cid}
+}
 }
 
 // ═══════════ AVATAR UPLOAD in saveProf ═══════════

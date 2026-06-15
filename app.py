@@ -284,6 +284,34 @@ CREATE TABLE IF NOT EXISTS users (
     for col, typ in [('players_json','TEXT'),('rules_json','TEXT'),('results_json','TEXT')]:
         try: db.execute(f'ALTER TABLE dice_rooms ADD COLUMN {col} {typ} DEFAULT ""')
         except: pass
+    # post_likes / post_comments / post_replies
+    for tbl_sql in [
+        '''CREATE TABLE IF NOT EXISTS post_likes (
+            post_id  INTEGER NOT NULL,
+            user_id  INTEGER NOT NULL,
+            PRIMARY KEY (post_id, user_id)
+        )''',
+        '''CREATE TABLE IF NOT EXISTS post_comments (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_id    INTEGER NOT NULL,
+            user_id    INTEGER NOT NULL,
+            text       TEXT DEFAULT '',
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        )''',
+        '''CREATE TABLE IF NOT EXISTS post_replies (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            comment_id  INTEGER NOT NULL,
+            post_id     INTEGER NOT NULL,
+            user_id     INTEGER NOT NULL,
+            text        TEXT DEFAULT '',
+            created_at  TEXT DEFAULT (datetime('now','localtime'))
+        )''',
+    ]:
+        try: db.execute(tbl_sql)
+        except: pass
+
+    db.commit()
+
     # posts 朋友圈帖子表
     try:
         db.execute('''CREATE TABLE IF NOT EXISTS posts (
@@ -921,11 +949,17 @@ def api_get_posts():
     per = min(50, int(request.args.get('per_page',20)))
     off = (page-1)*per
     rows = db.execute("""SELECT p.*, u.username, u.nickname, u.avatar,
-        (SELECT COUNT(*) FROM checkin_likes cl WHERE cl.checkin_id=p.id) as like_count
+        (SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id=p.id) as like_count,
+        (SELECT COUNT(*) FROM post_comments pc WHERE pc.post_id=p.id) as comment_count
         FROM posts p JOIN users u ON p.user_id=u.id
         ORDER BY p.id DESC LIMIT ? OFFSET ?""", (per, off)).fetchall()
     total = db.execute('SELECT COUNT(*) FROM posts').fetchone()[0]
-    return jsonify({'posts':[dict(r) for r in rows], 'total':total, 'page':page})
+    results = []
+    for r in rows:
+        d = dict(r)
+        d['liked'] = bool(db.execute('SELECT 1 FROM post_likes WHERE post_id=? AND user_id=?',(r['id'],g.uid)).fetchone())
+        results.append(d)
+    return jsonify({'posts':results, 'total':total, 'page':page})
 
 @app.route('/api/posts/<int:pid>', methods=['DELETE'])
 @auth_required
@@ -936,6 +970,62 @@ def api_delete_post(pid):
     if row['user_id'] != g.uid and not _check_admin():
         return jsonify({'error':'無權刪除'}), 403
     db.execute('DELETE FROM posts WHERE id=?',(pid,))
+    db.commit()
+    return jsonify({'ok':True})
+
+# ══════════ Post Like / Comment / Reply ══════════
+@app.route('/api/posts/<int:pid>/like', methods=['POST'])
+@auth_required
+def api_post_like(pid):
+    db = get_db()
+    existing = db.execute('SELECT 1 FROM post_likes WHERE post_id=? AND user_id=?',(pid,g.uid)).fetchone()
+    if existing:
+        db.execute('DELETE FROM post_likes WHERE post_id=? AND user_id=?',(pid,g.uid))
+        db.commit()
+        return jsonify({'ok':True,'liked':False})
+    else:
+        db.execute('INSERT INTO post_likes(post_id,user_id) VALUES(?,?)',(pid,g.uid))
+        db.commit()
+        return jsonify({'ok':True,'liked':True})
+
+@app.route('/api/posts/<int:pid>/comments')
+@auth_required
+def api_post_comments(pid):
+    db = get_db()
+    rows = db.execute('''SELECT c.*, u.username, u.nickname, u.avatar
+        FROM post_comments c JOIN users u ON c.user_id=u.id
+        WHERE c.post_id=? ORDER BY c.id''',(pid,)).fetchall()
+    results = []
+    for r in rows:
+        d = dict(r)
+        reply_rows = db.execute('''SELECT r.*, u.username, u.nickname, u.avatar
+            FROM post_replies r JOIN users u ON r.user_id=u.id
+            WHERE r.comment_id=? ORDER BY r.id''',(r['id'],)).fetchall()
+        d['replies'] = [dict(rr) for rr in reply_rows]
+        results.append(d)
+    return jsonify({'comments':results})
+
+@app.route('/api/posts/<int:pid>/comments', methods=['POST'])
+@auth_required
+def api_post_add_comment(pid):
+    d = request.get_json(force=True) or {}
+    text = (d.get('text') or '').strip()
+    if not text: return jsonify({'error':'請輸入評論'}), 400
+    db = get_db()
+    db.execute('INSERT INTO post_comments(post_id,user_id,text) VALUES(?,?,?)',(pid,g.uid,text))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/posts/<int:pid>/comments/<int:cid>/reply', methods=['POST'])
+@auth_required
+def api_post_reply_comment(pid, cid):
+    d = request.get_json(force=True) or {}
+    text = (d.get('text') or '').strip()
+    if not text: return jsonify({'error':'請輸入回覆'}), 400
+    db = get_db()
+    row = db.execute('SELECT 1 FROM post_comments WHERE id=? AND post_id=?',(cid,pid)).fetchone()
+    if not row: return jsonify({'error':'評論不存在'}), 404
+    db.execute('INSERT INTO post_replies(comment_id,post_id,user_id,text) VALUES(?,?,?,?)',(cid,pid,g.uid,text))
     db.commit()
     return jsonify({'ok':True})
 
