@@ -2339,6 +2339,7 @@ async function loadPosts(){
 async function deletePost(pid){
  if(!confirm('確認刪除？'))return;
  try{await api('/api/posts/'+pid,{method:'DELETE'});loadPosts()}catch(e){alert('刪除失敗')}
+}
 
 // ═══════════════════════════ POST Like/Comment/Reply ═══════════════════════════
 async function togglePostLike(pid){
@@ -2394,7 +2395,6 @@ async function addPostComment(pid){
 function showReplyInput(pid,cid,name){
  const el=document.getElementById('comment-input-'+pid);
  if(el){el.placeholder='回覆 '+name+'...';el.dataset.replyCid=cid}
-}
 }
 
 // ═══════════ AVATAR UPLOAD in saveProf ═══════════
