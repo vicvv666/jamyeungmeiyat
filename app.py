@@ -26,6 +26,7 @@ for d in [DB_PATH.parent, UPLOAD_DIR, OUTPUT_DIR]:
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY', uuid.uuid4().hex + uuid.uuid4().hex)
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB max upload
 
 # ─── HTML Input Sanitizer ──────────────────────────
 _HTML_TAGS_RE = re.compile(r'<[^>]*>')
@@ -45,14 +46,60 @@ def sanitize_html(text):
 # No additional CSRF tokens needed.
 
 # ─── Security & GZIP Middleware ──────────────────────
+_ALLOWED_ORIGINS = {'https://drunk.vic999.com','http://drunk.vic999.com','https://www.drunk.vic999.com','null'}
+_IP_BLACKLIST = set()
+_GENERAL_RATE = {}  # ip -> [timestamps]
+_GENERAL_LIMIT = 60   # 60 req/min per IP
+_GENERAL_WINDOW = 60
+
+@app.before_request
+def _security_check():
+    # IP blacklist
+    ip = request.remote_addr or request.headers.get('X-Forwarded-For','').split(',')[-1].strip() or '0'
+    if ip in _IP_BLACKLIST:
+        return jsonify({'error':'禁止訪問'}), 403
+    # General rate limiter: 60 req/min per IP
+    now = time.time()
+    entry = _GENERAL_RATE.get(ip)
+    if entry:
+        ts = [t for t in entry if now - t < _GENERAL_WINDOW]
+        if len(ts) >= _GENERAL_LIMIT:
+            return jsonify({'error':'請求過於頻繁，請稍後再試'}), 429
+        ts.append(now)
+        _GENERAL_RATE[ip] = ts
+    else:
+        _GENERAL_RATE[ip] = [now]
+    # cleanup every 500 requests
+    if len(_GENERAL_RATE) > 500:
+        for k,v in list(_GENERAL_RATE.items()):
+            if len(v)==0 or now - v[-1] > _GENERAL_WINDOW:
+                del _GENERAL_RATE[k]
+    # Request size limit
+    if request.content_length and request.content_length > 2*1024*1024:
+        return jsonify({'error':'請求過大'}), 413
+    # Anti-CSRF: check Origin for POST/PUT/DELETE (allow APK WebView null origin)
+    if request.method in ('POST','PUT','DELETE') and request.content_type and 'json' in request.content_type:
+        origin = request.headers.get('Origin','')
+        if origin and origin not in _ALLOWED_ORIGINS:
+            # APK WebView sends empty/null origin — allow if no Origin header
+            return jsonify({'error':'非法來源'}), 403
+
 @app.after_request
 def gzip_response(response):
     """Add security headers and compress JSON responses with GZIP if supported."""
-    # ── CORS headers (essential for APK WebView cross-origin requests) ──
-    response.headers['Access-Control-Allow-Origin'] = '*'
+    # ── CORS headers (restrict to known origins, support APK WebView) ──
+    origin = request.headers.get('Origin','')
+    if origin in _ALLOWED_ORIGINS:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Vary'] = 'Origin'
+    elif not origin:  # APK WebView / same-origin
+        response.headers['Access-Control-Allow-Origin'] = 'null'
+    else:
+        response.headers['Access-Control-Allow-Origin'] = 'null'
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Admin-Token'
     response.headers['Access-Control-Max-Age'] = '86400'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
     # ── Security headers ──
     response.headers['Content-Security-Policy'] = (
         "default-src 'self' data: blob:; "
@@ -62,14 +109,21 @@ def gzip_response(response):
         "font-src 'self' https://fonts.gstatic.com; "
         "connect-src 'self' http: https:; "
         "manifest-src 'self'; "
+        "base-uri 'self'; "
+        "form-action 'self'; "
+        "object-src 'none'; "
+        "upgrade-insecure-requests; "
         "frame-ancestors 'none'"
     )
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    response.headers['Permissions-Policy'] = 'geolocation=(), camera=(), microphone=()'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Permissions-Policy'] = 'geolocation=(), camera=(), microphone=(), document-domain=(), sync-xhr=()'
+    response.headers['Strict-Transport-Security'] = 'max-age=63072000; includeSubDomains; preload'
     response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
+    response.headers['Cross-Origin-Resource-Policy'] = 'same-site'
+    response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
 
     # ── GZIP for JSON ──
     if response.content_type == 'application/json' and \

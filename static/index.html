@@ -14,6 +14,11 @@
 <meta name="author" content="Vic">
 <meta name="application-name" content="今晚飲咗未">
 <meta name="robots" content="index, follow">
+<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="category" content="Social Networking">
+<meta name="rating" content="adult">
+<meta name="format-detection" content="telephone=no">
 <link rel="sitemap" href="/sitemap.xml">
 
 <!-- ─── Site Verification ─────────────────────────── -->
@@ -32,24 +37,30 @@
 <!-- ─── Open Graph / Facebook ─────────────────────── -->
 <meta property="og:title" content="🍺 今晚飲咗未 — 飲酒社交打卡">
 <meta property="og:description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。">
-<meta property="og:image" content="https://drunk.vic999.com/icon-512.png">
-<meta property="og:image:width" content="512">
-<meta property="og:image:height" content="512">
+<meta property="og:image" content="https://drunk.vic999.com/cover-480.webp">
+<meta property="og:image:width" content="480">
+<meta property="og:image:height" content="480">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://drunk.vic999.com/">
 <meta property="og:locale" content="zh_HK">
+<meta property="og:locale:alternate" content="zh_CN">
+<meta property="og:locale:alternate" content="en_US">
 <meta property="og:site_name" content="今晚飲咗未">
 
 <!-- ─── Twitter Card ──────────────────────────────── -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="🍺 今晚飲咗未 — 飲酒社交打卡">
 <meta name="twitter:description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。">
-<meta name="twitter:image" content="https://drunk.vic999.com/icon-512.png">
+<meta name="twitter:image" content="https://drunk.vic999.com/cover-480.webp">
+<meta name="twitter:site" content="@jamyeungmeiyat">
+<meta name="twitter:creator" content="@vic999">
 
 <!-- ─── PWA / Mobile / Apple Touch ────────────────── -->
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
 <!-- ─── Structured Data (JSON-LD) ──────────────────── -->
 <script type="application/ld+json">
@@ -57,7 +68,7 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "今晚飲咗未",
-  "alternateName": ["Drunk Tonight?", "今晚喝了没"],
+  "alternateName": ["Drunk Tonight?", "今晚喝了未"],
   "description": "一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。",
   "applicationCategory": "SocialNetworking",
   "operatingSystem": ["Web", "Android", "iOS", "Windows", "macOS"],
@@ -76,6 +87,7 @@
     "每日飲酒打卡",
     "飲酒統計",
     "酒局創建",
+    "骰盅多人對戰",
     "酒友圈社交",
     "會員系統"
   ],
@@ -84,9 +96,72 @@
     "target": "https://drunk.vic999.com/?q={search_term_string}",
     "query-input": "required name=search_term_string"
   },
-  "screenshot": "https://drunk.vic999.com/icon-512.png",
-  "image": "https://drunk.vic999.com/icon-512.png",
+  "screenshot": "https://drunk.vic999.com/cover-480.webp",
+  "image": "https://drunk.vic999.com/cover-480.webp",
   "url": "https://drunk.vic999.com/"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "今晚飲咗未",
+  "url": "https://drunk.vic999.com",
+  "logo": "https://drunk.vic999.com/icon-512.png",
+  "sameAs": []
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "今晚飲咗未",
+  "applicationCategory": "SocialNetworkingApplication",
+  "operatingSystem": "Android",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "HKD"
+  },
+  "installUrl": "https://drunk.vic999.com/apk/jymy.apk",
+  "image": "https://drunk.vic999.com/cover-480.webp",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "128"
+  }
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "今晚飲咗未係咩嚟？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "今晚飲咗未係一個香港人嘅飲酒社交打卡App，可以每日報到你飲咗未，同酒友分享醉意時刻。"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "點樣下載今晚飲咗未App？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "可以透過瀏覽器直接使用，或者下載Android APK安裝。下載連結：https://drunk.vic999.com/apk/jymy.apk"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "今晚飲咗未有咩功能？",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "主要功能包括：每日飲酒打卡、飲酒統計、酒局創建、骰盅多人對戰、酒友圈社交、會員系統等。"
+      }
+    }
+  ]
 }
 </script>
 

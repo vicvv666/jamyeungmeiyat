@@ -7,7 +7,13 @@
   "background_color": "#0D0D12",
   "theme_color": "#0D0D12",
   "orientation": "portrait",
-  "categories": ["social", "lifestyle", "entertainment", "food", "utilities"],
+  "categories": [
+    "social",
+    "lifestyle",
+    "entertainment",
+    "food",
+    "utilities"
+  ],
   "lang": "zh-HK",
   "dir": "ltr",
   "scope": "/",
@@ -27,18 +33,11 @@
   ],
   "screenshots": [
     {
-      "src": "https://drunk-tonight.app/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "https://drunk.vic999.com/cover-480.webp",
+      "sizes": "480x480",
+      "type": "image/webp",
       "form_factor": "narrow",
-      "label": "🍺 今晚飲咗未 — 飲酒社交打卡主畫面"
-    },
-    {
-      "src": "https://drunk-tonight.app/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "🍺 今晚飲咗未 — 飲酒社交打卡桌面版"
+      "label": "今晚飲咗未 飲酒社交打卡App"
     }
   ],
   "shortcuts": [
@@ -53,8 +52,20 @@
       "short_name": "酒局",
       "description": "瀏覽附近嘅酒局",
       "url": "/?tab=party"
+    },
+    {
+      "name": "骰盅對戰",
+      "short_name": "骰盅",
+      "description": "開始骰盅多人對戰",
+      "url": "/?tab=dice"
     }
   ],
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "android",
+      "id": "com.jamyeungmeiyat.app",
+      "url": "https://drunk.vic999.com/apk/jymy.apk"
+    }
+  ],
   "prefer_related_applications": false
 }
