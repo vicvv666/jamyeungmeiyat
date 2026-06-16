@@ -26,7 +26,7 @@ for d in [DB_PATH.parent, UPLOAD_DIR, OUTPUT_DIR]:
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY', uuid.uuid4().hex + uuid.uuid4().hex)
-app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2MB max upload
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max upload (video support)
 
 # ─── Matchmaking queue (in-memory) ──────────────────
 _matchmaking_queue = []  # [{uid, dice, rounds, joined_at, room_created}, ...]
@@ -627,6 +627,13 @@ def api_me():
     if err: return err[0], err[1]
     user_data = dict(u)
     user_data.pop('password', None)
+    # Add checkin count for normal users
+    if g.uid != 0:
+        db = get_db()
+        cnt = db.execute('SELECT COUNT(*) FROM checkins WHERE user_id=?',(g.uid,)).fetchone()[0]
+        user_data['checkin_count'] = cnt
+    else:
+        user_data['checkin_count'] = 0
     return jsonify({'user':user_data})
 
 @app.route('/api/update-profile', methods=['POST'])

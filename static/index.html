@@ -431,7 +431,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       📷 上傳圖片<input type="file" aria-label="上傳圖片" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
      </label>
      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--purple);border-radius:12px;font-size:13px;color:var(--purple);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      🎬 上傳影片<input type="file" aria-label="上傳影片" id="post-vid-input" accept="video/*" style="display:none" onchange="previewPostVid(event)">
+      🎬 上傳影片<input type="file" aria-label="上傳影片" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
      </label>
      <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
      <div id="post-vid-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
@@ -546,13 +546,19 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 
 <div class="page" id="page-member">
   <!-- 个人资料卡 -->
-  <div class="card" style="text-align:center;border:2px solid var(--amber);background:rgba(245,158,11,0.05)">
-    <div class="card-header">👤 個人資料</div>
-    <div id="mem-avatar-wrap" style="margin:0 auto 8px;width:64px;height:64px;border-radius:50%;overflow:hidden;border:2px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:32px;background:var(--card)" onclick="openProfile()">👤</div>
-    <div style="font-weight:700;font-size:15px;color:var(--text)" id="mem-nick">-</div>
-    <div style="font-size:12px;color:var(--sub)" id="mem-username">@-</div>
+  <div class="card" style="text-align:center;border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(236,72,153,0.04));padding:20px 16px">
+    <div class="card-header" style="border:none;padding:0;margin-bottom:12px">👤 個人資料</div>
+    <div id="mem-avatar-wrap" style="margin:0 auto 10px;width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--card);box-shadow:0 2px 12px rgba(245,158,11,0.2)" onclick="openProfile()">👤</div>
+    <div style="font-weight:700;font-size:17px;color:var(--text)" id="mem-nick">-</div>
+    <div style="font-size:12px;color:var(--sub);margin-top:2px" id="mem-username">@-</div>
     <div style="font-size:12px;color:var(--sub);margin-top:4px" id="mem-contact"></div>
-    <button class="btn btn-outline btn-sm" style="margin-top:8px;border-color:var(--amber);color:var(--amber)" onclick="openProfile()">✏️ 修改資料</button>
+    <button class="btn btn-outline btn-sm" style="margin-top:10px;border-color:var(--amber);color:var(--amber);padding:6px 16px" onclick="openProfile()">✏️ 修改資料</button>
+  </div>
+  <!-- 统计卡 -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0">
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)">報到</div><div style="font-weight:700;font-size:18px;color:var(--amber)" id="mem-chk-count">0</div></div>
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)">酒友</div><div style="font-weight:700;font-size:18px;color:var(--pink)" id="mem-frd-count">0</div></div>
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)">帖子</div><div style="font-weight:700;font-size:18px;color:var(--purple)" id="mem-post-count">0</div></div>
   </div>
   <div class="card" style="text-align:center"><div style="font-size:40px;margin-bottom:8px">💎</div>
     <div style="font-weight:700;font-size:16px" id="mem-status">免費會員</div>
@@ -715,14 +721,32 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 
 <!-- PROFILE -->
 <div class="modal-overlay" id="prof-mod" onclick="if(event.target===this)closeProf()">
-  <div class="modal"><h3 style="margin-bottom:16px;color:var(--amber)">👤 個人資料</h3>
-    <div class="avatar-preview" id="av-prev" onclick="document.getElementById('av-inp').click()">👤</div>
-    <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="prevAv(event)">
-    <input class="input" id="p-nick" placeholder="花名">
-    <input class="input" id="p-phone" type="tel" placeholder="📞 電話號碼">
-    <input class="input" id="p-email" type="email" aria-label="電郵" placeholder="📧 電郵地址">
-    <input class="input" id="p-oldpw" type="password" placeholder="舊密碼（不改留空）"><input class="input" id="p-newpw" type="password" placeholder="新密碼（不改留空）">
-    <button class="btn btn-primary" onclick="saveProf()">💾 儲存</button>
+  <div class="modal" style="max-width:400px">
+    <h3 style="margin-bottom:16px;color:var(--amber);text-align:center">👤 個人資料</h3>
+    <div style="text-align:center;margin-bottom:16px">
+      <div id="av-prev" onclick="document.getElementById('av-inp').click()" style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:3px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:40px;background:var(--card);margin:0 auto;cursor:pointer;position:relative">👤
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:#fff;font-size:10px;padding:2px 0;text-align:center">📷 更換</div>
+      </div>
+      <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="prevAv(event)">
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px">🏷️ 花名</label>
+      <input class="input" id="p-nick" placeholder="輸入你嘅花名" style="font-size:15px">
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px">📞 電話號碼</label>
+      <input class="input" id="p-phone" type="tel" placeholder="輸入電話號碼">
+    </div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px">📧 電郵地址</label>
+      <input class="input" id="p-email" type="email" placeholder="輸入電郵地址">
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px">🔑 更改密碼（留空即不改）</label>
+      <input class="input" id="p-oldpw" type="password" placeholder="舊密碼" style="margin-bottom:6px">
+      <input class="input" id="p-newpw" type="password" placeholder="新密碼（最少4位）">
+    </div>
+    <button class="btn btn-primary" onclick="saveProf()" style="width:100%;margin-top:12px">💾 儲存</button>
     <div class="ad-email">📧 vichoo2020@gmail.com</div>
   </div>
 </div>
@@ -1258,6 +1282,19 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   if(me.phone)parts.push('📞 '+me.phone);
   if(me.email)parts.push('📧 '+me.email);
   ct.textContent=parts.join('  ')||'未填寫聯繫方式';
+ }
+ // Load stats counts
+ if(me&&me.id!==undefined){
+  api('/api/me').then(d=>{
+   var u=d.user||{};
+   var cc=document.getElementById('mem-chk-count');if(cc)cc.textContent=u.checkin_count||0;
+  }).catch(()=>{});
+  api('/api/friends').then(d=>{
+   var fc=document.getElementById('mem-frd-count');if(fc)fc.textContent=(d.friends||[]).length;
+  }).catch(()=>{});
+  api('/api/posts?limit=999').then(d=>{
+   var pc=document.getElementById('mem-post-count');if(pc)pc.textContent=(d.posts||[]).filter(p=>p.user_id===me.id).length;
+  }).catch(()=>{});
  }
  // Membership
  if(me.membership&&me.membership!=='free'){s.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');e.textContent='到期：'+(me.member_expires||'永久')}else{s.textContent='🆓 免費會員';e.textContent='升級享受完整功能'}}
@@ -2498,10 +2535,14 @@ function previewPostImgs(e){
  });
 }
 function previewPostVid(e){
- const f=e.target.files[0];if(!f)return;
+ const inp=document.getElementById('post-vid-input');
+ const f=inp.files[0];if(!f)return;
+ // Validate video type
+ if(!f.type.startsWith('video/')){alert('請選擇影片檔案');inp.value='';return}
  const prev=document.getElementById('post-vid-preview');
  var url=URL.createObjectURL(f);
- prev.innerHTML=`<div style="position:relative;width:80px;height:60px;border-radius:8px;overflow:hidden;border:1px solid var(--purple)"><video src="${url}" style="width:100%;height:100%;object-fit:cover" muted></video><div style="position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.7);color:#fff;font-size:9px;padding:1px 4px;border-radius:4px">🎬</div></div>`;
+ var sz=(f.size/1024/1024).toFixed(1);
+ prev.innerHTML=`<div style="position:relative;width:120px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--purple)"><video src="${url}" style="width:100%;height:100%;object-fit:cover" muted preload="metadata"></video><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;font-size:9px;padding:2px 6px;display:flex;justify-content:space-between"><span>🎬</span><span>${sz}MB</span></div></div>`;
 }
 async function createPost(){
  const content=document.getElementById('post-content').value.trim();
@@ -2515,7 +2556,7 @@ async function createPost(){
   for(let i=0;i<fileInput.files.length;i++){
    try{
     const fd=new FormData();fd.append('file',fileInput.files[i]);
-    const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+token},body:fd});
+    const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+(localStorage.getItem('jymy_token')||token||'')},body:fd});
     const d=await r.json();if(d.url)imageUrls.push(d.url);
    }catch(e){console.error('upload fail',e)}
   }
@@ -2523,11 +2564,15 @@ async function createPost(){
  // Upload video if any
  const vidInput=document.getElementById('post-vid-input');
  if(vidInput.files.length){
+  toast('⏳ 影片上傳中...',0);
   try{
    const fd=new FormData();fd.append('file',vidInput.files[0]);
-   const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+token},body:fd});
-   const d=await r.json();if(d.url)videoUrl=d.url;
-  }catch(e){console.error('video upload fail',e)}
+   const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+(token||'')},body:fd});
+   const d=await r.json();
+   if(d.url)videoUrl=d.url;
+   else throw new Error(d.error||'影片上傳失敗');
+   toast('✅ 影片上傳成功',0);
+  }catch(e){toast('❌ 影片上傳失敗：'+e.message,1);console.error('video upload fail',e)}
  }
  if(!content&&!imageUrls.length&&!videoUrl){alert('請輸入內容或上傳圖片/影片');return}
  try{
