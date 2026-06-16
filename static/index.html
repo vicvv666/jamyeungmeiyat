@@ -1857,7 +1857,7 @@ function admSetServer(){
 
 // ═══════ 🎲 DICE GAME — REALISTIC 3D DICE ═══════
 const DICE_MEM_LIMITS={free:2,jiuyau:3,jaugwai:4,jausan:5};
-const DICE_ROOM_LEVEL={free:false,jiuyau:false,jaugwai:true,jausan:true};
+const DICE_ROOM_LEVEL={free:true,jiuyau:true,jaugwai:true,jausan:true};
 let _diceCount=2,_diceVals=[],_diceShaking=false,_diceBC=null,_diceRoom=null,_diceIsHost=false;
 try{_diceBC=new BroadcastChannel('dice-room')}catch(e){}
 

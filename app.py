@@ -515,6 +515,8 @@ def _decode_token(tok):
 
 def _user_info(uid):
     """Get user info dict by id"""
+    if uid == 0:
+        return {'id':0,'username':'admin','nickname':'管理員','membership':'admin','avatar':''}
     db = get_db()
     u = db.execute('SELECT id,username,nickname,membership,avatar FROM users WHERE id=?',(uid,)).fetchone()
     return dict(u) if u else {'id':uid,'username':'','nickname':'','membership':'free','avatar':''}
@@ -524,7 +526,7 @@ def auth_required(f):
     def wrap(*a, **kw):
         tok = request.headers.get('Authorization','').replace('Bearer ','')
         uid = _decode_token(tok)
-        if not uid:
+        if uid is None:
             return jsonify({'error':'請先登入'}), 401
         g.uid = uid
         return f(*a, **kw)
