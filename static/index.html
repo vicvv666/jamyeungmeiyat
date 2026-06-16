@@ -1076,8 +1076,7 @@ async function doLogin(){
  }
  try{
   const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});token=r.token;me=r.user;
- }catch(e){toast('❌ 登入失敗：'+e.message,1);return}
- lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
+  lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
  // If user is admin, auto-acquire adminToken via Mode 2
  if(me.admin === 1){
   try{
