@@ -1075,8 +1075,8 @@ async function doLogin(){
   toast('❌ 管理帳號或密碼錯誤',1);return;
  }
  try{
- const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});token=r.token;me=r.user;
- }
+  const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});token=r.token;me=r.user;
+ }catch(e){toast('❌ 登入失敗：'+e.message,1);return}
  lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
  // If user is admin, auto-acquire adminToken via Mode 2
  if(me.admin === 1){
