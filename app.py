@@ -401,6 +401,9 @@ CREATE TABLE IF NOT EXISTS users (
     # avatars表加mime列
     try: db.execute('ALTER TABLE avatars ADD COLUMN mime TEXT DEFAULT "image/png"')
     except: pass
+    # posts表加video_url列
+    try: db.execute('ALTER TABLE posts ADD COLUMN video_url TEXT DEFAULT ""')
+    except: pass
     db.commit()
     db.close()
 
@@ -983,7 +986,7 @@ def api_get_comments(cid):
     return jsonify({'comments':[dict(r) for r in rows]})
 
 # ═══════════════════ Upload ═══════════════════════════
-ALLOWED_EXT = {'png','jpg','jpeg','gif','webp'}
+ALLOWED_EXT = {'png','jpg','jpeg','gif','webp','mp4','mov','avi','mkv','webm'}
 def _allowed_file(name):
     return '.' in name and name.rsplit('.',1)[1].lower() in ALLOWED_EXT
 
@@ -1009,11 +1012,12 @@ def api_create_post():
     d = request.get_json(force=True) or {}
     content = sanitize_html(d.get('content',''))[:2000]
     images = d.get('images','')  # JSON array of image URLs
-    if not content and not images:
-        return jsonify({'error':'請輸入內容或上傳圖片'}), 400
+    video_url = d.get('video_url','')  # video URL
+    if not content and not images and not video_url:
+        return jsonify({'error':'請輸入內容或上傳圖片/影片'}), 400
     db = get_db()
-    db.execute('INSERT INTO posts (user_id, content, images) VALUES (?,?,?)',
-               (g.uid, content, images if isinstance(images,str) else json.dumps(images)))
+    db.execute('INSERT INTO posts (user_id, content, images, video_url) VALUES (?,?,?,?)',
+               (g.uid, content, images if isinstance(images,str) else json.dumps(images), video_url))
     db.commit()
     return jsonify({'ok':True})
 
