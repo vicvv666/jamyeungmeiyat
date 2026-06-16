@@ -2036,7 +2036,7 @@ function shakeSolo(){
 // Room — Server API based
 var _dicePollT=null;
 function _diceApi(method,path,body){
- return fetch(API_BASE+path,{method:method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('token')||'')},body:body?JSON.stringify(body):undefined}).then(function(r){return r.json()}).catch(function(e){return {error:'網絡錯誤'}})
+ return fetch(API_BASE+path,{method:method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('jymy_token')||token||'')},body:body?JSON.stringify(body):undefined}).then(function(r){return r.json()}).catch(function(e){return {error:'網絡錯誤'}})
 }
 
 function createRoom(){

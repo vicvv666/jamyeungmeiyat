@@ -521,6 +521,19 @@ def _user_info(uid):
     u = db.execute('SELECT id,username,nickname,membership,avatar FROM users WHERE id=?',(uid,)).fetchone()
     return dict(u) if u else {'id':uid,'username':'','nickname':'','membership':'free','avatar':''}
 
+def _admin_guard():
+    """For APIs that query users table: return admin user dict or None.
+    Returns (user_dict, error_resp). If user_dict is None, return error_resp."""
+    if g.uid == 0:
+        return {'id':0,'username':'admin','nickname':'管理員','membership':'admin',
+                'password':'','phone':'','email':'','lang':'zh-HK',
+                'member_expires':'2099-12-31','avatar':'','admin':1}, None
+    db = get_db()
+    u = db.execute('SELECT * FROM users WHERE id=?',(g.uid,)).fetchone()
+    if not u:
+        return None, (jsonify({'error':'用戶不存在'}), 404)
+    return dict(u), None
+
 def auth_required(f):
     @wraps(f)
     def wrap(*a, **kw):
@@ -610,9 +623,8 @@ def api_login():
 @app.route('/api/me')
 @auth_required
 def api_me():
-    db = get_db()
-    u = db.execute('SELECT * FROM users WHERE id=?',(g.uid,)).fetchone()
-    if not u: return jsonify({'error':'用戶不存在'}), 404
+    u, err = _admin_guard()
+    if err: return err[0], err[1]
     user_data = dict(u)
     user_data.pop('password', None)
     return jsonify({'user':user_data})
@@ -621,6 +633,13 @@ def api_me():
 @auth_required
 def api_update_profile():
     d = request.get_json(force=True) or {}
+    # Admin (uid=0) not in users table, return mock
+    if g.uid == 0:
+        adm = _admin_guard()[0]
+        for k in ('nickname','phone','email','lang'):
+            if d.get(k): adm[k] = d[k]
+        adm.pop('password', None)
+        return jsonify({'user':adm})
     db = get_db()
     if d.get('nickname'):
         db.execute('UPDATE users SET nickname=? WHERE id=?',(d['nickname'],g.uid))
@@ -639,6 +658,8 @@ def api_update_profile():
 @app.route('/api/change-password', methods=['POST'])
 @auth_required
 def api_change_password():
+    if g.uid == 0:
+        return jsonify({'error':'管理員不支持改密碼'}), 400
     d = request.get_json(force=True) or {}
     old_pw = d.get('old_password','')
     new_pw = d.get('new_password','')
@@ -658,6 +679,8 @@ def api_change_password():
 def api_update_avatar():
     d = request.get_json(force=True) or {}
     avatar = d.get('avatar','')[:500000]
+    if g.uid == 0:
+        return jsonify({'ok':True, 'url':'/api/avatar/0'})
     db = get_db()
     if avatar.startswith('data:'):
         # strip data:image/xxx;base64, prefix
@@ -706,7 +729,13 @@ def api_leaderboard():
 def api_checkin():
     db = get_db()
     today = date.today().isoformat()
-    u = db.execute('SELECT membership, member_expires FROM users WHERE id=?',(g.uid,)).fetchone()
+    u = None
+    if g.uid == 0:
+        u = {'membership':'admin','member_expires':'2099-12-31'}
+    else:
+        u = db.execute('SELECT membership, member_expires FROM users WHERE id=?',(g.uid,)).fetchone()
+    if not u:
+        return jsonify({'error':'用戶不存在'}), 404
 
     # 免費限制每日5次
     if u['membership'] == 'free' or not u['member_expires'] or u['member_expires'] < today:
