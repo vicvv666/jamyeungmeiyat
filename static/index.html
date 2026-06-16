@@ -57,6 +57,7 @@
 
 <!-- ─── PWA / Mobile / Apple Touch ────────────────── -->
 <link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -336,7 +337,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </head>
 <body>
 
-<nav class="nav">
+<nav class="nav" role="navigation" aria-label="主導航">
   <div class="nav-title" id="nav-title" ontouchstart="admLongPressStart()" ontouchend="admLongPressCancel()" onmousedown="admLongPressStart()" onmouseup="admLongPressCancel()" onmouseleave="admLongPressCancel()" onclick="admTitleTap()">🍺 今晚飲咗未</div>
   <div class="nav-right">
     <select class="lang-select" id="lang-switch" onchange="switchLang(this.value)"><option value="zh-HK">繁</option><option value="zh-CN">简</option><option value="en">EN</option></select>
@@ -379,14 +380,14 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   </div>
  </div>
  <div class="card"><div class="card-header">📍 狀態報到</div><div id="status-grid"></div>
- <textarea class="textarea" id="chk-note" placeholder="有咩想講？" style="margin-top:12px"></textarea>
+ <textarea aria-label="文字輸入" class="textarea" id="chk-note" placeholder="有咩想講？" style="margin-top:12px"></textarea>
  <button class="btn btn-primary" onclick="doCheckin()">🍻 報到！</button><div class="chk-info" id="chk-remaining"></div>
  </div>
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px">喺手機安裝 App 體驗更佳！</div>
-  <a id="apk-dl-link" href="https://drunk.vic999.com/apk/jymy.apk" class="btn btn-primary" style="text-decoration:none" download>🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · Debug 版 · 4.3MB</div>
+  <a id="apk-dl-link" href="/jamyeungmeiyat-debug.apk" class="btn btn-primary" style="text-decoration:none" download>🚀 下載 Android APK</a>
+  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.1.0 · 2.8MB</div>
  </div>
  <!-- Legal Footer on main page -->
  <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
@@ -427,7 +428,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <textarea class="textarea" id="post-content" placeholder="分享你嘅飲酒時刻..." style="margin-bottom:8px;min-height:60px"></textarea>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
      <label style="cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--sub)">
-      🖼️ 加圖<input type="file" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
+      🖼️ 加圖<input type="file" aria-label="上傳檔案" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
      </label>
      <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
     </div>
@@ -661,7 +662,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
         <div style="font-size:11px;color:var(--sub);margin-top:4px">登入</div>
       </div>
       <input class="input" id="l-user" placeholder="用戶名" autocomplete="username">
-      <input class="input" id="l-pass" type="password" placeholder="密碼" autocomplete="current-password">
+      <input class="input" id="l-pass" type="password" aria-label="密碼" placeholder="密碼" autocomplete="current-password">
       <button class="btn btn-primary" onclick="doLogin()">登入</button>
       <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showReg()">未有帳號？註冊 →</div>
       <div class="ad-email">📧 vichoo2020@gmail.com</div>
@@ -706,7 +707,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="prevAv(event)">
     <input class="input" id="p-nick" placeholder="花名">
     <input class="input" id="p-phone" type="tel" placeholder="📞 電話號碼">
-    <input class="input" id="p-email" type="email" placeholder="📧 電郵地址">
+    <input class="input" id="p-email" type="email" aria-label="電郵" placeholder="📧 電郵地址">
     <input class="input" id="p-oldpw" type="password" placeholder="舊密碼（不改留空）"><input class="input" id="p-newpw" type="password" placeholder="新密碼（不改留空）">
     <button class="btn btn-primary" onclick="saveProf()">💾 儲存</button>
     <div class="ad-email">📧 vichoo2020@gmail.com</div>
