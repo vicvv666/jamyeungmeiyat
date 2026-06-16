@@ -1,2692 +1,501 @@
-<!DOCTYPE html>
-<!-- v=b76bbd3d -->
-<html lang="zh-HK">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0D0D12">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<!-- ─── Primary Meta Tags ──────────────────────────── -->
-<meta name="description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。">
-<meta name="keywords" content="飲酒, 打卡, 香港, 社交, 酒局, 報到, drunk, drinking, check-in, Hong Kong">
-<meta name="author" content="Vic">
-<meta name="application-name" content="今晚飲咗未">
-<meta name="robots" content="index, follow">
-<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="category" content="Social Networking">
-<meta name="rating" content="adult">
-<meta name="format-detection" content="telephone=no">
-<link rel="sitemap" href="/sitemap.xml">
-
-<!-- ─── Site Verification ─────────────────────────── -->
-<meta name="google-site-verification" content="">
-<meta name="facebook-domain-verification" content="">
-
-<!-- ─── Canonical URL ─────────────────────────────── -->
-<link rel="canonical" href="https://drunk.vic999.com/">
-
-<!-- ─── Hreflang Tags ─────────────────────────────── -->
-<link rel="alternate" hreflang="zh-HK" href="https://drunk.vic999.com/">
-<link rel="alternate" hreflang="zh-CN" href="https://drunk.vic999.com/">
-<link rel="alternate" hreflang="en" href="https://drunk.vic999.com/">
-<link rel="alternate" hreflang="x-default" href="https://drunk.vic999.com/">
-
-<!-- ─── Open Graph / Facebook ─────────────────────── -->
-<meta property="og:title" content="🍺 今晚飲咗未 — 飲酒社交打卡">
-<meta property="og:description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。">
-<meta property="og:image" content="https://drunk.vic999.com/cover-480.webp">
-<meta property="og:image:width" content="480">
-<meta property="og:image:height" content="480">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://drunk.vic999.com/">
-<meta property="og:locale" content="zh_HK">
-<meta property="og:locale:alternate" content="zh_CN">
-<meta property="og:locale:alternate" content="en_US">
-<meta property="og:site_name" content="今晚飲咗未">
-
-<!-- ─── Twitter Card ──────────────────────────────── -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="🍺 今晚飲咗未 — 飲酒社交打卡">
-<meta name="twitter:description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。">
-<meta name="twitter:image" content="https://drunk.vic999.com/cover-480.webp">
-<meta name="twitter:site" content="@jamyeungmeiyat">
-<meta name="twitter:creator" content="@vic999">
-
-<!-- ─── PWA / Mobile / Apple Touch ────────────────── -->
-<link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
-<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-
-<!-- ─── Structured Data (JSON-LD) ──────────────────── -->
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "今晚飲咗未",
-  "alternateName": ["Drunk Tonight?", "今晚喝了未"],
-  "description": "一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。",
-  "applicationCategory": "SocialNetworking",
-  "operatingSystem": ["Web", "Android", "iOS", "Windows", "macOS"],
-  "browserRequirements": "Requires JavaScript. Progressive Web App (PWA)",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "HKD"
-  },
-  "author": {
-    "@type": "Person",
-    "name": "Vic"
-  },
-  "inLanguage": ["zh-HK", "zh-CN", "en"],
-  "featureList": [
-    "每日飲酒打卡",
-    "飲酒統計",
-    "酒局創建",
-    "骰盅多人對戰",
-    "酒友圈社交",
-    "會員系統"
-  ],
-  "potentialAction": {
-    "@type": "SearchAction",
-    "target": "https://drunk.vic999.com/?q={search_term_string}",
-    "query-input": "required name=search_term_string"
-  },
-  "screenshot": "https://drunk.vic999.com/cover-480.webp",
-  "image": "https://drunk.vic999.com/cover-480.webp",
-  "url": "https://drunk.vic999.com/"
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "name": "今晚飲咗未",
-  "url": "https://drunk.vic999.com",
-  "logo": "https://drunk.vic999.com/icon-512.png",
-  "sameAs": []
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "今晚飲咗未",
-  "applicationCategory": "SocialNetworkingApplication",
-  "operatingSystem": "Android",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "HKD"
-  },
-  "installUrl": "https://drunk.vic999.com/apk/jymy.apk",
-  "image": "https://drunk.vic999.com/cover-480.webp",
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "4.8",
-    "ratingCount": "128"
-  }
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "今晚飲咗未係咩嚟？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "今晚飲咗未係一個香港人嘅飲酒社交打卡App，可以每日報到你飲咗未，同酒友分享醉意時刻。"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "點樣下載今晚飲咗未App？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "可以透過瀏覽器直接使用，或者下載Android APK安裝。下載連結：https://drunk.vic999.com/apk/jymy.apk"
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "今晚飲咗未有咩功能？",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "主要功能包括：每日飲酒打卡、飲酒統計、酒局創建、骰盅多人對戰、酒友圈社交、會員系統等。"
-      }
-    }
-  ]
-}
-</script>
-
-<!-- ─── Flask API Client (replaces Supabase for self-hosted mode) ─── -->
-<script src="flask-client.js"></script>
-<script>
-var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///android_asset/www'}catch(e){}return ''})();
-// ── APK Debug Overlay ──
-(function(){
-  var errors=[];
-  window.__apkDebug=errors;
-  function showDebug(){
-    var el=document.getElementById('apk-debug');
-    if(!el){
-      el=document.createElement('div');
-      el.id='apk-debug';
-      el.style.cssText='position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow-y:auto;background:rgba(0,0,0,0.95);color:#0f0;font:11px/1.4 monospace;padding:8px;z-index:99999;display:none;';
-      document.body.appendChild(el);
-    }
-    if(errors.length>0){el.style.display='block';el.innerHTML=errors.map(function(e,i){return '<b>['+i+']</b> '+e;}).join('<br>');}
-  }
-  window.onerror=function(msg,url,line,col,err){
-    errors.push('ERROR: '+msg+' (line '+line+')');
-    showDebug();
-  };
-  window.addEventListener('unhandledrejection',function(e){
-    errors.push('REJECT: '+(e.reason&&e.reason.message||e.reason));
-    showDebug();
-  });
-  // Capture fetch errors
-  var origFetch=window.fetch;
-  window.fetch=function(){
-    return origFetch.apply(this,arguments).catch(function(e){
-      errors.push('FETCH FAIL: '+arguments[0]+' '+e.message);
-      showDebug();
-      throw e;
-    });
-  };
-  // Toggle debug with 5 taps
-  var tapCount=0,tapTimer=null;
-  document.addEventListener('click',function(){
-    tapCount++;
-    clearTimeout(tapTimer);
-    tapTimer=setTimeout(function(){tapCount=0},2000);
-    if(tapCount>=5){tapCount=0;var el=document.getElementById('apk-debug');if(el)el.style.display=el.style.display==='none'?'block':'none';}
-  });
-  // Auto-show errors after 3s
-  setTimeout(showDebug,3000);
-})();
-</script>
-
-
-
-<title>🍺 今晚飲咗未 — 飲酒社交打卡</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#0D0D12;--card:#1A1A24;--card-hover:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glass-bg:rgba(13,13,18,0.75);--glass-border:rgba(255,255,255,0.06);--max-width:480px;--fs-base:16px;--fs-sm:14px;--fs-xs:12px;--fs-title:24px;--fs-card:17px;--fs-stat:30px}
-body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:120px;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
-/* Responsive: center content on large screens with max 480px */
-.nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
-.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
-.nav-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
-.nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
-.nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
-.lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:10px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;overflow:hidden}
-.tab .tab-icon{font-size:20px;margin-bottom:2px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:4px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow-x:auto;-webkit-overflow-scrolling:touch}
-.tab.active{color:var(--amber)}
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.pulse-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:4px}
-.pulse-dot.on{background:var(--green);animation:pulse 2s infinite}
-.pulse-dot.off{background:var(--sub)}
-.tab::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(0);width:24px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--amber),var(--purple));transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
-.tab.active::after{transform:translateX(-50%) scaleX(1)}
-.content{margin-top:52px;margin-bottom:68px;padding:16px;max-width:var(--max-width);margin-left:auto;margin-right:auto;min-height:calc(100dvh - 120px)}
-/* Page transitions: slide + fade */
-.page{display:none;animation:none;padding-bottom:90px}
-.page.active{display:block;animation:pageIn .35s cubic-bezier(.22,1,.36,1) forwards}
-.page.active.slide-left{animation:slideInLeft .35s cubic-bezier(.22,1,.36,1) forwards}
-.page.active.slide-right{animation:slideInRight .35s cubic-bezier(.22,1,.36,1) forwards}
-@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes slideInLeft{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-@keyframes slideInRight{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
-/* Spinning loader */
-.loader{display:flex;align-items:center;justify-content:center;padding:40px 0}
-.loader-spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-/* Confetti / celebration ribbon */
-.confetti-container{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9999;overflow:hidden}
-.confetti-piece{position:absolute;width:10px;height:10px;opacity:0;animation:confettiFall 2.5s cubic-bezier(.25,.46,.45,.94) forwards}
-@keyframes confettiFall{0%{opacity:1;transform:translateY(-20px) rotate(0deg) scale(0)}15%{opacity:1;transform:translateY(20px) rotate(180deg) scale(1)}100%{opacity:0;transform:translateY(100vh) rotate(720deg) scale(0.5)}}
-/* Card micro-interactions */
-.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;transition:all .25s cubic-bezier(.22,1,.36,1);will-change:transform}
-.card:active{transform:scale(0.985)}
-@media(hover:hover){.card:hover{border-color:rgba(245,158,11,0.3);box-shadow:0 4px 20px rgba(245,158,11,0.08);background:var(--card-hover)}}
-/* Glassmorphism for modals and overlay */
-.modal-overlay,.pay-modal{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.modal{background:rgba(26,26,36,0.92);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--glass-border);border-radius:20px;padding:24px;max-width:var(--max-width);max-height:80dvh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,0.5)}
-.pay-card{background:rgba(26,26,36,0.92);backdrop-filter:blur(20px) saturate(1.4);-webkit-backdrop-filter:blur(20px) saturate(1.4);border:1px solid var(--glass-border);border-radius:20px;padding:24px;max-width:360px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.5)}
-/* Back to top button */
-.back-top{position:fixed;bottom:80px;right:16px;z-index:90;width:44px;height:44px;border-radius:50%;background:var(--card);border:1px solid var(--glass-border);color:var(--amber);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transform:translateY(20px);pointer-events:none;transition:all .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 4px 16px rgba(0,0,0,0.4);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.back-top.show{opacity:1;transform:translateY(0);pointer-events:auto}
-.back-top:active{transform:scale(0.9)!important}
-/* Night mode glass refinements */
-.card,.plan-card,.pay-qr-tab,.btn-outline,.user-drop,.user-trigger,.nav-btn,.lang-select{backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
-/* Bounce scroll (iOS-like) via JS + subtle visual */
-.scroll-bounce{overflow-y:auto;-webkit-overflow-scrolling:touch}
-/* Toast animation enhancement */
-.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:999;background:rgba(26,26,36,0.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-border);padding:10px 20px;border-radius:12px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:toastIn .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;max-width:calc(100vw - 32px)}
-@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-16px) scale(0.9)}}
-/* Bottom sheet modal style */
-.modal-overlay.show{display:flex;animation:fadeInOverlay .25s ease}
-@keyframes fadeInOverlay{from{opacity:0}}@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}}
-.card-header{font-size:var(--fs-card);font-weight:700;color:var(--amber);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.status-grid{display:flex;flex-direction:column;gap:12px}
-.status-group{display:flex;flex-direction:column;gap:4px}
-.group-label{font-size:var(--fs-xs);color:var(--sub);padding:0 4px}
-.status-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.status-btn{padding:12px 4px;border-radius:12px;border:2px solid transparent;background:var(--card);color:var(--text);font-size:var(--fs-sm);font-weight:700;cursor:pointer;transition:all .2s;text-align:center;line-height:1.4;min-height:52px}
-.status-btn:hover{border-color:var(--amber)}.status-btn.selected{border-color:var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.25),rgba(139,92,246,0.25))}
-.input,.textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:var(--fs-base);font-family:inherit;margin-bottom:10px}
-.input:focus,.textarea:focus{outline:none;border-color:var(--amber)}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:12px 24px;border-radius:12px;font-size:var(--fs-base);font-weight:600;cursor:pointer;border:none;transition:.2s}
-.btn-primary{background:linear-gradient(135deg,var(--amber),var(--purple));color:#fff;width:100%;justify-content:center;margin-top:6px}.btn-primary:active{opacity:0.8}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-sm{padding:6px 12px;font-size:var(--fs-xs)}
-.tl-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
-.tl-avatar{width:44px;height:44px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
-.tl-avatar img{width:100%;height:100%;object-fit:cover}.tl-body{flex:1;min-width:0}
-.tl-name{font-weight:700;font-size:14px}.tl-time{color:var(--sub);font-size:11px}.tl-status{font-size:16px;margin:4px 0}.tl-note{font-size:13px;color:var(--sub)}.tl-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
-.emoji-btn{padding:4px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:18px;transition:.2s}
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;z-index:200;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;padding:20px;width:100%;height:100%;margin:0}
-.modal-overlay.show{display:flex}
-.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:400px;max-height:80dvh;overflow-y:auto}
-.user-menu{position:relative;display:none}
-.user-trigger{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;overflow:hidden}
-.user-trigger img{width:100%;height:100%;object-fit:cover}
-.user-drop{position:absolute;top:44px;right:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 0;min-width:150px;z-index:150;box-shadow:0 8px 30px rgba(0,0,0,0.5);display:none}
-.dd-item{padding:8px 16px;font-size:13px;cursor:pointer}.dd-item:hover{background:var(--border)}
-.dd-divider{height:1px;background:var(--border);margin:4px 0}
-.pay-modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:400;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px}
-.pay-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:360px;text-align:center}
-.pay-qr-tabs{display:flex;gap:8px;justify-content:center;margin:16px 0}
-.pay-qr-tab{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-size:12px}
-.pay-qr-tab.active{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,0.15)}
-.pay-qr-img{width:200px;height:200px;object-fit:contain;background:#fff;border-radius:12px;margin:12px auto;display:block}
-.plans-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.plan-card{border:1px solid var(--border);border-radius:16px;padding:12px 8px;cursor:pointer;text-align:center}
-.plan-card.selected{border-color:var(--amber);background:rgba(245,158,11,0.1)}
-.plan-price{font-size:24px;font-weight:800;color:var(--amber)}.plan-name{font-size:14px;font-weight:700;margin:2px 0}.plan-feat{font-size:10px;color:var(--sub)}
-.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center}
-.stat-num{font-size:28px;font-weight:800;color:var(--amber)}.stat-label{font-size:11px;color:var(--sub)}
-.empty{padding:40px 0;text-align:center;color:var(--sub)}.empty-icon{font-size:48px;margin-bottom:12px}
-.chk-info{margin-top:4px;font-size:11px;color:var(--sub);text-align:center}
-.ad-banner{background:var(--card);border:1px dashed var(--border);border-radius:8px;padding:10px;text-align:center;font-size:11px;color:var(--sub);margin-top:12px;cursor:pointer}
-.ad-email{font-size:10px;color:var(--sub);text-align:center;margin-top:6px}
-.avatar-preview{width:80px;height:80px;border-radius:50%;background:var(--border);margin:8px auto;display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid var(--amber);cursor:pointer;overflow:hidden}
-.avatar-preview img{width:100%;height:100%;object-fit:cover}
-.date-input{border:2px solid var(--purple)!important;background:rgba(139,92,246,0.08)!important}
-.attendee-list{max-height:0;overflow:hidden;transition:max-height .3s}.attendee-list.open{max-height:300px;overflow-y:auto}
-.attendee-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
-.clickable{cursor:pointer;color:var(--purple);font-weight:600}
-.comment-item{padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
-.comment-input-row{display:flex;gap:8px;margin-top:8px}.comment-input-row input{flex:1}
-.journal-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
-.emoji-picker{display:flex;gap:4px;flex-wrap:wrap;padding:6px 0}
-/* Admin tabs */
-.adm-tab.active{color:var(--amber)!important;border-bottom-color:var(--amber)!important}
-.adm-page{display:none}.adm-page.active{display:block}
-</style>
-</head>
-<body>
-
-<nav class="nav" role="navigation" aria-label="主導航">
-  <div class="nav-title" id="nav-title" ontouchstart="admLongPressStart()" ontouchend="admLongPressCancel()" onmousedown="admLongPressStart()" onmouseup="admLongPressCancel()" onmouseleave="admLongPressCancel()" onclick="admTitleTap()">🍺 今晚飲咗未</div>
-  <div class="nav-right">
-    <select class="lang-select" id="lang-switch" onchange="switchLang(this.value)"><option value="zh-HK">繁</option><option value="zh-CN">简</option><option value="en">EN</option></select>
-    <button class="nav-btn" id="btn-auth" onclick="showAuth()">登入</button>
-    <div class="user-menu" id="user-menu">
-      <div class="user-trigger" id="user-trigger" onclick="toggleUM()">👤</div>
-      <div class="user-drop" id="user-drop">
-        <div class="dd-item" id="dd-mem"></div><div class="dd-item" id="dd-exp" style="font-size:10px;color:var(--sub)"></div>
-        <div class="dd-divider"></div>
-        <div class="dd-item" onclick="showPage('member');toggleUM()">💎 會員中心</div>
-        <div class="dd-item" onclick="openProfile()">👤 個人資料</div>
-        <div class="dd-item" id="dd-admin" onclick="admOpen();toggleUM()" style="display:none">🔧 管理面板</div>
-        <div class="dd-divider"></div>
-        <div class="dd-item" onclick="doLogout()">🚪 登出</div>
-      </div>
-    </div>
-  </div>
-</nav>
-
-<!-- Back to top -->
-<button class="back-top" id="back-top" onclick="scrollToTop()" aria-label="返回顶部">⬆</button>
-
-<div class="tabs">
-  <button class="tab active" data-page="checkin" onclick="showPage('checkin')"><span class="tab-icon">🍺</span><span id="tab-checkin">報到</span></button>
-  <button class="tab" data-page="timeline" onclick="showPage('timeline')"><span class="tab-icon">🌐</span><span id="tab-timeline">動態</span></button>
-  <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party">酒局</span></button>
-  <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
-   <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
-   <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
-</div>
-
-<div class="content">
-
-<div class="page active" id="page-checkin">
- <div class="card" style="padding:0;overflow:hidden;border:none">
-  <img id="cover-img" src="cover.png" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.png'}else{this.style.display='none'">
-  <div style="padding:16px">
-   <div style="font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">🍺 今晚飲咗未？</div>
-   <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px">飲酒社交打卡 · 骰盅對決 · 酒局約起</div>
-  </div>
- </div>
- <div class="card"><div class="card-header">📍 狀態報到</div><div id="status-grid"></div>
- <textarea aria-label="文字輸入" class="textarea" id="chk-note" placeholder="有咩想講？" style="margin-top:12px"></textarea>
- <button class="btn btn-primary" onclick="doCheckin()">🍻 報到！</button><div class="chk-info" id="chk-remaining"></div>
- </div>
- <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
-  <div class="card-header">📱 下載 App</div>
-  <div style="font-size:12px;color:var(--sub);margin-bottom:12px">喺手機安裝 App 體驗更佳！</div>
-  <a id="apk-dl-link" href="/jamyeungmeiyat-debug.apk" class="btn btn-primary" style="text-decoration:none" download>🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.1.0 · 2.8MB</div>
- </div>
- <!-- Legal Footer on main page -->
- <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
-  <a href="javascript:void(0)" onclick="openLegal('terms')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="terms">使用條款</a> · 
-  <a href="javascript:void(0)" onclick="openLegal('disc')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="disclaimer">免責聲明</a> · 
-  <a href="javascript:void(0)" onclick="openLegal('ct')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="contact">聯絡我們</a>
- </div>
-</div>
-
-<div class="page" id="page-timeline">
-  <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
-    <div class="card-header">📸 發朋友圈</div>
-    <div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap" id="emoji-bar">
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍺')">🍺</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍻')">🍻</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥂')">🥂</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥃')">🥃</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍷')">🍷</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍶')">🍶</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍹')">🍹</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🧊')">🧊</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍸')">🍸</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥤')">🥤</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍾')">🍾</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🫗')">🫗</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('😵')">😵</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🤪')">🤪</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('😴')">😴</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥴')">🥴</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💃')">💃</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🕺')">🕺</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🎉')">🎉</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🤢')">🤢</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('❤️')">❤️</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🔥')">🔥</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💪')">💪</span>
-    </div>
-    <textarea class="textarea" id="post-content" placeholder="分享你嘅飲酒時刻..." style="margin-bottom:8px;min-height:60px"></textarea>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
-     <label style="cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--sub)">
-      🖼️ 加圖<input type="file" aria-label="上傳檔案" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
-     </label>
-     <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
-    </div>
-    <button class="btn btn-primary" onclick="createPost()" style="width:100%">📱 發佈</button>
-  </div>
-  <div id="tl-container"></div>
-  <div id="posts-container" style="margin-top:12px"></div>
-</div>
-
-<div class="page" id="page-party">
-  <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
-    <div class="card-header">🎯 發起酒局</div>
-    <input class="input" id="pa-title" placeholder="酒局名稱">
-    <input class="input" id="pa-loc" placeholder="📍 地點">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-      <div><label style="font-size:12px;font-weight:700;color:var(--purple)">📅 日期 *</label><input class="input date-input" id="pa-date" type="date" style="margin-bottom:0;font-size:16px;font-weight:700;padding:10px 8px"></div>
-      <div><label style="font-size:12px;font-weight:700;color:var(--purple)">🕐 時間</label><input class="input date-input" id="pa-time" type="time" style="margin-bottom:0;font-size:16px;font-weight:700;padding:10px 8px"></div>
-    </div>
-    <div style="font-size:12px;color:var(--purple);margin-bottom:8px;text-align:center;font-weight:600">⬆ 點擊紫色框選擇 ⬆</div>
-    <button class="btn btn-primary" onclick="createParty()">📅 發起酒局</button>
-  </div>
-  <div id="party-list"></div>
-</div>
-
-<div class="page" id="page-stats">
-  <div class="card"><div class="card-header">📊 飲酒統計</div>
-    <div class="stats-row"><div><div class="stat-num" id="st-total">0</div><div class="stat-label">累計</div></div>
-    <div><div class="stat-num" id="st-week">0</div><div class="stat-label">本週</div></div>
-    <div><div class="stat-num" id="st-today">0</div><div class="stat-label">今日</div></div></div>
-  </div><div id="st-dist"></div>
-</div>
-
-<div class="page" id="page-dice" style="padding-bottom:120px">
- <div class="card">
-  <div class="card-header">🎲 骰盅大挑戰</div>
-  <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center" id="dice-mem-hint">選擇骰數</div>
-  <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px" id="dice-count-row"></div>
-  <div id="dice-table" style="position:relative;width:100%;min-height:120px;background:radial-gradient(ellipse at center,rgba(30,60,30,0.15) 0%,transparent 70%);border-radius:14px;padding:10px 8px;perspective:600px">
-   <div id="dice-area" style="display:grid;grid-template-columns:repeat(3,56px);gap:8px;justify-content:center;align-content:center"></div>
-  </div>
-  <div style="text-align:center;font-size:14px;color:var(--amber);font-weight:600;min-height:22px;margin-top:8px" id="solo-result"></div>
-  <button class="btn btn-primary" style="width:100%;font-size:16px;font-weight:800;padding:14px" onclick="shakeSolo()" id="btn-shake">🍻 搖骰！</button>
- </div>
- <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
-  <div class="card-header">🎯 面對面對決 <span id="room-lock" style="font-size:11px;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:auto">🔒</span></div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-   <button class="btn btn-outline" id="btn-create-room" onclick="createRoom()" style="border-color:var(--purple);color:var(--purple)">🏠 開房</button>
-   <button class="btn btn-outline" id="btn-join-room" onclick="showJoinRoom()" style="border-color:var(--purple);color:var(--purple)">🚪 加入</button>
-   <button class="btn btn-outline" id="btn-challenge" onclick="showChallengePanel()" style="border-color:var(--pink);color:var(--pink)">⚔️ <span data-i18n="challenge_title">約戰</span></button>
-  </div>
-  <!-- Challenge Panel -->
-  <div id="challenge-panel" style="display:none;margin-top:10px;padding:12px;background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.2);border-radius:12px">
-   <div style="font-weight:700;font-size:14px;color:var(--pink);margin-bottom:8px" id="challenge-panel-title">⚔️ 約戰</div>
-   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:50px">🎲</label><select id="challenge-dice" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><label style="font-size:12px;color:var(--sub);margin-left:8px;min-width:50px">🔄</label><select id="challenge-rounds" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="1">1</option><option value="3">3</option><option value="5">5</option></select></div>
-   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-    <button class="btn btn-outline" onclick="challengeFriend()" style="border-color:var(--pink);color:var(--pink);font-size:13px">👤 <span data-i18n="challenge_friend">約戰酒友</span></button>
-    <button class="btn btn-outline" id="btn-match" onclick="startMatchmaking()" style="border-color:var(--amber);color:var(--amber);font-size:13px">🔥 <span data-i18n="random_match">隨機匹配</span></button>
-   </div>
-   <div id="matching-status" style="display:none;text-align:center;margin-top:8px">
-    <div style="animation:spin 1s linear infinite;display:inline-block;font-size:28px">🎲</div>
-    <div style="font-size:12px;color:var(--amber);margin-top:4px" id="matching-text">匹配中...</div>
-    <button class="btn btn-outline" onclick="cancelMatchmaking()" style="margin-top:6px;border-color:var(--red);color:var(--red);font-size:11px;padding:4px 12px">✕ <span data-i18n="match_cancel">取消</span></button>
-   </div>
-  </div>
-  <div id="join-panel" style="display:none;margin-top:10px">
-   <div style="display:flex;gap:8px">
-    <input id="join-code" maxlength="6" placeholder="房間號" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:20px;font-weight:800;text-align:center;letter-spacing:6px;text-transform:uppercase">
-    <button class="btn btn-primary" onclick="joinRoom()" style="padding:10px 16px">加入</button>
-   </div>
-  </div>
- </div>
- <!-- Challenge Notification -->
-<div id="challenge-notify" style="display:none;position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:200;background:linear-gradient(135deg,rgba(236,72,153,0.95),rgba(239,68,68,0.95));color:#fff;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:700;box-shadow:0 8px 32px rgba(236,72,153,0.4);max-width:90vw;text-align:center">
- <div id="challenge-notify-text"></div>
- <div style="display:flex;gap:8px;margin-top:8px;justify-content:center">
-  <button onclick="respondChallenge(true)" style="background:var(--green);color:#fff;border:none;padding:6px 20px;border-radius:8px;font-weight:700;cursor:pointer">✓ 接受</button>
-  <button onclick="respondChallenge(false)" style="background:var(--red);color:#fff;border:none;padding:6px 20px;border-radius:8px;font-weight:700;cursor:pointer">✕ 拒絕</button>
- </div>
-</div>
-<div class="card" id="room-detail" style="display:none">
-  <div class="card-header">🏠 房間 <span id="room-status" style="color:var(--green);font-size:12px;margin-left:auto">等待中</span></div>
-  <div style="text-align:center;padding:12px;background:rgba(139,92,246,0.05);border-radius:12px;border:1px solid rgba(139,92,246,0.2)">
-   <div style="font-size:11px;color:var(--sub)">房間號</div>
-   <div style="font-size:32px;font-weight:800;color:var(--purple);letter-spacing:6px" id="room-code-display">------</div>
-   <div id="room-players" style="margin-top:6px;font-size:12px;color:var(--sub)"></div>
-  </div>
-  <div id="room-rules" style="margin-top:10px">
-   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:60px">🎲 骰數</label><select id="rule-dice" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="2">2粒</option><option value="3">3粒</option><option value="4">4粒</option><option value="5">5粒</option></select></div>
-   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:60px">🔄 輪數</label><select id="rule-rounds" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="1">1輪</option><option value="3">3輪</option><option value="5">5輪</option></select></div>
-   <button class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;background:var(--purple)" onclick="startRoomGame()" id="btn-start-room">🎯 開始對戰</button>
-  </div>
-  <div id="room-game" style="display:none">
-   <div style="text-align:center;font-size:12px;color:var(--sub);margin-bottom:8px" id="game-round-info"></div>
-   <div id="battle-grid" style="display:grid;gap:8px"></div>
-   <button class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;margin-top:10px" onclick="shakeRoom()" id="btn-room-shake">🎲 我要搖骰</button>
-   <button class="btn" style="width:100%;font-size:14px;padding:12px;margin-top:8px;background:linear-gradient(135deg,var(--pink),var(--red));color:#fff;border:none;border-radius:10px;font-weight:700" onclick="revealAll()" id="btn-reveal" disabled>🔥 開盅！</button>
-  </div>
-  <div id="chat-area" style="margin-top:10px;max-height:120px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;background:rgba(0,0,0,0.2)"></div>
-  <div style="display:flex;gap:8px;margin-top:8px">
-   <input id="chat-input" placeholder="講嘢..." style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px" onkeydown="if(event.key==='Enter')sendDiceChat()">
-   <button class="btn btn-primary" onclick="sendDiceChat()" style="padding:8px 14px;font-size:12px">發送</button>
-  </div>
-  <button style="margin-top:10px;width:100%;padding:8px;border:1px solid var(--red);border-radius:8px;background:transparent;color:var(--red);cursor:pointer;font-size:13px" onclick="leaveRoom()">🚪 離開房間</button>
- </div>
- <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.08));border:1px solid rgba(139,92,246,0.15);padding:10px">
-  <span style="font-size:20px">💎</span>
-  <span style="font-weight:700;font-size:13px;color:var(--pink);margin-left:4px">解鎖更多骰盅玩法</span>
-  <div id="dice-upgrade-hint" style="font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5">🥉 酒友 ¥8/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥18/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥198/年 — 5粒骰 + 自訂規則</div>
- </div>
-</div>
-
-<div class="page" id="page-member">
-  <div class="card" style="text-align:center"><div style="font-size:40px;margin-bottom:8px">💎</div>
-    <div style="font-weight:700;font-size:16px" id="mem-status">免費會員</div>
-    <div style="font-size:12px;color:var(--sub)" id="mem-exp"></div>
-  </div>
-  <div class="plans-row">
-    <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name">🥉 酒友</div><div class="plan-price">¥8</div><div class="plan-feat">每月/打卡</div></div>
-    <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')"><div class="plan-name">🥈 酒鬼</div><div class="plan-price">¥18</div><div class="plan-feat">每月/導出</div></div>
-    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name">🥇 酒神</div><div class="plan-price">¥198</div><div class="plan-feat">每年/徽章</div></div>
-  </div>
-  <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'">📢 廣告合作<br>vichoo2020@gmail.com</div>
-  <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
-    <div class="card-header">👫 酒友圈</div>
-    <div id="friends-section">
-     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--pink);margin-bottom:6px">📨 待處理請求</div><div id="friend-pending" style="font-size:12px;color:var(--sub)">載入中...</div></div>
-     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px">🤝 我嘅酒友</div><div id="friend-list" style="font-size:12px;color:var(--sub)">載入中...</div></div>
-     <div><div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:6px">🔍 推薦酒友</div><div id="friend-suggest" style="font-size:12px;color:var(--sub)">載入中...</div></div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Admin Panel (独立弹窗) -->
-<div class="modal-overlay" id="admin-mod" onclick="if(event.target===this)admClose()">
- <div class="modal" style="max-width:520px;max-height:90dvh;overflow-y:auto">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-   <h3 style="color:var(--pink);margin:0">🔧 管理員面板</h3>
-   <div style="display:flex;align-items:center;gap:8px">
-    <span style="font-size:11px;color:var(--sub)" id="adm-admin-name">管理員</span>
-    <button class="btn btn-outline btn-sm" onclick="admShowChangePw()" style="font-size:10px;padding:4px 8px">🔑 改密</button>
-    <button class="btn btn-outline btn-sm" onclick="admClose()" style="font-size:10px;padding:4px 8px">✕</button>
-   </div>
-  </div>
-  <!-- Admin Tabs -->
-  <div id="adm-content">
-   <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border);flex-wrap:wrap">
-    <button class="adm-tab active" data-adm="stats" onclick="admShowTab('stats')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📊 概覽</button>
-    <button class="adm-tab" data-adm="members" onclick="admShowTab('members');admLoadMembers()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 會員</button>
-    <button class="adm-tab" data-adm="payments" onclick="admShowTab('payments');admLoadPayments()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">💳 付款</button>
-    <button class="adm-tab" data-adm="expired" onclick="admShowTab('expired');admLoadExpired()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚠️ 到期</button>
-    <button class="adm-tab" data-adm="audit" onclick="admShowTab('audit');admLoadAudit()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📋 日誌</button>
-    <button class="adm-tab" data-adm="config" onclick="admShowTab('config')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚙️ 設定</button>
-    <button class="adm-tab" data-adm="checkins" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🌐 動態</button>
-    <button class="adm-tab" data-adm="parties" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🎯 酒局</button>
-    <button class="adm-tab" data-adm="posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📸 圈子</button>
-   </div>
-   <!-- Stats page -->
-   <div class="adm-page active" id="adm-stats">
-    <div class="stats-row" style="margin-bottom:12px">
-     <div><div class="stat-num" id="adm-users">0</div><div class="stat-label">用戶</div></div>
-     <div><div class="stat-num" id="adm-checkins">0</div><div class="stat-label">報到</div></div>
-     <div><div class="stat-num" id="adm-vips">0</div><div class="stat-label">VIP</div></div>
-    </div>
-    <div style="text-align:center;margin-bottom:8px;font-size:11px;color:var(--sub)">酒局總數：<span id="adm-parties">0</span></div>
-    <button class="btn btn-primary" onclick="loadAdmin()">🔄 刷新</button>
-   </div>
-   <!-- Members page -->
-   <div class="adm-page" id="adm-members">
-    <div id="adm-member-list"></div>
-   </div>
-   <!-- Payments page -->
-   <div class="adm-page" id="adm-payments">
-    <div id="adm-payment-list"></div>
-   </div>
-   <!-- Expired page -->
-   <div class="adm-page" id="adm-expired">
-    <div id="adm-expired-list"></div>
-   </div>
-   <!-- Audit page -->
-   <div class="adm-page" id="adm-audit">
-    <div id="adm-audit-list"></div>
-   </div>
-   <!-- Config page (new!) -->
-   <div class="adm-page" id="adm-config">
-    <div class="card" style="border:1px solid var(--purple)">
-     <div class="card-header">⚙️ 系統設定</div>
-     <div style="font-size:12px;color:var(--sub);margin-bottom:8px">管理員可快速操作</div>
-     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-outline btn-sm" onclick="admBulkRenew()" style="border-color:var(--green);color:var(--green)">🔄 批量續期</button>
-      <button class="btn btn-outline btn-sm" onclick="admExportCSV()" style="border-color:var(--amber);color:var(--amber)">📊 匯出數據</button>
-      <button class="btn btn-outline btn-sm" onclick="admClearExpired()" style="border-color:var(--red);color:var(--red)">🧹 清理到期</button>
-      <button class="btn btn-outline btn-sm" onclick="admSendNotify()" style="border-color:var(--purple);color:var(--purple)">📢 推送通知</button>
-     </div>
-    </div>
-    <div class="card" style="border:1px solid var(--amber);margin-top:8px">
-     <div class="card-header">📱 APK 伺服器</div>
-     <div style="font-size:12px;color:var(--sub);margin-bottom:8px">設定 APK 連接的伺服器地址</div>
-     <div style="display:flex;gap:8px">
-      <input class="input" id="adm-server-url" placeholder="http://192.168.x.x:5052" style="margin-bottom:0;flex:1;font-size:13px">
-      <button class="btn btn-primary" onclick="admSetServer()" style="white-space:nowrap;margin-top:0;padding:8px 12px">儲存</button>
-     </div>
-    </div>
-   </div>
-   <!-- Checkins page -->
-   <div class="adm-page" id="adm-checkins">
-    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadCheckins()" style="border-color:var(--amber);color:var(--amber)">🔄 刷新</button></div>
-    <div id="adm-checkin-list" style="font-size:12px"></div>
-   </div>
-   <!-- Parties page -->
-   <div class="adm-page" id="adm-parties">
-    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadParties()" style="border-color:var(--purple);color:var(--purple)">🔄 刷新</button></div>
-    <div id="adm-party-list" style="font-size:12px"></div>
-   </div>
-   <!-- Posts page -->
-   <div class="adm-page" id="adm-posts">
-    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadAdmPosts()" style="border-color:var(--pink);color:var(--pink)">🔄 刷新</button></div>
-    <div id="adm-post-list" style="font-size:12px"></div>
-   </div>
-  </div>
- </div>
-</div>
-
-<!-- AUTH -->
-<div class="modal-overlay" id="auth-mod" onclick="if(event.target===this)closeAuth()">
-  <div class="modal" style="padding:28px 24px">
-    <div id="auth-form">
-      <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:48px;margin-bottom:8px">🍺</div>
-        <h3 style="color:var(--amber);font-size:20px;margin:0">今晚飲咗未</h3>
-        <div style="font-size:11px;color:var(--sub);margin-top:4px">登入</div>
-      </div>
-      <input class="input" id="l-user" placeholder="用戶名" autocomplete="username">
-      <input class="input" id="l-pass" type="password" aria-label="密碼" placeholder="密碼" autocomplete="current-password">
-      <button class="btn btn-primary" onclick="doLogin()">登入</button>
-      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showReg()">未有帳號？註冊 →</div>
-      <div class="ad-email">📧 vichoo2020@gmail.com</div>
-      <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px">聯絡我們</a></div>
-    </div>
-    <div id="reg-form" style="display:none">
-      <div style="text-align:center;margin-bottom:20px">
-        <div style="font-size:48px;margin-bottom:8px">🍺</div>
-        <h3 style="color:var(--amber);font-size:20px;margin:0">今晚飲咗未</h3>
-        <div style="font-size:11px;color:var(--sub);margin-top:4px">註冊</div>
-      </div>
-      <input class="input" id="r-user" placeholder="用戶名" autocomplete="username">
-      <input class="input" id="r-nick" placeholder="花名">
-      <input class="input" id="r-pass" type="password" placeholder="密碼（最少4位）" autocomplete="new-password">
-      <input class="input" id="r-pass2" type="password" placeholder="確認密碼" autocomplete="new-password">
-      <label style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--sub);margin:8px 0;cursor:pointer"><input type="checkbox" id="r-agree" style="margin-top:2px"><span id="r-agree-txt">我已閱讀並同意使用條款及免責聲明</span></label>
-      <button class="btn btn-primary" onclick="doRegister()">註冊</button>
-      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showLogin()">← 返回登入</div>
-      <div class="ad-email">📧 vichoo2020@gmail.com</div>
-      <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px">聯絡我們</a></div>
-    </div>
-  </div>
-</div>
-
-<!-- LEGAL (Terms / Disclaimer / Contact) -->
-<div class="modal-overlay" id="legal-mod" style="display:none" onclick="if(event.target===this)closeLegal()">
-  <div class="modal" style="max-width:460px">
-    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
-      <button class="pay-qr-tab active" id="lt-terms" onclick="swLegalTab('terms')">📋 <span id="lt-terms-txt">使用條款</span></button>
-      <button class="pay-qr-tab" id="lt-disc" onclick="swLegalTab('disc')">⚠️ <span id="lt-disc-txt">免責聲明</span></button>
-      <button class="pay-qr-tab" id="lt-ct" onclick="swLegalTab('ct')">📬 <span id="lt-ct-txt">聯絡我們</span></button>
-    </div>
-    <div id="legal-content" style="font-size:13px;line-height:1.8;white-space:pre-line;color:var(--text);max-height:50dvh;overflow-y:auto;padding:12px;background:rgba(0,0,0,0.2);border-radius:12px"></div>
-    <button class="btn btn-primary" onclick="closeLegal()" style="margin-top:14px;width:100%">✅ OK</button>
-  </div>
-</div>
-
-<!-- PROFILE -->
-<div class="modal-overlay" id="prof-mod" onclick="if(event.target===this)closeProf()">
-  <div class="modal"><h3 style="margin-bottom:16px;color:var(--amber)">👤 個人資料</h3>
-    <div class="avatar-preview" id="av-prev" onclick="document.getElementById('av-inp').click()">👤</div>
-    <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="prevAv(event)">
-    <input class="input" id="p-nick" placeholder="花名">
-    <input class="input" id="p-phone" type="tel" placeholder="📞 電話號碼">
-    <input class="input" id="p-email" type="email" aria-label="電郵" placeholder="📧 電郵地址">
-    <input class="input" id="p-oldpw" type="password" placeholder="舊密碼（不改留空）"><input class="input" id="p-newpw" type="password" placeholder="新密碼（不改留空）">
-    <button class="btn btn-primary" onclick="saveProf()">💾 儲存</button>
-    <div class="ad-email">📧 vichoo2020@gmail.com</div>
-  </div>
-</div>
-
-<!-- COMMENTS -->
-<div class="modal-overlay" id="cmt-mod" onclick="if(event.target===this)closeCmt()">
-  <div class="modal"><h3 style="margin-bottom:12px;color:var(--amber)">💬 留言</h3>
-    <div id="cmt-list" style="max-height:250px;overflow-y:auto;margin-bottom:12px"></div>
-    <div class="comment-input-row"><input class="input" id="cmt-inp" placeholder="留言..." style="margin-bottom:0"><button class="btn btn-primary" style="width:auto;margin-top:0" onclick="doCmt()">發送</button></div>
-    <div class="ad-email">📧 vichoo2020@gmail.com</div>
-  </div>
-</div>
-
-<!-- JOURNAL -->
-<div class="modal-overlay" id="jnl-mod" onclick="if(event.target===this)closeJnl()">
-  <div class="modal"><h3 style="margin-bottom:12px;color:var(--amber)">📝 酒局記錄</h3>
-    <div id="jnl-list" style="max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
-    <textarea class="textarea" id="jnl-inp" placeholder="寫記錄..."></textarea>
-    <button class="btn btn-primary" onclick="doJnl()">發布</button>
-    <div class="ad-email">📧 vichoo2020@gmail.com</div>
-  </div>
-</div>
-
-<!-- PAY -->
-<div class="pay-modal" id="pay-mod" style="display:none" onclick="if(event.target===this)closePay()">
-  <div class="pay-card"><h3 style="color:var(--amber)">💳 掃碼支付</h3>
-    <div id="pay-plan-name" style="font-size:14px;margin:4px 0"></div><div id="pay-usd" style="font-size:12px;color:var(--sub)"></div>
-    <div class="pay-qr-tabs"><button class="pay-qr-tab active" id="pt-alipay" onclick="swQR('alipay')">支付寶</button><button class="pay-qr-tab" id="pt-wechat" onclick="swQR('wechat')">微信</button><button class="pay-qr-tab" id="pt-paypal" onclick="swQR('paypal')">PayPal</button></div>
-    <img class="pay-qr-img" id="pay-qr-img" src="" onerror="this.style.display='none';document.getElementById('pay-fb').style.display='block'">
-    <div id="pay-fb" style="display:none;padding:20px;background:#fff;border-radius:12px;color:#333;font-size:14px;text-align:center">
-     <div style="font-size:16px;font-weight:700;margin-bottom:8px">💳 掃碼付款</div>
-     <div style="font-size:13px;color:#666;margin-bottom:12px">請掃描對應支付方式二維碼<br>或複製帳號付款</div>
-     <div style="background:#f5f5f5;border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
-      <div>📧 <b>vichoo2020@gmail.com</b></div>
-     </div>
-     <div style="font-size:11px;color:#999">付款後點擊「已完成付款」</div>
-    </div>
-    <button class="btn btn-primary" onclick="cfmPay()">✅ 已完成付款</button>
-    <div style="font-size:10px;color:var(--sub);margin-top:6px;cursor:pointer" onclick="closePay()">取消</div>
-    <div class="ad-email">📧 vichoo2020@gmail.com</div>
-  </div>
-</div>
-
-<script>
-// ═══════ GLOBAL STATE ═══════
-let me=null,token=null,selStatus=-1,selPlan='jiuyau',lang='zh-HK',payQR='alipay',curCid=null,curPid=null;
-
-// ═══════ ASSET BASE (already defined in <head> for cover img) ═══════
-// ASSET_BASE is defined in <head> as var, don't redeclare with const
-
-// ═══════ API_BASE ═══════
-const API_BASE = (()=>{
- const proto = location.protocol;
- if(proto === 'file:') {
- if(window.JymyNative && window.JymyNative.getServerUrl){
- const url = window.JymyNative.getServerUrl();
- if(url) { localStorage.setItem('jymy_server', url); return url; }
- }
- const saved = localStorage.getItem('jymy_server');
- if(saved) return saved;
- return 'https://drunk.vic999.com';
- }
- return '';
-})();
-
-// ═══════ API CALL ═══════
-async function api(url,opts={}){
-  const h={};if(token)h['Authorization']='Bearer '+token;
-  if(opts.body&&typeof opts.body==='object'){h['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
-  const furl = API_BASE + url;
-  console.log('API:', furl, opts.method||'GET');
-  const r=await fetch(furl,{method:opts.method||'GET',headers:h,body:opts.body});
-  const d=await r.json();
-  if(!r.ok) throw new Error(d.error||'Error '+r.status);
-  return d;
-}
-
-// ═══════ TOAST ═══════
-function toast(msg,isErr){
-  const el=document.createElement('div');el.className='toast';
-  el.textContent=msg;el.style.borderColor=isErr?'var(--red)':'var(--amber)';
-  document.body.appendChild(el);setTimeout(()=>el.remove(),2500);
-}
-
-// ═══════ CONFETTI CELEBRATION ═══════
-function fireConfetti(){
-  const container=document.createElement('div');container.className='confetti-container';
-  const colors=['#F59E0B','#8B5CF6','#EC4899','#10B981','#EF4444','#3B82F6','#F97316'];
-  for(let i=0;i<40;i++){
-    const piece=document.createElement('div');piece.className='confetti-piece';
-    piece.style.left=Math.random()*100+'%';
-    piece.style.background=colors[Math.floor(Math.random()*colors.length)];
-    piece.style.width=(6+Math.random()*8)+'px';piece.style.height=(6+Math.random()*8)+'px';
-    piece.style.borderRadius=Math.random()>0.5?'50%':'2px';
-    piece.style.animationDuration=(1.8+Math.random()*1.2)+'s';
-    piece.style.animationDelay=Math.random()*0.5+'s';
-    container.appendChild(piece);
-  }
-  document.body.appendChild(container);
-  setTimeout(()=>container.remove(),3500);
-}
-
-// ═══════ LOADER ═══════
-function showLoader(containerId){
-  const c=document.getElementById(containerId);
-  if(!c)return;
-  c.innerHTML='<div class="loader"><div class="loader-spin"></div></div>';
-}
-
-// ═══════ SCROLL TO TOP ═══════
-function scrollToTop(){window.scrollTo({top:0,behavior:'smooth'})}
-document.addEventListener('scroll',function(){
-  const btn=document.getElementById('back-top');
-  if(!btn)return;
-  if(window.scrollY>200)btn.classList.add('show');
-  else btn.classList.remove('show');
-},{passive:true});
-
-// ═══════ PERSIST ═══════
-function saveS(){if(token)localStorage.setItem('jymy_token',token);if(me)localStorage.setItem('jymy_me',JSON.stringify(me))}
-function clearS(){localStorage.removeItem('jymy_token');localStorage.removeItem('jymy_me')}
-async function restoreS(){
- // Restore admin session from localStorage
- adminToken = localStorage.getItem('jymy_admin_token') || '';
- // Check if jymy_token is an admin token (starts with "0:")
- const savedToken = localStorage.getItem('jymy_token') || '';
- const isAdminToken = savedToken && atob(savedToken).startsWith('0:');
- if(adminToken && isAdminToken){
-  // Admin-only session
-  token = savedToken || adminToken;
-  const savedMe = localStorage.getItem('jymy_me');
-  if(savedMe){try{me=JSON.parse(savedMe)}catch(e){}}
-  if(!me || me.id!==0){
-   me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
-   saveS();
-  }
-  loadAdmin(); updateNav(); return true;
- }
- // Flask mode: use local token + /api/me
- if(window.JYM && window.JYM._flaskMode){
-  const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
-  adminToken = localStorage.getItem('jymy_admin_token') || '';
-  try{me=JSON.parse(localStorage.getItem('jymy_me')||'null')}catch(e){me=null}
-  try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){token=null;me=null;clearS();return false}
- }
- // Try Supabase session first
- if(window.JYM && window.JYM.auth){
-  try{
-   const session=await window.JYM.auth.getSession();
-   if(session && session.access_token){
-    token=session.access_token;
-    const authUser=await window.JYM.auth.getCurrentUser();
-    if(authUser){
-     let profile=null;
-     try{profile=await window.JYM.user.getUserProfile(authUser.id)}catch(e){}
-     if(!profile) profile={id:0,auth_uid:authUser.id,username:JYM.auth._fromEmail(authUser.email),nickname:'',lang:'zh-HK',membership:'free',admin:0,member_expires:'',avatar:''};
-     me={id:profile.id,auth_uid:authUser.id,username:profile.username||JYM.auth._fromEmail(authUser.email),nickname:profile.nickname||'',lang:profile.lang||'zh-HK',membership:profile.membership||'free',admin:profile.admin||0,member_expires:profile.member_expires||'',avatar:profile.avatar||''};
-     lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true;
-    }
-   }
-  }catch(e){console.warn('Supabase session restore failed:',e)}
- }
- // Fallback: local token
- const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
- try{me=JSON.parse(localStorage.getItem('jymy_me')||'null')}catch(e){me=null}
- try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){token=null;me=null;clearS();return false}
-}
-
-// ═══════ NAV ═══════
-function toggleUM(){const d=document.getElementById('user-drop');d.style.display=d.style.display==='block'?'none':'block'}
-document.addEventListener('click',e=>{if(!e.target.closest('.user-menu'))document.getElementById('user-drop').style.display='none'})
-
-function showAuth(){const el=document.getElementById('auth-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0'}
-function closeAuth(){const el=document.getElementById('auth-mod');el.style.display='none';el.classList.remove('show')}
-function showLogin(){document.getElementById('auth-form').style.display='block';document.getElementById('reg-form').style.display='none'}
-function showReg(){document.getElementById('auth-form').style.display='none';document.getElementById('reg-form').style.display='block'}
-
-function updateNav(){
-  const menu=document.getElementById('user-menu'),btn=document.getElementById('btn-auth');
-  if(me || adminToken){
-    if(!me && adminToken){
-      // Admin-only session (no regular user)
-      me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
-    }
-    btn.style.display='none';menu.style.display='block';
-    const trig=document.getElementById('user-trigger');
-    const av=me.avatar;
-    if(av&&av.startsWith('/')){trig.innerHTML='<img src="'+API_BASE+av+'">'}
-    else{trig.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
-    const ms=document.getElementById('dd-mem'),ex=document.getElementById('dd-exp');
-    if(me.membership&&me.membership!=='free'){ms.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');ex.textContent='到期：'+(me.member_expires||'永久')}
-    else{ms.textContent='🆓 免費會員';ex.textContent='點擊升級 💎'}
-  }else{btn.style.display='inline-flex';menu.style.display='none'}
-}
-
-// ═══════ PAGES ═══════
-let _pgHist = []; // page history for transition direction
-
-function showPage(name){
-  const cur = document.querySelector('.page.active');
-  const curName = cur ? cur.id.replace('page-','') : '';
-  _pgHist.push(curName);
-  if(_pgHist.length > 10) _pgHist.shift();
-
-  // Determine slide direction based on tab index
-  const tabs = ['checkin','timeline','party','stats','dice','member'];
-  const idx = tabs.indexOf(name);
-  const prevIdx = tabs.indexOf(curName);
-  let slideCls = '';
-  if(prevIdx >= 0 && idx >= 0 && prevIdx !== idx){
-    slideCls = idx > prevIdx ? 'slide-right' : 'slide-left';
-  }
-
-  document.querySelectorAll('.page').forEach(p=>{
-    p.classList.remove('active','slide-left','slide-right');
-  });
-  const pg=document.getElementById('page-'+name);
-  if(pg){
-    if(slideCls) pg.classList.add(slideCls);
-    pg.classList.add('active');
-  }
-  document.querySelectorAll('.tab').forEach(tb=>tb.classList.remove('active'));
-  const tb=document.querySelector('[data-page="'+name+'"]');
-  if(tb)tb.classList.add('active');
-  // Reset scroll position to top when switching pages
-  window.scrollTo({top:0,behavior:'smooth'});
-  if(name==='timeline'){loadTL();loadPosts()}if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();
-}
-
-// ═══════ SWIPE GESTURE SUPPORT ═══════
-let _touchStartX = 0, _touchStartY = 0, _touchDx = 0;
-const SWIPE_THRESHOLD = 50;
-
-document.addEventListener('touchstart', function(e){
-  if(e.target.closest('.tabs') || e.target.closest('.page')) {
-    _touchStartX = e.changedTouches[0].screenX;
-    _touchStartY = e.changedTouches[0].screenY;
-  }
-}, {passive: true});
-
-document.addEventListener('touchmove', function(e){
-  if(!_touchStartX) return;
-  _touchDx = e.changedTouches[0].screenX - _touchStartX;
-  const dy = e.changedTouches[0].screenY - _touchStartY;
-  // Only track horizontal swipes (more horizontal than vertical)
-  if(Math.abs(_touchDx) > Math.abs(dy) && Math.abs(_touchDx) > 20) {
-    // Optional: add visual feedback - subtle indicator
-  }
-}, {passive: true});
-
-document.addEventListener('touchend', function(e){
-  if(!_touchStartX) return;
-  const dx = e.changedTouches[0].screenX - _touchStartX;
-  const dy = e.changedTouches[0].screenY - _touchStartY;
-  _touchStartX = 0;
-  _touchStartY = 0;
-
-  // Only horizontal swipes on the content area (not on tabs themselves)
-  if(Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
-  if(e.target.closest('.tabs') || e.target.closest('.nav') || e.target.closest('.modal-overlay') || e.target.closest('.pay-modal')) return;
-
-  const tabs = ['checkin','timeline','party','stats','dice','member'];
-  const cur = document.querySelector('.page.active');
-  if(!cur) return;
-  const curName = cur.id.replace('page-','');
-  const curIdx = tabs.indexOf(curName);
-  if(curIdx < 0) return;
-
-  let nextIdx = -1;
-  if(dx < 0) nextIdx = curIdx + 1; // swipe left → next tab
-  else nextIdx = curIdx - 1; // swipe right → prev tab
-
-  if(nextIdx >= 0 && nextIdx < tabs.length){
-    showPage(tabs[nextIdx]);
-  }
-}, {passive: true});
-
-// ═══════ LANG ═══════
-const L={'zh-HK':{
-  st_mai_yum:'未飲',st_seung_yum:'想飲',st_dou_cho:'到咗',st_hoi_cho:'開咗',st_yum_gan:'飲緊',st_gai_juk:'繼續',st_ga_jau:'加酒',st_cheung_yum:'暢飲',
-  st_jui_gan:'醉緊',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飄飄',st_dyun_pin:'斷片',st_seung_au:'想嘔',st_wan_wan:'暈暈',st_pa_dai:'趴低',
-  st_jyun_cheung:'轉場',st_gau_jau:'溝酒',st_chaai_mui:'猜枚',st_jik_lok:'直落',st_yum_cho:'飲咗',st_fan_gwai:'返歸',st_sing_saai:'醒晒',st_ting_yat:'聽日',
-  grp_hei_sau:'起手',grp_seung_gan:'上緊',grp_jui_gan:'醉緊',grp_baau_cho:'爆咗',grp_jyun_cheung:'轉場',grp_sau_mei:'收尾',
-  checkin:'報到',timeline:'動態',party:'酒局',stats:'統計',member:'會員',login:'登入',logout:'登出',
-  terms:'使用條款',disclaimer:'免責聲明',contact:'聯絡我們',agree:'我已閱讀並同意使用條款及免責聲明',
-  terms_content:'1. 本應用程式（「今晚飲咗未」）為社交打卡工具，供用戶記錄飲酒活動。\n\n2. 用戶須年滿法定飲酒年齡方可使用本應用。\n\n3. 用戶帳號及密碼由用戶自行保管，因帳號密碼洩露導致的一切損失由用戶自行承擔。\n\n4. 用戶不得利用本應用從事任何違法行為，包括但不限於教唆未成年人飲酒、酒後駕駛等。\n\n5. 本應可能有付費會員功能，付款後不予退款。\n\n6. 我們保留隨時修改條款的權利，繼續使用即表示接受修改後的條款。',
-  disclaimer_content:'⚠️ 免責聲明\n\n1. 本應用僅提供社交打卡功能，不鼓勵過量飲酒。\n\n2. 飲酒有害健康，請適量飲酒。孕婦及未成年人請勿飲酒。\n\n3. 飲酒後切勿駕駛，本應用對用戶因飲酒導致的任何直接或間接損失不承擔任何責任。\n\n4. 本應用中其他用戶發佈的內容不代表本應用立場，我們對此不承擔任何責任。\n\n5. 本應用按「現狀」提供，不作任何明示或暗示的保證。',
-  contact_content:'📬 聯絡我們\n\n電郵：vichoo2020@gmail.com\n\n如有任何問題、建議或投訴，歡迎通過以上電郵聯繫我們。',
-  challenge_title:'⚔️ 約戰',challenge_friend:'約戰酒友',random_match:'🔥 隨機匹配',
-  matching:'匹配中...',match_found:'匹配成功！',match_cancel:'取消匹配',
-  challenge_received:'向你約戰！',accept:'接受',reject:'拒絕',
-  online:'在線',offline:'離線',waiting_accept:'等待對方接受...',challenge_rejected:'約戰被拒絕',
-  no_online_players:'暫無在線玩家',select_friend:'選擇酒友',challenge_sent:'約戰已發出！'
-},'zh-CN':{
-  st_mai_yum:'没喝',st_seung_yum:'想喝',st_dou_cho:'到了',st_hoi_cho:'开了',st_yum_gan:'喝着',st_gai_juk:'继续',st_ga_jau:'加酒',st_cheung_yum:'畅饮',
-  st_jui_gan:'醉着',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飘飘',st_dyun_pin:'断片',st_seung_au:'想吐',st_wan_wan:'晕晕',st_pa_dai:'趴下',
-  st_jyun_cheung:'转场',st_gau_jau:'混酒',st_chaai_mui:'猜拳',st_jik_lok:'直落',st_yum_cho:'喝了',st_fan_gwai:'回家',st_sing_saai:'醒了',st_ting_yat:'明天',
-  grp_hei_sau:'起手',grp_seung_gan:'上头',grp_jui_gan:'醉着',grp_baau_cho:'爆了',grp_jyun_cheung:'转场',grp_sau_mei:'收尾',
-  checkin:'报到',timeline:'动态',party:'酒局',stats:'统计',member:'会员',login:'登录',logout:'退出',
-  terms:'使用条款',disclaimer:'免责声明',contact:'联系我们',agree:'我已阅读并同意使用条款及免责声明',
-  terms_content:'1. 本应用程序（「今晚饮咗未」）为社交打卡工具，供用户记录饮酒活动。\n\n2. 用户须年满法定饮酒年龄方可使用本应用。\n\n3. 用户帐号及密码由用户自行保管，因帐号密码泄露导致的一切损失由用户自行承担。\n\n4. 用户不得利用本应用从事任何违法行为，包括但不限于教唆未成年人饮酒、酒后驾驶等。\n\n5. 本应用可能有付费会员功能，付款后不予退款。\n\n6. 我们保留随时修改条款的权利，继续使用即表示接受修改后的条款。',
-  disclaimer_content:'⚠️ 免责声明\n\n1. 本应用仅提供社交打卡功能，不鼓励过量饮酒。\n\n2. 饮酒有害健康，请适量饮酒。孕妇及未成年人请勿饮酒。\n\n3. 饮酒后切勿驾驶，本应用对用户因饮酒导致的任何直接或间接损失不承担任何责任。\n\n4. 本应用中其他用户发布的内容不代表本应用立场，我们对此不承担任何责任。\n\n5. 本应用按「现状」提供，不作任何明示或暗示的保证。',
-  contact_content:'📬 联系我们\n\n邮箱：vichoo2020@gmail.com\n\n如有任何问题、建议或投诉，欢迎通过以上邮箱联系我们。',
-  challenge_title:'⚔️ 约战',challenge_friend:'约战酒友',random_match:'🔥 随机匹配',
-  matching:'匹配中...',match_found:'匹配成功！',match_cancel:'取消匹配',
-  challenge_received:'向你约战！',accept:'接受',reject:'拒绝',
-  online:'在线',offline:'离线',waiting_accept:'等待对方接受...',challenge_rejected:'约战被拒绝',
-  no_online_players:'暂无在线玩家',select_friend:'选择酒友',challenge_sent:'约战已发出！'
-},'en':{
-  st_mai_yum:'Sober',st_seung_yum:'Thirsty',st_dou_cho:'Here',st_hoi_cho:'Started',st_yum_gan:'Drinking',st_gai_juk:'More',st_ga_jau:'TopUp',st_cheung_yum:'Flowing',
-  st_jui_gan:'Buzzed',st_ho_jui:'Drunk',st_tou_jui:'Tipsy',st_piu_piu:'Float',st_dyun_pin:'Wasted',st_seung_au:'Sick',st_wan_wan:'Dizzy',st_pa_dai:'Done',
-  st_jyun_cheung:'Hop',st_gau_jau:'Mix',st_chaai_mui:'Game',st_jik_lok:'On&On',st_yum_cho:'Done',st_fan_gwai:'Home',st_sing_saai:'SoberUp',st_ting_yat:'Tmrw',
-  grp_hei_sau:'Start',grp_seung_gan:'Going',grp_jui_gan:'Buzzed',grp_baau_cho:'Wasted',grp_jyun_cheung:'Hop',grp_sau_mei:'Done',
-  checkin:'Check In',timeline:'Feed',party:'Party',stats:'Stats',member:'Member',login:'Login',logout:'Logout',
-  terms:'Terms',disclaimer:'Disclaimer',contact:'Contact',agree:'I have read and agree to the Terms and Disclaimer',
-  terms_content:'1. This application ("Drunk Tonight?") is a social check-in tool for users to record drinking activities.\n\n2. Users must be of legal drinking age to use this application.\n\n3. Users are responsible for safeguarding their account credentials. Any losses resulting from credential leaks are the user\'s responsibility.\n\n4. Users must not use this application for any illegal activities, including but not limited to encouraging underage drinking or drunk driving.\n\n5. This application may offer paid membership features. Payments are non-refundable.\n\n6. We reserve the right to modify these terms at any time. Continued use constitutes acceptance of the modified terms.',
-  disclaimer_content:'⚠️ Disclaimer\n\n1. This application only provides social check-in functionality and does not encourage excessive drinking.\n\n2. Drinking is harmful to health. Please drink responsibly. Pregnant women and minors should not drink alcohol.\n\n3. Never drink and drive. This application bears no responsibility for any direct or indirect losses caused by drinking.\n\n4. Content posted by other users does not represent the views of this application, and we bear no responsibility for it.\n\n5. This application is provided "as is" without any express or implied warranties.',
-  contact_content:'📬 Contact Us\n\nEmail: vichoo2020@gmail.com\n\nFor any questions, suggestions, or complaints, please contact us via the email above.',
-  challenge_title:'⚔️ Challenge',challenge_friend:'Challenge Friend',random_match:'🔥 Random Match',
-  matching:'Matching...',match_found:'Match Found!',match_cancel:'Cancel Match',
-  challenge_received:'challenged you!',accept:'Accept',reject:'Reject',
-  online:'Online',offline:'Offline',waiting_accept:'Waiting for response...',challenge_rejected:'Challenge Rejected',
-  no_online_players:'No online players',select_friend:'Select Friend',challenge_sent:'Challenge Sent!'
-}};
-function T(k){return (L[lang]||L['zh-HK'])[k]||k}
-function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
-
-function switchLang(l){lang=l;document.getElementById('lang-switch').value=l;if(me&&token){if(window.JYM&&window.JYM.user&&me.auth_uid){window.JYM.user.updateUserProfile(me.auth_uid,{lang}).catch(()=>{})}else{api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{})}}updTitles();buildGrid()}
-function updTitles(){
-  document.getElementById('nav-title').textContent='🍺 '+(lang==='en'?'Drunk Tonight?':'今晚飲咗未');
-  ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});
-  if(typeof updLegalLinks==='function')updLegalLinks();
-}
-
-// ═══════ STATUS GRID ═══════
-const STATUSES=[
-  {k:'st_mai_yum',g:0,e:'🥤'},{k:'st_seung_yum',g:0,e:'🤤'},{k:'st_dou_cho',g:0,e:'📍'},{k:'st_hoi_cho',g:0,e:'🔓'},
-  {k:'st_yum_gan',g:1,e:'🍺'},{k:'st_gai_juk',g:1,e:'🔄'},{k:'st_ga_jau',g:1,e:'➕'},{k:'st_cheung_yum',g:1,e:'🍻'},
-  {k:'st_jui_gan',g:2,e:'😵'},{k:'st_ho_jui',g:2,e:'🥴'},{k:'st_tou_jui',g:2,e:'😌'},{k:'st_piu_piu',g:2,e:'☁️'},
-  {k:'st_dyun_pin',g:3,e:'💀'},{k:'st_seung_au',g:3,e:'🤮'},{k:'st_wan_wan',g:3,e:'🌀'},{k:'st_pa_dai',g:3,e:'🛌'},
-  {k:'st_jyun_cheung',g:4,e:'🚕'},{k:'st_gau_jau',g:4,e:'🍹'},{k:'st_chaai_mui',g:4,e:'✊'},{k:'st_jik_lok',g:4,e:'🔥'},
-  {k:'st_yum_cho',g:5,e:'✅'},{k:'st_fan_gwai',g:5,e:'🏠'},{k:'st_sing_saai',g:5,e:'🌅'},{k:'st_ting_yat',g:5,e:'📅'}
-];
-const GKEYS=['grp_hei_sau','grp_seung_gan','grp_jui_gan','grp_baau_cho','grp_jyun_cheung','grp_sau_mei'];
-const RE_EM=['🍻','🫣','🤣','❤️','🔥','😭','💀','🥂','👏','🎉','🤤','😈'];
-const CM_EM=['😍','🤣','👍','🔥','❤️','🥂','🫣','💀','🎉','👏','😈','💪','🍺','🍻','😭','🤤'];
-const QR_M={alipay:'/qrcodes/alipay.jpg',wechat:'/qrcodes/wechat.png',paypal:'/qrcodes/paypal.jpg'};
-const PAY_U={jiuyau:'1.20',jaugwai:'2.50',jausan:'28.00'};
-
-function buildGrid(){
-  const g=document.getElementById('status-grid');g.innerHTML='';
-  const grps={};STATUSES.forEach((s,i)=>{if(!grps[s.g])grps[s.g]=[];grps[s.g].push({...s,i})});
-  GKEYS.forEach((gk,gid)=>{
-    const d=document.createElement('div');d.className='status-group';
-    d.innerHTML='<div class="group-label">'+T(gk)+'</div>';
-    const rw=document.createElement('div');rw.className='status-row';
-    (grps[gid]||[]).forEach(st=>{
-      const b=document.createElement('button');b.className='status-btn';
-      b.innerHTML=T(st.k)+'<br>'+st.e;
-      b.onclick=()=>{selStatus=st.i;buildGrid()};
-      if(selStatus===st.i)b.classList.add('selected');rw.appendChild(b);
-    });d.appendChild(rw);g.appendChild(d);
-  });
-}
-
-// ═══════ AUTH ═══════
-async function doLogin(){
- const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value;
- if(!u||!p)return toast('填寫用戶名和密碼',1);
- // Admin account: if username matches admin, try admin login first
- if(u.toLowerCase()==='admin'){
-  try{
-   const r=await fetch(API_BASE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({admin_user:u,admin_key:p})});
-   const d=await r.json();
-   if(r.ok){
-    adminToken=d.token;localStorage.setItem('jymy_admin_token',adminToken);
-    // Also set global token so api() calls include Authorization
-    token=adminToken;localStorage.setItem('jymy_token',token);
-    // Set virtual admin user so nav shows properly
-    me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
-    saveS();closeAuth();updateNav();buildGrid();updTitles();
-    admOpen();
-    toast('✅ 管理員登入成功');return;
-   }
-  }catch(e){}
-  toast('❌ 管理帳號或密碼錯誤',1);return;
- }
- try{
- if(window.JYM && window.JYM._flaskMode){
-  const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});token=r.token;me=r.user;
- }else if(window.JYM && window.JYM.auth){
-  const data=await window.JYM.auth.signIn(u,p);
-  if(!data.session)throw new Error('登入失敗：無法取得 session');
-  token=data.session.access_token;
-  const authUser=data.user;
-  let profile=null;
-  try{profile=await window.JYM.user.getUserProfile(authUser.id)}catch(e){
-   await new Promise(r=>setTimeout(r,1000));
-   try{profile=await window.JYM.user.getUserProfile(authUser.id)}catch(e2){}
-  }
-  if(!profile) profile={id:0,auth_uid:authUser.id,username:u,nickname:u,lang:'zh-HK',membership:'free',admin:0,member_expires:'',avatar:''};
-  me={id:profile.id,auth_uid:authUser.id,username:profile.username||u,nickname:profile.nickname||u,lang:profile.lang||'zh-HK',membership:profile.membership||'free',admin:profile.admin||0,member_expires:profile.member_expires||'',avatar:profile.avatar||''};
- }else{
-  const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});
-  token=r.token;me=r.user;
- }
- lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
- // If user is admin, auto-acquire adminToken via Mode 2
- if(me.admin === 1){
-  try{
-   const ar=await fetch(API_BASE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:me.username,password:p})});
-   const ad=await ar.json();
-   if(ar.ok && ad.token){adminToken=ad.token;localStorage.setItem('jymy_admin_token',adminToken);}
-  }catch(e){}
- }else{
-  adminToken='';localStorage.removeItem('jymy_admin_token');
- }
- sessionStorage.setItem('jymy_pw',p);
- saveS();toast('✅ 登入成功');closeAuth();updateNav();buildGrid();updTitles();
- setTimeout(()=>refreshAll(),300);
- }catch(e){let msg=e.message||'登入失敗';if(msg.includes('Invalid login'))msg='用戶名或密碼錯誤';if(msg.includes('Email not confirmed'))msg='帳號未確認，請稍後重試';toast('❌ '+msg,1)}
-}
-async function doRegister(){
- const u=document.getElementById('r-user').value.trim(),n=document.getElementById('r-nick').value.trim(),p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
- if(!u||p.length<4)return toast('用戶名或密碼太短',1);if(p!==p2)return toast('密碼不一致',1);
- const ag=document.getElementById('r-agree');if(ag&&!ag.checked)return toast('❌ 請先同意使用條款及免責聲明',1);
- try{
- if(window.JYM && window.JYM._flaskMode){
-  const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
- }else if(window.JYM && window.JYM.auth){
- const data=await window.JYM.auth.signUp(u,p,n||u);
- const authUser=data.user;
- if(!data.session){
-  // signUp 返回 null session → 自动登入获取 session
-  const loginData=await window.JYM.auth.signIn(u,p);
-  token=loginData.session.access_token;
- }else{
-  token=data.session.access_token;
- }
- let profile=null;for(let i=0;i<5;i++){try{profile=await window.JYM.user.getUserProfile(authUser.id);break}catch(e){await new Promise(r=>setTimeout(r,500))}}
- if(!profile) profile={id:0,auth_uid:authUser.id,username:u,nickname:n||u,lang,membership:'free',admin:0,member_expires:'',avatar:''};
- me={id:profile.id,auth_uid:authUser.id,username:profile.username||u,nickname:profile.nickname||n||u,lang:profile.lang||lang,membership:profile.membership||'free',admin:profile.admin||0,member_expires:profile.member_expires||'',avatar:profile.avatar||''};
- }else{
-  const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
- }
- adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
- saveS();toast('✅ 註冊成功');closeAuth();updateNav();buildGrid();updTitles();
- setTimeout(()=>refreshAll(),300);
- }catch(e){let msg=e.message||'註冊失敗';if(msg.includes('already registered'))msg='用戶名已被註冊';if(msg.includes('password'))msg='密碼不符合要求（最少6位）';toast('❌ '+msg,1)}
-}
-async function doLogout(){
- if(window.JYM&&window.JYM.auth){try{await window.JYM.auth.signOut()}catch(e){}}
- token=null;me=null;adminToken='';selStatus=-1;clearS();localStorage.removeItem('jymy_admin_token');updateNav();buildGrid();updTitles();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-checkin').classList.add('active');toast('👋 已登出');
-}
-
-// ═══════ CHECKIN ═══════
-async function doCheckin(){
- if(!me)return toast('請先登入',1);if(selStatus<0)return toast('請選擇狀態',1);
- try{
- if(window.JYM&&window.JYM.checkin){
-  await window.JYM.checkin.createCheckin(me.id,selStatus,document.getElementById('chk-note').value,'');
- }else{
-  await api('/api/checkin',{method:'POST',body:{status:selStatus,note:document.getElementById('chk-note').value,lat:0,lng:0}});
- }
- selStatus=-1;document.getElementById('chk-note').value='';buildGrid();
- toast('🍻 報到成功！');fireConfetti();document.getElementById('chk-remaining').textContent='';
- loadTL();
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-// ═══════ TIMELINE ═══════
-async function loadTL(){
- const c=document.getElementById('tl-container');
- if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>請登入查看</div>';return}
- showLoader('tl-container');
- try{
- let items=[];
- if(window.JYM&&window.JYM.checkin){
-  const data=await window.JYM.checkin.getCheckins(30);
-  (data||[]).forEach(row=>{
-   const u=row.users||{};
-   items.push({id:row.id,status:row.status,nickname:u.nickname||u.username||'',avatar:u.avatar||'',note:row.note||'',created_at:row.created_at?row.created_at.substring(0,16).replace('T',' '):'',likes:0,comments:0,reactions:0});
-  });
- }else{
-  const d=await api('/api/timeline?limit=30&lang='+lang);
-  items=(d.timeline||[]);
- }
- let h='';
- items.forEach(item=>{
- const st=STATUSES[item.status]||STATUSES[0];
- const av=item.avatar&&item.avatar.startsWith('/')?API_BASE+item.avatar:'';
- h+='<div class="tl-item"><div class="tl-avatar">'+(av?'<img src="'+av+'">':'🍺')+'</div><div class="tl-body"><div class="tl-name">'+esc(item.nickname)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
- h+='<button class="btn btn-outline btn-sm" onclick="doLike('+item.id+')">❤️ <span id="lk-'+item.id+'">'+(item.likes||0)+'</span></button>';
- h+='<button class="btn btn-outline btn-sm" onclick="openCmt('+item.id+')">💬 <span id="ct-'+item.id+'">'+(item.comments||0)+'</span></button>';
- h+='<div style="display:flex;gap:2px;flex-wrap:wrap">';
- RE_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="doRe('+item.id+',\''+e+'\')">'+e+'</button>'});
- h+='</div><span style="font-size:11px;color:var(--sub)">'+(item.reactions||0)+'</span></div></div></div>';
- });
- if(!items.length)h='<div class="empty"><div class="empty-icon">🍺</div>未有動態</div>';
- c.innerHTML=h;
- }catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>載入失敗</div>'}
-}
-async function doRe(cid,emoji){
- try{
- if(window.JYM&&window.JYM.reaction){await window.JYM.reaction.addReaction(cid,me.id,emoji)}
- else{await api('/api/reaction',{method:'POST',body:{checkin_id:cid,emoji}})}
- loadTL();
- }catch(e){}
-}
-async function doLike(cid){
- try{
- if(window.JYM&&window.JYM.like){await window.JYM.like.toggleLike(cid,me.id)}
- else{await api('/api/checkin/'+cid+'/like',{method:'POST'})}
- loadTL();
- }catch(e){}
-}
-
-// ═══════ COMMENTS ═══════
-function openCmt(cid){curCid=cid;const el=document.getElementById('cmt-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';document.getElementById('cmt-inp').value='';loadCmt(cid)}
-function closeCmt(){const el=document.getElementById('cmt-mod');el.style.display='none';el.classList.remove('show');curCid=null}
-async function loadCmt(cid){
- try{
- let comments=[];
- if(window.JYM&&window.JYM._supabaseOnly){
-  const{data,err}=await window.JYM.supabase.from('checkin_comments').select('*,users(username,nickname)').eq('checkin_id',cid).order('created_at',{ascending:true});
-  if(data)(data||[]).forEach(c=>{const u=c.users||{};comments.push({nickname:u.nickname||u.username||'',text:c.content,created_at:c.created_at?c.created_at.substring(0,16).replace('T',' '):''})});
- }else{
-  const d=await api('/api/checkin/'+cid+'/comments');comments=d.comments||[];
- }
- let h='';comments.forEach(c=>{h+='<div class="comment-item"><b>'+esc(c.nickname)+'</b>: '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
- if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有留言</div>';
- h+='<div class="emoji-picker">';CM_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="insEm(\''+e+'\')" style="font-size:22px">'+e+'</button>'});h+='</div>';
- document.getElementById('cmt-list').innerHTML=h;
- }catch(e){}
-}
-function insEm(e){document.getElementById('cmt-inp').value+=e;document.getElementById('cmt-inp').focus()}
-async function doCmt(){
- const t=document.getElementById('cmt-inp').value.trim();if(!t||!curCid)return;
- try{
- if(window.JYM&&window.JYM.comment){await window.JYM.comment.addComment(curCid,me.id,t)}
- else{await api('/api/checkin/'+curCid+'/comment',{method:'POST',body:{text:t}})}
- document.getElementById('cmt-inp').value='';loadCmt(curCid);loadTL();
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-// ═══════ PARTY ═══════
-async function createParty(){
- if(!me)return toast('請先登入',1);
- const title=document.getElementById('pa-title').value.trim(),loc=document.getElementById('pa-loc').value.trim(),
- d=document.getElementById('pa-date').value,tm=document.getElementById('pa-time').value;
- if(!title)return toast('輸入名稱',1);if(!d)return toast('選擇日期',1);
- try{
- if(window.JYM&&window.JYM.party){await window.JYM.party.createParty(me.id,title,'',loc,d+(tm?'T'+tm:''),0)}
- else{await api('/api/party',{method:'POST',body:{title,location:loc,meet_time:d+(tm?'T'+tm:''),lat:0,lng:0}})}
- document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();toast('✅ 酒局已發起');
- }catch(e){toast('❌ '+e.message,1)}
-}
-async function loadParties(){
- if(!me)return;
- try{
- let parties=[];
- if(window.JYM&&window.JYM.party){
-  const data=await window.JYM.party.getParties();
-  (data||[]).forEach(p=>{const u=p.users||{};parties.push({id:p.id,title:p.title,location:p.location,meet_time:p.event_date?p.event_date.substring(0,16).replace('T',' '):'',creator_nickname:u.nickname||u.username||'',going_count:0,attendees:[],journal_count:0})});
- }else{
-  const d=await api('/api/parties');parties=d.parties||[];
- }
- let h='';
- parties.forEach(p=>{const atts=p.attendees||[];
- h+='<div class="card"><div style="font-weight:700;font-size:15px">'+esc(p.title)+'</div><div style="font-size:12px;color:var(--sub);margin:6px 0">📍 '+(esc(p.location)||'未定')+' · 🕐 '+(p.meet_time||'未定')+'</div><div style="font-size:11px;color:var(--amber)">👑 '+esc(p.creator_nickname)+'</div>';
- h+='<div style="margin:8px 0"><span class="clickable" onclick="this.nextElementSibling.classList.toggle(\'open\')">👥 '+p.going_count+'人參加 ▸</span><div class="attendee-list">';
- atts.forEach(a=>{h+='<div class="attendee-row">'+(a.response==='going'?'✅':a.response==='maybe'?'🤔':'❌')+' <b>'+esc(a.nickname)+'</b></div>'});
- h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">✅ 到</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">🤔 可能</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">❌ 唔到</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">📝 記錄 ('+(p.journal_count||0)+')</button></div></div>';
- });
- if(!parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>未有酒局</div>';
- document.getElementById('party-list').innerHTML=h;
- }catch(e){}
-}
-async function rsvp(pid,resp){
- try{
- if(window.JYM&&window.JYM.party){await window.JYM.party.rsvpParty(pid,me.id,resp)}
- else{await api('/api/party/'+pid+'/rsvp',{method:'POST',body:{response:resp}})}
- loadParties();
- }catch(e){}
-}
-function openJnl(pid){curPid=pid;const el=document.getElementById('jnl-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';document.getElementById('jnl-inp').value='';loadJnl(pid)}
-function closeJnl(){const el=document.getElementById('jnl-mod');el.style.display='none';el.classList.remove('show');curPid=null}
-async function loadJnl(pid){
-  try{const d=await api('/api/party/'+pid+'/journal');let h='';
-    (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b>'+esc(j.nickname)+'</b>: '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
-    if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有記錄</div>';
-    document.getElementById('jnl-list').innerHTML=h;
-  }catch(e){}}
-async function doJnl(){const t=document.getElementById('jnl-inp').value.trim();if(!t||!curPid)return;try{await api('/api/party/'+curPid+'/journal',{method:'POST',body:{content:t}});document.getElementById('jnl-inp').value='';loadJnl(curPid);loadParties()}catch(e){toast('❌ '+e.message,1)}}
-
-// ═══════ STATS ═══════
-async function loadStats(){
- if(!me)return;
- try{
- if(window.JYM&&window.JYM._supabaseOnly){
-  const sb=window.JYM.supabase;
-  const{count:total}=await sb.from('checkins').select('*',{count:'exact',head:true}).eq('user_id',me.id);
-  const weekAgo=new Date();weekAgo.setDate(weekAgo.getDate()-7);
-  const{count:week}=await sb.from('checkins').select('*',{count:'exact',head:true}).eq('user_id',me.id).gte('created_at',weekAgo.toISOString());
-  const today=new Date();today.setHours(0,0,0,0);
-  const{count:todayC}=await sb.from('checkins').select('*',{count:'exact',head:true}).eq('user_id',me.id).gte('created_at',today.toISOString());
-  document.getElementById('st-total').textContent=total||0;document.getElementById('st-week').textContent=week||0;document.getElementById('st-today').textContent=todayC||0;
-  // Status distribution
-  const{data:distData}=await sb.from('checkins').select('status').eq('user_id',me.id);
-  const dist={};(distData||[]).forEach(r=>{dist[r.status]=(dist[r.status]||0)+1});
-  let h='<div class="card"><div class="card-header">📊 狀態分佈</div>';
-  if(!Object.keys(dist).length)h+='<div style="color:var(--sub);font-size:12px;padding:8px">冇數據</div>';
-  else Object.entries(dist).forEach(([k,v])=>{const st=STATUSES[parseInt(k)]||STATUSES[0];h+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span>'+T(st.k)+' '+st.e+'</span><span style="color:var(--amber);font-weight:600">'+v+'次</span></div>'});
-  h+='</div>';document.getElementById('st-dist').innerHTML=h;
- }else{
-  const d=await api('/api/stats');document.getElementById('st-total').textContent=d.total||0;document.getElementById('st-week').textContent=d.week||0;document.getElementById('st-today').textContent=d.today||0;let h='<div class="card"><div class="card-header">📊 狀態分佈</div>';const dist=d.status_dist||{};if(!Object.keys(dist).length)h+='<div style="color:var(--sub);font-size:12px;padding:8px">冇數據</div>';else Object.entries(dist).forEach(([k,v])=>{const st=STATUSES[parseInt(k)]||STATUSES[0];h+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span>'+T(st.k)+' '+st.e+'</span><span style="color:var(--amber);font-weight:600">'+v+'次</span></div>'});h+='</div>';document.getElementById('st-dist').innerHTML=h;
- }
- }catch(e){}
-}
-
-// ═══════ MEMBER ═══════
-function updMem(){const s=document.getElementById('mem-status'),e=document.getElementById('mem-exp');if(!me)return;if(me.membership&&me.membership!=='free'){s.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');e.textContent='到期：'+(me.member_expires||'永久')}else{s.textContent='🆓 免費會員';e.textContent='升級享受完整功能'}}
-function selP(p){selPlan=p;document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));const el=document.getElementById('plan-'+p);if(el)el.classList.add('selected');showPay()}
-function showPay(){if(!me)return toast('請先登入',1);document.getElementById('pay-plan-name').textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';document.getElementById('pay-usd').textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');document.getElementById('pay-mod').style.display='flex'}
-function closePay(){document.getElementById('pay-mod').style.display='none'}
-
-// ═══════ LEGAL (Terms / Disclaimer / Contact) ═══════
-let legalTab='terms';
-function openLegal(tab){
-  legalTab=tab||'terms';swLegalTab(legalTab);
-  document.getElementById('legal-mod').style.display='flex';
-}
-function closeLegal(){document.getElementById('legal-mod').style.display='none'}
-function swLegalTab(tab){
-  legalTab=tab;
-  const map={terms:'terms_content',disc:'disclaimer_content',ct:'contact_content'};
-  const tabMap={terms:'terms',disc:'disclaimer',ct:'contact'};
-  ['terms','disc','ct'].forEach(t=>document.getElementById('lt-'+t).classList.toggle('active',t===tab));
-  document.getElementById('legal-content').textContent=T(map[tab]||'terms_content');
-}
-function updLegalLinks(){
-  document.querySelectorAll('[data-legal-link]').forEach(a=>{
-    const k=a.getAttribute('data-legal-link');
-    if(k==='terms')a.textContent=T('terms');
-    else if(k==='disclaimer')a.textContent=T('disclaimer');
-    else if(k==='contact')a.textContent=T('contact');
-  });
-  const ag=document.getElementById('r-agree-txt');
-  if(ag)ag.textContent=T('agree');
-  const lt=document.getElementById('lt-terms-txt');if(lt)lt.textContent=T('terms');
-  const ld=document.getElementById('lt-disc-txt');if(ld)ld.textContent=T('disclaimer');
-  const lc=document.getElementById('lt-ct-txt');if(lc)lc.textContent=T('contact');
-}
-function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');var src=(ASSET_BASE||API_BASE)+QR_M[t];img.src=src;img.style.display='block';document.getElementById('pay-fb').style.display='none';img.onerror=function(){if(img.src.indexOf(API_BASE)<0&&API_BASE){img.src=API_BASE+QR_M[t]}else{img.style.display='none';document.getElementById('pay-fb').style.display='block'}}}
-async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});me.membership=r.membership;me.member_expires=r.expires;saveS();closePay();updateNav();updMem();toast('✅ 升級成功')}catch(e){toast('❌ '+e.message,1)}}
-
-// ═══════ PROFILE ═══════
-function openProfile(){
-  const el=document.getElementById('prof-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
-  document.getElementById('p-nick').value=me?.nickname||'';
-  document.getElementById('p-phone').value=me?.phone||'';
-  document.getElementById('p-email').value=me?.email||'';
-  document.getElementById('p-oldpw').value='';document.getElementById('p-newpw').value='';
-  if(me?.avatar && me.avatar.startsWith('/api/avatar/')){
-    document.getElementById('av-prev').innerHTML='<img src="'+API_BASE+me.avatar+'">';
-  } else {
-    document.getElementById('av-prev').textContent=(me?.nickname||me?.username||'?').charAt(0).toUpperCase();
-  }
-}
-function closeProf(){const el=document.getElementById('prof-mod');el.style.display='none';el.classList.remove('show')}
-function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('av-prev').innerHTML='<img src="'+ev.target.result+'">'};r.readAsDataURL(f)}
-async function saveProf(){
- // Handle avatar upload first
- var avFile=document.getElementById('av-inp').files[0];
- if(avFile){
-  var reader=new FileReader();
-  reader.onload=async function(ev){
-   try{await api('/api/update-avatar',{method:'POST',body:{avatar:ev.target.result}});console.log('头像上伝成功');_doSaveProf()}catch(e){alert('头像上伝失敗：'+e.message)}
-  };
-  reader.readAsDataURL(avFile);return;
- }
- _doSaveProf();
-}
-async function _doSaveProf(){
- if(!me)return toast('請先登入',1);
- const nick=document.getElementById('p-nick').value.trim(),
-       phone=document.getElementById('p-phone')?.value?.trim()||'',
-       email=document.getElementById('p-email')?.value?.trim()||'',
-       oldpw=document.getElementById('p-oldpw').value,
-       newpw=document.getElementById('p-newpw').value,
-       avatar=document.querySelector('#av-prev img')?.src||'';
- try{
-  // Update profile (nickname, phone, email) — skip for admin (id=0, not in DB)
-  if(me?.id !== 0){
-   const profileData = {nickname:nick};
-   if(phone) profileData.phone = phone;
-   if(email) profileData.email = email;
-   if(nick || phone || email){
-    const r=await api('/api/update-profile',{method:'POST',body:profileData});
-    if(r.user){Object.assign(me,r.user);me.avatar=me.avatar||'';}
-   }
-  }
-  // Change password
-  if(oldpw&&newpw){
-   if(newpw.length<4)return toast('新密碼最少4位',1);
-   if(me?.id===0 && adminToken){
-    // Admin Mode 1: change admin key via DB config
-    const r=await fetch(API_BASE+'/api/admin/change-own-key',{method:'POST',headers:_admHeaders(),body:JSON.stringify({new_key:newpw})});
-    const dd=await r.json();if(!dd.ok)throw new Error(dd.error||'改密失敗');
-   } else {
-    // Normal user: change with old password
-    await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}});
-   }
-   toast('✅ 密碼已更改');
-  }
-  // Avatar update — skip for admin (id=0, not in DB)
-  if(me?.id !== 0 && avatar&&avatar.startsWith('data:')){
-   const r=await api('/api/update-avatar',{method:'POST',body:{avatar}});
-   me.avatar=r.url||'';
-  }
-  saveS();updateNav();closeProf();toast('✅ 已更新');
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin()}
-
-// Admin entry: long-press brand name 3s or tap 5x opens login dialog (type 'admin' to enter admin mode)
-let adminToken = localStorage.getItem('jymy_admin_token') || '';
-let _admTimer = null;
-
-// Long press / 5x tap brand name → just open auth dialog (user types 'admin' as username)
-let _admTapCount = 0, _admTapTimer = null;
-function admTitleTap(){
- _admTapCount++;
- if(_admTapTimer) clearTimeout(_admTapTimer);
- _admTapTimer = setTimeout(()=>{ _admTapCount = 0; }, 2000);
- if(_admTapCount >= 5){ _admTapCount = 0; showAuth(); document.getElementById('l-user').value='admin'; document.getElementById('l-pass').focus(); }
-}
-function admLongPressStart(){
- _admTimer = setTimeout(()=>{ showAuth(); document.getElementById('l-user').value='admin'; document.getElementById('l-pass').focus(); }, 3000);
-}
-function admLongPressCancel(){
- if(_admTimer){ clearTimeout(_admTimer); _admTimer=null; }
-}
-
-// Supabase admin helper — 用当前登录用户 session token
-// 注意：Supabase v2 将 session 存喺 localStorage，key 格式系 sb-{projectRef}-auth-token
-function _admHeaders(){
- const h = {};
- h['Content-Type'] = 'application/json';
- h['X-Admin-Token'] = adminToken || '';
- if(me) h['Authorization'] = 'Bearer ' + localStorage.getItem('jymy_token');
- h['Prefer'] = 'return=representation';
- return h;
-}
-const _SB_REST = location.origin + '/api/admin/rest-redirect';  // Flask admin API proxy
-
-async function _admCheck(){
- // Mode 1: Already logged in with admin key
- if(adminToken){
-  try{
-   const payload = atob(adminToken);
-   if(payload.startsWith('0:admin_key_login')) return; // valid admin key token
-   // Mode 2: Check if it's a valid user-based admin token (uid:admin_login)
-   const parts = payload.split(':');
-   if(parts.length >= 2 && parts[0] !== '0' && !isNaN(parseInt(parts[0]))){
-    return; // valid Mode 2 admin token
-   }
-  }catch(e){}
- }
- // Mode 2 fallback: Current user is admin but no adminToken yet
- if(!me || me.admin !== 1) throw new Error('無管理員權限');
- // Try to acquire adminToken via Mode 2 login
- const pw = sessionStorage.getItem('jymy_pw');
- if(pw){
-  try{
-   const r=await fetch(API_BASE+'/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:me.username,password:pw})});
-   const d=await r.json();
-   if(r.ok && d.token){adminToken=d.token;localStorage.setItem('jymy_admin_token',adminToken);return;}
-  }catch(e){}
- }
- throw new Error('管理員驗證失敗，請重新登入');
-}
-
-function admOpen(){
- if(!adminToken){
-  // Try _admCheck first (may auto-acquire adminToken via Mode 2)
-  if(me && me.admin === 1){
-   _admCheck().then(()=>{admOpen()}).catch(()=>{showAuth();document.getElementById('l-user').value='admin';document.getElementById('l-pass').focus()});
-   return;
-  }
-  showAuth(); document.getElementById('l-user').value='admin'; document.getElementById('l-pass').focus(); return;
- }
- // Ensure virtual admin user exists for Mode 1 admin
- if(me && me.id === 0 && me.username === 'admin'){
-  // Already virtual admin (Mode 1)
- }else if(me && me.admin === 1){
-  // Mode 2 admin user — keep real me
- }else if(!me || me.username !== 'admin'){
-  me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
-  saveS();updateNav();
- }
- const el=document.getElementById('admin-mod');
- el.style.display='flex';el.style.position='fixed';el.classList.add('show');
- el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
- document.getElementById('adm-admin-name').textContent='管理員';
- admShowTab('stats');
- loadAdmStats();
-}
-function admClose(){
- const el=document.getElementById('admin-mod');el.style.display='none';el.classList.remove('show');
-}
-
-function admLogout(){
- adminToken = '';
- localStorage.removeItem('jymy_admin_token');
- admClose();
- toast('🔒 管理面板已關閉');
-}
-
-function admShowTab(name){
- document.querySelectorAll('.adm-tab').forEach(t=>t.classList.remove('active'));
- document.querySelectorAll('.adm-page').forEach(p=>p.classList.remove('active'));
- const tb = document.querySelector('[data-adm="'+name+'"]');
- if(tb) tb.classList.add('active');
- const pg = document.getElementById('adm-'+name);
- if(pg) pg.classList.add('active');
- // 切换 tab 时加载对应数据
- if(name==='stats') loadAdmStats();
- else if(name==='members') admLoadMembers();
- else if(name==='payments') admLoadPayments();
- else if(name==='expired') admLoadExpired();
- else if(name==='audit') admLoadAudit();
-}
-
-async function loadAdmin(){
- const ddAdmin = document.getElementById('dd-admin');
- if(ddAdmin) ddAdmin.style.display = adminToken ? 'block' : 'none';
-}
-
-async function loadAdmStats(){
- try{
-  await _admCheck();
-  const h = _admHeaders();
-  const r = await fetch(API_BASE+'/api/admin/stats',{headers:h});
-  const d = await r.json();
-  const s = d.stats || {};
-  document.getElementById('adm-users').textContent = s.total_users || 0;
-  document.getElementById('adm-checkins').textContent = s.total_checkins || 0;
-  document.getElementById('adm-vips').textContent = s.vip_count || 0;
-  document.getElementById('adm-parties').textContent = s.total_parties || 0;
- }catch(e){console.error('loadAdmStats', e)}
-}
-
-// ── Admin: Change admin key (Mode 1) or DB admin password ──
-async function admShowChangePw(){
- const pw = prompt('輸入新管理密碼（至少4位）：');
- if(!pw||pw.length<4){toast('❌ 密碼至少4位');return}
- const pw2 = prompt('確認新密碼：');
- if(pw!==pw2){toast('❌ 兩次密碼唔一致',1);return}
- try{
-  // Update admin_key in DB config (no restart needed)
-  const r=await fetch(API_BASE+'/api/admin/change-own-key',{method:'POST',headers:_admHeaders(),body:JSON.stringify({new_key:pw})});
-  const d=await r.json();
-  if(d.ok) toast('✅ 管理密碼已修改，下次請用新密碼登入');
-  else toast('❌ '+(d.error||'失敗'),1);
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-// ── Admin: Edit user profile ──
-async function admEditUser(uid, username){
- const nick = prompt('花名 ('+username+')：');
- if(nick===null) return;
- const phone = prompt('電話：');
- if(phone===null) return;
- const email = prompt('電郵：');
- if(email===null) return;
- try{
-  await _admCheck();
-  const h = _admHeaders();
-  const body = {user_id:uid};
-  if(nick!=='') body.nickname = nick;
-  body.phone = phone||'';
-  body.email = email||'';
-  const r=await fetch(API_BASE+'/api/admin/update-profile',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify(body)});
-  const d=await r.json();
-  if(d.ok) toast('✅ 已更新');
-  else toast('❌ '+(d.error||'失敗'),1);
-  admLoadMembers();
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-// ── Admin: Reset user password ──
-async function admResetPw(uid, username){
- const pw = prompt('為 '+username+' 設定新密碼（至少4位）：');
- if(!pw||pw.length<4){if(pw!==null)toast('❌ 密碼至少4位');return}
- try{
-  await _admCheck();
-  const h = _admHeaders();
-  const r=await fetch(API_BASE+'/api/admin/change-password',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify({user_id:uid,new_password:pw})});
-  const d=await r.json();
-  if(d.ok) toast('✅ 密碼已重設');
-  else toast('❌ '+(d.error||'失敗'),1);
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-// ── Members ──
-async function admLoadMembers(){
- if(!adminToken) return;
- try{
- await _admCheck();
- const h = _admHeaders();
- const data=await fetch(API_BASE+'/api/admin/members',{headers:h}).then(r=>r.json()); const users=data.users||[];
- let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索用戶名/花名..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0"><button class="btn btn-outline btn-sm" onclick="admSearchMember()">搜索</button></div>';
- users.forEach(u => {
- const plan = u.membership || 'free';
- const exp = u.member_expires || '—';
- const isExp = u.member_expires && u.member_expires < new Date().toISOString().split('T')[0];
- const isAdm = u.admin === 1;
- html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
- html += '<div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
- html += '<div style="font-size:11px;color:var(--sub);margin:2px 0">ID:'+u.id+' · 註冊:'+(u.created_at||'')+(u.phone?' · 📞 '+esc(u.phone):'')+(u.email?' · 📧 '+esc(u.email):'')+'</div>';
- html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
- html += '<span style="font-size:12px;padding:2px 8px;border-radius:4px;background:'+(plan==='free'?'var(--card)':isExp?'var(--red)':'linear-gradient(135deg,var(--amber),var(--purple))')+';color:#fff">'+(plan==='free'?'🆓':plan)+'</span>';
- if(isAdm) html += '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--pink);color:#fff">👑 管理員</span>';
- html += '<span style="font-size:10px;color:var(--sub)">'+(isExp?'⚠️ 已到期':exp)+'</span>';
- html += '<select onchange="admSetPlan('+u.id+',this.value)" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px">';
- ['free','jiuyau','jaugwai','jausan','admin'].forEach(p => {
- html += '<option value="'+p+'"'+(plan===p?' selected':'')+'>'+p+'</option>';
- });
- html += '</select>';
- html += '<button class="btn btn-outline btn-sm" onclick="admVerifyMember('+u.id+')" style="font-size:10px;padding:2px 8px">✅ 確認</button>';
- if(isAdm){
- html += '<button class="btn btn-outline btn-sm" onclick="admRevokeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">👑 取消</button>';
- } else {
- html += '<button class="btn btn-outline btn-sm" onclick="admMakeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--purple);border-color:var(--purple)">👑 設管理</button>';
- }
- html += ' <button class="btn btn-outline btn-sm" onclick="admEditUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--amber);border-color:var(--amber)">✏️ 編輯</button>';
- html += ' <button class="btn btn-outline btn-sm" onclick="admResetPw('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--blue);border-color:var(--blue)">🔑 改密</button>';
- html += ' <button class="btn btn-outline btn-sm" onclick="admDeleteUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">🗑 刪除</button>';
- html += '</div></div></div>';
- });
- if(!users.length) html += '<div class="empty"><div class="empty-icon">👥</div>暫無用戶</div>';
- document.getElementById('adm-member-list').innerHTML = html;
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-async function admSearchMember(){
- const q = document.getElementById('adm-search-q').value.trim();
- if(!q) return admLoadMembers();
- try{
- await _admCheck();
- const h = _admHeaders();
- const data=await fetch(API_BASE+'/api/admin/member/search?q='+encodeURIComponent(q),{headers:h}).then(r=>r.json()); const users=data.users||[];
- let html = '<div style="display:flex;gap:8px;margin-bottom:8px"><input class="input" id="adm-search-q" placeholder="🔍 搜索..." onkeydown="if(event.key===\'Enter\')admSearchMember()" style="flex:1;margin-bottom:0" value="'+esc(q)+'"><button class="btn btn-outline btn-sm" onclick="admLoadMembers()">顯示全部</button></div>';
- users.forEach(u => {
- const plan = u.membership || 'free';
- const isAdm = u.admin === 1;
- html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body"><div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
- html += '<div style="font-size:11px;color:var(--sub)">ID:'+u.id+' · '+plan+' · '+(u.member_expires||'—')+(u.phone?' · 📞 '+esc(u.phone):'')+(u.email?' · 📧 '+esc(u.email):'')+'</div>';
- html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
- html += '<select onchange="admSetPlan('+u.id+',this.value)" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px">';
- ['free','jiuyau','jaugwai','jausan','admin'].forEach(p => {
- html += '<option value="'+p+'"'+(plan===p?' selected':'')+'>'+p+'</option>';
- });
- html += '</select>';
- html += '<button class="btn btn-outline btn-sm" onclick="admVerifyMember('+u.id+')" style="font-size:10px;padding:2px 8px">✅ 確認</button>';
- if(isAdm){
-  html += '<button class="btn btn-outline btn-sm" onclick="admRevokeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">👑 取消</button>';
- } else {
-  html += '<button class="btn btn-outline btn-sm" onclick="admMakeAdmin('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--purple);border-color:var(--purple)">👑 設管理</button>';
- }
- html += ' <button class="btn btn-outline btn-sm" onclick="admEditUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--amber);border-color:var(--amber)">✏️ 編輯</button>';
- html += ' <button class="btn btn-outline btn-sm" onclick="admResetPw('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--blue);border-color:var(--blue)">🔑 改密</button>';
- html += ' <button class="btn btn-outline btn-sm" onclick="admDeleteUser('+u.id+',\''+esc(u.username)+'\')" style="font-size:10px;padding:2px 8px;color:var(--red);border-color:var(--red)">🗑 刪除</button>';
- html += '</div></div></div>';
- });
- if(!users.length) html += '<div class="empty"><div class="empty-icon">🔍</div>冇結果</div>';
- document.getElementById('adm-member-list').innerHTML = html;
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-async function admSetPlan(uid, plan){
- try{
-  await _admCheck();
-  const h = _admHeaders();
-  const r = await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
-  const d = await r.json();
-  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
-  toast('✅ '+(d.msg||'已更新')+' → '+(d.membership||plan));
-  // If admin changed own membership, refresh me
-  if(me && me.id === uid){me.membership=d.membership||plan;me.member_expires=d.expires||'';saveS();updateNav();initDice();}
-  admLoadMembers();
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-async function admVerifyMember(uid){
- const plan = prompt('設定會員方案 (jiuyau/jaugwai/jausan/free)：','jiuyau');
- if(!plan) return;
- const days = prompt('有效期天數（free 則輸入 0）：','30');
- if(days===null) return;
- try{
-  await _admCheck();
-  const h = _admHeaders();
-  const r = await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:parseInt(days)||30})});
-  const d = await r.json();
-  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
-  toast('✅ '+(d.membership||plan)+' 已設置');
-  if(me && me.id === uid){me.membership=d.membership||plan;me.member_expires=d.expires||'';saveS();updateNav();initDice();}
-  admLoadMembers();
- }catch(e){toast('❌ '+e.message,1)}
- }
-
- // ── Admin: Reset member password (需后端，暂不可用) ──
-async function admResetMemberPw(uid){
- toast('❌ Supabase 模式下暫不支持直接改密',1);
-}
-
-// ── Admin: Make/Revoke admin ──
-async function admMakeAdmin(uid, username){
- if(!confirm('確定將「'+username+'」設定為管理員？')) return;
- try{
-  await _admCheck();
-  const h = _admHeaders();
-  const r = await fetch(API_BASE+'/api/admin/become',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,username:username})});
-  const d = await r.json();
-  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
-  toast('✅ '+(d.msg||'已設為管理員'));
-  admLoadMembers();
- }catch(e){toast('❌ '+e.message,1)}
-}
-async function admRevokeAdmin(uid, username){
- if(!confirm('確定取消「'+username+'」的管理員權限？')) return;
- try{
-  await _admCheck();
-  const h = _admHeaders();
-  const r = await fetch(API_BASE+'/api/admin/revoke',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,username:username})});
-  const d = await r.json();
-  if(!r.ok) return toast('❌ '+(d.error||'取消失敗'),1);
-  toast('✅ '+(d.msg||'已取消管理員'));
-  admLoadMembers();
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-async function admDeleteUser(uid, username){
- if(!confirm('⚠️ 確定刪除用戶「'+username+'」？\n此操作將刪除該用戶及其所有報到記錄，不可撤銷！')) return;
- try{
- await _admCheck();
- const h = _admHeaders();
- const r = await fetch(API_BASE+'/api/admin/delete-user',{method:'POST',headers:h,body:JSON.stringify({user_id:uid})});
- const d = await r.json();
- toast(d.ok?'✅ '+d.msg:'❌ '+(d.error||'刪除失敗'));
- admLoadMembers();
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-// ── Payments ──
-async function admLoadPayments(){
- if(!adminToken) return;
- try{
- await _admCheck();
- const h = _admHeaders();
- const pData=await fetch(API_BASE+'/api/admin/payments',{headers:h}).then(r=>r.json()); const payments=pData.payments||[];
- let html = '';
- payments.forEach(p => {
- const isConfirmed = p.confirmed === 1;
- html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
- html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">';
- html += '<div><b>'+esc(p.nickname||p.username||'')+'</b> <span style="font-size:11px;color:var(--sub)">@'+esc(p.username||'')+'</span></div>';
- html += '<span style="font-size:13px;font-weight:700;color:'+(isConfirmed?'var(--green)':'var(--amber)')+'">¥'+p.amount+' · '+p.plan+'</span>';
- html += '</div>';
- html += '<div style="font-size:11px;color:var(--sub);margin:4px 0">方式：'+p.method+' · '+(p.paid_at||'')+'</div>';
- if(p.receipt) html += '<div style="font-size:10px;color:var(--sub);background:var(--bg);border-radius:4px;padding:4px;margin:4px 0;word-break:break-all">收據：'+esc(p.receipt)+'</div>';
- html += '<div style="display:flex;gap:6px;margin-top:4px">';
- if(!isConfirmed){
- html += '<button class="btn btn-outline btn-sm" onclick="admConfirmPayment('+p.id+',true)" style="background:var(--green);color:#fff;border-color:var(--green)">✅ 確認</button>';
- html += '<button class="btn btn-outline btn-sm" onclick="admConfirmPayment('+p.id+',false)" style="color:var(--red);border-color:var(--red)">❌ 拒絕</button>';
- } else {
- html += '<span style="font-size:11px;color:var(--green)">✅ 已確認</span>';
- }
- html += '</div></div></div>';
- });
- if(!payments.length) html = '<div class="empty"><div class="empty-icon">💳</div>暫無付款紀錄</div>';
- document.getElementById('adm-payment-list').innerHTML = html;
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-async function admConfirmPayment(pid, confirm){
- try{
- await _admCheck();
- const h = _admHeaders();
- const patch = confirm ? {confirmed:1} : {confirmed:-1};
- await fetch(API_BASE+'/api/admin/payment/confirm',{method:'POST',headers:h,body:JSON.stringify({payment_id:pid,confirm:patch.confirmed!==0})});
- toast(confirm?'✅ 已確認':'❌ 已拒絕');
- admLoadPayments();
- admLoadMembers();
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-// ── Expired Members ──
-async function admLoadExpired(){
- if(!adminToken) return;
- try{
- await _admCheck();
- const h = _admHeaders();
- const today = new Date().toISOString().split('T')[0];
- const mData=await fetch(API_BASE+'/api/admin/member/expired',{headers:h}).then(r=>r.json()); const members=mData.members||[];
- let html = '';
- members.forEach(m => {
- html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
- html += '<div class="tl-name">'+esc(m.nickname||m.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(m.username)+'</span></div>';
- html += '<div style="font-size:11px;margin:4px 0;color:var(--red)">⚠️ 已到期：'+m.member_expires+'</div>';
- html += '<div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="admVerifyMember('+m.id+')">🔄 續期</button></div>';
- html += '</div></div>';
- });
- if(!members.length) html = '<div class="empty"><div class="empty-icon">✅</div>所有會員都係有效嘅</div>';
- document.getElementById('adm-expired-list').innerHTML = html;
- }catch(e){toast('❌ '+e.message,1)}
-}
-
-// ── Audit Log ──
-async function admLoadAudit(){
- if(!adminToken) return;
- try{
- await _admCheck();
- const h = _admHeaders();
- const aData=await fetch(API_BASE+'/api/admin/member/audit?limit=50',{headers:h}).then(r=>r.json()); const audit=aData.audit||[];
- let html = '';
- (audit||[]).forEach(a => {
- html += '<div class="tl-item" style="padding:6px 0"><div class="tl-body">';
- html += '<div style="font-size:12px"><b>'+esc(a.nickname||a.username||'')+'</b> ';
- html += esc(a.action||'')+': '+esc(a.old_plan||'—')+' → '+esc(a.new_plan||'free');
- html += '<span style="color:var(--sub);font-size:10px;margin-left:8px">'+(a.created_at||'')+'</span></div>';
- if(a.note) html += '<div style="font-size:10px;color:var(--sub)">📝 '+esc(a.note)+'</div>';
- html += '</div></div>';
- });
- if(!audit||!audit.length) html = '<div class="empty"><div class="empty-icon">📋</div>暫無操作紀錄</div>';
- document.getElementById('adm-audit-list').innerHTML = html;
- }catch(e){
- // audit_log 表可能不存在，显示空
- document.getElementById('adm-audit-list').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>暫無操作紀錄</div>';
- }
-}
-
-// ═══════ INIT ═══════
-(function initNow(){
- // Ensure all modals hidden on page load
- ['auth-mod','prof-mod','cmt-mod','jnl-mod','admin-mod'].forEach(id=>{
- const el=document.getElementById(id);if(el){el.style.display='none';el.classList.remove('show')}
- });
- document.getElementById('pa-date').value=new Date().toISOString().split('T')[0];
- // Fix cover image src for APK mode
- if(ASSET_BASE){
- var ci=document.getElementById('cover-img');if(ci)ci.src=ASSET_BASE+'/cover.png';
- // APK 内部模式：隐藏 APK 下载按钮（已经喺 App 入面）
- var al=document.getElementById('apk-dl-link');if(al){var card=al.closest('.card');if(card)card.style.display='none';}
- }
- buildGrid();updTitles();
- // 等 JYM Supabase client 初始化完先恢复会话
- function startApp(){ restoreS().then(ok=>{updateNav();if(me){refreshAll()}else{setTimeout(showAuth,600);loadAdmin()}}); }
- if(window.JYM && window.JYM.auth){ startApp(); }
- else{ // JYM 未初始化（Supabase SDK 加载中），等一下再试
- var _jymWait=setInterval(function(){if(window.JYM&&window.JYM.auth){clearInterval(_jymWait);startApp();}},100);
- setTimeout(function(){clearInterval(_jymWait);if(!window.JYM||!window.JYM.auth){console.error('[JYM] Supabase not available — showing auth anyway');showAuth();}},5000);
- }
-})();
-
-// ═══════ ADMIN EXTRA FUNCTIONS ═══════
-function admBulkRenew(){
- if(!confirm('確定將所有到期會員續期30日？'))return;
- _admCheck().then(()=>{
-  const h=_admHeaders();
-  const today=new Date().toISOString().split('T')[0];
-  const newExp=new Date(Date.now()+30*86400000).toISOString().split('T')[0];
-  fetch(API_BASE+'/api/admin/batch-extend',{method:'POST',headers:h,body:JSON.stringify({new_expires:newExp})})
-  .then(()=>{toast('✅ 已續期');admLoadMembers();admLoadExpired()})
-  .catch(e=>toast('❌ '+e.message,1));
- }).catch(e=>toast('❌ '+e.message,1));
-}
-
-function admExportCSV(){
- _admCheck().then(()=>{
-  const h=_admHeaders();
-  fetch(API_BASE+'/api/admin/members',{headers:h}).then(r=>r.json()).then(d=>{var users=d.users||[];
-   var csv='ID,用戶名,花名,會員,到期日,註冊日\n';
-   users.forEach(u=>{
-    csv+=u.id+','+u.username+','+(u.nickname||'')+','+(u.membership||'free')+','+(u.member_expires||'')+','+(u.created_at||'')+'\n';
-   });
-   var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-   var url=URL.createObjectURL(blob);
-   var a=document.createElement('a');a.href=url;a.download='members_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
-   URL.revokeObjectURL(url);
-   toast('✅ 已匯出');
-  });
- }).catch(e=>toast('❌ '+e.message,1));
-}
-
-function admClearExpired(){
- if(!confirm('確定將所有到期會員降為免費？'))return;
- _admCheck().then(()=>{
-  const h=_admHeaders();
-  const today=new Date().toISOString().split('T')[0];
-  fetch(API_BASE+'/api/admin/batch-free',{method:'POST',headers:h})
-  .then(()=>{toast('✅ 已清除');admLoadMembers();admLoadExpired()})
-  .catch(e=>toast('❌ '+e.message,1));
- }).catch(e=>toast('❌ '+e.message,1));
-}
-
-function admSendNotify(){
- toast('ℹ️ 推送通知需後端支持，暫不可用',1);
-}
-
-function admSetServer(){
- var url=document.getElementById('adm-server-url').value.trim();
- if(!url){toast('❌ 請輸入地址',1);return}
- localStorage.setItem('jymy_server',url);
- if(window.JymyNative&&window.JymyNative.setServerUrl)window.JymyNative.setServerUrl(url);
- toast('✅ 伺服器已儲存：'+url);
-}
-
-// ═══════ 🎲 DICE GAME — REALISTIC 3D DICE ═══════
-const DICE_MEM_LIMITS={free:2,jiuyau:3,jaugwai:4,jausan:5};
-const DICE_ROOM_LEVEL={free:false,jiuyau:false,jaugwai:true,jausan:true};
-let _diceCount=2,_diceVals=[],_diceShaking=false,_diceBC=null,_diceRoom=null,_diceIsHost=false;
-try{_diceBC=new BroadcastChannel('dice-room')}catch(e){}
-
-function _diceMem(){var m=(me&&me.membership)||'free';return(m==='admin'?'jausan':m)}
-function _diceName(){return(me&&me.nickname)||'玩家'}
-
-// Inject 3D dice CSS once
-(function(){
- if(document.getElementById('dice3d-css'))return;
- var s=document.createElement('style');s.id='dice3d-css';
- s.textContent=
-  '.dice-num-btn{width:42px;height:42px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:18px;font-weight:700;cursor:pointer;transition:all .2s}.dice-num-btn.active{border-color:var(--amber);background:rgba(245,158,11,0.12);color:var(--amber)}.dice-num-btn.locked{opacity:0.3;cursor:not-allowed}'+
-  '.mini-die{width:26px;height:26px;background:#FEF3C7;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#1E1E2E;margin:2px}.mini-die.hid{background:var(--card);color:var(--sub)}'+
-  '.d3d{width:56px;height:56px;position:relative;transform-style:preserve-3d;transition:transform 0.8s cubic-bezier(0.22,0.9,0.36,1);transform:rotateX(-25deg) rotateY(25deg)}'+
-  '.d3d.bouncing{animation:dbounce 0.5s cubic-bezier(0.34,1.56,0.64,1)}'+
-  '@keyframes dbounce{0%{transform:translateY(0) rotateX(-25deg) rotateY(25deg)}30%{transform:translateY(-30px) rotateX(120deg) rotateY(80deg)}60%{transform:translateY(0) rotateX(240deg) rotateY(160deg)}80%{transform:translateY(-8px) rotateX(300deg) rotateY(220deg)}100%{transform:translateY(0)}}'+
-  '.d3d.rolling{animation:droll 0.1s linear infinite}'+
-  '@keyframes droll{0%{transform:rotateX(0) rotateY(0)}25%{transform:rotateX(90deg) rotateY(45deg) rotateZ(10deg)}50%{transform:rotateX(180deg) rotateY(90deg) rotateZ(-10deg)}75%{transform:rotateX(270deg) rotateY(135deg) rotateZ(10deg)}100%{transform:rotateX(360deg) rotateY(180deg) rotateZ(0)}}'+
-  '.d3face{position:absolute;width:56px;height:56px;border-radius:10px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:6px;backface-visibility:hidden}'+
-  '.d3face.f1{transform:translateZ(28px);background:linear-gradient(135deg,#FFFBEB,#FEF3C7);box-shadow:inset 0 0 8px rgba(0,0,0,0.05),0 0 4px rgba(0,0,0,0.1)}'+
-  '.d3face.f6{transform:rotateY(180deg) translateZ(28px);background:linear-gradient(135deg,#FEF3C7,#FDE68A);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f2{transform:rotateY(90deg) translateZ(28px);background:linear-gradient(135deg,#FFFBEB,#FEF3C7);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f5{transform:rotateY(-90deg) translateZ(28px);background:linear-gradient(135deg,#FEF3C7,#FDE68A);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f3{transform:rotateX(90deg) translateZ(28px);background:linear-gradient(135deg,#FFFBEB,#FEF3C7);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f4{transform:rotateX(-90deg) translateZ(28px);background:linear-gradient(135deg,#FEF3C7,#FDE68A);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.ddot{width:11px;height:11px;border-radius:50%;align-self:center;justify-self:center;box-shadow:inset 0 -1px 2px rgba(0,0,0,0.3),0 1px 1px rgba(255,255,255,0.4);background:radial-gradient(circle at 35% 35%,#4a3728,#1a1209)}.ddot.off{visibility:hidden}'+
-  '.d3cup{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:70px;background:linear-gradient(180deg,#8B5E3C 0%,#6B3F1F 40%,#4A2A10 100%);border-radius:10px 10px 40% 40%;box-shadow:0 8px 20px rgba(0,0,0,0.6),inset 0 -4px 8px rgba(255,255,255,0.1),inset 0 4px 8px rgba(0,0,0,0.3);z-index:10;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;justify-content:center}'+
-  '.d3cup::before{content:"";position:absolute;top:4px;left:10px;right:10px;height:8px;background:linear-gradient(180deg,rgba(255,255,255,0.15),transparent);border-radius:4px}'+
-  '.d3cup.lifting{transform:translate(-50%,-120%) rotate(-8deg);opacity:0;pointer-events:none}'+
-  '.d3shadow{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:50px;height:10px;background:radial-gradient(ellipse,rgba(0,0,0,0.35),transparent);border-radius:50%;transition:all 0.5s}';
- document.head.appendChild(s);
-})();
-
-var DOTS={1:[0,0,0,0,1,0,0,0,0],2:[0,0,1,0,0,0,1,0,0],3:[0,0,1,0,1,0,1,0,0],4:[1,0,1,0,0,0,1,0,1],5:[1,0,1,0,1,0,1,0,1],6:[1,0,1,1,0,1,1,0,1]};
-var FACE_ROT={1:'rotateX(0deg) rotateY(0deg)',2:'rotateY(-90deg)',3:'rotateX(-90deg)',4:'rotateX(90deg)',5:'rotateY(90deg)',6:'rotateY(180deg)'};
-
-function initDice(){
- var mem=_diceMem(),limit=DICE_MEM_LIMITS[mem]||2;
- _diceCount=Math.min(_diceCount,limit);
- // Update dice hint based on membership
- var hint=document.getElementById('dice-mem-hint');
- if(hint){
-  var memNames={free:'免費',jiuyau:'🥉酒友',jaugwai:'🥈酒鬼',jausan:'🥇酒神',admin:'👑管理'};
-  hint.textContent='選擇骰數（'+(memNames[mem]||mem)+'最多'+limit+'粒）';
- }
- var row=document.getElementById('dice-count-row');
- if(!row)return;
- row.innerHTML='';
- for(var i=1;i<=5;i++){
-  var b=document.createElement('button');
-  b.className='dice-num-btn'+(i===_diceCount?' active':'')+(i>limit?' locked':'');
-  b.textContent=i;
-  if(i<=limit)(function(n){b.onclick=function(){_diceCount=n;initDice();renderDice3D(n)}})(i);
-  row.appendChild(b);
- }
- renderDice3D(_diceCount);
- var rl=document.getElementById('room-lock');if(rl)rl.style.display=DICE_ROOM_LEVEL[mem]?'none':'';
- var bc1=document.getElementById('btn-create-room'),bj1=document.getElementById('btn-join-room');
- if(bc1)bc1.disabled=!DICE_ROOM_LEVEL[mem];
- if(bj1)bj1.disabled=mem==='free';
- // Hide upgrade card for premium members
- var uc=document.getElementById('dice-upgrade-hint')?.parentElement;
- if(uc) uc.style.display=(mem==='jausan'||mem==='admin')?'none':'';
- if(_diceBC)_diceBC.onmessage=function(e){handleDiceMsg(e.data)};
-}
-
-function renderDice3D(n){
- var area=document.getElementById('dice-area');
- if(!area)return;
- area.innerHTML='';_diceVals=[];
- // Show single brand cover die before shaking
- var coverDie=document.createElement('div');
- coverDie.id='dice-cover';
- coverDie.style.cssText='width:88px;height:88px;margin:0 auto;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(245,158,11,0.35),0 0 0 2px rgba(245,158,11,0.2),0 0 50px rgba(139,92,246,0.12);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;cursor:pointer;position:relative;background:#1a1a2e;border:2px solid rgba(245,158,11,0.3)';
- coverDie.innerHTML='<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(139,92,246,0.08));z-index:1;border-radius:14px"></div><img src="'+(ASSET_BASE||API_BASE)+'/dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:14px;position:relative;z-index:0" onerror="if(this.src.indexOf(API_BASE)<0){this.src=API_BASE+\'/dice-cover.webp\'}else{this.style.display=\'none\'}"><div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:10px;color:rgba(255,255,255,0.85);text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:800;letter-spacing:1px;z-index:2">今晚飲咗未</div>';
- coverDie.onmouseenter=function(){this.style.transform='scale(1.06) rotate(2deg)'};
- coverDie.onmouseleave=function(){this.style.transform='scale(1)'};
- // Subtle breathing animation
- var breathStyle=document.createElement('style');
- breathStyle.textContent='#dice-cover{animation:diceBreath 2.5s ease-in-out infinite}@keyframes diceBreath{0%,100%{box-shadow:0 6px 24px rgba(245,158,11,0.35),0 0 0 2px rgba(245,158,11,0.2)}50%{box-shadow:0 6px 32px rgba(245,158,11,0.5),0 0 0 3px rgba(245,158,11,0.35),0 0 60px rgba(139,92,246,0.2)}}';
- document.head.appendChild(breathStyle);
- area.appendChild(coverDie);
-}
-
-function create3DDice(val){
- var d=document.createElement('div');d.className='d3d';
- for(var f=1;f<=6;f++){
-  var face=document.createElement('div');face.className='d3face f'+f;
-  var dots=DOTS[f];
-  for(var k=0;k<9;k++){
-   var dot=document.createElement('div');dot.className='ddot'+(dots[k]?'':' off');
-   face.appendChild(dot);
-  }
-  d.appendChild(face);
- }
- d.style.transform=FACE_ROT[val]||'';
- d.dataset.val=val;
- return d;
-}
-
-function shakeSolo(){
- if(_diceShaking)return;
- _diceShaking=true;
- var btn=document.getElementById('btn-shake');
- if(btn){btn.disabled=true;btn.textContent='搖緊...'}
- if(navigator.vibrate)navigator.vibrate([100,50,100,50,100,50,200]);
- var area=document.getElementById('dice-area');
- var table=document.getElementById('dice-table');
- var sr=document.getElementById('solo-result');if(sr)sr.textContent='';
-
- // Replace cover with real 3D dice
- var cover=document.getElementById('dice-cover');
- if(cover){
-  cover.style.opacity='0';cover.style.transform='scale(0.5)';
-  setTimeout(function(){if(cover.parentNode)cover.parentNode.removeChild(cover)},300);
- }
- // Generate real dice in area
- area.innerHTML='';_diceVals=[];
- var n=_diceCount;
- var cols = (n===2||n===4) ? 2 : 3;
- area.style.gridTemplateColumns = 'repeat('+cols+',56px)';
- var dies=[];
- for(var i=0;i<n;i++){
-  var v=Math.floor(Math.random()*6)+1;_diceVals.push(v);
-  var d=create3DDice(v);
-  d.style.opacity='0';d.style.transition='none';
-  area.appendChild(d);dies.push(d);
- }
-
- // Phase 1: Show cup, cover dice
- var cup=null;
- if(table){
-  cup=document.createElement('div');cup.className='d3cup';
-  cup.innerHTML='<span style="color:rgba(255,255,255,0.3);font-size:20px">🎲</span>';
-  table.appendChild(cup);
- }
-
- // Phase 2: Shake the cup
- setTimeout(function(){
-  if(cup){cup.style.animation='dcup-shake 0.12s linear 5';
-   var s=document.createElement('style');s.textContent='@keyframes dcup-shake{0%{transform:translate(-50%,-50%) rotate(0)}25%{transform:translate(-48%,-52%) rotate(5deg)}50%{transform:translate(-52%,-48%) rotate(-5deg)}75%{transform:translate(-48%,-52%) rotate(3deg)}100%{transform:translate(-50%,-50%) rotate(0)}}';
-   document.head.appendChild(s);setTimeout(function(){s.remove()},1500);
-  }
- },100);
-
- // Phase 3: Lift cup, reveal dice
- setTimeout(function(){
-  if(cup)cup.classList.add('lifting');
-  dies.forEach(function(d){
-   d.style.transition='none';d.style.opacity='1';d.classList.add('rolling');
-  });
- },900);
-
- // Phase 4: Stop rolling, land with bounce
- setTimeout(function(){
-  var res=[];
-  dies.forEach(function(d,i){
-   var v=Math.floor(Math.random()*6)+1;res.push(v);_diceVals[i]=v;
-   d.classList.remove('rolling');
-   d.style.transition='transform 0.6s cubic-bezier(0.22,0.9,0.36,1)';
-   var rx2=Math.floor(Math.random()*10-5),ry2=Math.floor(Math.random()*10-5);
-   d.style.transform=FACE_ROT[v]+' rotateX('+rx2+'deg) rotateY('+ry2+'deg)';
-   d.dataset.val=v;
-   setTimeout(function(){d.classList.add('bouncing')},50);
-   setTimeout(function(){d.classList.remove('bouncing')},600);
-  });
-  var total=res.reduce(function(a,b){return a+b},0);
-  if(sr){sr.textContent='擲出 '+res.join(' + ')+' = '+total+' 點 🎉';sr.scrollIntoView({behavior:'smooth',block:'center'})}
-  _diceShaking=false;
-  if(btn){btn.disabled=false;btn.textContent='🍻 再搖！'}
-  // Remove cup
-  setTimeout(function(){if(cup&&cup.parentNode)cup.parentNode.removeChild(cup)},600);
- },1600);
-}
-
-// Room — Server API based
-var _dicePollT=null;
-function _diceApi(method,path,body){
- return fetch(API_BASE+path,{method:method,headers:{'Content-Type':'application/json','Authorization':'Bearer '+(localStorage.getItem('token')||'')},body:body?JSON.stringify(body):undefined}).then(function(r){return r.json()}).catch(function(e){return {error:'網絡錯誤'}})
-}
-
-function createRoom(){
- if(!DICE_ROOM_LEVEL[_diceMem()]){diceToast('🔒 需酒鬼或以上會員');return}
- _diceApi('POST','/api/dice/room/create').then(function(r){
-  if(r.error){diceToast('❌ '+r.error);return}
-  _diceRoom=r.room;_diceIsHost=true;
-  localStorage.setItem('dice_room_state',JSON.stringify(_diceRoom));
-  showDiceRoom();diceToast('🏠 房間：'+_diceRoom.id);
-  startDicePoll();
- }).catch(function(){diceToast('❌ 建立失敗')});
-}
-
-function showJoinRoom(){var p=document.getElementById('join-panel');if(p)p.style.display=p.style.display==='none'?'':'none'}
-
-function joinRoom(){
- if(_diceMem()==='free'){diceToast('🔒 需酒友或以上');return}
- var code=(document.getElementById('join-code')||{}).value;if(!code||code.length!==6){diceToast('輸入6位房間號');return}
- _diceApi('POST','/api/dice/room/join',{code:code}).then(function(r){
-  if(r.error){diceToast('❌ '+r.error);return}
-  _diceRoom=r.room;
-  _diceIsHost=(_diceRoom.creator_id===(me&&me.id));
-  localStorage.setItem('dice_room_state',JSON.stringify(_diceRoom));
-  showDiceRoom();diceToast('✅ 已加入');
-  startDicePoll();
- }).catch(function(){diceToast('❌ 加入失敗')});
-}
-
-function showDiceRoom(){
- document.getElementById('room-detail').style.display='';
- document.getElementById('room-code-display').textContent=_diceRoom.id;
- var canEdit=_diceIsHost&&_diceRoom.status==='waiting';
- document.getElementById('room-rules').style.display=canEdit?'':'none';
- document.getElementById('room-game').style.display=(_diceRoom.status==='playing'||_diceRoom.status==='revealed')?'':'none';
- document.getElementById('btn-start-room').style.display=(_diceIsHost&&_diceRoom.status==='waiting')?'':'none';
- updRoomPlayers();
- if(_diceRoom.status==='playing'||_diceRoom.status==='revealed')renderBattle();
-}
-
-function updRoomPlayers(){
- var el=document.getElementById('room-players');
- if(el)el.innerHTML=(_diceRoom.players||[]).map(function(p){return '<span style="display:inline-flex;align-items:center;gap:4px;background:var(--card);padding:3px 8px;border-radius:6px;margin:2px;font-size:11px">'+(p.host?'👑':'👤')+' '+p.name+'<span id="dot-'+p.id+'" class="pulse-dot off"></span></span>'}).join('');
- var st=document.getElementById('room-status');if(st)st.textContent=_diceRoom.status==='waiting'?'等待中...':_diceRoom.status==='playing'?'🎲 對戰中':'✅ 已開盅';
-}
-
-function startRoomGame(){
- if(!_diceIsHost)return;
- var dice_n=parseInt((document.getElementById('rule-dice')||{}).value)||2;
- var rounds=parseInt((document.getElementById('rule-rounds')||{}).value)||1;
- _diceApi('POST','/api/dice/room/start',{code:_diceRoom.id,dice:dice_n,rounds:rounds}).then(function(r){
-  if(r.error){diceToast('❌ '+r.error);return}
-  _diceRoom=r.room;showDiceRoom();diceToast('🎲 開始！');
- }).catch(function(){diceToast('❌ 開始失敗')});
-}
-
-function shakeRoom(){
- if(!_diceRoom||_diceRoom.status!=='playing')return;
- var myId=''+(me&&me.id);
- var myRes=_diceRoom.results[myId]||[];
- var maxR=((_diceRoom.rules||{}).rounds||1);
- if(myRes.length>=maxR){diceToast('你已搖完');return}
- var vals=[];for(var i=0;i<((_diceRoom.rules||{}).dice||2);i++)vals.push(Math.floor(Math.random()*6)+1);
- if(navigator.vibrate)navigator.vibrate([80,40,80]);
- _diceApi('POST','/api/dice/room/shake',{code:_diceRoom.id,values:vals}).then(function(r){
-  if(r.error){diceToast('❌ '+r.error);return}
-  _diceRoom=r.room;renderBattle();diceToast('🎲 已搖骰！');
- }).catch(function(){diceToast('❌ 搖骰失敗')});
-}
-
-function checkAllShook(){
- var maxR=((_diceRoom.rules||{}).rounds||1);
- var done=(_diceRoom.players||[]).every(function(p){var res=_diceRoom.results[''+p.id]||[];return res.length>=maxR});
- var btn=document.getElementById('btn-reveal');if(btn)btn.disabled=!done;
-}
-
-function revealAll(){
- if(!_diceIsHost){diceToast('只有房主開盅');return}
- _diceApi('POST','/api/dice/room/reveal',{code:_diceRoom.id}).then(function(r){
-  if(r.error){diceToast('❌ '+r.error);return}
-  _diceRoom=r.room;renderBattle();updRoomPlayers();diceToast('🔥 開盅！');
- }).catch(function(){diceToast('❌ 開盅失敗')});
-}
-
-function renderBattle(){
- var grid=document.getElementById('battle-grid');if(!grid)return;grid.innerHTML='';
- var info=document.getElementById('game-round-info');
- if(info)info.textContent='第 1/'+((_diceRoom.rules||{}).rounds||1)+' 輪';
- var myId=''+(me&&me.id);
- var myRes=_diceRoom.results[myId]||[];
- var maxR=((_diceRoom.rules||{}).rounds||1);
- var shk=document.getElementById('btn-room-shake');
- if(shk)shk.style.display=(_diceRoom.status==='playing'&&myRes.length<maxR)?'':'none';
- var rvl=document.getElementById('btn-reveal');if(rvl)rvl.style.display=_diceRoom.status==='playing'?'':'none';
-
- (_diceRoom.players||[]).forEach(function(p){
-  var res=_diceRoom.results[''+p.id]||[];
-  var div=document.createElement('div');div.style.cssText='display:flex;align-items:center;gap:10px;background:var(--card);padding:10px;border-radius:10px';
-  var nm=document.createElement('div');nm.style.cssText='font-weight:700;font-size:13px;flex:1';
-  nm.textContent=(p.host?'👑 ':'')+p.name;
-  var dd=document.createElement('div');dd.style.cssText='display:flex;gap:3px;flex-wrap:wrap';
-  var t=0;var revealed=_diceRoom.status==='revealed';var isMe=''+p.id===myId;
-  if(res.length>0){
-   res.forEach(function(r){r.values.forEach(function(v){
-    var d=document.createElement('div');d.className='mini-die'+((revealed||isMe)?'':' hid');
-    d.textContent=(revealed||isMe)?dieChar(v):'?';if(revealed||isMe)t+=v;
-    dd.appendChild(d);
-   })});
-  }else{
-   for(var i=0;i<((_diceRoom.rules||{}).dice||2);i++){var d=document.createElement('div');d.className='mini-die hid';d.textContent='—';dd.appendChild(d)}
-  }
-  var tot=document.createElement('div');tot.style.cssText='font-weight:800;color:var(--amber);font-size:15px;min-width:28px;text-align:right';
-  tot.textContent=(revealed||(isMe&&res.length>0))?t:'';
-  div.appendChild(nm);div.appendChild(dd);div.appendChild(tot);grid.appendChild(div);
- });
- if(revealed){
-  var mx=0,win='';
-  (_diceRoom.players||[]).forEach(function(p){var tt=0;(_diceRoom.results[''+p.id]||[]).forEach(function(r){r.values.forEach(function(v){tt+=v})});if(tt>mx){mx=tt;win=p.name}});
-  var wd=document.createElement('div');wd.style.cssText='text-align:center;padding:12px;margin-top:8px;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(236,72,153,0.08));border-radius:10px';
-  wd.innerHTML='🏆 <b style="color:var(--amber)">'+win+'</b> 贏咗！共 <b style="color:var(--amber)">'+mx+'</b> 點 🎉';grid.appendChild(wd);
- }
-}
-
-function leaveRoom(){
- if(_diceRoom){
-  _diceApi('POST','/api/dice/room/leave',{code:_diceRoom.id});
- }
- stopDicePoll();
- _diceRoom=null;_diceIsHost=false;localStorage.removeItem('dice_room_state');
- var rd=document.getElementById('room-detail');if(rd)rd.style.display='none';
- diceToast('🚪 已離開');
-}
-
-function saveDiceRoom(){
- if(!_diceRoom)return;
- localStorage.setItem('dice_room_state',JSON.stringify(_diceRoom));
-}
-
-function bcastDice(data){if(_diceBC)try{_diceBC.postMessage(data)}catch(e){}}
-
-function startDicePoll(){
- stopDicePoll();
- _dicePollT=setInterval(function(){
-  if(!_diceRoom)return;
-  _diceApi('GET','/api/dice/room/'+_diceRoom.id).then(function(r){
-   if(r.error){stopDicePoll();return}
-   var prev=_diceRoom;_diceRoom=r.room;
-   if(prev.status!==_diceRoom.status||
-      JSON.stringify(prev.players)!==JSON.stringify(_diceRoom.players)||
-      JSON.stringify(prev.results)!==JSON.stringify(_diceRoom.results)){
-    showDiceRoom();
-   }
-   updOnlineDots();
-  });
- },3000);
- startHeartbeat();
-}
-function stopDicePoll(){if(_dicePollT){clearInterval(_dicePollT);_dicePollT=null}stopHeartbeat()}
-
-// ═══════ Heartbeat ═══════
-var _diceHeartbeatT=null,_onlineUids=[];
-function startHeartbeat(){
- stopHeartbeat();
- _sendHeartbeat();
- _diceHeartbeatT=setInterval(_sendHeartbeat,5000);
-}
-function stopHeartbeat(){if(_diceHeartbeatT){clearInterval(_diceHeartbeatT);_diceHeartbeatT=null}}
-function _sendHeartbeat(){
- var body={};if(_diceRoom)body.room_id=_diceRoom.id;
- _diceApi('POST','/api/dice/heartbeat',body).then(function(r){
-  if(r.ok&&r.online){
-   _onlineUids=r.online||{};
-   updOnlineDots();
-  }
- });
-}
-function updOnlineDots(){
- if(!_diceRoom)return;
- _diceApi('GET','/api/dice/room/'+_diceRoom.id+'/online').then(function(r){
-  if(!r.online)return;
-  var onIds=r.online.map(function(u){return u.id});
-  (_diceRoom.players||[]).forEach(function(p){
-   var dot=document.getElementById('dot-'+p.id);
-   if(dot){dot.className='pulse-dot '+(onIds.indexOf(p.id)>=0?'on':'off');dot.title=onIds.indexOf(p.id)>=0?T('online'):T('offline')}
-  });
- });
-}
-
-// ═══════ Challenge / Matchmaking ═══════
-var _matchmakingT=null,_pendingChallenge=null;
-function showChallengePanel(){
- var p=document.getElementById('challenge-panel');
- if(!p)return;
- p.style.display=p.style.display==='none'?'':'none';
- if(p.style.display!=='none')loadChallengeList();
-}
-function challengeFriend(){
- if(!DICE_ROOM_LEVEL[_diceMem()]){diceToast('🔒 '+T('vip_required'));return}
- var dice=parseInt(document.getElementById('challenge-dice').value)||2;
- var rounds=parseInt(document.getElementById('challenge-rounds').value)||1;
- // Show friend selector via party member list
- api('/api/party-members').then(function(r){
-  var friends=(r.members||[]).filter(function(m){return m.id!==me.id});
-  if(!friends.length){diceToast(T('no_online_players'));return}
-  var html='<div style="max-height:200px;overflow-y:auto">';
-  friends.forEach(function(f){
-   html+='<div onclick="doChallenge('+f.id+')" style="padding:8px;border-bottom:1px solid var(--border);cursor:pointer;display:flex;gap:8px;align-items:center">👤 '+(f.nickname||f.username)+'</div>';
-  });
-  html+='</div>';
-  var el=document.getElementById('friend-list-modal');
-  if(!el){el=document.createElement('div');el.id='friend-list-modal';el.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;z-index:300;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center';document.body.appendChild(el)}
-  el.innerHTML='<div style="background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;max-width:320px;width:90%"><div style="font-weight:700;margin-bottom:8px;color:var(--pink)">'+T('select_friend')+'</div>'+html+'<button onclick="document.getElementById(\'friend-list-modal\').style.display=\'none\'" style="margin-top:8px;width:100%;padding:8px;background:var(--card-hover);border:1px solid var(--border);border-radius:8px;color:var(--text);cursor:pointer">✕ '+T('reject')+'</button></div>';
-  el.style.display='flex';
- }).catch(function(){diceToast(T('no_online_players'))});
-}
-function doChallenge(friendId){
- document.getElementById('friend-list-modal').style.display='none';
- var dice=parseInt(document.getElementById('challenge-dice').value)||2;
- var rounds=parseInt(document.getElementById('challenge-rounds').value)||1;
- _diceApi('POST','/api/dice/challenge',{challenged_id:friendId,dice:dice,rounds:rounds}).then(function(r){
-  if(r.error){diceToast('❌ '+r.error);return}
-  diceToast(T('challenge_sent'));
-  if(r.room){_diceRoom=r.room;_diceIsHost=true;showDiceRoom();startDicePoll()}
- });
-}
-function respondChallenge(accept){
- var n=document.getElementById('challenge-notify');
- if(n)n.style.display='none';
- if(!_pendingChallenge)return;
- _diceApi('POST','/api/dice/challenge/respond',{code:_pendingChallenge.code,accept:accept}).then(function(r){
-  if(r.error){diceToast('❌ '+r.error);return}
-  if(accept&&r.room){
-   _diceRoom=r.room;_diceIsHost=false;showDiceRoom();startDicePoll();
-   diceToast('⚔️ '+T('accept')+'!');
-  }else{
-   diceToast(T('challenge_rejected'));
-  }
-  _pendingChallenge=null;
- });
-}
-function loadChallengeList(){
- _diceApi('GET','/api/dice/challenge/list').then(function(r){
-  if(r.challenges&&r.challenges.length>0){
-   var c=r.challenges[0];
-   _pendingChallenge={code:c.id,from:c.players[0]};
-   var n=document.getElementById('challenge-notify');
-   var t=document.getElementById('challenge-notify-text');
-   if(n&&t){
-    t.textContent='⚔️ '+(c.players[0].name||'?')+' '+T('challenge_received');
-    n.style.display='block';
-    setTimeout(function(){n.style.display='none'},15000);
-   }
-  }
- });
-}
-function startMatchmaking(){
- if(!DICE_ROOM_LEVEL[_diceMem()]){diceToast('🔒 '+T('vip_required'));return}
- var dice=parseInt(document.getElementById('challenge-dice').value)||2;
- var rounds=parseInt(document.getElementById('challenge-rounds').value)||1;
- var ms=document.getElementById('matching-status');
- var mt=document.getElementById('matching-text');
- var bm=document.getElementById('btn-match');
- if(ms)ms.style.display='block';
- if(mt)mt.textContent=T('matching');
- if(bm)bm.disabled=true;
- _diceApi('POST','/api/dice/matchmaking',{dice:dice,rounds:rounds}).then(function(r){
-  if(r.error){diceToast('❌ '+r.error);cancelMatchmaking();return}
-  if(r.matched&&r.room){
-   cancelMatchmaking();
-   _diceRoom=r.room;_diceIsHost=false;showDiceRoom();startDicePoll();
-   diceToast('🎉 '+T('match_found'));
-  }else{
-   _matchmakingT=setInterval(checkMatchResult,3000);
-  }
- });
-}
-function checkMatchResult(){
- _diceApi('GET','/api/dice/challenge/list').then(function(r){
-  if(r.challenges&&r.challenges.length>0){
-   var c=r.challenges[0];
-   if(c.battle_type==='matchmaking'&&c.status==='waiting'){
-    cancelMatchmaking();
-    _diceRoom=c;_diceIsHost=false;showDiceRoom();startDicePoll();
-    diceToast('🎉 '+T('match_found'));
-   }
-  }
- });
-}
-function cancelMatchmaking(){
- if(_matchmakingT){clearInterval(_matchmakingT);_matchmakingT=null}
- var ms=document.getElementById('matching-status');
- var bm=document.getElementById('btn-match');
- if(ms)ms.style.display='none';
- if(bm)bm.disabled=false;
- _diceApi('POST','/api/dice/matchmaking/cancel').catch(function(){});
-}
-
-// Restore room on page load
-(function(){
- var saved=localStorage.getItem('dice_room_state');
- if(!saved)return;
- try{
-  var rm=JSON.parse(saved);
-  if(rm&&rm.id){
-   _diceApi('GET','/api/dice/room/'+rm.id).then(function(r){
-    if(r.error){localStorage.removeItem('dice_room_state');return}
-    _diceRoom=r.room;
-    _diceIsHost=(_diceRoom.creator_id===(me&&me.id));
-    showDiceRoom();startDicePoll();
-   });
-  }
- }catch(e){}
-})();
-
-function sendDiceChat(){
- var inp=document.getElementById('chat-input');if(!inp)return;
- var msg=inp.value.trim();if(!msg||!_diceRoom)return;
- _diceApi('POST','/api/dice/room/'+_diceRoom.id+'/chat',{message:msg}).then(function(r){
-  if(!r.error){addDiceChat(_diceName(),msg);inp.value=''}
- });
-}
-
-
-function addDiceChat(name,msg){
- var a=document.getElementById('chat-area');if(!a)return;
- var d=document.createElement('div');d.style.cssText='font-size:11px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03)';
- d.innerHTML='<b style="color:var(--amber)">'+name+'</b>：'+msg;a.appendChild(d);a.scrollTop=a.scrollHeight;
-}
-
-var _diceToastT=null;
-function diceToast(msg){
- var el=document.getElementById('dice-toast');
- if(!el){el=document.createElement('div');el.id='dice-toast';el.style.cssText='position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--amber);color:var(--amber);padding:8px 16px;border-radius:8px;font-size:12px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none';document.body.appendChild(el)}
- el.textContent=msg;el.style.opacity='1';clearTimeout(_diceToastT);_diceToastT=setTimeout(function(){el.style.opacity='0'},2200);
-}
-
-function dieChar(v){return ['','⚀','⚁','⚂','⚃','⚄','⚅'][v]||'?'}
-
-// Poll challenges every 8s when not in room
-var _challengePollT=null;
-function startChallengePoll(){
- stopChallengePoll();
- _challengePollT=setInterval(function(){
-  if(!_diceRoom)loadChallengeList();
- },8000);
-}
-function stopChallengePoll(){if(_challengePollT){clearInterval(_challengePollT);_challengePollT=null}}
-
-setTimeout(initDice,200);setTimeout(startChallengePoll,3000);
-
-
-// ═══════════ ADMIN: Checkins / Parties / Posts ═══════════
-async function admLoadCheckins(){
- try{const d=await api('/api/admin/checkins');const el=document.getElementById('adm-checkin-list');
-  if(!d.checkins.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無動態</div>';return}
-  el.innerHTML=d.checkins.map(c=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-   <div><span style="color:var(--amber);font-weight:700">@${c.username||c.nickname}</span>
-   <span style="color:var(--sub);margin-left:6px">${['酒鬼','微醺','清醒'][c.status]||'報到'}</span>
-   <span style="color:var(--sub);margin-left:6px;font-size:11px">${c.note||''}</span>
-   <span style="color:var(--sub);margin-left:6px;font-size:10px">${c.created_at||''}</span></div>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteCheckin(${c.id})">刪除</button></div>`).join('')
- }catch(e){console.error('admLoadCheckins',e)}
-}
-async function admLoadParties(){
- try{const d=await api('/api/admin/parties');const el=document.getElementById('adm-party-list');
-  if(!d.parties.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無酒局</div>';return}
-  el.innerHTML=d.parties.map(p=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-   <div><span style="color:var(--purple);font-weight:700">${p.title||'無標題'}</span>
-   <span style="color:var(--sub);margin-left:6px">📍${p.location||'-'}</span>
-   <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.meet_time||p.created_at||''}</span>
-   <span style="background:var(--${p.status==='upcoming'?'amber':'green'});color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px">${p.status}</span></div>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteParty(${p.id})">刪除</button></div>`).join('')
- }catch(e){console.error('admLoadParties',e)}
-}
-async function admLoadAdmPosts(){
- try{const d=await api('/api/admin/posts');const el=document.getElementById('adm-post-list');
-  if(!d.posts.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無帖子</div>';return}
-  el.innerHTML=d.posts.map(p=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-   <div><span style="color:var(--pink);font-weight:700">@${p.username||p.nickname}</span>
-   <span style="color:var(--sub);margin-left:6px">${(p.content||'').substring(0,40)}</span>
-   <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.created_at||''}</span></div>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeletePost(${p.id})">刪除</button></div>`).join('')
- }catch(e){console.error('admLoadAdmPosts',e)}
-}
-async function admDeleteCheckin(cid){
- if(!confirm('確認刪除呢條動態？'))return;
- try{await api('/api/admin/delete-checkin',{method:'POST',body:{checkin_id:cid}});admLoadCheckins()}catch(e){alert('刪除失敗')}
-}
-async function admDeleteParty(pid){
- if(!confirm('確認刪除呢個酒局？'))return;
- try{await api('/api/admin/delete-party',{method:'POST',body:{pid:pid}});admLoadParties()}catch(e){alert('刪除失敗')}
-}
-async function admDeletePost(pid){
- if(!confirm('確認刪除呢條帖子？'))return;
- try{await api('/api/admin/delete-post',{method:'POST',body:{pid:pid}});admLoadAdmPosts()}catch(e){alert('刪除失敗')}
-}
-
-// ═══════════ FRIENDS ═══════════
-async function loadFriendsAll(){
- loadFriendsPending();loadFriendsList();loadFriendsSuggest();
-}
-async function loadFriendsPending(){
- try{const d=await api('/api/friends/pending');const el=document.getElementById('friend-pending');
-  if(!d.pending.length){el.innerHTML='<span style="color:var(--sub)">冇待處理請求</span>';return}
-  el.innerHTML=d.pending.map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
-   <img src="${API_BASE+'/api/avatar/'+f.id}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2228%22 height=%2228%22><rect fill=%22%232A2A3A%22 width=%2228%22 height=%2228%22/><text y=%2218%22 x=%2214%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2216%22>👤</text></svg>'">
-   <span style="color:var(--text);font-weight:600">${f.nickname||f.username}</span>
-   <button style="padding:2px 8px;border:1px solid var(--green);border-radius:6px;background:none;color:var(--green);cursor:pointer;font-size:10px" onclick="acceptFriend(${f.id})">✅ 接受</button>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="rejectFriend(${f.id})">❌ 拒絕</button>
-  </div>`).join('')
- }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
-}
-async function loadFriendsList(){
- try{const d=await api('/api/friends');const el=document.getElementById('friend-list');
-  if(!d.friends.length){el.innerHTML='<span style="color:var(--sub)">仲未有酒友，去推薦區添加啦！</span>';return}
-  el.innerHTML=d.friends.filter(f=>f.status==='accepted').map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
-   <img src="${API_BASE+'/api/avatar/'+f.id}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2228%22 height=%2228%22><rect fill=%22%232A2A3A%22 width=%2228%22 height=%2228%22/><text y=%2218%22 x=%2214%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2216%22>👤</text></svg>'">
-   <span style="color:var(--text);font-weight:600">${f.nickname||f.username}</span>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px;margin-left:auto" onclick="removeFriend(${f.id})">移除</button>
-  </div>`).join('')
- }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
-}
-async function loadFriendsSuggest(){
- try{const d=await api('/api/friends/suggest');const el=document.getElementById('friend-suggest');
-  if(!d.suggest.length){el.innerHTML='<span style="color:var(--sub)">冇推薦酒友</span>';return}
-  el.innerHTML=d.suggest.map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
-   <img src="${API_BASE+'/api/avatar/'+f.id}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2228%22 height=%2228%22><rect fill=%22%232A2A3A%22 width=%2228%22 height=%2228%22/><text y=%2218%22 x=%2214%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2216%22>👤</text></svg>'">
-   <span style="color:var(--text);font-weight:600">${f.nickname||f.username}</span>
-   <span style="font-size:10px;color:var(--amber);margin-left:4px">${f.membership||''}</span>
-   <button style="padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:var(--pink);color:#fff;cursor:pointer;font-size:10px;margin-left:auto" onclick="addFriend(${f.id})">➕ 加友</button>
-  </div>`).join('')
- }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
-}
-async function addFriend(uid){
- try{await api('/api/friends/add',{method:'POST',body:{username:await _getUsername(uid)}});loadFriendsAll()}catch(e){alert(e.message)}
-}
-async function _getUsername(uid){
- const d=await api('/api/user/'+uid);return d.username||''
-}
-async function acceptFriend(uid){
- try{await api('/api/friends/accept',{method:'POST',body:{user_id:uid}});loadFriendsAll()}catch(e){alert(e.message)}
-}
-async function rejectFriend(uid){
- try{await api('/api/friends/reject',{method:'POST',body:{user_id:uid}});loadFriendsAll()}catch(e){alert(e.message)}
-}
-async function removeFriend(uid){
- if(!confirm('確認移除呢位酒友？'))return;
- try{await api('/api/friends/remove',{method:'POST',body:{user_id:uid}});loadFriendsAll()}catch(e){alert(e.message)}
-}
-
-// ═══════════ POSTS (朋友圈) ═══════════
-let postImages=[]; // 存已上传图片URL
-function previewPostImgs(e){
- const files=e.target.files;const prev=document.getElementById('post-img-preview');
- Array.from(files).forEach(f=>{
-  const reader=new FileReader();
-  reader.onload=async(ev)=>{
-   prev.innerHTML+=`<img src="${ev.target.result}" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:1px solid var(--border)">`;
-  };reader.readAsDataURL(f);
- });
-}
-async function createPost(){
- const content=document.getElementById('post-content').value.trim();
- const preview=document.getElementById('post-img-preview');
- const imgs=preview.querySelectorAll('img');
- let imageUrls=[];
- // Upload each image file if any
- const fileInput=document.getElementById('post-img-input');
- if(fileInput.files.length){
-  for(let i=0;i<fileInput.files.length;i++){
-   try{
-    const fd=new FormData();fd.append('file',fileInput.files[i]);
-    const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+token},body:fd});
-    const d=await r.json();if(d.url)imageUrls.push(d.url);
-   }catch(e){console.error('upload fail',e)}
-  }
- }
- if(!content&&!imageUrls.length){alert('請輸入內容或上傳圖片');return}
- try{
-  await api('/api/posts',{method:'POST',body:{content:content,images:JSON.stringify(imageUrls)}});
-  document.getElementById('post-content').value='';
-  preview.innerHTML='';fileInput.value='';
-  loadPosts();
- }catch(e){alert('發佈失敗：'+e.message)}
-}
-function insertEmoji(e){const ta=document.getElementById('post-content');const s=ta.selectionStart;ta.value=ta.value.substring(0,s)+e+ta.value.substring(ta.selectionEnd);ta.focus();ta.selectionStart=ta.selectionEnd=s+e.length}
-
-async function loadPosts(){
- try{
-  const d=await api('/api/posts');const el=document.getElementById('posts-container');
-  if(!d.posts.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--sub)">暫無朋友圈動態</div>';return}
-  el.innerHTML=d.posts.map(p=>{
-   let imgs='';try{const arr=JSON.parse(p.images||'[]');imgs=arr.map(u=>`<img src="${API_BASE+u}" style="width:calc(33% - 4px);height:120px;object-fit:cover;border-radius:8px;margin:2px" onclick="window.open('${API_BASE+u}')">`).join('')}catch(e){}
-   const avSrc=p.avatar&&p.avatar.startsWith('/api/')?API_BASE+p.avatar:'';
-   const avHtml=avSrc?`<img src="${avSrc}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.outerHTML='<span style=font-size:28px>👤</span>'">`:'<span style="font-size:28px">👤</span>';
-   return `<div class="card" style="margin-bottom:10px">
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
-     ${avHtml}
-     <div><div style="font-weight:700;font-size:14px;color:var(--text)">${p.nickname||p.username}</div>
-     <div style="font-size:11px;color:var(--sub)">${p.created_at||''}</div></div>
-     ${p.user_id===me.id?`<button style="margin-left:auto;padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="deletePost(${p.id})">刪除</button>`:''}
-    </div>
-    <div style="font-size:14px;line-height:1.6;margin-bottom:8px;white-space:pre-wrap">${p.content||''}</div>
-    ${imgs?`<div style="display:flex;flex-wrap:wrap;margin-bottom:4px">${imgs}</div>`:''}
-    <div style="display:flex;gap:16px;padding-top:8px;border-top:1px solid var(--border);font-size:13px">
-     <span style="${p.liked?'color:var(--pink);font-weight:700':'color:var(--sub)'};cursor:pointer" onclick="togglePostLike(${p.id})">${p.liked?'❤️':'🤍'} ${p.like_count||0}</span>
-     <span style="color:var(--sub);cursor:pointer" onclick="togglePostComments(${p.id})">💬 ${p.comment_count||0}</span>
-    </div>
-    <div id="post-comments-${p.id}" style="display:none;margin-top:8px"></div>
-   </div>`
-  }).join('');
- }catch(e){console.error('loadPosts',e)}
-}
-async function deletePost(pid){
- if(!confirm('確認刪除？'))return;
- try{await api('/api/posts/'+pid,{method:'DELETE'});loadPosts()}catch(e){alert('刪除失敗')}
-}
-
-// ═══════════════════════════ POST Like/Comment/Reply ═══════════════════════════
-async function togglePostLike(pid){
- try{await api('/api/posts/'+pid+'/like',{method:'POST'});loadPosts()}catch(e){console.error(e)}
-}
-async function togglePostComments(pid){
- const el=document.getElementById('post-comments-'+pid);
- if(el.style.display==='none'){el.style.display='block';loadPostComments(pid)}
- else{el.style.display='none'}
-}
-async function loadPostComments(pid){
- try{
-  const d=await api('/api/posts/'+pid+'/comments');const el=document.getElementById('post-comments-'+pid);
-  let h='<div style="padding:8px 0">';
-  d.comments.forEach(c=>{
-   const cav=c.avatar&&c.avatar.startsWith('/api/')?API_BASE+c.avatar:'';
-   const cavHtml=cav?'<img src="'+cav+'" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'👤';
-   h+='<div style="margin-bottom:8px;padding-left:4px">';
-   h+='<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">'+cavHtml;
-   h+=' <span style="font-weight:600;font-size:12px;color:var(--text)">'+esc(c.nickname||c.username)+'</span>';
-   h+=' <span style="font-size:11px;color:var(--sub)">'+(c.created_at||'')+'</span></div>';
-   h+='<div style="font-size:13px;color:var(--text);margin-left:30px">'+esc(c.text)+'</div>';
-   const cname=esc(c.nickname||c.username).replace(/'/g,"\\'");
-   h+='<div style="margin-left:30px;margin-top:4px"><span style="font-size:11px;color:var(--pink);cursor:pointer" onclick="showReplyInput('+pid+','+c.id+',\''+cname+'\')">回覆</span></div>';
-   if(c.replies&&c.replies.length){
-    h+='<div style="margin-left:30px;margin-top:4px;padding:4px 8px;background:var(--card);border-radius:8px">';
-    c.replies.forEach(rp=>{
-     h+='<div style="margin-bottom:4px"><span style="font-weight:600;font-size:11px;color:var(--text)">'+esc(rp.nickname||rp.username)+'</span>';
-     h+=' <span style="font-size:12px;color:var(--text);margin-left:4px">'+esc(rp.text)+'</span>';
-     h+=' <span style="font-size:10px;color:var(--sub);margin-left:4px">'+(rp.created_at||'')+'</span></div>';
-    });
-    h+='</div>';
-   }
-   h+='</div>';
-  });
-  h+='<div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end">';
-  h+='<textarea id="comment-input-'+pid+'" placeholder="寫評論..." style="flex:1;width:0;padding:10px 14px;font-size:15px;min-height:56px;max-height:140px;resize:vertical;line-height:1.5;border-radius:12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:inherit;outline:none"></textarea>';
-  h+='<button onclick="addPostComment('+pid+')" style="padding:6px 10px;font-size:13px;white-space:nowrap;height:40px;min-width:48px;max-width:56px;border-radius:10px;background:linear-gradient(135deg,var(--amber),var(--purple));color:#fff;font-weight:600;border:none;cursor:pointer;flex-shrink:0">發送</button>';
-  h+='</div></div>';
-  el.innerHTML=h;
- }catch(e){console.error('loadPostComments',e)}
-}
-async function addPostComment(pid){
- const inp=document.getElementById('comment-input-'+pid);
- const text=inp.value.trim();if(!text)return;
- const cid=inp.dataset.replyCid;
- if(cid){
-  try{await api('/api/posts/'+pid+'/comments/'+cid+'/reply',{method:'POST',body:{text:text}});inp.value='';delete inp.dataset.replyCid;inp.placeholder='寫評論...';loadPostComments(pid);loadPosts()}catch(e){alert('回覆失敗')}
- }else{
-  try{await api('/api/posts/'+pid+'/comments',{method:'POST',body:{text:text}});inp.value='';loadPostComments(pid);loadPosts()}catch(e){alert('評論失敗')}
- }
-}
-function showReplyInput(pid,cid,name){
- const el=document.getElementById('comment-input-'+pid);
- if(el){el.placeholder='回覆 '+name+'...';el.dataset.replyCid=cid}
-}
-
-// ═══════════ AVATAR UPLOAD in saveProf ═══════════
-// Override saveProf to include avatar upload
-</script>
-</body>
-</html>
+1|<!DOCTYPE html>
+2|
+3|<!-- v=b76bbd3d -->
+4|
+5|<html lang="zh-HK">
+6|
+7|<head>
+8|
+9|<meta charset="UTF-8">
+10|
+11|<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+12|
+13|<meta name="theme-color" content="#0D0D12">
+14|
+15|<meta name="apple-mobile-web-app-capable" content="yes">
+16|
+17|<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+18|
+19|
+20|
+21|<!-- ─── Primary Meta Tags ──────────────────────────── -->
+22|
+23|<meta name="description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。">
+24|
+25|<meta name="keywords" content="飲酒, 打卡, 香港, 社交, 酒局, 報到, drunk, drinking, check-in, Hong Kong">
+26|
+27|<meta name="author" content="Vic">
+28|
+29|<meta name="application-name" content="今晚飲咗未">
+30|
+31|<meta name="robots" content="index, follow">
+32|
+33|<meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+34|
+35|<meta name="mobile-web-app-capable" content="yes">
+36|
+37|<meta name="category" content="Social Networking">
+38|
+39|<meta name="rating" content="adult">
+40|
+41|<meta name="format-detection" content="telephone=no">
+42|
+43|<link rel="sitemap" href="/sitemap.xml">
+44|
+45|
+46|
+47|<!-- ─── Site Verification ─────────────────────────── -->
+48|
+49|<meta name="google-site-verification" content="">
+50|
+51|<meta name="facebook-domain-verification" content="">
+52|
+53|
+54|
+55|<!-- ─── Canonical URL ─────────────────────────────── -->
+56|
+57|<link rel="canonical" href="https://drunk.vic999.com/">
+58|
+59|
+60|
+61|<!-- ─── Hreflang Tags ─────────────────────────────── -->
+62|
+63|<link rel="alternate" hreflang="zh-HK" href="https://drunk.vic999.com/">
+64|
+65|<link rel="alternate" hreflang="zh-CN" href="https://drunk.vic999.com/">
+66|
+67|<link rel="alternate" hreflang="en" href="https://drunk.vic999.com/">
+68|
+69|<link rel="alternate" hreflang="x-default" href="https://drunk.vic999.com/">
+70|
+71|
+72|
+73|<!-- ─── Open Graph / Facebook ─────────────────────── -->
+74|
+75|<meta property="og:title" content="🍺 今晚飲咗未 — 飲酒社交打卡">
+76|
+77|<meta property="og:description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。">
+78|
+79|<meta property="og:image" content="https://drunk.vic999.com/cover-480.webp">
+80|
+81|<meta property="og:image:width" content="480">
+82|
+83|<meta property="og:image:height" content="480">
+84|
+85|<meta property="og:type" content="website">
+86|
+87|<meta property="og:url" content="https://drunk.vic999.com/">
+88|
+89|<meta property="og:locale" content="zh_HK">
+90|
+91|<meta property="og:locale:alternate" content="zh_CN">
+92|
+93|<meta property="og:locale:alternate" content="en_US">
+94|
+95|<meta property="og:site_name" content="今晚飲咗未">
+96|
+97|
+98|
+99|<!-- ─── Twitter Card ──────────────────────────────── -->
+100|
+101|<meta name="twitter:card" content="summary_large_image">
+102|
+103|<meta name="twitter:title" content="🍺 今晚飲咗未 — 飲酒社交打卡">
+104|
+105|<meta name="twitter:description" content="一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。">
+106|
+107|<meta name="twitter:image" content="https://drunk.vic999.com/cover-480.webp">
+108|
+109|<meta name="twitter:site" content="@jamyeungmeiyat">
+110|
+111|<meta name="twitter:creator" content="@vic999">
+112|
+113|
+114|
+115|<!-- ─── PWA / Mobile / Apple Touch ────────────────── -->
+116|
+117|<link rel="manifest" href="manifest.json">
+118|
+119|<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+120|
+121|<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+122|
+123|<link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
+124|
+125|<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+126|
+127|<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+128|
+129|
+130|
+131|<!-- ─── Structured Data (JSON-LD) ──────────────────── -->
+132|
+133|<script type="application/ld+json">
+134|
+135|{
+136|
+137|  "@context": "https://schema.org",
+138|
+139|  "@type": "WebApplication",
+140|
+141|  "name": "今晚飲咗未",
+142|
+143|  "alternateName": ["Drunk Tonight?", "今晚喝了未"],
+144|
+145|  "description": "一個香港人嘅飲酒社交打卡App。每日報到你飲咗未，同酒友分享醉意時刻。支援繁體中文、簡體中文、英文。",
+146|
+147|  "applicationCategory": "SocialNetworking",
+148|
+149|  "operatingSystem": ["Web", "Android", "iOS", "Windows", "macOS"],
+150|
+151|  "browserRequirements": "Requires JavaScript. Progressive Web App (PWA)",
+152|
+153|  "offers": {
+154|
+155|    "@type": "Offer",
+156|
+157|    "price": "0",
+158|
+159|    "priceCurrency": "HKD"
+160|
+161|  },
+162|
+163|  "author": {
+164|
+165|    "@type": "Person",
+166|
+167|    "name": "Vic"
+168|
+169|  },
+170|
+171|  "inLanguage": ["zh-HK", "zh-CN", "en"],
+172|
+173|  "featureList": [
+174|
+175|    "每日飲酒打卡",
+176|
+177|    "飲酒統計",
+178|
+179|    "酒局創建",
+180|
+181|    "骰盅多人對戰",
+182|
+183|    "酒友圈社交",
+184|
+185|    "會員系統"
+186|
+187|  ],
+188|
+189|  "potentialAction": {
+190|
+191|    "@type": "SearchAction",
+192|
+193|    "target": "https://drunk.vic999.com/?q={search_term_string}",
+194|
+195|    "query-input": "required name=search_term_string"
+196|
+197|  },
+198|
+199|  "screenshot": "https://drunk.vic999.com/cover-480.webp",
+200|
+201|  "image": "https://drunk.vic999.com/cover-480.webp",
+202|
+203|  "url": "https://drunk.vic999.com/"
+204|
+205|}
+206|
+207|</script>
+208|
+209|<script type="application/ld+json">
+210|
+211|{
+212|
+213|  "@context": "https://schema.org",
+214|
+215|  "@type": "Organization",
+216|
+217|  "name": "今晚飲咗未",
+218|
+219|  "url": "https://drunk.vic999.com",
+220|
+221|  "logo": "https://drunk.vic999.com/icon-512.png",
+222|
+223|  "sameAs": []
+224|
+225|}
+226|
+227|</script>
+228|
+229|<script type="application/ld+json">
+230|
+231|{
+232|
+233|  "@context": "https://schema.org",
+234|
+235|  "@type": "SoftwareApplication",
+236|
+237|  "name": "今晚飲咗未",
+238|
+239|  "applicationCategory": "SocialNetworkingApplication",
+240|
+241|  "operatingSystem": "Android",
+242|
+243|  "offers": {
+244|
+245|    "@type": "Offer",
+246|
+247|    "price": "0",
+248|
+249|    "priceCurrency": "HKD"
+250|
+251|  },
+252|
+253|  "installUrl": "https://drunk.vic999.com/apk/jymy.apk",
+254|
+255|  "image": "https://drunk.vic999.com/cover-480.webp",
+256|
+257|  "aggregateRating": {
+258|
+259|    "@type": "AggregateRating",
+260|
+261|    "ratingValue": "4.8",
+262|
+263|    "ratingCount": "128"
+264|
+265|  }
+266|
+267|}
+268|
+269|</script>
+270|
+271|<script type="application/ld+json">
+272|
+273|{
+274|
+275|  "@context": "https://schema.org",
+276|
+277|  "@type": "FAQPage",
+278|
+279|  "mainEntity": [
+280|
+281|    {
+282|
+283|      "@type": "Question",
+284|
+285|      "name": "今晚飲咗未係咩嚟？",
+286|
+287|      "acceptedAnswer": {
+288|
+289|        "@type": "Answer",
+290|
+291|        "text": "今晚飲咗未係一個香港人嘅飲酒社交打卡App，可以每日報到你飲咗未，同酒友分享醉意時刻。"
+292|
+293|      }
+294|
+295|    },
+296|
+297|    {
+298|
+299|      "@type": "Question",
+300|
+301|      "name": "點樣下載今晚飲咗未App？",
+302|
+303|      "acceptedAnswer": {
+304|
+305|        "@type": "Answer",
+306|
+307|        "text": "可以透過瀏覽器直接使用，或者下載Android APK安裝。下載連結：https://drunk.vic999.com/apk/jymy.apk"
+308|
+309|      }
+310|
+311|    },
+312|
+313|    {
+314|
+315|      "@type": "Question",
+316|
+317|      "name": "今晚飲咗未有咩功能？",
+318|
+319|      "acceptedAnswer": {
+320|
+321|        "@type": "Answer",
+322|
+323|        "text": "主要功能包括：每日飲酒打卡、飲酒統計、酒局創建、骰盅多人對戰、酒友圈社交、會員系統等。"
+324|
+325|      }
+326|
+327|    }
+328|
+329|  ]
+330|
+331|}
+332|
+333|</script>
+334|
+335|
+336|
+337|<!-- ─── Flask API Client (replaces Supabase for self-hosted mode) ─── -->
+338|
+339|<script src="flask-client.js"></script>
+340|
+341|<script>
+342|
+343|var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///android_asset/www'}catch(e){}return ''})();
+344|
+345|// ── APK Debug Overlay ──
+346|
+347|(function(){
+348|
+349|  var errors=[];
+350|
+351|  window.__apkDebug=errors;
+352|
+353|  function showDebug(){
+354|
+355|    var el=document.getElementById('apk-debug');
+356|
+357|    if(!el){
+358|
+359|      el=document.createElement('div');
+360|
+361|      el.id='apk-debug';
+362|
+363|      el.style.cssText='position:fixed;bottom:0;left:0;right:0;max-height:40vh;overflow-y:auto;background:rgba(0,0,0,0.95);color:#0f0;font:11px/1.4 monospace;padding:8px;z-index:99999;display:none;';
+364|
+365|      document.body.appendChild(el);
+366|
+367|    }
+368|
+369|    if(errors.length>0){el.style.display='block';el.innerHTML=errors.map(function(e,i){return '<b>['+i+']</b> '+e;}).join('<br>');}
+370|
+371|  }
+372|
+373|  window.onerror=function(msg,url,line,col,err){
+374|
+375|    errors.push('ERROR: '+msg+' (line '+line+')');
+376|
+377|    showDebug();
+378|
+379|  };
+380|
+381|  window.addEventListener('unhandledrejection',function(e){
+382|
+383|    errors.push('REJECT: '+(e.reason&&e.reason.message||e.reason));
+384|
+385|    showDebug();
+386|
+387|  });
+388|
+389|  // Capture fetch errors
+390|
+391|  var origFetch=window.fetch;
+392|
+393|  window.fetch=function(){
+394|
+395|    return origFetch.apply(this,arguments).catch(function(e){
+396|
+397|      errors.push('FETCH FAIL: '+arguments[0]+' '+e.message);
+398|
+399|      showDebug();
+400|
+401|      throw e;
+402|
+403|    });
+404|
+405|  };
+406|
+407|  // Toggle debug with 5 taps
+408|
+409|  var tapCount=0,tapTimer=null;
+410|
+411|  document.addEventListener('click',function(){
+412|
+413|    tapCount++;
+414|
+415|    clearTimeout(tapTimer);
+416|
+417|    tapTimer=setTimeout(function(){tapCount=0},2000);
+418|
+419|    if(tapCount>=5){tapCount=0;var el=document.getElementById('apk-debug');if(el)el.style.display=el.style.display==='none'?'block':'none';}
+420|
+421|  });
+422|
+423|  // Auto-show errors after 3s
+424|
+425|  setTimeout(showDebug,3000);
+426|
+427|})();
+428|
+429|</script>
+430|
+431|
+432|
+433|
+434|
+435|
+436|
+437|<title>🍺 今晚飲咗未 — 飲酒社交打卡</title>
+438|
+439|<style>
+440|
+441|*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+442|
+443|:root{--bg:#0D0D12;--card:#1A1A24;--card-hover:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glass-bg:rgba(13,13,18,0.75);--glass-border:rgba(255,255,255,0.06);--max-width:480px;--fs-base:16px;--fs-sm:14px;--fs-xs:12px;--fs-title:24px;--fs-card:17px;--fs-stat:30px}
+444|
+445|body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:120px;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
+446|
+447|/* Responsive: center content on large screens with max 480px */
+448|
+449|.nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
+450|
+451|.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
+452|
+453|.nav-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+454|
+455|.nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
+456|
+457|.nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
+458|
+459|.lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
+460|
+461|.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:10px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;overflow:hidden}
+462|
+463|.tab .tab-icon{font-size:20px;margin-bottom:2px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block}
+464|
+465|.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:4px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow-x:auto;-webkit-overflow-scrolling:touch}
+466|
+467|.tab.active{color:var(--amber)}
+468|
+469|@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+470|
+471|@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+472|
+473|.pulse-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:4px}
+474|
+475|.pulse-dot.on{background:var(--green);animation:pulse 2s infinite}
+476|
+477|.pulse-dot.off{background:var(--sub)}
+478|
+479|.tab::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(0);width:24px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--amber),var(--purple));transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+480|
+481|.tab.active::after{transform:translateX(-50%) scaleX(1)}
+482|
+483|.content{margin-top:52px;margin-bottom:68px;padding:16px;max-width:var(--max-width);margin-left:auto;margin-right:auto;min-height:calc(100dvh - 120px)}
+484|
+485|/* Page transitions: slide + fade */
+486|
+487|.page{display:none;animation:none;padding-bottom:90px}
+488|
+489|.page.active{display:block;animation:pageIn .35s cubic-bezier(.22,1,.36,1) forwards}
+490|
+491|.page.active.slide-left{animation:slideInLeft .35s cubic-bezier(.22,1,.36,1) forwards}
+492|
+493|.page.active.slide-right{animation:slideInRight .35s cubic-bezier(.22,1,.36,1) forwards}
+494|
+495|@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+496|
+497|@keyframes slideInLeft{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+498|
+499|@keyframes slideInRight{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:translateX(0)}}
+500|
+501|
