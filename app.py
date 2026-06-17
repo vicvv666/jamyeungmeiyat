@@ -1600,6 +1600,74 @@ def api_admin_edit_post():
     db.commit()
     return jsonify({'ok':True, 'msg':'已更新帖子'})
 
+@app.route('/api/admin/send-notify', methods=['POST'])
+def api_admin_send_notify():
+    """管理後台：發送推送通知（存入DB，前端可拉取）"""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    title = d.get('title','').strip()
+    body = d.get('body','').strip()
+    target = d.get('target','all')
+    if not title and not body:
+        return jsonify({'error':'請輸入標題或內容'}), 400
+    db = get_db()
+    # Create notifications table if not exists
+    db.execute('''CREATE TABLE IF NOT EXISTS notifications(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT, body TEXT, target TEXT,
+        created_at TEXT DEFAULT (datetime('now','localtime')),
+        read_by TEXT DEFAULT ''
+    )''')
+    db.execute('INSERT INTO notifications(title,body,target) VALUES(?,?,?)', (title, body, target))
+    db.commit()
+    nid = db.execute('SELECT last_insert_rowid()').fetchone()[0]
+    # Count affected users
+    if target == 'paid':
+        cnt = db.execute("SELECT COUNT(*) FROM users WHERE membership='paid'").fetchone()[0]
+    elif target == 'free':
+        cnt = db.execute("SELECT COUNT(*) FROM users WHERE membership!='paid' OR membership IS NULL").fetchone()[0]
+    else:
+        cnt = db.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+    return jsonify({'ok':True, 'msg':f'通知已發送，{cnt}位用戶將收到'})
+
+@app.route('/api/notifications')
+@auth_required
+def api_get_notifications():
+    """獲取當前用戶的通知"""
+    db = get_db()
+    db.execute('''CREATE TABLE IF NOT EXISTS notifications(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT, body TEXT, target TEXT,
+        created_at TEXT DEFAULT (datetime('now','localtime')),
+        read_by TEXT DEFAULT ''
+    )''')
+    uid = g.user['id']
+    membership = g.user.get('membership','free')
+    rows = db.execute('SELECT * FROM notifications ORDER BY id DESC LIMIT 20').fetchall()
+    result = []
+    for r in rows:
+        # Filter by target
+        if r['target']=='paid' and membership!='paid': continue
+        if r['target']=='free' and membership=='paid': continue
+        read_list = (r['read_by'] or '').split(',') if r['read_by'] else []
+        is_read = str(uid) in read_list
+        result.append({'id':r['id'],'title':r['title'],'body':r['body'],
+                       'target':r['target'],'created_at':r['created_at'],'read':is_read})
+    return jsonify({'notifications':result})
+
+@app.route('/api/notifications/<int:nid>/read', methods=['POST'])
+@auth_required
+def api_mark_notification_read(nid):
+    db = get_db()
+    row = db.execute('SELECT read_by FROM notifications WHERE id=?', (nid,)).fetchone()
+    if row:
+        read_list = [x for x in (row['read_by'] or '').split(',') if x]
+        if str(g.user['id']) not in read_list:
+            read_list.append(str(g.user['id']))
+        db.execute('UPDATE notifications SET read_by=? WHERE id=?', (','.join(read_list), nid))
+        db.commit()
+    return jsonify({'ok':True})
+
 # ═══════════════════ Membership ═══════════════════════════
 @app.route('/api/member/upgrade', methods=['POST'])
 @auth_required

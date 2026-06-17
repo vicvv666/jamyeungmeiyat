@@ -1281,6 +1281,7 @@ const L={
   adm_payments:'付款',
   adm_expired:'到期',
   adm_audit:'審計',
+  adm_config:'設定',
   adm_posts:'帖子',
   system_settings:'⚙️ 系統設定',
   admin_quick_actions:'管理員可快速操作',
@@ -1553,6 +1554,7 @@ const L={
   adm_payments:'付款',
   adm_expired:'到期',
   adm_audit:'审计',
+  adm_config:'设定',
   adm_posts:'帖子',
   system_settings:'⚙️ 系统设定',
   admin_quick_actions:'管理员可快速操作',
@@ -1825,6 +1827,7 @@ const L={
   adm_payments:'Payments',
   adm_expired:'Expired',
   adm_audit:'Audit',
+  adm_config:'Config',
   adm_posts:'Posts',
   system_settings:'⚙️ System Settings',
   admin_quick_actions:'Admin Quick Actions',
@@ -2748,7 +2751,20 @@ function admClearExpired(){
 }
 
 function admSendNotify(){
- toast(T("push_not_supported"),1);
+ _adminModal('📢 推送通知',[
+  {id:'pn-title',label:'標題',type:'text',value:''},
+  {id:'pn-body',label:'內容',type:'textarea',value:''},
+  {id:'pn-target',label:'對象',type:'select',value:'all',options:[['all','所有人'],['paid','付費會員'],['free','免費會員']]}
+ ],async()=>{
+  try{
+   const r=await api('/api/admin/send-notify',{method:'POST',body:{
+    title:document.getElementById('pn-title').value,
+    body:document.getElementById('pn-body').value,
+    target:document.getElementById('pn-target').value
+   }});
+   toast(r.msg||'已發送');
+  }catch(e){alert('發送失敗:'+e.message)}
+ })
 }
 
 function admSetServer(){
@@ -3344,34 +3360,44 @@ async function admDeletePost(pid){
 }
 
 // ═══════════ ADMIN EDIT FUNCTIONS ═══════════
-function esc(s){return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
+// esc() already defined at L1853 using DOM textContent
 
 function _adminModal(title,fields,onSave){
- // Reuse or create overlay
  let ov=document.getElementById('adm-edit-ov');
  if(!ov){ov=document.createElement('div');ov.id='adm-edit-ov';ov.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';document.body.appendChild(ov)}
- let h='<div style="background:var(--card);border-radius:16px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto">';
- h+='<h3 style="margin:0 0 16px;color:var(--text)">'+esc(title)+'</h3>';
+ let box=document.createElement('div');
+ box.style.cssText='background:var(--card);border-radius:16px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto';
+ let h3=document.createElement('h3');h3.style.cssText='margin:0 0 16px;color:var(--text)';h3.textContent=title;
+ box.appendChild(h3);
+ let inputs={};
  fields.forEach(f=>{
-  h+='<label style="display:block;margin-bottom:10px;color:var(--sub);font-size:12px">'+esc(f.label);
+  let label=document.createElement('label');
+  label.style.cssText='display:block;margin-bottom:10px;color:var(--sub);font-size:12px';
+  label.textContent=f.label;
+  let el;
   if(f.type==='select'){
-   h+='<select id="'+f.id+'" style="width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px">';
-   f.options.forEach(o=>{h+='<option value="'+o[0]+'"'+(o[0]==f.value?' selected':'')+'>'+esc(o[1])+'</option>'});
-   h+='</select>';
+   el=document.createElement('select');el.id=f.id;
+   el.style.cssText='width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px';
+   f.options.forEach(o=>{let op=document.createElement('option');op.value=o[0];op.textContent=o[1];if(String(o[0])===String(f.value))op.selected=true;el.appendChild(op)});
   }else if(f.type==='textarea'){
-   h+='<textarea id="'+f.id+'" style="width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px;min-height:60px">'+esc(f.value)+'</textarea>';
+   el=document.createElement('textarea');el.id=f.id;el.textContent=f.value||'';
+   el.style.cssText='width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px;min-height:60px';
   }else{
-   h+='<input id="'+f.id+'" type="text" value="'+esc(f.value)+'" style="width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px">';
+   el=document.createElement('input');el.id=f.id;el.type='text';el.value=f.value||'';
+   el.style.cssText='width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px';
   }
-  h+='</label>';
+  label.appendChild(el);box.appendChild(label);
+  inputs[f.id]=el;
  });
- h+='<div style="display:flex;gap:8px;margin-top:16px">';
- h+='<button id="adm-edit-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--amber);color:#fff;cursor:pointer;font-weight:700">儲存</button>';
- h+='<button id="adm-edit-cancel" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);cursor:pointer">取消</button>';
- h+='</div></div>';
- ov.innerHTML=h;ov.style.display='flex';
- document.getElementById('adm-edit-cancel').onclick=()=>{ov.style.display='none'};
- document.getElementById('adm-edit-save').onclick=()=>{onSave();ov.style.display='none'};
+ let btns=document.createElement('div');btns.style.cssText='display:flex;gap:8px;margin-top:16px';
+ let saveBtn=document.createElement('button');saveBtn.textContent='儲存';
+ saveBtn.style.cssText='flex:1;padding:10px;border:none;border-radius:8px;background:var(--amber);color:#fff;cursor:pointer;font-weight:700';
+ saveBtn.onclick=()=>{ov.style.display='none';onSave()};
+ let cancelBtn=document.createElement('button');cancelBtn.textContent='取消';
+ cancelBtn.style.cssText='flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);cursor:pointer';
+ cancelBtn.onclick=()=>{ov.style.display='none'};
+ btns.appendChild(saveBtn);btns.appendChild(cancelBtn);box.appendChild(btns);
+ ov.innerHTML='';ov.appendChild(box);ov.style.display='flex';
 }
 
 function admEditCheckin(id,status,note){
