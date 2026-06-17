@@ -1533,6 +1533,73 @@ def api_admin_delete_post():
     db.commit()
     return jsonify({'ok':True, 'msg':'已刪除帖子'})
 
+# ═══════════════════ Admin Edit APIs ═══════════════════
+@app.route('/api/admin/edit-checkin', methods=['POST'])
+def api_admin_edit_checkin():
+    """管理後台：編輯報到動態"""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    cid = int(d.get('checkin_id', 0))
+    if not cid: return jsonify({'error':'請輸入打卡ID'}), 400
+    db = get_db()
+    row = db.execute('SELECT id FROM checkins WHERE id=?', (cid,)).fetchone()
+    if not row: return jsonify({'error':'打卡不存在'}), 404
+    fields = []
+    vals = []
+    for k in ('status','note'):
+        if k in d:
+            fields.append(f'{k}=?')
+            vals.append(d[k])
+    if not fields: return jsonify({'error':'無更新欄位'}), 400
+    vals.append(cid)
+    db.execute(f'UPDATE checkins SET {",".join(fields)} WHERE id=?', vals)
+    db.commit()
+    return jsonify({'ok':True, 'msg':'已更新打卡記錄'})
+
+@app.route('/api/admin/edit-party', methods=['POST'])
+def api_admin_edit_party():
+    """管理後台：編輯酒局"""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    pid = int(d.get('pid', 0))
+    if not pid: return jsonify({'error':'請輸入酒局ID'}), 400
+    db = get_db()
+    row = db.execute('SELECT id FROM parties WHERE id=?', (pid,)).fetchone()
+    if not row: return jsonify({'error':'酒局不存在'}), 404
+    fields = []
+    vals = []
+    for k in ('title','location','meet_time','status','description','max_members'):
+        if k in d:
+            fields.append(f'{k}=?')
+            vals.append(d[k])
+    if not fields: return jsonify({'error':'無更新欄位'}), 400
+    vals.append(pid)
+    db.execute(f'UPDATE parties SET {",".join(fields)} WHERE id=?', vals)
+    db.commit()
+    return jsonify({'ok':True, 'msg':'已更新酒局'})
+
+@app.route('/api/admin/edit-post', methods=['POST'])
+def api_admin_edit_post():
+    """管理後台：編輯帖子"""
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    pid = int(d.get('pid', 0))
+    if not pid: return jsonify({'error':'請輸入帖子ID'}), 400
+    db = get_db()
+    row = db.execute('SELECT id FROM posts WHERE id=?', (pid,)).fetchone()
+    if not row: return jsonify({'error':'帖子不存在'}), 404
+    fields = []
+    vals = []
+    for k in ('content','image_url'):
+        if k in d:
+            fields.append(f'{k}=?')
+            vals.append(d[k])
+    if not fields: return jsonify({'error':'無更新欄位'}), 400
+    vals.append(pid)
+    db.execute(f'UPDATE posts SET {",".join(fields)} WHERE id=?', vals)
+    db.commit()
+    return jsonify({'ok':True, 'msg':'已更新帖子'})
+
 # ═══════════════════ Membership ═══════════════════════════
 @app.route('/api/member/upgrade', methods=['POST'])
 @auth_required

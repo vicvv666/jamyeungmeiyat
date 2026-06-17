@@ -842,6 +842,7 @@ const API_BASE = (()=>{
 // ═══════ API CALL ═══════
 async function api(url,opts={}){
   const h={};if(token)h['Authorization']='Bearer '+token;
+  if(adminToken)h['X-Admin-Token']=adminToken;
   if(opts.body&&typeof opts.body==='object'){h['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
   const furl = API_BASE + url;
   console.log('API:', furl, opts.method||'GET');
@@ -1143,7 +1144,7 @@ const L={
   party_location:'📍 地點',
   party_date:'📅 日期',
   party_time:'🕐 時間',
-  party_date_hint:'<span data-i18n="party_date_hint">點擊紫色框選擇日期</span>',
+  party_date_hint:'點擊紫色框選擇日期',
   party_create_btn:'🎉 發起酒局！',
   join_party:'參加',
   leave_party:'離開',
@@ -3299,7 +3300,9 @@ async function admLoadCheckins(){
    <span style="color:var(--sub);margin-left:6px">${['酒鬼','微醺','清醒'][c.status]||'報到'}</span>
    <span style="color:var(--sub);margin-left:6px;font-size:11px">${c.note||''}</span>
    <span style="color:var(--sub);margin-left:6px;font-size:10px">${c.created_at||''}</span></div>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteCheckin(${c.id})">刪除</button></div>`).join('')
+   <div style="display:flex;gap:4px">
+   <button style="padding:2px 8px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px" onclick="admEditCheckin(${c.id},${c.status},'${esc(c.note||'').replace(/'/g,"\\'")}')">編輯</button>
+   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteCheckin(${c.id})">刪除</button></div></div>`).join('')
  }catch(e){console.error('admLoadCheckins',e)}
 }
 async function admLoadParties(){
@@ -3310,7 +3313,9 @@ async function admLoadParties(){
    <span style="color:var(--sub);margin-left:6px">📍${p.location||'-'}</span>
    <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.meet_time||p.created_at||''}</span>
    <span style="background:var(--${p.status==='upcoming'?'amber':'green'});color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px">${p.status}</span></div>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteParty(${p.id})">刪除</button></div>`).join('')
+   <div style="display:flex;gap:4px">
+   <button style="padding:2px 8px;border:1px solid var(--purple);border-radius:6px;background:none;color:var(--purple);cursor:pointer;font-size:10px" onclick="admEditParty(${p.id},'${esc(p.title||'').replace(/'/g,"\\'")}','${esc(p.location||'').replace(/'/g,"\\'")}','${esc(p.meet_time||'').replace(/'/g,"\\'")}','${p.status||'upcoming'}','${esc(p.description||'').replace(/'/g,"\\'")}',${p.max_members||0})">編輯</button>
+   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteParty(${p.id})">刪除</button></div></div>`).join('')
  }catch(e){console.error('admLoadParties',e)}
 }
 async function admLoadAdmPosts(){
@@ -3320,7 +3325,9 @@ async function admLoadAdmPosts(){
    <div><span style="color:var(--pink);font-weight:700">@${p.username||p.nickname}</span>
    <span style="color:var(--sub);margin-left:6px">${(p.content||'').substring(0,40)}</span>
    <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.created_at||''}</span></div>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeletePost(${p.id})">刪除</button></div>`).join('')
+   <div style="display:flex;gap:4px">
+   <button style="padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:none;color:var(--pink);cursor:pointer;font-size:10px" onclick="admEditPost(${p.id},'${esc(p.content||'').replace(/'/g,"\\'")}','${esc(p.image_url||'').replace(/'/g,"\\'")}')">編輯</button>
+   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeletePost(${p.id})">刪除</button></div></div>`).join('')
  }catch(e){console.error('admLoadAdmPosts',e)}
 }
 async function admDeleteCheckin(cid){
@@ -3334,6 +3341,66 @@ async function admDeleteParty(pid){
 async function admDeletePost(pid){
  if(!confirm('確認刪除呢條帖子？'))return;
  try{await api('/api/admin/delete-post',{method:'POST',body:{pid:pid}});admLoadAdmPosts()}catch(e){alert('刪除失敗')}
+}
+
+// ═══════════ ADMIN EDIT FUNCTIONS ═══════════
+function esc(s){return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"')}
+
+function _adminModal(title,fields,onSave){
+ // Reuse or create overlay
+ let ov=document.getElementById('adm-edit-ov');
+ if(!ov){ov=document.createElement('div');ov.id='adm-edit-ov';ov.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';document.body.appendChild(ov)}
+ let h='<div style="background:var(--card);border-radius:16px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto">';
+ h+='<h3 style="margin:0 0 16px;color:var(--text)">'+esc(title)+'</h3>';
+ fields.forEach(f=>{
+  h+='<label style="display:block;margin-bottom:10px;color:var(--sub);font-size:12px">'+esc(f.label);
+  if(f.type==='select'){
+   h+='<select id="'+f.id+'" style="width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px">';
+   f.options.forEach(o=>{h+='<option value="'+o[0]+'"'+(o[0]==f.value?' selected':'')+'>'+esc(o[1])+'</option>'});
+   h+='</select>';
+  }else if(f.type==='textarea'){
+   h+='<textarea id="'+f.id+'" style="width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px;min-height:60px">'+esc(f.value)+'</textarea>';
+  }else{
+   h+='<input id="'+f.id+'" type="text" value="'+esc(f.value)+'" style="width:100%;padding:8px;border-radius:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);margin-top:4px">';
+  }
+  h+='</label>';
+ });
+ h+='<div style="display:flex;gap:8px;margin-top:16px">';
+ h+='<button id="adm-edit-save" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--amber);color:#fff;cursor:pointer;font-weight:700">儲存</button>';
+ h+='<button id="adm-edit-cancel" style="flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);cursor:pointer">取消</button>';
+ h+='</div></div>';
+ ov.innerHTML=h;ov.style.display='flex';
+ document.getElementById('adm-edit-cancel').onclick=()=>{ov.style.display='none'};
+ document.getElementById('adm-edit-save').onclick=()=>{onSave();ov.style.display='none'};
+}
+
+function admEditCheckin(id,status,note){
+ _adminModal('編輯報到 #'+id,[
+  {id:'ec-status',label:'狀態',type:'select',value:status,options:[[0,'酒鬼'],[1,'微醺'],[2,'清醒']]},
+  {id:'ec-note',label:'備註',type:'text',value:note.replace(/\\'/g,"'")}
+ ],async()=>{
+  try{await api('/api/admin/edit-checkin',{method:'POST',body:{checkin_id:id,status:parseInt(document.getElementById('ec-status').value),note:document.getElementById('ec-note').value}});admLoadCheckins();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
+ })
+}
+function admEditParty(id,title,location,meetTime,status,desc,maxMem){
+ _adminModal('編輯酒局 #'+id,[
+  {id:'ep-title',label:'標題',type:'text',value:title.replace(/\\'/g,"'")},
+  {id:'ep-loc',label:'地點',type:'text',value:location.replace(/\\'/g,"'")},
+  {id:'ep-time',label:'時間',type:'text',value:meetTime.replace(/\\'/g,"'")},
+  {id:'ep-status',label:'狀態',type:'select',value:status,options:[['upcoming','即將'],['active','進行中'],['ended','已結束']]},
+  {id:'ep-desc',label:'描述',type:'textarea',value:desc.replace(/\\'/g,"'")},
+  {id:'ep-max',label:'人數上限',type:'text',value:maxMem}
+ ],async()=>{
+  try{await api('/api/admin/edit-party',{method:'POST',body:{pid:id,title:document.getElementById('ep-title').value,location:document.getElementById('ep-loc').value,meet_time:document.getElementById('ep-time').value,status:document.getElementById('ep-status').value,description:document.getElementById('ep-desc').value,max_members:parseInt(document.getElementById('ep-max').value)||0}});admLoadParties();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
+ })
+}
+function admEditPost(id,content,imageUrl){
+ _adminModal('編輯帖子 #'+id,[
+  {id:'epc-content',label:'內容',type:'textarea',value:content.replace(/\\'/g,"'")},
+  {id:'epc-img',label:'圖片URL',type:'text',value:imageUrl.replace(/\\'/g,"'")}
+ ],async()=>{
+  try{await api('/api/admin/edit-post',{method:'POST',body:{pid:id,content:document.getElementById('epc-content').value,image_url:document.getElementById('epc-img').value}});admLoadAdmPosts();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
+ })
 }
 
 // ═══════════ FRIENDS ═══════════
