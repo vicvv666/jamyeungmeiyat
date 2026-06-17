@@ -3308,44 +3308,74 @@ setTimeout(initDice,200);setTimeout(startChallengePoll,3000);
 
 
 // ═══════════ ADMIN: Checkins / Parties / Posts ═══════════
+let _admCheckins=[], _admParties=[], _admPosts=[];
+const _statusMap={0:'酒鬼',1:'微醺',2:'清醒',4:'報到',5:'想飲',10:'到咗',11:'開咗',12:'飲緊',13:'繼續',14:'加酒',15:'暢飲',16:'醉緊',17:'好醉',18:'陶醉',19:'飄飄',20:'斷片',21:'想嘔',22:'暈暈',23:'趴低',24:'轉場',25:'溝酒',26:'猜枚',27:'直落',28:'飲咗',29:'返歸',30:'醒晒',31:'聽日'};
+function _statusOpts(){return Object.entries(_statusMap).map(([k,v])=>[Number(k),v])}
+
 async function admLoadCheckins(){
  try{const d=await api('/api/admin/checkins');const el=document.getElementById('adm-checkin-list');
-  if(!d.checkins.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無動態</div>';return}
-  el.innerHTML=d.checkins.map(c=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+  _admCheckins=d.checkins||[];
+  if(!_admCheckins.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無動態</div>';return}
+  el.innerHTML=_admCheckins.map((c,i)=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
    <div><span style="color:var(--amber);font-weight:700">@${c.username||c.nickname}</span>
-   <span style="color:var(--sub);margin-left:6px">${['酒鬼','微醺','清醒'][c.status]||'報到'}</span>
+   <span style="color:var(--sub);margin-left:6px">${_statusMap[c.status]||'報到'}</span>
    <span style="color:var(--sub);margin-left:6px;font-size:11px">${c.note||''}</span>
    <span style="color:var(--sub);margin-left:6px;font-size:10px">${c.created_at||''}</span></div>
    <div style="display:flex;gap:4px">
-   <button style="padding:2px 8px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px" onclick="admEditCheckin(${c.id},${c.status},'${esc(c.note||'').replace(/'/g,"\\'")}')">編輯</button>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteCheckin(${c.id})">刪除</button></div></div>`).join('')
+   <button data-idx="${i}" data-act="edit-ci" style="padding:2px 8px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px">編輯</button>
+   <button data-idx="${i}" data-act="del-ci" style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px">刪除</button></div></div>`).join('')
  }catch(e){console.error('admLoadCheckins',e)}
 }
 async function admLoadParties(){
  try{const d=await api('/api/admin/parties');const el=document.getElementById('adm-party-list');
-  if(!d.parties.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無酒局</div>';return}
-  el.innerHTML=d.parties.map(p=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+  _admParties=d.parties||[];
+  if(!_admParties.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無酒局</div>';return}
+  el.innerHTML=_admParties.map((p,i)=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
    <div><span style="color:var(--purple);font-weight:700">${p.title||'無標題'}</span>
    <span style="color:var(--sub);margin-left:6px">📍${p.location||'-'}</span>
    <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.meet_time||p.created_at||''}</span>
    <span style="background:var(--${p.status==='upcoming'?'amber':'green'});color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px">${p.status}</span></div>
    <div style="display:flex;gap:4px">
-   <button style="padding:2px 8px;border:1px solid var(--purple);border-radius:6px;background:none;color:var(--purple);cursor:pointer;font-size:10px" onclick="admEditParty(${p.id},'${esc(p.title||'').replace(/'/g,"\\'")}','${esc(p.location||'').replace(/'/g,"\\'")}','${esc(p.meet_time||'').replace(/'/g,"\\'")}','${p.status||'upcoming'}','${esc(p.description||'').replace(/'/g,"\\'")}',${p.max_members||0})">編輯</button>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeleteParty(${p.id})">刪除</button></div></div>`).join('')
+   <button data-idx="${i}" data-act="edit-py" style="padding:2px 8px;border:1px solid var(--purple);border-radius:6px;background:none;color:var(--purple);cursor:pointer;font-size:10px">編輯</button>
+   <button data-idx="${i}" data-act="del-py" style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px">刪除</button></div></div>`).join('')
  }catch(e){console.error('admLoadParties',e)}
 }
 async function admLoadAdmPosts(){
  try{const d=await api('/api/admin/posts');const el=document.getElementById('adm-post-list');
-  if(!d.posts.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無帖子</div>';return}
-  el.innerHTML=d.posts.map(p=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+  _admPosts=d.posts||[];
+  if(!_admPosts.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無帖子</div>';return}
+  el.innerHTML=_admPosts.map((p,i)=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
    <div><span style="color:var(--pink);font-weight:700">@${p.username||p.nickname}</span>
    <span style="color:var(--sub);margin-left:6px">${(p.content||'').substring(0,40)}</span>
    <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.created_at||''}</span></div>
    <div style="display:flex;gap:4px">
-   <button style="padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:none;color:var(--pink);cursor:pointer;font-size:10px" onclick="admEditPost(${p.id},'${esc(p.content||'').replace(/'/g,"\\'")}','${esc(p.image_url||'').replace(/'/g,"\\'")}')">編輯</button>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="admDeletePost(${p.id})">刪除</button></div></div>`).join('')
+   <button data-idx="${i}" data-act="edit-po" style="padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:none;color:var(--pink);cursor:pointer;font-size:10px">編輯</button>
+   <button data-idx="${i}" data-act="del-po" style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px">刪除</button></div></div>`).join('')
  }catch(e){console.error('admLoadAdmPosts',e)}
 }
+
+// Event delegation for admin list buttons
+document.addEventListener('click',function(e){
+ const btn=e.target.closest('[data-act]');
+ if(!btn)return;
+ const act=btn.dataset.act, idx=parseInt(btn.dataset.idx);
+ if(act==='edit-ci'&&_admCheckins[idx]){
+  const c=_admCheckins[idx];
+  admEditCheckin(c.id,c.status,c.note||'');
+ }else if(act==='del-ci'&&_admCheckins[idx]){
+  admDeleteCheckin(_admCheckins[idx].id);
+ }else if(act==='edit-py'&&_admParties[idx]){
+  const p=_admParties[idx];
+  admEditParty(p.id,p.title||'',p.location||'',p.meet_time||'',p.status||'upcoming',p.description||'',p.max_members||0);
+ }else if(act==='del-py'&&_admParties[idx]){
+  admDeleteParty(_admParties[idx].id);
+ }else if(act==='edit-po'&&_admPosts[idx]){
+  const p=_admPosts[idx];
+  admEditPost(p.id,p.content||'',p.image_url||'');
+ }else if(act==='del-po'&&_admPosts[idx]){
+  admDeletePost(_admPosts[idx].id);
+ }
+});
 async function admDeleteCheckin(cid){
  if(!confirm('確認刪除呢條動態？'))return;
  try{await api('/api/admin/delete-checkin',{method:'POST',body:{checkin_id:cid}});admLoadCheckins()}catch(e){alert('刪除失敗')}
@@ -3402,19 +3432,19 @@ function _adminModal(title,fields,onSave){
 
 function admEditCheckin(id,status,note){
  _adminModal('編輯報到 #'+id,[
-  {id:'ec-status',label:'狀態',type:'select',value:status,options:[[0,'酒鬼'],[1,'微醺'],[2,'清醒']]},
-  {id:'ec-note',label:'備註',type:'text',value:note.replace(/\\'/g,"'")}
+  {id:'ec-status',label:'狀態',type:'select',value:status,options:_statusOpts()},
+  {id:'ec-note',label:'備註',type:'text',value:note}
  ],async()=>{
   try{await api('/api/admin/edit-checkin',{method:'POST',body:{checkin_id:id,status:parseInt(document.getElementById('ec-status').value),note:document.getElementById('ec-note').value}});admLoadCheckins();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
  })
 }
 function admEditParty(id,title,location,meetTime,status,desc,maxMem){
  _adminModal('編輯酒局 #'+id,[
-  {id:'ep-title',label:'標題',type:'text',value:title.replace(/\\'/g,"'")},
-  {id:'ep-loc',label:'地點',type:'text',value:location.replace(/\\'/g,"'")},
-  {id:'ep-time',label:'時間',type:'text',value:meetTime.replace(/\\'/g,"'")},
+  {id:'ep-title',label:'標題',type:'text',value:title},
+  {id:'ep-loc',label:'地點',type:'text',value:location},
+  {id:'ep-time',label:'時間',type:'text',value:meetTime},
   {id:'ep-status',label:'狀態',type:'select',value:status,options:[['upcoming','即將'],['active','進行中'],['ended','已結束']]},
-  {id:'ep-desc',label:'描述',type:'textarea',value:desc.replace(/\\'/g,"'")},
+  {id:'ep-desc',label:'描述',type:'textarea',value:desc},
   {id:'ep-max',label:'人數上限',type:'text',value:maxMem}
  ],async()=>{
   try{await api('/api/admin/edit-party',{method:'POST',body:{pid:id,title:document.getElementById('ep-title').value,location:document.getElementById('ep-loc').value,meet_time:document.getElementById('ep-time').value,status:document.getElementById('ep-status').value,description:document.getElementById('ep-desc').value,max_members:parseInt(document.getElementById('ep-max').value)||0}});admLoadParties();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
@@ -3422,8 +3452,8 @@ function admEditParty(id,title,location,meetTime,status,desc,maxMem){
 }
 function admEditPost(id,content,imageUrl){
  _adminModal('編輯帖子 #'+id,[
-  {id:'epc-content',label:'內容',type:'textarea',value:content.replace(/\\'/g,"'")},
-  {id:'epc-img',label:'圖片URL',type:'text',value:imageUrl.replace(/\\'/g,"'")}
+  {id:'epc-content',label:'內容',type:'textarea',value:content},
+  {id:'epc-img',label:'圖片URL',type:'text',value:imageUrl}
  ],async()=>{
   try{await api('/api/admin/edit-post',{method:'POST',body:{pid:id,content:document.getElementById('epc-content').value,image_url:document.getElementById('epc-img').value}});admLoadAdmPosts();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
  })
