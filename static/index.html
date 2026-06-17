@@ -1905,7 +1905,7 @@ const STATUSES=[
 const GKEYS=['grp_hei_sau','grp_seung_gan','grp_jui_gan','grp_baau_cho','grp_jyun_cheung','grp_sau_mei'];
 const RE_EM=['🍻','🫣','🤣','❤️','🔥','😭','💀','🥂','👏','🎉','🤤','😈'];
 const CM_EM=['😍','🤣','👍','🔥','❤️','🥂','🫣','💀','🎉','👏','😈','💪','🍺','🍻','😭','🤤'];
-const QR_M={alipay:'/qrcodes/alipay.jpg',wechat:'/qrcodes/wechat.png',paypal:'/qrcodes/paypal.jpg'};
+const QR_M={alipay:'qrcodes/alipay.jpg',wechat:'qrcodes/wechat.png',paypal:'qrcodes/paypal.jpg'};
 const PAY_U={jiuyau:'1.20',jaugwai:'2.50',jausan:'28.00'};
 
 function buildGrid(){
@@ -2166,7 +2166,7 @@ function updLegalLinks(){
   const ld=document.getElementById('lt-disc-txt');if(ld)ld.textContent=T('disclaimer');
   const lc=document.getElementById('lt-ct-txt');if(lc)lc.textContent=T('contact');
 }
-function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');document.getElementById('pay-fb').style.display='none';img.style.display='block';function trySrc(src,onfail){img.onload=function(){img.onload=null;img.onerror=null};img.onerror=function(){img.onload=null;img.onerror=null;onfail()};img.src=src}function loadLocal(){if(ASSET_BASE){trySrc(ASSET_BASE+QR_M[t],loadRemote)}else{loadRemote()}}function loadRemote(){if(API_BASE){trySrc(API_BASE+QR_M[t],loadDirect)}else{loadDirect()}}function loadDirect(){trySrc(QR_M[t],showFallback)}function showFallback(){img.style.display='none';document.getElementById('pay-fb').style.display='block'}loadLocal()}
+function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');document.getElementById('pay-fb').style.display='none';img.style.display='block';function trySrc(src,onfail){img.onload=function(){img.onload=null;img.onerror=null};img.onerror=function(){img.onload=null;img.onerror=null;onfail()};img.src=src}function loadLocal(){if(ASSET_BASE){trySrc(ASSET_BASE+'/'+QR_M[t],loadRemote)}else{loadRemote()}}function loadRemote(){if(API_BASE){trySrc(API_BASE+'/'+QR_M[t],loadDirect)}else{loadDirect()}}function loadDirect(){trySrc('/'+QR_M[t],showFallback)}function showFallback(){img.style.display='none';document.getElementById('pay-fb').style.display='block'}loadLocal()}
 async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});me.membership=r.membership;me.member_expires=r.expires;saveS();closePay();updateNav();updMem();toast(T("upgrade_success"))}catch(e){toast('❌ '+e.message,1)}}
 
 // ═══════ PROFILE ═══════
