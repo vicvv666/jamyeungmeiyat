@@ -337,21 +337,21 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </head>
 <body>
 
-<nav class="nav" role="navigation" aria-label="主導航">
+<nav class="nav" role="navigation" aria-label="Main Navigation" data-i18n-attr="aria-label:nav_label">
   <div class="nav-title" id="nav-title" ontouchstart="admLongPressStart()" ontouchend="admLongPressCancel()" onmousedown="admLongPressStart()" onmouseup="admLongPressCancel()" onmouseleave="admLongPressCancel()" onclick="admTitleTap()">🍺 今晚飲咗未</div>
   <div class="nav-right">
     <select class="lang-select" id="lang-switch" onchange="switchLang(this.value)"><option value="zh-HK">繁</option><option value="zh-CN">简</option><option value="en">EN</option></select>
-    <button class="nav-btn" id="btn-auth" onclick="showAuth()">登入</button>
+    <button class="nav-btn" id="btn-auth" onclick="showAuth()" data-i18n="login_btn">登入</button>
     <div class="user-menu" id="user-menu">
       <div class="user-trigger" id="user-trigger" onclick="toggleUM()">👤</div>
       <div class="user-drop" id="user-drop">
         <div class="dd-item" id="dd-mem"></div><div class="dd-item" id="dd-exp" style="font-size:10px;color:var(--sub)"></div>
         <div class="dd-divider"></div>
-        <div class="dd-item" onclick="showPage('member');toggleUM()">💎 會員中心</div>
-        <div class="dd-item" onclick="openProfile()">👤 個人資料</div>
-        <div class="dd-item" id="dd-admin" onclick="admOpen();toggleUM()" style="display:none">🔧 管理面板</div>
+        <div class="dd-item" onclick="showPage('member');toggleUM()" data-i18n="member_center">💎 會員中心</div>
+        <div class="dd-item" onclick="openProfile()" data-i18n="my_profile" data-i18n="profile_card" data-i18n="profile_card">👤 個人資料</div>
+        <div class="dd-item" id="dd-admin" onclick="admOpen();toggleUM()" data-i18n="admin_panel" style="display:none">🔧 管理面板</div>
         <div class="dd-divider"></div>
-        <div class="dd-item" onclick="doLogout()">🚪 登出</div>
+        <div class="dd-item" onclick="doLogout()" data-i18n="logout_btn">🚪 登出</div>
       </div>
     </div>
   </div>
@@ -375,31 +375,31 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="padding:0;overflow:hidden;border:none">
   <img id="cover-img" src="cover.png" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.png'}else{this.style.display='none'">
   <div style="padding:16px">
-   <div style="font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">🍺 今晚飲咗未？</div>
-   <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px">飲酒社交打卡 · 骰盅對決 · 酒局約起</div>
+   <div style="font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">🍺 <span data-i18n="chk_title">今晚飲咗未？</span></div>
+   <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px" data-i18n="chk_subtitle">飲酒社交打卡 · 骰盅對決 · 酒局約起</div>
   </div>
  </div>
- <div class="card"><div class="card-header">📍 狀態報到</div><div id="status-grid"></div>
- <textarea aria-label="文字輸入" class="textarea" id="chk-note" placeholder="有咩想講？" style="margin-top:12px"></textarea>
- <button class="btn btn-primary" onclick="doCheckin()">🍻 報到！</button><div class="chk-info" id="chk-remaining"></div>
+ <div class="card"><div class="card-header" data-i18n="status_checkin">📍 狀態報到</div><div id="status-grid"></div>
+ <textarea aria-label="文字輸入" class="textarea" id="chk-note" data-i18n-placeholder="note_placeholder" style="margin-top:12px"></textarea>
+ <button class="btn btn-primary" onclick="doCheckin()" data-i18n="checkin_btn">🍻 報到！</button><div class="chk-info" id="chk-remaining"></div>
  </div>
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
-  <div class="card-header">📱 下載 App</div>
-  <div style="font-size:12px;color:var(--sub);margin-bottom:12px">喺手機安裝 App 體驗更佳！</div>
-  <a id="apk-dl-link" href="/jamyeungmeiyat-debug.apk" class="btn btn-primary" style="text-decoration:none" download>🚀 下載 Android APK</a>
+  <div class="card-header" data-i18n="download_title">📱 下載 App</div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:12px"><span data-i18n="download_hint">喺手機安裝 App 體驗更佳！</span></div>
+  <a id="apk-dl-link" href="/jamyeungmeiyat-debug.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
   <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.1.0 · 2.8MB</div>
  </div>
  <!-- Legal Footer on main page -->
  <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
-  <a href="javascript:void(0)" onclick="openLegal('terms')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="terms">使用條款</a> · 
-  <a href="javascript:void(0)" onclick="openLegal('disc')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="disclaimer">免責聲明</a> · 
-  <a href="javascript:void(0)" onclick="openLegal('ct')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="contact">聯絡我們</a>
+  <a href="javascript:void(0)" onclick="openLegal('terms')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="terms" data-i18n="terms_link">使用條款</a> · 
+  <a href="javascript:void(0)" onclick="openLegal('disc')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="disclaimer" data-i18n="disc_link">免責聲明</a> · 
+  <a href="javascript:void(0)" onclick="openLegal('ct')" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-legal-link="contact" data-i18n="contact_link">聯絡我們</a>
  </div>
 </div>
 
 <div class="page" id="page-timeline">
   <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
-    <div class="card-header">📸 發朋友圈</div>
+    <div class="card-header" data-i18n="post_title">📸 發朋友圈</div>
     <div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap" id="emoji-bar">
      <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍺')">🍺</span>
      <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍻')">🍻</span>
@@ -425,18 +425,18 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
      <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🔥')">🔥</span>
      <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💪')">💪</span>
     </div>
-    <textarea class="textarea" id="post-content" placeholder="分享你嘅飲酒時刻..." style="margin-bottom:8px;min-height:60px"></textarea>
+    <textarea class="textarea" id="post-content" data-i18n-placeholder="post_placeholder" style="margin-bottom:8px;min-height:60px"></textarea>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--amber);border-radius:12px;font-size:13px;color:var(--amber);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      📷 上傳圖片<input type="file" aria-label="上傳圖片" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
+      📷 上傳圖片<input type="file" aria-label="Upload Image" data-i18n-attr="aria-label:upload_img" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
      </label>
      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--purple);border-radius:12px;font-size:13px;color:var(--purple);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      🎬 上傳影片<input type="file" aria-label="上傳影片" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
+      🎬 上傳影片<input type="file" aria-label="Upload Video" data-i18n-attr="aria-label:upload_vid" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
      </label>
      <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
      <div id="post-vid-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
     </div>
-    <button class="btn btn-primary" onclick="createPost()" style="width:100%">📱 發佈</button>
+    <button class="btn btn-primary" onclick="createPost()" style="width:100%" data-i18n="publish_btn">📱 發佈</button>
   </div>
   <div id="tl-container"></div>
   <div id="posts-container" style="margin-top:12px"></div>
@@ -444,48 +444,48 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 
 <div class="page" id="page-party">
   <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
-    <div class="card-header">🎯 發起酒局</div>
-    <input class="input" id="pa-title" placeholder="酒局名稱">
-    <input class="input" id="pa-loc" placeholder="📍 地點">
+    <div class="card-header" data-i18n="party_title">🎯 發起酒局</div>
+    <input class="input" id="pa-title" data-i18n-placeholder="party_name_ph">
+    <input class="input" id="pa-loc" data-i18n-placeholder="party_loc_ph">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-      <div><label style="font-size:12px;font-weight:700;color:var(--purple)">📅 日期 *</label><input class="input date-input" id="pa-date" type="date" style="margin-bottom:0;font-size:16px;font-weight:700;padding:10px 8px"></div>
-      <div><label style="font-size:12px;font-weight:700;color:var(--purple)">🕐 時間</label><input class="input date-input" id="pa-time" type="time" style="margin-bottom:0;font-size:16px;font-weight:700;padding:10px 8px"></div>
+      <div><label style="font-size:12px;font-weight:700;color:var(--purple)" data-i18n="party_date">📅 日期 *</label><input class="input date-input" id="pa-date" type="date" style="margin-bottom:0;font-size:16px;font-weight:700;padding:10px 8px"></div>
+      <div><label style="font-size:12px;font-weight:700;color:var(--purple)" data-i18n="party_time">🕐 時間</label><input class="input date-input" id="pa-time" type="time" style="margin-bottom:0;font-size:16px;font-weight:700;padding:10px 8px"></div>
     </div>
-    <div style="font-size:12px;color:var(--purple);margin-bottom:8px;text-align:center;font-weight:600">⬆ 點擊紫色框選擇 ⬆</div>
-    <button class="btn btn-primary" onclick="createParty()">📅 發起酒局</button>
+    <div style="font-size:12px;color:var(--purple);margin-bottom:8px;text-align:center;font-weight:600" data-i18n="party_date_hint">⬆ 點擊紫色框選擇 ⬆</div>
+    <button class="btn btn-primary" onclick="createParty()" data-i18n="party_create_btn">📅 發起酒局</button>
   </div>
   <div id="party-list"></div>
 </div>
 
 <div class="page" id="page-stats">
-  <div class="card"><div class="card-header">📊 飲酒統計</div>
-    <div class="stats-row"><div><div class="stat-num" id="st-total">0</div><div class="stat-label">累計</div></div>
-    <div><div class="stat-num" id="st-week">0</div><div class="stat-label">本週</div></div>
-    <div><div class="stat-num" id="st-today">0</div><div class="stat-label">今日</div></div></div>
+  <div class="card"><div class="card-header" data-i18n="stats_title">📊 飲酒統計</div>
+    <div class="stats-row"><div><div class="stat-num" id="st-total">0</div><div class="stat-label" data-i18n="stats_total">累計</div></div>
+    <div><div class="stat-num" id="st-week">0</div><div class="stat-label" data-i18n="stats_weekly">本週</div></div>
+    <div><div class="stat-num" id="st-today">0</div><div class="stat-label" data-i18n="stats_today">今日</div></div></div>
   </div><div id="st-dist"></div>
 </div>
 
 <div class="page" id="page-dice" style="padding-bottom:120px">
  <div class="card">
-  <div class="card-header">🎲 骰盅大挑戰</div>
-  <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center" id="dice-mem-hint">選擇骰數</div>
+  <div class="card-header" data-i18n="dice_title">🎲 骰盅大挑戰</div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center" id="dice-mem-hint" data-i18n="dice_count">選擇骰數</div>
   <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px" id="dice-count-row"></div>
   <div id="dice-table" style="position:relative;width:100%;min-height:120px;background:radial-gradient(ellipse at center,rgba(30,60,30,0.15) 0%,transparent 70%);border-radius:14px;padding:10px 8px;perspective:600px">
    <div id="dice-area" style="display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;padding:10px 0"></div>
   </div>
   <div style="text-align:center;font-size:14px;color:var(--amber);font-weight:600;min-height:22px;margin-top:8px" id="solo-result"></div>
-  <button class="btn btn-primary" style="width:100%;font-size:16px;font-weight:800;padding:14px" onclick="shakeSolo()" id="btn-shake">🍻 搖骰！</button>
+  <button class="btn btn-primary" style="width:100%;font-size:16px;font-weight:800;padding:14px" onclick="shakeSolo()" id="btn-shake" data-i18n="roll_btn">🍻 搖骰！</button>
  </div>
  <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
-  <div class="card-header">🎯 面對面對決 <span id="room-lock" style="font-size:11px;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:auto">🔒</span></div>
+  <div class="card-header" data-i18n="face_off">🎯 面對面對決 <span id="room-lock" style="font-size:11px;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:auto">🔒</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-   <button class="btn btn-outline" id="btn-create-room" onclick="createRoom()" style="border-color:var(--purple);color:var(--purple)">🏠 開房</button>
-   <button class="btn btn-outline" id="btn-join-room" onclick="showJoinRoom()" style="border-color:var(--purple);color:var(--purple)">🚪 加入</button>
+   <button class="btn btn-outline" id="btn-create-room" onclick="createRoom()" style="border-color:var(--purple);color:var(--purple)" data-i18n="open_room">🏠 開房</button>
+   <button class="btn btn-outline" id="btn-join-room" onclick="showJoinRoom()" data-i18n="join_room" style="border-color:var(--purple);color:var(--purple)">🚪 加入</button>
    <button class="btn btn-outline" id="btn-challenge" onclick="showChallengePanel()" style="border-color:var(--pink);color:var(--pink)">⚔️ <span data-i18n="challenge_title">約戰</span></button>
   </div>
   <!-- Challenge Panel -->
   <div id="challenge-panel" style="display:none;margin-top:10px;padding:12px;background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.2);border-radius:12px">
-   <div style="font-weight:700;font-size:14px;color:var(--pink);margin-bottom:8px" id="challenge-panel-title">⚔️ 約戰</div>
+   <div style="font-weight:700;font-size:14px;color:var(--pink);margin-bottom:8px" id="challenge-panel-title" data-i18n="challenge_title">⚔️ 約戰</div>
    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:50px">🎲</label><select id="challenge-dice" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select><label style="font-size:12px;color:var(--sub);margin-left:8px;min-width:50px">🔄</label><select id="challenge-rounds" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="1">1</option><option value="3">3</option><option value="5">5</option></select></div>
    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
     <button class="btn btn-outline" onclick="challengeFriend()" style="border-color:var(--pink);color:var(--pink);font-size:13px">👤 <span data-i18n="challenge_friend">約戰酒友</span></button>
@@ -493,14 +493,14 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
    </div>
    <div id="matching-status" style="display:none;text-align:center;margin-top:8px">
     <div style="animation:spin 1s linear infinite;display:inline-block;font-size:28px">🎲</div>
-    <div style="font-size:12px;color:var(--amber);margin-top:4px" id="matching-text">匹配中...</div>
+    <div style="font-size:12px;color:var(--amber);margin-top:4px" id="matching-text" data-i18n="matching">匹配中...</div>
     <button class="btn btn-outline" onclick="cancelMatchmaking()" style="margin-top:6px;border-color:var(--red);color:var(--red);font-size:11px;padding:4px 12px">✕ <span data-i18n="match_cancel">取消</span></button>
    </div>
   </div>
   <div id="join-panel" style="display:none;margin-top:10px">
    <div style="display:flex;gap:8px">
-    <input id="join-code" maxlength="6" placeholder="房間號" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:20px;font-weight:800;text-align:center;letter-spacing:6px;text-transform:uppercase">
-    <button class="btn btn-primary" onclick="joinRoom()" style="padding:10px 16px">加入</button>
+    <input id="join-code" maxlength="6" data-i18n-placeholder="room_code" style="flex:1;padding:10px;border:2px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:20px;font-weight:800;text-align:center;letter-spacing:6px;text-transform:uppercase">
+    <button class="btn btn-primary" onclick="joinRoom()" style="padding:10px 16px" data-i18n="join_room">加入</button>
    </div>
   </div>
  </div>
@@ -513,34 +513,34 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  </div>
 </div>
 <div class="card" id="room-detail" style="display:none">
-  <div class="card-header">🏠 房間 <span id="room-status" style="color:var(--green);font-size:12px;margin-left:auto">等待中</span></div>
+  <div class="card-header" data-i18n="room_label">🏠 房間 <span id="room-status" style="color:var(--green);font-size:12px;margin-left:auto" data-i18n="waiting_label">等待中</span></div>
   <div style="text-align:center;padding:12px;background:rgba(139,92,246,0.05);border-radius:12px;border:1px solid rgba(139,92,246,0.2)">
-   <div style="font-size:11px;color:var(--sub)">房間號</div>
+   <div style="font-size:11px;color:var(--sub)" data-i18n="room_label">房間號</div>
    <div style="font-size:32px;font-weight:800;color:var(--purple);letter-spacing:6px" id="room-code-display">------</div>
    <div id="room-players" style="margin-top:6px;font-size:12px;color:var(--sub)"></div>
   </div>
   <div id="room-rules" style="margin-top:10px">
-   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:60px">🎲 骰數</label><select id="rule-dice" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="2">2粒</option><option value="3">3粒</option><option value="4">4粒</option><option value="5">5粒</option></select></div>
-   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:60px">🔄 輪數</label><select id="rule-rounds" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="1">1輪</option><option value="3">3輪</option><option value="5">5輪</option></select></div>
-   <button class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;background:var(--purple)" onclick="startRoomGame()" id="btn-start-room">🎯 開始對戰</button>
+   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:60px" data-i18n="dice_num">🎲 骰數</label><select id="rule-dice" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="2">2粒</option><option value="3">3粒</option><option value="4">4粒</option><option value="5">5粒</option></select></div>
+   <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><label style="font-size:12px;color:var(--sub);min-width:60px" data-i18n="rounds_num">🔄 輪數</label><select id="rule-rounds" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text)"><option value="1">1輪</option><option value="3">3輪</option><option value="5">5輪</option></select></div>
+   <button class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;background:var(--purple)" onclick="startRoomGame()" id="btn-start-room" data-i18n="start_battle">🎯 開始對戰</button>
   </div>
   <div id="room-game" style="display:none">
    <div style="text-align:center;font-size:12px;color:var(--sub);margin-bottom:8px" id="game-round-info"></div>
    <div id="battle-grid" style="display:grid;gap:8px"></div>
-   <button class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;margin-top:10px" onclick="shakeRoom()" id="btn-room-shake">🎲 我要搖骰</button>
-   <button class="btn" style="width:100%;font-size:14px;padding:12px;margin-top:8px;background:linear-gradient(135deg,var(--pink),var(--red));color:#fff;border:none;border-radius:10px;font-weight:700" onclick="revealAll()" id="btn-reveal" disabled>🔥 開盅！</button>
+   <button class="btn btn-primary" style="width:100%;font-size:14px;padding:12px;margin-top:10px" onclick="shakeRoom()" id="btn-room-shake" data-i18n="my_roll">🎲 我要搖骰</button>
+   <button class="btn" style="width:100%;font-size:14px;padding:12px;margin-top:8px;background:linear-gradient(135deg,var(--pink),var(--red));color:#fff" data-i18n="leave_room";border:none;border-radius:10px;font-weight:700" onclick="revealAll()" id="btn-reveal" disabled>🔥 開盅！</button>
   </div>
   <div id="chat-area" style="margin-top:10px;max-height:120px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;padding:6px;background:rgba(0,0,0,0.2)"></div>
   <div style="display:flex;gap:8px;margin-top:8px">
-   <input id="chat-input" placeholder="講嘢..." style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px" onkeydown="if(event.key==='Enter')sendDiceChat()">
-   <button class="btn btn-primary" onclick="sendDiceChat()" style="padding:8px 14px;font-size:12px">發送</button>
+   <input id="chat-input" data-i18n-placeholder="chat_placeholder" style="flex:1;padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px" onkeydown="if(event.key==='Enter')sendDiceChat()">
+   <button class="btn btn-primary" onclick="sendDiceChat()" style="padding:8px 14px;font-size:12px" data-i18n="send_btn">發送</button>
   </div>
-  <button style="margin-top:10px;width:100%;padding:8px;border:1px solid var(--red);border-radius:8px;background:transparent;color:var(--red);cursor:pointer;font-size:13px" onclick="leaveRoom()">🚪 離開房間</button>
+  <button style="margin-top:10px;width:100%;padding:8px;border:1px solid var(--red);border-radius:8px;background:transparent;color:var(--red);cursor:pointer;font-size:13px" onclick="leaveRoom()" data-i18n="leave_room">🚪 離開房間</button>
  </div>
  <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.08));border:1px solid rgba(139,92,246,0.15);padding:10px">
   <span style="font-size:20px">💎</span>
-  <span style="font-weight:700;font-size:13px;color:var(--pink);margin-left:4px">解鎖更多骰盅玩法</span>
-  <div id="dice-upgrade-hint" style="font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5">🥉 酒友 ¥8/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥18/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥198/年 — 5粒骰 + 自訂規則</div>
+  <span style="font-weight:700;font-size:13px;color:var(--pink);margin-left:4px" data-i18n="unlock_dice">解鎖更多骰盅玩法</span>
+  <div id="dice-upgrade-hint" data-i18n="dice_upgrade_hint" style="font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5">🥉 酒友 ¥8/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥18/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥198/年 — 5粒骰 + 自訂規則</div>
  </div>
 </div>
 
@@ -552,30 +552,30 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="font-weight:700;font-size:17px;color:var(--text)" id="mem-nick">-</div>
     <div style="font-size:12px;color:var(--sub);margin-top:2px" id="mem-username">@-</div>
     <div style="font-size:12px;color:var(--sub);margin-top:4px" id="mem-contact"></div>
-    <button class="btn btn-outline btn-sm" style="margin-top:10px;border-color:var(--amber);color:var(--amber);padding:6px 16px" onclick="openProfile()">✏️ 修改資料</button>
+    <button class="btn btn-outline btn-sm" style="margin-top:10px;border-color:var(--amber);color:var(--amber);padding:6px 16px" onclick="openProfile()" data-i18n="edit_profile">✏️ 修改資料</button>
   </div>
   <!-- 统计卡 -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0">
-    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)">報到</div><div style="font-weight:700;font-size:18px;color:var(--amber)" id="mem-chk-count">0</div></div>
-    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)">酒友</div><div style="font-weight:700;font-size:18px;color:var(--pink)" id="mem-frd-count">0</div></div>
-    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)">帖子</div><div style="font-weight:700;font-size:18px;color:var(--purple)" id="mem-post-count">0</div></div>
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_checkins" data-i18n="stats_checkins" data-i18n="checkin">報到</div><div style="font-weight:700;font-size:18px;color:var(--amber)" id="mem-chk-count">0</div></div>
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_friends" data-i18n="stats_friends">酒友</div><div style="font-weight:700;font-size:18px;color:var(--pink)" id="mem-frd-count">0</div></div>
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_posts" data-i18n="stats_posts">帖子</div><div style="font-weight:700;font-size:18px;color:var(--purple)" id="mem-post-count">0</div></div>
   </div>
   <div class="card" style="text-align:center"><div style="font-size:40px;margin-bottom:8px">💎</div>
-    <div style="font-weight:700;font-size:16px" id="mem-status">免費會員</div>
+    <div style="font-weight:700;font-size:16px" id="mem-status" data-i18n="free_member">免費會員</div>
     <div style="font-size:12px;color:var(--sub)" id="mem-exp"></div>
   </div>
   <div class="plans-row">
-    <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name">🥉 酒友</div><div class="plan-price">¥8</div><div class="plan-feat">每月/打卡</div></div>
-    <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')"><div class="plan-name">🥈 酒鬼</div><div class="plan-price">¥18</div><div class="plan-feat">每月/導出</div></div>
-    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name">🥇 酒神</div><div class="plan-price">¥198</div><div class="plan-feat">每年/徽章</div></div>
+    <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name" data-i18n="member_jiuyau">🥉 酒友</div><div class="plan-price">¥8</div><div class="plan-feat">每月/打卡</div></div>
+    <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')"><div class="plan-name" data-i18n="member_jaugwai">🥈 酒鬼</div><div class="plan-price">¥18</div><div class="plan-feat">每月/導出</div></div>
+    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price">¥198</div><div class="plan-feat">每年/徽章</div></div>
   </div>
-  <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'">📢 廣告合作<br>vichoo2020@gmail.com</div>
+  <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'" data-i18n="ad_cooperation">📢 廣告合作<br>vichoo2020@gmail.com</div>
   <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
-    <div class="card-header">👫 酒友圈</div>
+    <div class="card-header" data-i18n="friends_circle">👫 酒友圈</div>
     <div id="friends-section">
-     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--pink);margin-bottom:6px">📨 待處理請求</div><div id="friend-pending" style="font-size:12px;color:var(--sub)">載入中...</div></div>
-     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px">🤝 我嘅酒友</div><div id="friend-list" style="font-size:12px;color:var(--sub)">載入中...</div></div>
-     <div><div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:6px">🔍 推薦酒友</div><div id="friend-suggest" style="font-size:12px;color:var(--sub)">載入中...</div></div>
+     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--pink);margin-bottom:6px" data-i18n="pending_requests">📨 待處理請求</div><div id="friend-pending" style="font-size:12px;color:var(--sub)">載入中...</div></div>
+     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px" data-i18n="my_friends">🤝 我嘅酒友</div><div id="friend-list" style="font-size:12px;color:var(--sub)">載入中...</div></div>
+     <div><div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:6px" data-i18n="suggest_friends">🔍 推薦酒友</div><div id="friend-suggest" style="font-size:12px;color:var(--sub)">載入中...</div></div>
     </div>
   </div>
 </div>
@@ -585,35 +585,35 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <div class="modal-overlay" id="admin-mod" onclick="if(event.target===this)admClose()">
  <div class="modal" style="max-width:520px;max-height:90dvh;overflow-y:auto">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-   <h3 style="color:var(--pink);margin:0">🔧 管理員面板</h3>
+   <h3 style="color:var(--pink);margin:0" data-i18n="admin_panel">🔧 管理員面板</h3>
    <div style="display:flex;align-items:center;gap:8px">
-    <span style="font-size:11px;color:var(--sub)" id="adm-admin-name">管理員</span>
-    <button class="btn btn-outline btn-sm" onclick="admShowChangePw()" style="font-size:10px;padding:4px 8px">🔑 改密</button>
+    <span style="font-size:11px;color:var(--sub)" id="adm-admin-name" data-i18n="admin_label">管理員</span>
+    <button class="btn btn-outline btn-sm" onclick="admShowChangePw()" style="font-size:10px;padding:4px 8px" data-i18n="adm_change_pwd">🔑 改密</button>
     <button class="btn btn-outline btn-sm" onclick="admClose()" style="font-size:10px;padding:4px 8px">✕</button>
    </div>
   </div>
   <!-- Admin Tabs -->
   <div id="adm-content">
    <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border);flex-wrap:wrap">
-    <button class="adm-tab active" data-adm="stats" onclick="admShowTab('stats')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📊 概覽</button>
-    <button class="adm-tab" data-adm="members" onclick="admShowTab('members');admLoadMembers()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 會員</button>
-    <button class="adm-tab" data-adm="payments" onclick="admShowTab('payments');admLoadPayments()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">💳 付款</button>
-    <button class="adm-tab" data-adm="expired" onclick="admShowTab('expired');admLoadExpired()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚠️ 到期</button>
-    <button class="adm-tab" data-adm="audit" onclick="admShowTab('audit');admLoadAudit()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📋 日誌</button>
-    <button class="adm-tab" data-adm="config" onclick="admShowTab('config')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚙️ 設定</button>
-    <button class="adm-tab" data-adm="checkins" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🌐 動態</button>
-    <button class="adm-tab" data-adm="parties" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🎯 酒局</button>
-    <button class="adm-tab" data-adm="posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📸 圈子</button>
+    <button class="adm-tab active" data-adm="stats" data-i18n="stats" onclick="admShowTab('stats')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📊 概覽</button>
+    <button class="adm-tab" data-adm="members" data-i18n="adm_members" onclick="admShowTab('members');admLoadMembers()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 會員</button>
+    <button class="adm-tab" data-adm="payments" data-i18n="adm_payments" onclick="admShowTab('payments');admLoadPayments()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">💳 付款</button>
+    <button class="adm-tab" data-adm="expired" data-i18n="adm_expired" onclick="admShowTab('expired');admLoadExpired()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚠️ 到期</button>
+    <button class="adm-tab" data-adm="audit" data-i18n="adm_audit" onclick="admShowTab('audit');admLoadAudit()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📋 日誌</button>
+    <button class="adm-tab" data-adm="config" data-i18n="adm_config" onclick="admShowTab('config')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚙️ 設定</button>
+    <button class="adm-tab" data-adm="checkins" data-i18n="checkin" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🌐 動態</button>
+    <button class="adm-tab" data-adm="parties" data-i18n="party" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🎯 酒局</button>
+    <button class="adm-tab" data-adm="posts" data-i18n="adm_posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📸 圈子</button>
    </div>
    <!-- Stats page -->
    <div class="adm-page active" id="adm-stats">
     <div class="stats-row" style="margin-bottom:12px">
-     <div><div class="stat-num" id="adm-users">0</div><div class="stat-label">用戶</div></div>
-     <div><div class="stat-num" id="adm-checkins">0</div><div class="stat-label">報到</div></div>
+     <div><div class="stat-num" id="adm-users">0</div><div class="stat-label" data-i18n="username">用戶</div></div>
+     <div><div class="stat-num" id="adm-checkins">0</div><div class="stat-label" data-i18n="checkin">報到</div></div>
      <div><div class="stat-num" id="adm-vips">0</div><div class="stat-label">VIP</div></div>
     </div>
-    <div style="text-align:center;margin-bottom:8px;font-size:11px;color:var(--sub)">酒局總數：<span id="adm-parties">0</span></div>
-    <button class="btn btn-primary" onclick="loadAdmin()">🔄 刷新</button>
+    <div style="text-align:center;margin-bottom:8px;font-size:11px;color:var(--sub)" data-i18n="party_total">酒局總數：<span id="adm-parties">0</span></div>
+    <button class="btn btn-primary" onclick="loadAdmin()" data-i18n="refresh">🔄 刷新</button>
    </div>
    <!-- Members page -->
    <div class="adm-page" id="adm-members">
@@ -634,21 +634,21 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
    <!-- Config page (new!) -->
    <div class="adm-page" id="adm-config">
     <div class="card" style="border:1px solid var(--purple)">
-     <div class="card-header">⚙️ 系統設定</div>
-     <div style="font-size:12px;color:var(--sub);margin-bottom:8px">管理員可快速操作</div>
+     <div class="card-header" data-i18n="system_settings">⚙️ 系統設定</div>
+     <div style="font-size:12px;color:var(--sub);margin-bottom:8px" data-i18n="admin_quick_actions">管理員可快速操作</div>
      <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button class="btn btn-outline btn-sm" onclick="admBulkRenew()" style="border-color:var(--green);color:var(--green)">🔄 批量續期</button>
-      <button class="btn btn-outline btn-sm" onclick="admExportCSV()" style="border-color:var(--amber);color:var(--amber)">📊 匯出數據</button>
-      <button class="btn btn-outline btn-sm" onclick="admClearExpired()" style="border-color:var(--red);color:var(--red)">🧹 清理到期</button>
-      <button class="btn btn-outline btn-sm" onclick="admSendNotify()" style="border-color:var(--purple);color:var(--purple)">📢 推送通知</button>
+      <button class="btn btn-outline btn-sm" onclick="admBulkRenew()" style="border-color:var(--green);color:var(--green)" data-i18n="batch_renew">🔄 批量續期</button>
+      <button class="btn btn-outline btn-sm" onclick="admExportCSV()" style="border-color:var(--amber);color:var(--amber)" data-i18n="export_data">📊 匯出數據</button>
+      <button class="btn btn-outline btn-sm" onclick="admClearExpired()" style="border-color:var(--red);color:var(--red)" data-i18n="clear_expired">🧹 清理到期</button>
+      <button class="btn btn-outline btn-sm" onclick="admSendNotify()" style="border-color:var(--purple);color:var(--purple)" data-i18n="push_notify">📢 推送通知</button>
      </div>
     </div>
     <div class="card" style="border:1px solid var(--amber);margin-top:8px">
-     <div class="card-header">📱 APK 伺服器</div>
-     <div style="font-size:12px;color:var(--sub);margin-bottom:8px">設定 APK 連接的伺服器地址</div>
+     <div class="card-header" data-i18n="apk_server">📱 APK 伺服器</div>
+     <div style="font-size:12px;color:var(--sub);margin-bottom:8px" data-i18n="apk_server_hint">設定 APK 連接的伺服器地址</div>
      <div style="display:flex;gap:8px">
       <input class="input" id="adm-server-url" placeholder="http://192.168.x.x:5052" style="margin-bottom:0;flex:1;font-size:13px">
-      <button class="btn btn-primary" onclick="admSetServer()" style="white-space:nowrap;margin-top:0;padding:8px 12px">儲存</button>
+      <button class="btn btn-primary" onclick="admSetServer()" style="white-space:nowrap;margin-top:0;padding:8px 12px" data-i18n="save_btn">儲存</button>
      </div>
     </div>
    </div>
@@ -677,29 +677,29 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div id="auth-form">
       <div style="text-align:center;margin-bottom:20px">
         <div style="font-size:48px;margin-bottom:8px">🍺</div>
-        <h3 style="color:var(--amber);font-size:20px;margin:0">今晚飲咗未</h3>
-        <div style="font-size:11px;color:var(--sub);margin-top:4px">登入</div>
+        <h3 style="color:var(--amber);font-size:20px;margin:0" data-i18n="app_title" data-i18n="app_title" data-i18n="app_title">今晚飲咗未</h3>
+        <div style="font-size:11px;color:var(--sub);margin-top:4px" data-i18n="auth_login">登入</div>
       </div>
-      <input class="input" id="l-user" placeholder="用戶名" autocomplete="username">
-      <input class="input" id="l-pass" type="password" aria-label="密碼" placeholder="密碼" autocomplete="current-password">
-      <button class="btn btn-primary" onclick="doLogin()">登入</button>
-      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showReg()">未有帳號？註冊 →</div>
+      <input class="input" id="l-user" data-i18n-placeholder="username" autocomplete="username">
+      <input class="input" id="l-pass" type="password" aria-label="" data-i18n-attr="aria-label:password" placeholder="密碼" autocomplete="current-password">
+      <button class="btn btn-primary" onclick="doLogin()" data-i18n="login_btn">登入</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showReg()"><span data-i18n="no_account_register">未有帳號？註冊</span> →</div>
       <div class="ad-email">📧 vichoo2020@gmail.com</div>
       <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px">聯絡我們</a></div>
     </div>
     <div id="reg-form" style="display:none">
       <div style="text-align:center;margin-bottom:20px">
         <div style="font-size:48px;margin-bottom:8px">🍺</div>
-        <h3 style="color:var(--amber);font-size:20px;margin:0">今晚飲咗未</h3>
-        <div style="font-size:11px;color:var(--sub);margin-top:4px">註冊</div>
+        <h3 style="color:var(--amber);font-size:20px;margin:0" data-i18n="app_title">今晚飲咗未</h3>
+        <div style="font-size:11px;color:var(--sub);margin-top:4px" data-i18n="auth_register">註冊</div>
       </div>
-      <input class="input" id="r-user" placeholder="用戶名" autocomplete="username">
-      <input class="input" id="r-nick" placeholder="花名">
-      <input class="input" id="r-pass" type="password" placeholder="密碼（最少4位）" autocomplete="new-password">
-      <input class="input" id="r-pass2" type="password" placeholder="確認密碼" autocomplete="new-password">
-      <label style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--sub);margin:8px 0;cursor:pointer"><input type="checkbox" id="r-agree" style="margin-top:2px"><span id="r-agree-txt">我已閱讀並同意使用條款及免責聲明</span></label>
-      <button class="btn btn-primary" onclick="doRegister()">註冊</button>
-      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showLogin()">← 返回登入</div>
+      <input class="input" id="r-user" data-i18n-placeholder="username" autocomplete="username">
+      <input class="input" id="r-nick" data-i18n-placeholder="nickname_placeholder">
+      <input class="input" id="r-pass" type="password" data-i18n-placeholder="password" autocomplete="new-password">
+      <input class="input" id="r-pass2" type="password" data-i18n-placeholder="confirm_password" autocomplete="new-password">
+      <label style="display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--sub);margin:8px 0;cursor:pointer"><input type="checkbox" id="r-agree"  style="margin-top:2px"><span id="r-agree-txt"><span data-i18n="agree_terms">我已閱讀並同意</span>使用條款及免責聲明</span></label>
+      <button class="btn btn-primary" onclick="doRegister()" data-i18n="auth_register">註冊</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showLogin()"><span data-i18n="back_to_login">← 返回登入</span></div>
       <div class="ad-email">📧 vichoo2020@gmail.com</div>
       <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px">聯絡我們</a></div>
     </div>
@@ -710,9 +710,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <div class="modal-overlay" id="legal-mod" style="display:none" onclick="if(event.target===this)closeLegal()">
   <div class="modal" style="max-width:460px">
     <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
-      <button class="pay-qr-tab active" id="lt-terms" onclick="swLegalTab('terms')">📋 <span id="lt-terms-txt">使用條款</span></button>
-      <button class="pay-qr-tab" id="lt-disc" onclick="swLegalTab('disc')">⚠️ <span id="lt-disc-txt">免責聲明</span></button>
-      <button class="pay-qr-tab" id="lt-ct" onclick="swLegalTab('ct')">📬 <span id="lt-ct-txt">聯絡我們</span></button>
+      <button class="pay-qr-tab active" id="lt-terms" onclick="swLegalTab('terms')">📋 <span id="lt-terms-txt" data-i18n="terms_link">使用條款</span></button>
+      <button class="pay-qr-tab" id="lt-disc" onclick="swLegalTab('disc')">⚠️ <span id="lt-disc-txt" data-i18n="disc_link">免責聲明</span></button>
+      <button class="pay-qr-tab" id="lt-ct" onclick="swLegalTab('ct')">📬 <span id="lt-ct-txt" data-i18n="contact_link">聯絡我們</span></button>
     </div>
     <div id="legal-content" style="font-size:13px;line-height:1.8;white-space:pre-line;color:var(--text);max-height:50dvh;overflow-y:auto;padding:12px;background:rgba(0,0,0,0.2);border-radius:12px"></div>
     <button class="btn btn-primary" onclick="closeLegal()" style="margin-top:14px;width:100%">✅ OK</button>
@@ -722,70 +722,70 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <!-- PROFILE -->
 <div class="modal-overlay" id="prof-mod" onclick="if(event.target===this)closeProf()">
   <div class="modal" style="max-width:400px">
-    <h3 style="margin-bottom:16px;color:var(--amber);text-align:center">👤 個人資料</h3>
+    <h3 style="margin-bottom:16px;color:var(--amber);text-align:center" data-i18n="profile_card">👤 個人資料</h3>
     <div style="text-align:center;margin-bottom:16px">
       <div id="av-prev" onclick="document.getElementById('av-inp').click()" style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:3px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:40px;background:var(--card);margin:0 auto;cursor:pointer;position:relative">👤
-        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:#fff;font-size:10px;padding:2px 0;text-align:center">📷 更換</div>
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:#fff;font-size:10px;padding:2px 0;text-align:center" data-i18n="change_avatar">📷 更換</div>
       </div>
       <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="prevAv(event)">
     </div>
     <div style="margin-bottom:10px">
-      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px">🏷️ 花名</label>
-      <input class="input" id="p-nick" placeholder="輸入你嘅花名" style="font-size:15px">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="nickname_label">🏷️ 花名</label>
+      <input class="input" id="p-nick" data-i18n-placeholder="nickname_placeholder" style="font-size:15px">
     </div>
     <div style="margin-bottom:10px">
-      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px">📞 電話號碼</label>
-      <input class="input" id="p-phone" type="tel" placeholder="輸入電話號碼">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="phone_label">📞 電話號碼</label>
+      <input class="input" id="p-phone" type="tel" data-i18n-placeholder="phone_placeholder">
     </div>
     <div style="margin-bottom:10px">
-      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px">📧 電郵地址</label>
-      <input class="input" id="p-email" type="email" placeholder="輸入電郵地址">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="email_label">📧 電郵地址</label>
+      <input class="input" id="p-email" type="email" data-i18n-placeholder="email_placeholder">
     </div>
     <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
-      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px">🔑 更改密碼（留空即不改）</label>
-      <input class="input" id="p-oldpw" type="password" placeholder="舊密碼" style="margin-bottom:6px">
-      <input class="input" id="p-newpw" type="password" placeholder="新密碼（最少4位）">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="password_change">🔑 更改密碼（留空即不改）</label>
+      <input class="input" id="p-oldpw" type="password" data-i18n-placeholder="old_password" style="margin-bottom:6px">
+      <input class="input" id="p-newpw" type="password" data-i18n-placeholder="new_password">
     </div>
-    <button class="btn btn-primary" onclick="saveProf()" style="width:100%;margin-top:12px">💾 儲存</button>
+    <button class="btn btn-primary" onclick="saveProf()" style="width:100%;margin-top:12px" data-i18n="save_btn">💾 儲存</button>
     <div class="ad-email">📧 vichoo2020@gmail.com</div>
   </div>
 </div>
 
 <!-- COMMENTS -->
 <div class="modal-overlay" id="cmt-mod" onclick="if(event.target===this)closeCmt()">
-  <div class="modal"><h3 style="margin-bottom:12px;color:var(--amber)">💬 留言</h3>
+  <div class="modal"><h3 style="margin-bottom:12px;color:var(--amber)" data-i18n="comment_title">💬 留言</h3>
     <div id="cmt-list" style="max-height:250px;overflow-y:auto;margin-bottom:12px"></div>
-    <div class="comment-input-row"><input class="input" id="cmt-inp" placeholder="留言..." style="margin-bottom:0"><button class="btn btn-primary" style="width:auto;margin-top:0" onclick="doCmt()">發送</button></div>
+    <div class="comment-input-row"><input class="input" id="cmt-inp" data-i18n-placeholder="comment_placeholder" style="margin-bottom:0"><button class="btn btn-primary" style="width:auto;margin-top:0" onclick="doCmt()">發送</button></div>
     <div class="ad-email">📧 vichoo2020@gmail.com</div>
   </div>
 </div>
 
 <!-- JOURNAL -->
 <div class="modal-overlay" id="jnl-mod" onclick="if(event.target===this)closeJnl()">
-  <div class="modal"><h3 style="margin-bottom:12px;color:var(--amber)">📝 酒局記錄</h3>
+  <div class="modal"><h3 style="margin-bottom:12px;color:var(--amber)" data-i18n="journal_title">📝 酒局記錄</h3>
     <div id="jnl-list" style="max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
-    <textarea class="textarea" id="jnl-inp" placeholder="寫記錄..."></textarea>
-    <button class="btn btn-primary" onclick="doJnl()">發布</button>
+    <textarea class="textarea" id="jnl-inp" data-i18n-placeholder="write_log"></textarea>
+    <button class="btn btn-primary" onclick="doJnl()" data-i18n="publish_btn">發布</button>
     <div class="ad-email">📧 vichoo2020@gmail.com</div>
   </div>
 </div>
 
 <!-- PAY -->
 <div class="pay-modal" id="pay-mod" style="display:none" onclick="if(event.target===this)closePay()">
-  <div class="pay-card"><h3 style="color:var(--amber)">💳 掃碼支付</h3>
+  <div class="pay-card"><h3 style="color:var(--amber)" data-i18n="pay_title">💳 掃碼支付</h3>
     <div id="pay-plan-name" style="font-size:14px;margin:4px 0"></div><div id="pay-usd" style="font-size:12px;color:var(--sub)"></div>
-    <div class="pay-qr-tabs"><button class="pay-qr-tab active" id="pt-alipay" onclick="swQR('alipay')">支付寶</button><button class="pay-qr-tab" id="pt-wechat" onclick="swQR('wechat')">微信</button><button class="pay-qr-tab" id="pt-paypal" onclick="swQR('paypal')">PayPal</button></div>
-    <img class="pay-qr-img" id="pay-qr-img" src="" onerror="this.style.display='none';document.getElementById('pay-fb').style.display='block'">
+    <div class="pay-qr-tabs"><button class="pay-qr-tab active" id="pt-alipay" onclick="swQR('alipay')" data-i18n="alipay">支付寶</button><button class="pay-qr-tab" id="pt-wechat" onclick="swQR('wechat')" data-i18n="wechat">微信</button><button class="pay-qr-tab" id="pt-paypal" onclick="swQR('paypal')">PayPal</button></div>
+    <img class="pay-qr-img" id="pay-qr-img" src="" alt="QR Code">
     <div id="pay-fb" style="display:none;padding:20px;background:#fff;border-radius:12px;color:#333;font-size:14px;text-align:center">
-     <div style="font-size:16px;font-weight:700;margin-bottom:8px">💳 掃碼付款</div>
-     <div style="font-size:13px;color:#666;margin-bottom:12px">請掃描對應支付方式二維碼<br>或複製帳號付款</div>
+     <div style="font-size:16px;font-weight:700;margin-bottom:8px" data-i18n="pay_title">💳 掃碼付款</div>
+     <div style="font-size:13px;color:#666;margin-bottom:12px" data-i18n="pay_scan_hint">請掃描對應支付方式二維碼<br>或複製帳號付款</div>
      <div style="background:#f5f5f5;border-radius:8px;padding:10px;margin-bottom:8px;font-size:12px">
       <div>📧 <b>vichoo2020@gmail.com</b></div>
      </div>
-     <div style="font-size:11px;color:#999">付款後點擊「已完成付款」</div>
+     <div style="font-size:11px;color:#999" data-i18n="pay_hint_after">付款後點擊「已完成付款」</div>
     </div>
-    <button class="btn btn-primary" onclick="cfmPay()">✅ 已完成付款</button>
-    <div style="font-size:10px;color:var(--sub);margin-top:6px;cursor:pointer" onclick="closePay()">取消</div>
+    <button class="btn btn-primary" onclick="cfmPay()" data-i18n="pay_done_btn">✅ 已完成付款</button>
+    <div style="font-size:10px;color:var(--sub);margin-top:6px;cursor:pointer" onclick="closePay()" data-i18n="cancel">取消</div>
     <div class="ad-email">📧 vichoo2020@gmail.com</div>
   </div>
 </div>
@@ -880,7 +880,7 @@ async function restoreS(){
   const savedMe = localStorage.getItem('jymy_me');
   if(savedMe){try{me=JSON.parse(savedMe)}catch(e){}}
   if(!me || me.id!==0){
-   me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
+   me={id:0,username:'admin',nickname:T('admin_login'),lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
    saveS();
   }
   loadAdmin(); updateNav(); return true;
@@ -914,8 +914,8 @@ function updateNav(){
     if(av&&av.startsWith('/')){trig.innerHTML='<img src="'+API_BASE+av+'">'}
     else{trig.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
     const ms=document.getElementById('dd-mem'),ex=document.getElementById('dd-exp');
-    if(me.membership&&me.membership!=='free'){ms.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');ex.textContent='到期：'+(me.member_expires||'永久')}
-    else{ms.textContent='🆓 免費會員';ex.textContent='點擊升級 💎'}
+    if(me.membership&&me.membership!=='free'){ms.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');ex.textContent=T('expires_label')+(me.member_expires||'永久')}
+    else{ms.textContent=T('free_member');ex.textContent=T('upgrade_prompt')}
   }else{btn.style.display='inline-flex';menu.style.display='none'}
 }
 
@@ -1002,59 +1002,863 @@ document.addEventListener('touchend', function(e){
 }, {passive: true});
 
 // ═══════ LANG ═══════
-const L={'zh-HK':{
-  st_mai_yum:'未飲',st_seung_yum:'想飲',st_dou_cho:'到咗',st_hoi_cho:'開咗',st_yum_gan:'飲緊',st_gai_juk:'繼續',st_ga_jau:'加酒',st_cheung_yum:'暢飲',
-  st_jui_gan:'醉緊',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飄飄',st_dyun_pin:'斷片',st_seung_au:'想嘔',st_wan_wan:'暈暈',st_pa_dai:'趴低',
-  st_jyun_cheung:'轉場',st_gau_jau:'溝酒',st_chaai_mui:'猜枚',st_jik_lok:'直落',st_yum_cho:'飲咗',st_fan_gwai:'返歸',st_sing_saai:'醒晒',st_ting_yat:'聽日',
-  grp_hei_sau:'起手',grp_seung_gan:'上緊',grp_jui_gan:'醉緊',grp_baau_cho:'爆咗',grp_jyun_cheung:'轉場',grp_sau_mei:'收尾',
-  checkin:'報到',timeline:'動態',party:'酒局',stats:'統計',member:'會員',login:'登入',logout:'登出',
-  terms:'使用條款',disclaimer:'免責聲明',contact:'聯絡我們',agree:'我已閱讀並同意使用條款及免責聲明',
-  terms_content:'1. 本應用程式（「今晚飲咗未」）為社交打卡工具，供用戶記錄飲酒活動。\n\n2. 用戶須年滿法定飲酒年齡方可使用本應用。\n\n3. 用戶帳號及密碼由用戶自行保管，因帳號密碼洩露導致的一切損失由用戶自行承擔。\n\n4. 用戶不得利用本應用從事任何違法行為，包括但不限於教唆未成年人飲酒、酒後駕駛等。\n\n5. 本應可能有付費會員功能，付款後不予退款。\n\n6. 我們保留隨時修改條款的權利，繼續使用即表示接受修改後的條款。',
-  disclaimer_content:'⚠️ 免責聲明\n\n1. 本應用僅提供社交打卡功能，不鼓勵過量飲酒。\n\n2. 飲酒有害健康，請適量飲酒。孕婦及未成年人請勿飲酒。\n\n3. 飲酒後切勿駕駛，本應用對用戶因飲酒導致的任何直接或間接損失不承擔任何責任。\n\n4. 本應用中其他用戶發佈的內容不代表本應用立場，我們對此不承擔任何責任。\n\n5. 本應用按「現狀」提供，不作任何明示或暗示的保證。',
-  contact_content:'📬 聯絡我們\n\n電郵：vichoo2020@gmail.com\n\n如有任何問題、建議或投訴，歡迎通過以上電郵聯繫我們。',
-  challenge_title:'⚔️ 約戰',challenge_friend:'約戰酒友',random_match:'🔥 隨機匹配',
-  matching:'匹配中...',match_found:'匹配成功！',match_cancel:'取消匹配',
-  challenge_received:'向你約戰！',accept:'接受',reject:'拒絕',
-  online:'在線',offline:'離線',waiting_accept:'等待對方接受...',challenge_rejected:'約戰被拒絕',
-  no_online_players:'暫無在線玩家',select_friend:'選擇酒友',challenge_sent:'約戰已發出！'
-},'zh-CN':{
-  st_mai_yum:'没喝',st_seung_yum:'想喝',st_dou_cho:'到了',st_hoi_cho:'开了',st_yum_gan:'喝着',st_gai_juk:'继续',st_ga_jau:'加酒',st_cheung_yum:'畅饮',
-  st_jui_gan:'醉着',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飘飘',st_dyun_pin:'断片',st_seung_au:'想吐',st_wan_wan:'晕晕',st_pa_dai:'趴下',
-  st_jyun_cheung:'转场',st_gau_jau:'混酒',st_chaai_mui:'猜拳',st_jik_lok:'直落',st_yum_cho:'喝了',st_fan_gwai:'回家',st_sing_saai:'醒了',st_ting_yat:'明天',
-  grp_hei_sau:'起手',grp_seung_gan:'上头',grp_jui_gan:'醉着',grp_baau_cho:'爆了',grp_jyun_cheung:'转场',grp_sau_mei:'收尾',
-  checkin:'报到',timeline:'动态',party:'酒局',stats:'统计',member:'会员',login:'登录',logout:'退出',
-  terms:'使用条款',disclaimer:'免责声明',contact:'联系我们',agree:'我已阅读并同意使用条款及免责声明',
-  terms_content:'1. 本应用程序（「今晚饮咗未」）为社交打卡工具，供用户记录饮酒活动。\n\n2. 用户须年满法定饮酒年龄方可使用本应用。\n\n3. 用户帐号及密码由用户自行保管，因帐号密码泄露导致的一切损失由用户自行承担。\n\n4. 用户不得利用本应用从事任何违法行为，包括但不限于教唆未成年人饮酒、酒后驾驶等。\n\n5. 本应用可能有付费会员功能，付款后不予退款。\n\n6. 我们保留随时修改条款的权利，继续使用即表示接受修改后的条款。',
-  disclaimer_content:'⚠️ 免责声明\n\n1. 本应用仅提供社交打卡功能，不鼓励过量饮酒。\n\n2. 饮酒有害健康，请适量饮酒。孕妇及未成年人请勿饮酒。\n\n3. 饮酒后切勿驾驶，本应用对用户因饮酒导致的任何直接或间接损失不承担任何责任。\n\n4. 本应用中其他用户发布的内容不代表本应用立场，我们对此不承担任何责任。\n\n5. 本应用按「现状」提供，不作任何明示或暗示的保证。',
-  contact_content:'📬 联系我们\n\n邮箱：vichoo2020@gmail.com\n\n如有任何问题、建议或投诉，欢迎通过以上邮箱联系我们。',
-  challenge_title:'⚔️ 约战',challenge_friend:'约战酒友',random_match:'🔥 随机匹配',
-  matching:'匹配中...',match_found:'匹配成功！',match_cancel:'取消匹配',
-  challenge_received:'向你约战！',accept:'接受',reject:'拒绝',
-  online:'在线',offline:'离线',waiting_accept:'等待对方接受...',challenge_rejected:'约战被拒绝',
-  no_online_players:'暂无在线玩家',select_friend:'选择酒友',challenge_sent:'约战已发出！'
-},'en':{
-  st_mai_yum:'Sober',st_seung_yum:'Thirsty',st_dou_cho:'Here',st_hoi_cho:'Started',st_yum_gan:'Drinking',st_gai_juk:'More',st_ga_jau:'TopUp',st_cheung_yum:'Flowing',
-  st_jui_gan:'Buzzed',st_ho_jui:'Drunk',st_tou_jui:'Tipsy',st_piu_piu:'Float',st_dyun_pin:'Wasted',st_seung_au:'Sick',st_wan_wan:'Dizzy',st_pa_dai:'Done',
-  st_jyun_cheung:'Hop',st_gau_jau:'Mix',st_chaai_mui:'Game',st_jik_lok:'On&On',st_yum_cho:'Done',st_fan_gwai:'Home',st_sing_saai:'SoberUp',st_ting_yat:'Tmrw',
-  grp_hei_sau:'Start',grp_seung_gan:'Going',grp_jui_gan:'Buzzed',grp_baau_cho:'Wasted',grp_jyun_cheung:'Hop',grp_sau_mei:'Done',
-  checkin:'Check In',timeline:'Feed',party:'Party',stats:'Stats',member:'Member',login:'Login',logout:'Logout',
-  terms:'Terms',disclaimer:'Disclaimer',contact:'Contact',agree:'I have read and agree to the Terms and Disclaimer',
-  terms_content:'1. This application ("Drunk Tonight?") is a social check-in tool for users to record drinking activities.\n\n2. Users must be of legal drinking age to use this application.\n\n3. Users are responsible for safeguarding their account credentials. Any losses resulting from credential leaks are the user\'s responsibility.\n\n4. Users must not use this application for any illegal activities, including but not limited to encouraging underage drinking or drunk driving.\n\n5. This application may offer paid membership features. Payments are non-refundable.\n\n6. We reserve the right to modify these terms at any time. Continued use constitutes acceptance of the modified terms.',
-  disclaimer_content:'⚠️ Disclaimer\n\n1. This application only provides social check-in functionality and does not encourage excessive drinking.\n\n2. Drinking is harmful to health. Please drink responsibly. Pregnant women and minors should not drink alcohol.\n\n3. Never drink and drive. This application bears no responsibility for any direct or indirect losses caused by drinking.\n\n4. Content posted by other users does not represent the views of this application, and we bear no responsibility for it.\n\n5. This application is provided "as is" without any express or implied warranties.',
-  contact_content:'📬 Contact Us\n\nEmail: vichoo2020@gmail.com\n\nFor any questions, suggestions, or complaints, please contact us via the email above.',
-  challenge_title:'⚔️ Challenge',challenge_friend:'Challenge Friend',random_match:'🔥 Random Match',
-  matching:'Matching...',match_found:'Match Found!',match_cancel:'Cancel Match',
-  challenge_received:'challenged you!',accept:'Accept',reject:'Reject',
-  online:'Online',offline:'Offline',waiting_accept:'Waiting for response...',challenge_rejected:'Challenge Rejected',
-  no_online_players:'No online players',select_friend:'Select Friend',challenge_sent:'Challenge Sent!'
-}};
+const L={
+'zh-HK':{
+  st_mai_yum:'未飲',
+  st_seung_yum:'想飲',
+  st_dou_cho:'到咗',
+  st_hoi_cho:'開咗',
+  st_yum_gan:'飲緊',
+  st_gai_juk:'繼續',
+  st_ga_jau:'加酒',
+  st_cheung_yum:'暢飲',
+  st_jui_gan:'醉緊',
+  st_ho_jui:'好醉',
+  st_tou_jui:'陶醉',
+  st_piu_piu:'飄飄',
+  st_dyun_pin:'斷片',
+  st_seung_au:'想嘔',
+  st_wan_wan:'暈暈',
+  st_pa_dai:'趴低',
+  st_jyun_cheung:'轉場',
+  st_gau_jau:'溝酒',
+  st_chaai_mui:'猜枚',
+  st_jik_lok:'直落',
+  st_yum_cho:'飲咗',
+  st_fan_gwai:'返歸',
+  st_sing_saai:'醒晒',
+  st_ting_yat:'聽日',
+  grp_hei_sau:'起手',
+  grp_seung_gan:'上緊',
+  grp_jui_gan:'醉緊',
+  grp_baau_cho:'爆咗',
+  grp_jyun_cheung:'轉場',
+  grp_sau_mei:'收尾',
+  checkin:'報到',
+  timeline:'動態',
+  party:'酒局',
+  stats:'統計',
+  member:'會員',
+  login:'登入',
+  logout:'登出',
+  tab_dice:'骰盅',
+  terms:'使用條款',
+  disclaimer:'免責聲明',
+  contact:'聯絡我們',
+  agree:'我已閱讀並同意使用條款及免責聲明',
+  terms_content:'1. 本應用程式（「今晚飲咗未」）為社交打卡工具，供用戶記錄飲酒活動。\\n\\n2. 用戶須年滿法定飲酒年齡方可使用本應用。\\n\\n3. 用戶帳號及密碼由用戶自行保管，因帳號密碼洩露導致的一切損失由用戶自行承擔。\\n\\n4. 用戶不得利用本應用從事任何違法行為，包括但不限於教唆未成年人飲酒、酒後駕駛等。\\n\\n5. 本應可能有付費會員功能，付款後不予退款。\\n\\n6. 我們保留隨時修改條款的權利，繼續使用即表示接受修改後的條款。',
+  disclaimer_content:'⚠️ 免責聲明\\n\\n1. 本應用僅提供社交打卡功能，不鼓勵過量飲酒。\\n\\n2. 飲酒有害健康，請適量飲酒。孕婦及未成年人請勿飲酒。\\n\\n3. 飲酒後切勿駕駛，本應用對用戶因飲酒導致的任何直接或間接損失不承擔任何責任。\\n\\n4. 本應用中其他用戶發佈的內容不代表本應用立場，我們對此不承擔任何責任。\\n\\n5. 本應用按「現狀」提供，不作任何明示或暗示的保證。',
+  contact_content:'📬 聯絡我們\\n\\n電郵：vichoo2020@gmail.com\\n\\n如有任何問題、建議或投訴，歡迎通過以上電郵聯繫我們。',
+  challenge_title:'⚔️ 約戰',
+  challenge_friend:'約戰酒友',
+  random_match:'🔥 隨機匹配',
+  matching:'匹配中...',
+  match_found:'匹配成功！',
+  match_cancel:'取消匹配',
+  challenge_received:'向你約戰！',
+  accept:'接受',
+  reject:'拒絕',
+  online:'在線',
+  offline:'離線',
+  waiting_accept:'等待對方接受...',
+  challenge_rejected:'約戰被拒絕',
+  no_online_players:'暫無在線玩家',
+  select_friend:'選擇酒友',
+  challenge_sent:'約戰已發出！',
+  app_title:'今晚飲咗未',
+  login_btn:'登入',
+  logout_btn:'登出',
+  member_center:'💎 會員中心',
+  my_profile:'👤 個人資料',
+  admin_panel:'⚙️ 管理面板',
+  back_to_top:'返回頂部',
+  nav_label:'主導航',
+  chk_title:'今晚飲咗未？',
+  chk_subtitle:'飲酒社交打卡 · 骰盅對決 · 酒局約起',
+  status_checkin:'📍 狀態報到',
+  note_placeholder:'有咩想講？',
+  checkin_btn:'🍻 報到！',
+  text_input:'文字輸入',
+  download_title:'📱 下載 App',
+  download_hint:'喺手機安裝 App 體驗更佳！',
+  download_btn:'下載',
+  terms_link:'使用條款',
+  disc_link:'免責聲明',
+  contact_link:'聯絡我們',
+  post_title:'📸 發朋友圈',
+  post_placeholder:'分享你嘅飲酒時刻...',
+  upload_img:'📷 上傳圖片',
+  upload_vid:'🎬 上傳影片',
+  publish_btn:'📱 發佈',
+  no_posts:'暫無朋友圈動態',
+  delete_post:'刪除',
+  delete_fail:'刪除失敗',
+  reply:'回覆',
+  write_comment:'寫評論...',
+  send:'發送',
+  reply_fail:'回覆失敗',
+  comment_fail:'評論失敗',
+  liked:'已讚',
+  enter_content:'請輸入內容或上傳圖片/影片',
+  upload_fail:'上傳失敗',
+  video_uploading:'⏳ 影片上傳中...',
+  video_upload_ok:'影片上傳成功',
+  video_upload_fail:'影片上傳失敗',
+  login_to_view:'請登入查看',
+  no_timeline:'未有動態',
+  load_fail:'載入失敗',
+  no_comments:'未有留言',
+  select_video_file:'請選擇影片檔案',
+  publish_fail:'發佈失敗',
+  party_title:'🎯 發起酒局',
+  party_name:'酒局名稱',
+  party_location:'📍 地點',
+  party_date:'📅 日期',
+  party_time:'🕐 時間',
+  party_date_hint:'<span data-i18n="party_date_hint">點擊紫色框選擇日期</span>',
+  party_create_btn:'🎉 發起酒局！',
+  join_party:'參加',
+  leave_party:'離開',
+  no_parties:'暫無酒局',
+  party_name_ph:'酒局名稱',
+  party_loc_ph:'📍 地點',
+  stats_title:'📊 飲酒統計',
+  stats_total:'累計',
+  stats_weekly:'本週',
+  stats_today:'今日',
+  stats_checkins:'報到',
+  stats_friends:'酒友',
+  stats_posts:'帖子',
+  dice_title:'🎲 骰盅大挑戰',
+  dice_count:'選擇骰數',
+  roll_btn:'🎰 搖骰！',
+  face_off:'⚔️ 面對面對決',
+  open_room:'🏠 開房',
+  join_room:'🚪 加入',
+  room_code:'房間號',
+  room_label:'房間',
+  waiting_label:'等待中',
+  dice_num:'骰數',
+  rounds_num:'輪數',
+  start_battle:'開始對戰',
+  my_roll:'🎲 我要搖骰',
+  reveal:'🎯 開盅！',
+  chat_placeholder:'講嘢...',
+  send_btn:'發送',
+  leave_room:'🚪 離開房間',
+  unlock_dice:'🔓 解鎖更多骰盅玩法',
+  dice_jiuyau:'🥉 酒友 · 粒骰 · 加入房間',
+  dice_jaugwai:'🥈 酒鬼 · 自訂規則 · 開房',
+  dice_jausan:'🥇 酒神 · 全部解鎖',
+  profile_card:'👤 個人資料',
+  edit_profile:'✏️ 修改資料',
+  nickname_label:'🏷️ 花名',
+  nickname_placeholder:'輸入你嘅花名',
+  phone_label:'📱 電話號碼',
+  phone_placeholder:'輸入電話號碼',
+  email_label:'📧 電郵地址',
+  email_placeholder:'輸入電郵地址',
+  password_change:'🔒 更改密碼（留空即不改）',
+  old_password:'舊密碼',
+  new_password:'新密碼（最少4位）',
+  save_btn:'💾 儲存',
+  no_contact:'未填寫聯繫方式',
+  free_member:'免費會員',
+  upgrade_prompt:'升級享受完整功能',
+  member_jiuyau:'🥉酒友',
+  member_jaugwai:'🥈酒鬼',
+  member_jausan:'🥇酒神',
+  expires_label:'到期：',
+  permanent:'永久',
+  monthly_checkin:'每月/打卡',
+  monthly_export:'每月/導出',
+  yearly_badge:'每年/徽章',
+  ad_cooperation:'廣告合作',
+  plan_select:'選擇方案',
+  plan_jiuyau:'🥉酒友 ¥8/月',
+  plan_jaugwai:'🥈酒鬼 ¥18/月',
+  plan_jausan:'🥇酒神 ¥198/年',
+  upgrade_btn:'🚀 立即升級',
+  change_avatar:'更換',
+  avatar_label:'頭像',
+  auth_login:'登入',
+  auth_register:'註冊',
+  username:'用戶名',
+  password:'密碼',
+  confirm_delete:'確認刪除？',
+  please_login:T('please_login'),
+  login_success:'登入成功！',
+  register_success:'註冊成功！',
+  new_pwd_min:'新密碼最少4位',
+  pwd_changed:'密碼已更改',
+  profile_updated:'已更新',
+  checkin_ok:'報到成功！',
+  checkin_limit:'今日已報到',
+  no_status:'請先選擇狀態',
+  remaining:'剩餘',
+  times:'次',
+  free_tier:'免費',
+  vip:'VIP',
+  or:'或',
+  close:'關閉',
+  loading:'載入中...',
+  success:'成功',
+  error:'錯誤',
+  confirm:'確認',
+  cancel:'取消',
+  alipay:'支付寶',
+  wechat:'微信',
+  paypal:'PayPal',
+  pay_title:'升級方案',
+  feedback_hint:'支付後請通知管理員確認',
+  upgrade_success:'升級成功',
+  upgrade_fail:'升級失敗',
+  admin_no_pwd_change:'管理員不支持改密碼',
+  admin_login:'管理員登入',
+  admin_key:'管理員密匙',
+  enter_admin_key:'輸入管理員密匙',
+  pending_requests:'📨 待處理請求',
+  my_friends:'🤝 我嘅酒友',
+  suggest_friends:'🔍 推薦酒友',
+  party_total:'酒局總數：',
+  comment_placeholder:'留言...',
+  write_log:'寫記錄...',
+  confirm_password:'確認密碼',
+  fill_username_pwd:'填寫用戶名和密碼',
+  admin_login_ok:'✅ 管理員登入成功',
+  admin_login_fail:'❌ 管理帳號或密碼錯誤',
+  username_pwd_short:'用戶名或密碼太短',
+  agree_first:'❌ 請先同意使用條款及免責聲明',
+  logged_out:'👋 已登出',
+  enter_name:'輸入名稱',
+  party_created:'✅ 酒局已發起',
+  avatar_upload_fail:'頭像上傳失敗',
+  admin_panel_closed:'🔒 管理面板已關閉',
+  pwd_min_4:'❌ 密碼至少4位',
+  pwd_mismatch:'❌ 兩次密碼唔一致',
+  admin_pwd_changed:'✅ 管理密碼已修改，下次請用新密碼登入',
+  enter_address:'❌ 請輸入地址',
+  renewed_ok:'✅ 已續期',
+  exported_ok:'✅ 已匯出',
+  cleared_ok:'✅ 已清除',
+  push_not_supported:'ℹ️ 推送通知需後端支持，暫不可用',
+  supabase_no_pwd:'❌ Supabase 模式下暫不支持直接改密',
+  pwd_reset_ok:'✅ 密碼已重設',
+  friends_circle:'👫 酒友圈',
+  admin_label:'管理員',
+  adm_change_pwd:'🔑 改密',
+  adm_members:'會員',
+  adm_payments:'付款',
+  adm_expired:'到期',
+  adm_audit:'審計',
+  adm_posts:'帖子',
+  system_settings:'⚙️ 系統設定',
+  admin_quick_actions:'管理員可快速操作',
+  batch_renew:'🔄 批量續期',
+  export_data:'📊 匯出數據',
+  clear_expired:'🧹 清理到期',
+  push_notify:'📢 推送通知',
+  apk_server:'📱 APK 伺服器',
+  refresh:'🔄 刷新',
+  load_more:'加載更多',
+  no_account_register:'未有帳號？註冊',
+  back_to_login:'← 返回登入',
+  comment_title:'💬 留言',
+  journal_title:'📝 酒局記錄',
+  pay_scan_hint:'請掃描對應支付方式二維碼<br>或複製帳號付款',
+  pay_done_btn:'✅ 已完成付款',
+  dice_upgrade_hint:'🥉 酒友 ¥8/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥18/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥198/年 — 全部解鎖',
+  pay_hint_after:'付款後點擊「已完成付款」',
+  phone_label:'📞 電話號碼',
+  username:'用戶名',
+  password:'密碼',
+  apk_server_hint:'設定 APK 連接的伺服器地址'
+},
+'zh-CN':{
+  st_mai_yum:'没喝',
+  st_seung_yum:'想喝',
+  st_dou_cho:'到了',
+  st_hoi_cho:'开了',
+  st_yum_gan:'喝着',
+  st_gai_juk:'继续',
+  st_ga_jau:'加酒',
+  st_cheung_yum:'畅饮',
+  st_jui_gan:'醉着',
+  st_ho_jui:'好醉',
+  st_tou_jui:'陶醉',
+  st_piu_piu:'飘飘',
+  st_dyun_pin:'断片',
+  st_seung_au:'想吐',
+  st_wan_wan:'晕晕',
+  st_pa_dai:'趴下',
+  st_jyun_cheung:'转场',
+  st_gau_jau:'混酒',
+  st_chaai_mui:'猜拳',
+  st_jik_lok:'直落',
+  st_yum_cho:'喝了',
+  st_fan_gwai:'回家',
+  st_sing_saai:'醒了',
+  st_ting_yat:'明天',
+  grp_hei_sau:'起手',
+  grp_seung_gan:'上头',
+  grp_jui_gan:'醉着',
+  grp_baau_cho:'爆了',
+  grp_jyun_cheung:'转场',
+  grp_sau_mei:'收尾',
+  checkin:'报到',
+  timeline:'动态',
+  party:'酒局',
+  stats:'统计',
+  member:'会员',
+  login:'登录',
+  logout:'退出',
+  tab_dice:'骰盅',
+  terms:'使用条款',
+  disclaimer:'免责声明',
+  contact:'联系我们',
+  agree:'我已阅读并同意使用条款及免责声明',
+  terms_content:'1. 本應用程式（「今晚飲咗未」）為社交打卡工具，供用戶記錄飲酒活動。\\n\\n2. 用戶須年滿法定飲酒年齡方可使用本應用。\\n\\n3. 用戶帳號及密碼由用戶自行保管，因帳號密碼洩露導致的一切損失由用戶自行承擔。\\n\\n4. 用戶不得利用本應用從事任何違法行為，包括但不限於教唆未成年人飲酒、酒後駕駛等。\\n\\n5. 本應可能有付費會員功能，付款後不予退款。\\n\\n6. 我們保留隨時修改條款的權利，繼續使用即表示接受修改後的條款。',
+  disclaimer_content:'⚠️ 免責聲明\\n\\n1. 本應用僅提供社交打卡功能，不鼓勵過量飲酒。\\n\\n2. 飲酒有害健康，請適量飲酒。孕婦及未成年人請勿飲酒。\\n\\n3. 飲酒後切勿駕駛，本應用對用戶因飲酒導致的任何直接或間接損失不承擔任何責任。\\n\\n4. 本應用中其他用戶發佈的內容不代表本應用立場，我們對此不承擔任何責任。\\n\\n5. 本應用按「現狀」提供，不作任何明示或暗示的保證。',
+  contact_content:'📬 聯絡我們\\n\\n電郵：vichoo2020@gmail.com\\n\\n如有任何問題、建議或投訴，歡迎通過以上電郵聯繫我們。',
+  challenge_title:'⚔️ 約戰',
+  challenge_friend:'约战酒友',
+  random_match:'🔥 隨機匹配',
+  matching:'匹配中...',
+  match_found:'匹配成功！',
+  match_cancel:'取消匹配',
+  challenge_received:'向你约战！',
+  accept:'接受',
+  reject:'拒绝',
+  online:'在线',
+  offline:'离线',
+  waiting_accept:'等待对方接受...',
+  challenge_rejected:'约战被拒绝',
+  no_online_players:'暂无在线玩家',
+  select_friend:'选择酒友',
+  challenge_sent:'约战已发出！',
+  app_title:'今晚饮咗未',
+  login_btn:'登录',
+  logout_btn:'退出',
+  member_center:'💎 会员中心',
+  my_profile:'👤 个人资料',
+  admin_panel:'⚙️ 管理面板',
+  back_to_top:'返回顶部',
+  nav_label:'主导航',
+  chk_title:'今晚饮咗未？',
+  chk_subtitle:'饮酒社交打卡 · 骰盅对决 · 酒局约起',
+  status_checkin:'📍 状态报到',
+  note_placeholder:'有什么想说？',
+  checkin_btn:'🍻 报到！',
+  text_input:'文字输入',
+  download_title:'📱 下载 App',
+  download_hint:'在手机安装 App 体验更佳！',
+  download_btn:'下载',
+  terms_link:'使用条款',
+  disc_link:'免责声明',
+  contact_link:'联系我们',
+  post_title:'📸 发朋友圈',
+  post_placeholder:'分享你的饮酒时刻...',
+  upload_img:'📷 上传图片',
+  upload_vid:'🎬 上传影片',
+  publish_btn:'📱 发布',
+  no_posts:'暂无朋友圈动态',
+  delete_post:'删除',
+  delete_fail:'删除失败',
+  reply:'回复',
+  write_comment:'写评论...',
+  send:'发送',
+  reply_fail:'回复失败',
+  comment_fail:'评论失败',
+  liked:'已赞',
+  enter_content:'请输入内容或上传图片/影片',
+  upload_fail:'上传失败',
+  video_uploading:'⏳ 影片上传中...',
+  video_upload_ok:'影片上传成功',
+  video_upload_fail:'影片上传失败',
+  login_to_view:'请先登录查看',
+  no_timeline:'暂无动态',
+  load_fail:'加载失败',
+  no_comments:'暂无留言',
+  select_video_file:'请选择影片档案',
+  publish_fail:'发布失败',
+  party_title:'🎯 发起酒局',
+  party_name:'酒局名称',
+  party_location:'📍 地點',
+  party_date:'📅 日期',
+  party_time:'🕐 时间',
+  party_date_hint:'点击紫色框选择日期',
+  party_create_btn:'🎉 发起酒局！',
+  join_party:'参加',
+  leave_party:'离开',
+  no_parties:'暂无酒局',
+  party_name_ph:'酒局名称',
+  party_loc_ph:'📍 地點',
+  stats_title:'📊 饮酒统计',
+  stats_total:'累计',
+  stats_weekly:'本周',
+  stats_today:'今日',
+  stats_checkins:'报到',
+  stats_friends:'酒友',
+  stats_posts:'帖子',
+  dice_title:'🎲 骰盅大挑战',
+  dice_count:'选择骰数',
+  roll_btn:'🎰 摇骰！',
+  face_off:'⚔️ 面面对对决',
+  open_room:'🏠 开房',
+  join_room:'🚪 加入',
+  room_code:'房间号',
+  room_label:'房间',
+  waiting_label:'等待中',
+  dice_num:'骰数',
+  rounds_num:'轮数',
+  start_battle:'开始对战',
+  my_roll:'🎲 我要摇骰',
+  reveal:'🎯 开盅！',
+  chat_placeholder:'说话...',
+  send_btn:'发送',
+  leave_room:'🚪 离开房间',
+  unlock_dice:'🔓 解锁更多骰盅玩法',
+  dice_jiuyau:'🥉 酒友 · 粒骰 · 加入房间',
+  dice_jaugwai:'🥈 酒鬼 · 自订规则 · 开房',
+  dice_jausan:'🥇 酒神 · 全部解锁',
+  profile_card:'👤 个人资料',
+  edit_profile:'✏️ 修改资料',
+  nickname_label:'🏷️ 花名',
+  nickname_placeholder:'输入你的花名',
+  phone_label:'📱 电话号码',
+  phone_placeholder:'输入电话号码',
+  email_label:'📧 电邮地址',
+  email_placeholder:'输入电邮地址',
+  password_change:'🔒 更改密码（留空即不改）',
+  old_password:'旧密码',
+  new_password:'新密码（最少4位）',
+  save_btn:'💾 保存',
+  no_contact:'未填写联系方式',
+  free_member:'免费会员',
+  upgrade_prompt:'升级享受完整功能',
+  member_jiuyau:'🥉酒友',
+  member_jaugwai:'🥈酒鬼',
+  member_jausan:'🥇酒神',
+  expires_label:'到期：',
+  permanent:'永久',
+  monthly_checkin:'每月/打卡',
+  monthly_export:'每月/导出',
+  yearly_badge:'每年/徽章',
+  ad_cooperation:'广告合作',
+  plan_select:'选择方案',
+  plan_jiuyau:'🥉酒友 ¥8/月',
+  plan_jaugwai:'🥈酒鬼 ¥18/月',
+  plan_jausan:'🥇酒神 ¥198/年',
+  upgrade_btn:'🚀 立即升级',
+  change_avatar:'更换',
+  avatar_label:'头像',
+  auth_login:'登录',
+  auth_register:'注册',
+  username:'用户名',
+  password:'密码',
+  confirm_delete:'确认删除？',
+  please_login:'请先登录',
+  login_success:'登录成功！',
+  register_success:'注册成功！',
+  new_pwd_min:'新密码最少4位',
+  pwd_changed:'密码已更改',
+  profile_updated:'已更新',
+  checkin_ok:'报到成功！',
+  checkin_limit:'今日已报到',
+  no_status:'请先选择状态',
+  remaining:'剩余',
+  times:'次',
+  free_tier:'免费',
+  vip:'VIP',
+  or:'或',
+  close:'关闭',
+  loading:'载入中...',
+  success:'成功',
+  error:'错误',
+  confirm:'确认',
+  cancel:'取消',
+  alipay:'支付宝',
+  wechat:'微信',
+  paypal:'PayPal',
+  pay_title:'升級方案',
+  feedback_hint:'支付后请通知管理员确认',
+  upgrade_success:'升级成功',
+  upgrade_fail:'升级失败',
+  admin_no_pwd_change:'管理员不支持改密码',
+  admin_login:'管理员登录',
+  admin_key:'管理员密匙',
+  enter_admin_key:'输入管理员密匙',
+  pending_requests:'📨 待处理请求',
+  my_friends:'🤝 我的酒友',
+  suggest_friends:'🔍 推荐酒友',
+  party_total:'酒局总数：',
+  comment_placeholder:'留言...',
+  write_log:'写记录...',
+  confirm_password:'确认密码',
+  fill_username_pwd:'填写用户名和密码',
+  admin_login_ok:'✅ 管理员登录成功',
+  admin_login_fail:'❌ 管理账号或密码错误',
+  username_pwd_short:'用户名或密码太短',
+  agree_first:'❌ 请先同意使用条款及免责声明',
+  logged_out:'👋 已退出',
+  enter_name:'输入名称',
+  party_created:'✅ 酒局已发起',
+  avatar_upload_fail:'头像上传失败',
+  admin_panel_closed:'🔒 管理面板已关闭',
+  pwd_min_4:'❌ 密码至少4位',
+  pwd_mismatch:'❌ 两次密码不一致',
+  admin_pwd_changed:'✅ 管理密码已修改，下次请用新密码登录',
+  enter_address:'❌ 请输入地址',
+  renewed_ok:'✅ 已续期',
+  exported_ok:'✅ 已导出',
+  cleared_ok:'✅ 已清除',
+  push_not_supported:'ℹ️ 推送通知需后端支持，暂不可用',
+  supabase_no_pwd:'❌ Supabase 模式下暂不支持直接改密',
+  pwd_reset_ok:'✅ 密码已重设',
+  friends_circle:'👫 酒友圈',
+  admin_label:'管理员',
+  adm_change_pwd:'🔑 改密',
+  adm_members:'会员',
+  adm_payments:'付款',
+  adm_expired:'到期',
+  adm_audit:'审计',
+  adm_posts:'帖子',
+  system_settings:'⚙️ 系统设定',
+  admin_quick_actions:'管理员可快速操作',
+  batch_renew:'🔄 批量续期',
+  export_data:'📊 导出数据',
+  clear_expired:'🧹 清理到期',
+  push_notify:'📢 推送通知',
+  apk_server:'📱 APK 服务器',
+  refresh:'🔄 刷新',
+  load_more:'加载更多',
+  no_account_register:'没有帐号？注册',
+  back_to_login:'← 返回登录',
+  comment_title:'💬 留言',
+  journal_title:'📝 酒局记录',
+  pay_scan_hint:'请扫描对应支付方式二维码<br>或复制帐号付款',
+  pay_done_btn:'✅ 已完成付款',
+  dice_upgrade_hint:'🥉 酒友 ¥8/月 — 3粒骰 + 加入房间 ｜ 🥈 酒鬼 ¥18/月 — 4粒骰 + 开房 ｜ 🥇 酒神 ¥198/年 — 全部解锁',
+  pay_hint_after:'付款后点击「已完成付款」',
+  phone_label:'📞 电话号码',
+  username:'用户名',
+  password:'密码',
+  apk_server_hint:'设置 APK 连接的服务器地址'
+},
+'en':{
+  st_mai_yum:'Sober',
+  st_seung_yum:'Thirsty',
+  st_dou_cho:'Here',
+  st_hoi_cho:'Started',
+  st_yum_gan:'Drinking',
+  st_gai_juk:'More',
+  st_ga_jau:'TopUp',
+  st_cheung_yum:'Flowing',
+  st_jui_gan:'Buzzed',
+  st_ho_jui:'Drunk',
+  st_tou_jui:'Tipsy',
+  st_piu_piu:'Float',
+  st_dyun_pin:'Wasted',
+  st_seung_au:'Sick',
+  st_wan_wan:'Dizzy',
+  st_pa_dai:'Done',
+  st_jyun_cheung:'Hop',
+  st_gau_jau:'Mix',
+  st_chaai_mui:'Game',
+  st_jik_lok:'On&On',
+  st_yum_cho:'Done',
+  st_fan_gwai:'Home',
+  st_sing_saai:'SoberUp',
+  st_ting_yat:'Tmrw',
+  grp_hei_sau:'Start',
+  grp_seung_gan:'Going',
+  grp_jui_gan:'Buzzed',
+  grp_baau_cho:'Wasted',
+  grp_jyun_cheung:'Hop',
+  grp_sau_mei:'Done',
+  checkin:'Check In',
+  timeline:'Feed',
+  party:'Party',
+  stats:'Stats',
+  member:'Member',
+  login:'Login',
+  logout:'Logout',
+  tab_dice:'Dice',
+  terms:'Terms',
+  disclaimer:'Disclaimer',
+  contact:'Contact Us',
+  agree:'I have read and agree to the Terms and Disclaimer',
+  terms_content:'1. This application ("Drunk Tonight?") is a social check-in tool for users to record drinking activities.\\n\\n2. Users must be of legal drinking age to use this application.\\n\\n3. Users are responsible for safeguarding their account credentials. Any losses resulting from credential leaks are the user\'s responsibility.\\n\\n4. Users must not use this application for any illegal activities.\\n\\n5. This application may offer paid membership features. Payments are non-refundable.\\n\\n6. We reserve the right to modify these terms at any time.',
+  disclaimer_content:'⚠️ Disclaimer\\n\\n1. This application only provides social check-in functionality and does not encourage excessive drinking.\\n\\n2. Drinking is harmful to health. Please drink responsibly.\\n\\n3. Never drink and drive. This application bears no responsibility for any direct or indirect losses caused by drinking.\\n\\n4. Content posted by other users does not represent the views of this application.\\n\\n5. This application is provided "as is" without any express or implied warranties.',
+  contact_content:'📬 Contact Us\\n\\nEmail: vichoo2020@gmail.com\\n\\nFor any questions, suggestions, or complaints, please contact us via the email above.',
+  challenge_title:'⚔️ Challenge',
+  challenge_friend:'Challenge Friend',
+  random_match:'🔥 Random Match',
+  matching:'Matching...',
+  match_found:'Match Found!',
+  match_cancel:'Cancel',
+  challenge_received:'challenged you!',
+  accept:'Accept',
+  reject:'Reject',
+  online:'Online',
+  offline:'Offline',
+  waiting_accept:'Waiting for response...',
+  challenge_rejected:'Challenge Rejected',
+  no_online_players:'No online players',
+  select_friend:'Select Friend',
+  challenge_sent:'Challenge Sent!',
+  app_title:'Drunk Tonight?',
+  login_btn:'Login',
+  logout_btn:'Logout',
+  member_center:'💎 Member Center',
+  my_profile:'👤 My Profile',
+  admin_panel:'⚙️ Admin Panel',
+  back_to_top:'Back to Top',
+  nav_label:'Main Navigation',
+  chk_title:'Drunk Tonight?',
+  chk_subtitle:'Drinking Social · Dice Games · Party On',
+  status_checkin:'📍 Status Check In',
+  note_placeholder:'Anything to say?',
+  checkin_btn:'🍻 Check In!',
+  text_input:'Text Input',
+  download_title:'📱 Download App',
+  download_hint:'Better experience on mobile!',
+  download_btn:'Download',
+  terms_link:'Terms',
+  disc_link:'Disclaimer',
+  contact_link:'Contact Us',
+  post_title:'📸 New Post',
+  post_placeholder:'Share your drinking moment...',
+  upload_img:'📷 Upload Image',
+  upload_vid:'🎬 Upload Video',
+  publish_btn:'📱 Post',
+  no_posts:'No posts yet',
+  delete_post:'Delete',
+  delete_fail:'Delete failed',
+  reply:'Reply',
+  write_comment:'Write a comment...',
+  send:'Send',
+  reply_fail:'Reply failed',
+  comment_fail:'Comment failed',
+  liked:'Liked',
+  enter_content:'Please enter content or upload media',
+  upload_fail:'Upload Failed',
+  video_uploading:'⏳ Uploading video...',
+  video_upload_ok:'Video uploaded!',
+  video_upload_fail:'Video upload failed',
+  login_to_view:'Please login to view',
+  no_timeline:'No activity yet',
+  load_fail:'Load failed',
+  no_comments:'No comments yet',
+  select_video_file:'Please select a video file',
+  publish_fail:'Post failed',
+  party_title:'🎯 Create Party',
+  party_name:'Party Name',
+  party_location:'📍 Location',
+  party_date:'📅 Date',
+  party_time:'🕐 Time',
+  party_date_hint:'Tap purple box to select date',
+  party_create_btn:'🎉 Create Party!',
+  join_party:'Join',
+  leave_party:'Leave',
+  no_parties:'No parties yet',
+  party_name_ph:'Party Name',
+  party_loc_ph:'📍 Location',
+  stats_title:'📊 Drinking Stats',
+  stats_total:'Total',
+  stats_weekly:'This Week',
+  stats_today:'Today',
+  stats_checkins:'Check-ins',
+  stats_friends:'Friends',
+  stats_posts:'Posts',
+  dice_title:'🎲 Dice Challenge',
+  dice_count:'Select Dice',
+  roll_btn:'🎰 Roll!',
+  face_off:'⚔️ Face to Face',
+  open_room:'🏠 Create Room',
+  join_room:'🚪 Join',
+  room_code:'Room Code',
+  room_label:'Room',
+  waiting_label:'Waiting',
+  dice_num:'Dice',
+  rounds_num:'Rounds',
+  start_battle:'Start Battle',
+  my_roll:'🎲 My Roll',
+  reveal:'🎯 Reveal!',
+  chat_placeholder:'Say something...',
+  send_btn:'Send',
+  leave_room:'🚪 Leave Room',
+  unlock_dice:'🔓 Unlock more dice features',
+  dice_jiuyau:'🥉 Friend · 1 Die · Join',
+  dice_jaugwai:'🥈 Drunker · Custom · Create',
+  dice_jausan:'🥇 God · All Unlocked',
+  profile_card:'👤 Profile',
+  edit_profile:'✏️ Edit Profile',
+  nickname_label:'🏷️ Nickname',
+  nickname_placeholder:'Enter nickname',
+  phone_label:'📱 Phone',
+  phone_placeholder:'Enter phone',
+  email_label:'📧 Email',
+  email_placeholder:'Enter email',
+  password_change:'🔒 Change Password (blank to skip)',
+  old_password:'Old Password',
+  new_password:'New Password (min 4)',
+  save_btn:'💾 Save',
+  no_contact:'No contact info',
+  free_member:'Free Member',
+  upgrade_prompt:'Upgrade for full features',
+  member_jiuyau:'🥉Friend',
+  member_jaugwai:'🥈Drunker',
+  member_jausan:'🥇God',
+  expires_label:'Expires: ',
+  permanent:'Permanent',
+  monthly_checkin:'Monthly/Check-in',
+  monthly_export:'Monthly/Export',
+  yearly_badge:'Yearly/Badge',
+  ad_cooperation:'Ad Collab',
+  plan_select:'Select Plan',
+  plan_jiuyau:'🥉Friend $1/mo',
+  plan_jaugwai:'🥈Drunker $3/mo',
+  plan_jausan:'🥇God $30/yr',
+  upgrade_btn:'🚀 Upgrade Now',
+  change_avatar:'Change',
+  avatar_label:'Avatar',
+  auth_login:'Login',
+  auth_register:'Register',
+  username:'Username',
+  password:'Password',
+  confirm_delete:'Confirm delete?',
+  please_login:'Please login first',
+  login_success:'Login success!',
+  register_success:'Registration success!',
+  new_pwd_min:'New password min 4 chars',
+  pwd_changed:'Password changed',
+  profile_updated:'Updated',
+  checkin_ok:'Check-in success!',
+  checkin_limit:'Already checked in today',
+  no_status:'Please select a status first',
+  remaining:'Remaining',
+  times:'times',
+  free_tier:'Free',
+  vip:'VIP',
+  or:'or',
+  close:'Close',
+  loading:'Loading...',
+  success:'Success',
+  error:'Error',
+  confirm:'Confirm',
+  cancel:'Cancel',
+  alipay:'Alipay',
+  wechat:'WeChat',
+  paypal:'PayPal',
+  pay_title:'Upgrade Plan',
+  feedback_hint:'Notify admin after payment',
+  upgrade_success:'Upgrade success!',
+  upgrade_fail:'Upgrade failed',
+  admin_no_pwd_change:'Admin password change not supported',
+  admin_login:'Admin Login',
+  admin_key:'Admin Key',
+  enter_admin_key:'Enter admin key',
+  pending_requests:'📨 Pending Requests',
+  my_friends:'🤝 My Friends',
+  suggest_friends:'🔍 Suggested Friends',
+  party_total:'Total Parties: ',
+  comment_placeholder:'Comment...',
+  write_log:'Write log...',
+  confirm_password:'Confirm Password',
+  fill_username_pwd:'Fill in username and password',
+  admin_login_ok:'✅ Admin login success',
+  admin_login_fail:'❌ Wrong admin credentials',
+  username_pwd_short:'Username or password too short',
+  agree_first:'❌ Please agree to Terms first',
+  logged_out:'👋 Logged out',
+  enter_name:'Enter name',
+  party_created:'✅ Party created!',
+  avatar_upload_fail:'Avatar upload failed',
+  admin_panel_closed:'🔒 Admin panel closed',
+  pwd_min_4:'❌ Password min 4 chars',
+  pwd_mismatch:'❌ Passwords do not match',
+  admin_pwd_changed:'✅ Admin password changed',
+  enter_address:'❌ Please enter address',
+  renewed_ok:'✅ Renewed',
+  exported_ok:'✅ Exported',
+  cleared_ok:'✅ Cleared',
+  push_not_supported:'ℹ️ Push notifications require backend support',
+  supabase_no_pwd:'❌ Password change not supported in Supabase mode',
+  pwd_reset_ok:'✅ Password reset',
+  friends_circle:'👫 Friends Circle',
+  admin_label:'Admin',
+  adm_change_pwd:'🔑 Change Pwd',
+  adm_members:'Members',
+  adm_payments:'Payments',
+  adm_expired:'Expired',
+  adm_audit:'Audit',
+  adm_posts:'Posts',
+  system_settings:'⚙️ System Settings',
+  admin_quick_actions:'Admin Quick Actions',
+  batch_renew:'🔄 Batch Renew',
+  export_data:'📊 Export Data',
+  clear_expired:'🧹 Clear Expired',
+  push_notify:'📢 Push Notify',
+  apk_server:'📱 APK Server',
+  refresh:'🔄 Refresh',
+  load_more:'Load More',
+  no_account_register:'No account? Register',
+  back_to_login:'← Back to Login',
+  comment_title:'💬 Comment',
+  journal_title:'📝 Party Journal',
+  pay_scan_hint:'Scan QR code<br>or copy account to pay',
+  pay_done_btn:'✅ Payment Done',
+  dice_upgrade_hint:'🥉 Friend $1/mo — 3 dice + join room ｜ 🥈 Drunker $3/mo — 4 dice + create room ｜ 🥇 God $30/yr — All unlocked',
+  pay_hint_after:'Click "Payment Done" after paying',
+  phone_label:'📞 Phone',
+  username:'Username',
+  password:'Password',
+  apk_server_hint:'Set APK server address'
+}
+};
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
-function switchLang(l){lang=l;document.getElementById('lang-switch').value=l;if(me&&token){api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{})}updTitles();buildGrid()}
+function switchLang(l){
+  lang=l;
+  document.getElementById('lang-switch').value=l;
+  if(me&&token){api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{})}
+  updTitles();
+  buildGrid();
+  // Refresh member page
+  if(typeof updMem==='function')updMem();
+  // Refresh dice page labels
+  if(typeof updDiceLabels==='function')updDiceLabels();
+}
 function updTitles(){
-  document.getElementById('nav-title').textContent='🍺 '+(lang==='en'?'Drunk Tonight?':'今晚飲咗未');
+  // App title
+  document.getElementById('nav-title').textContent='🍺 '+T('app_title');
+  // Tabs
   ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});
+  const diceTab=document.querySelector('[data-page="dice"] .t,.tab[data-page="dice"] span:last-child');
+  if(diceTab)diceTab.textContent=T('tab_dice');
+  // Refresh all data-i18n elements
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    el.textContent=T(k);
+  });
+  // Refresh data-i18n-placeholder
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    const k=el.getAttribute('data-i18n-placeholder');
+    el.placeholder=T(k);
+  });
+  // Refresh data-i18n-attr
+  document.querySelectorAll('[data-i18n-attr]').forEach(el=>{
+    const spec=el.getAttribute('data-i18n-attr');
+    const[attr,k]=spec.split(':');
+    el.setAttribute(attr,T(k));
+  });
+  // Card headers with i18n
+  document.querySelectorAll('[data-i18n-header]').forEach(el=>{
+    el.textContent=T(el.getAttribute('data-i18n-header'));
+  });
+  // Legal links
   if(typeof updLegalLinks==='function')updLegalLinks();
 }
 
@@ -1092,7 +1896,7 @@ function buildGrid(){
 // ═══════ AUTH ═══════
 async function doLogin(){
  const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value;
- if(!u||!p)return toast('填寫用戶名和密碼',1);
+ if(!u||!p)return toast(T("fill_username_pwd"),1);
  // Admin account: if username matches admin, try admin login first
  if(u.toLowerCase()==='admin'){
   try{
@@ -1106,10 +1910,10 @@ async function doLogin(){
     me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
     saveS();closeAuth();updateNav();buildGrid();updTitles();
     admOpen();
-    toast('✅ 管理員登入成功');return;
+    toast(T("admin_login_ok"));return;
    }
   }catch(e){}
-  toast('❌ 管理帳號或密碼錯誤',1);return;
+  toast(T("admin_login_fail"),1);return;
  }
  try{
   const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});token=r.token;me=r.user;
@@ -1125,33 +1929,33 @@ async function doLogin(){
   adminToken='';localStorage.removeItem('jymy_admin_token');
  }
  sessionStorage.setItem('jymy_pw',p);
- saveS();toast('✅ 登入成功');closeAuth();updateNav();buildGrid();updTitles();
+ saveS();toast(T("login_success"));closeAuth();updateNav();buildGrid();updTitles();
  setTimeout(()=>refreshAll(),300);
  }catch(e){let msg=e.message||'登入失敗';if(msg.includes('Invalid login'))msg='用戶名或密碼錯誤';if(msg.includes('Email not confirmed'))msg='帳號未確認，請稍後重試';toast('❌ '+msg,1)}
 }
 async function doRegister(){
  const u=document.getElementById('r-user').value.trim(),n=document.getElementById('r-nick').value.trim(),p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
- if(!u||p.length<4)return toast('用戶名或密碼太短',1);if(p!==p2)return toast('密碼不一致',1);
- const ag=document.getElementById('r-agree');if(ag&&!ag.checked)return toast('❌ 請先同意使用條款及免責聲明',1);
+ if(!u||p.length<4)return toast(T("username_pwd_short"),1);if(p!==p2)return toast('密碼不一致',1);
+ const ag=document.getElementById('r-agree');if(ag&&!ag.checked)return toast(T("agree_first"),1);
  try{
  const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
  adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
- saveS();toast('✅ 註冊成功');closeAuth();updateNav();buildGrid();updTitles();
+ saveS();toast(T("register_success"));closeAuth();updateNav();buildGrid();updTitles();
  setTimeout(()=>refreshAll(),300);
  }catch(e){let msg=e.message||'註冊失敗';if(msg.includes('already registered'))msg='用戶名已被註冊';if(msg.includes('password'))msg='密碼不符合要求（最少6位）';toast('❌ '+msg,1)}
 }
 async function doLogout(){
  // signOut handled by clearing token
- token=null;me=null;adminToken='';selStatus=-1;clearS();localStorage.removeItem('jymy_admin_token');updateNav();buildGrid();updTitles();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-checkin').classList.add('active');toast('👋 已登出');
+ token=null;me=null;adminToken='';selStatus=-1;clearS();localStorage.removeItem('jymy_admin_token');updateNav();buildGrid();updTitles();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-checkin').classList.add('active');toast(T("logged_out"));
 }
 
 // ═══════ CHECKIN ═══════
 async function doCheckin(){
- if(!me)return toast('請先登入',1);if(selStatus<0)return toast('請選擇狀態',1);
+ if(!me)return toast(T('please_login'),1);if(selStatus<0)return toast(T("no_status"),1);
  try{
   await api('/api/checkin',{method:'POST',body:{status:selStatus,note:document.getElementById('chk-note').value,lat:0,lng:0}});
  selStatus=-1;document.getElementById('chk-note').value='';buildGrid();
- toast('🍻 報到成功！');fireConfetti();document.getElementById('chk-remaining').textContent='';
+ toast(T("checkin_ok"));fireConfetti();document.getElementById('chk-remaining').textContent='';
  loadTL();
  }catch(e){toast('❌ '+e.message,1)}
 }
@@ -1159,7 +1963,7 @@ async function doCheckin(){
 // ═══════ TIMELINE ═══════
 async function loadTL(){
  const c=document.getElementById('tl-container');
- if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>請登入查看</div>';return}
+ if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>'+T('login_to_view')+'</div>';return}
  showLoader('tl-container');
  try{
  let items=[];
@@ -1176,9 +1980,9 @@ async function loadTL(){
  RE_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="doRe('+item.id+',\''+e+'\')">'+e+'</button>'});
  h+='</div><span style="font-size:11px;color:var(--sub)">'+(item.reactions||0)+'</span></div></div></div>';
  });
- if(!items.length)h='<div class="empty"><div class="empty-icon">🍺</div>未有動態</div>';
+ if(!items.length)h='<div class="empty"><div class="empty-icon">🍺</div>'+T('no_timeline')+'</div>';
  c.innerHTML=h;
- }catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>載入失敗</div>'}
+ }catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'</div>'}
 }
 async function doRe(cid,emoji){
  try{
@@ -1201,7 +2005,7 @@ async function loadCmt(cid){
  let comments=[];
   const d=await api('/api/checkin/'+cid+'/comments');comments=d.comments||[];
  let h='';comments.forEach(c=>{h+='<div class="comment-item"><b>'+esc(c.nickname)+'</b>: '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
- if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有留言</div>';
+ if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">'+T('no_comments')+'</div>';
  h+='<div class="emoji-picker">';CM_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="insEm(\''+e+'\')" style="font-size:22px">'+e+'</button>'});h+='</div>';
  document.getElementById('cmt-list').innerHTML=h;
  }catch(e){}
@@ -1217,13 +2021,13 @@ async function doCmt(){
 
 // ═══════ PARTY ═══════
 async function createParty(){
- if(!me)return toast('請先登入',1);
+ if(!me)return toast(T('please_login'),1);
  const title=document.getElementById('pa-title').value.trim(),loc=document.getElementById('pa-loc').value.trim(),
  d=document.getElementById('pa-date').value,tm=document.getElementById('pa-time').value;
- if(!title)return toast('輸入名稱',1);if(!d)return toast('選擇日期',1);
+ if(!title)return toast(T("enter_name"),1);if(!d)return toast('選擇日期',1);
  try{
  await api('/api/party',{method:'POST',body:{title,location:loc,event_date:d+(tm?'T'+tm:'')}})
- document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();toast('✅ 酒局已發起');
+ document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();toast(T("party_created"));
  }catch(e){toast('❌ '+e.message,1)}
 }
 async function loadParties(){
@@ -1299,7 +2103,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
  // Membership
  if(me.membership&&me.membership!=='free'){s.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');e.textContent='到期：'+(me.member_expires||'永久')}else{s.textContent='🆓 免費會員';e.textContent='升級享受完整功能'}}
 function selP(p){selPlan=p;document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));const el=document.getElementById('plan-'+p);if(el)el.classList.add('selected');showPay()}
-function showPay(){if(!me)return toast('請先登入',1);document.getElementById('pay-plan-name').textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';document.getElementById('pay-usd').textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');document.getElementById('pay-mod').style.display='flex'}
+function showPay(){if(!me)return toast(T('please_login'),1);document.getElementById('pay-plan-name').textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';document.getElementById('pay-usd').textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');document.getElementById('pay-mod').style.display='flex'}
 function closePay(){document.getElementById('pay-mod').style.display='none'}
 
 // ═══════ LEGAL (Terms / Disclaimer / Contact) ═══════
@@ -1329,8 +2133,8 @@ function updLegalLinks(){
   const ld=document.getElementById('lt-disc-txt');if(ld)ld.textContent=T('disclaimer');
   const lc=document.getElementById('lt-ct-txt');if(lc)lc.textContent=T('contact');
 }
-function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');var src=(ASSET_BASE||API_BASE)+QR_M[t];img.src=src;img.style.display='block';document.getElementById('pay-fb').style.display='none';img.onerror=function(){if(img.src.indexOf(API_BASE)<0&&API_BASE){img.src=API_BASE+QR_M[t]}else{img.style.display='none';document.getElementById('pay-fb').style.display='block'}}}
-async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});me.membership=r.membership;me.member_expires=r.expires;saveS();closePay();updateNav();updMem();toast('✅ 升級成功')}catch(e){toast('❌ '+e.message,1)}}
+function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');document.getElementById('pay-fb').style.display='none';img.style.display='block';var triedLocal=false,triedRemote=false;function loadLocal(){if(ASSET_BASE){triedLocal=true;img.src=ASSET_BASE+QR_M[t];img.onerror=loadRemote}else{loadRemote()}}function loadRemote(){if(API_BASE&&triedLocal){triedRemote=true;img.src=API_BASE+QR_M[t];img.onerror=showFallback}else{showFallback()}}function showFallback(){img.style.display='none';document.getElementById('pay-fb').style.display='block'}loadLocal()}
+async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});me.membership=r.membership;me.member_expires=r.expires;saveS();closePay();updateNav();updMem();toast(T("upgrade_success"))}catch(e){toast('❌ '+e.message,1)}}
 
 // ═══════ PROFILE ═══════
 function openProfile(){
@@ -1360,7 +2164,7 @@ async function saveProf(){
  _doSaveProf();
 }
 async function _doSaveProf(){
- if(!me)return toast('請先登入',1);
+ if(!me)return toast(T('please_login'),1);
  const nick=document.getElementById('p-nick').value.trim(),
        phone=document.getElementById('p-phone')?.value?.trim()||'',
        email=document.getElementById('p-email')?.value?.trim()||'',
@@ -1380,7 +2184,7 @@ async function _doSaveProf(){
   }
   // Change password
   if(oldpw&&newpw){
-   if(newpw.length<4)return toast('新密碼最少4位',1);
+   if(newpw.length<4)return toast(T("new_pwd_min"),1);
    if(me?.id===0 && adminToken){
     // Admin Mode 1: change admin key via DB config
     const r=await fetch(API_BASE+'/api/admin/change-own-key',{method:'POST',headers:_admHeaders(),body:JSON.stringify({new_key:newpw})});
@@ -1389,14 +2193,14 @@ async function _doSaveProf(){
     // Normal user: change with old password
     await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}});
    }
-   toast('✅ 密碼已更改');
+   toast(T("pwd_changed"));
   }
   // Avatar update — skip for admin (id=0, not in DB)
   if(me?.id !== 0 && avatar&&avatar.startsWith('data:')){
    const r=await api('/api/update-avatar',{method:'POST',body:{avatar}});
    me.avatar=r.url||'';
   }
-  saveS();updateNav();closeProf();toast('✅ 已更新');
+  saveS();updateNav();closeProf();toast(T("profile_updated"));
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -1493,7 +2297,7 @@ function admLogout(){
  adminToken = '';
  localStorage.removeItem('jymy_admin_token');
  admClose();
- toast('🔒 管理面板已關閉');
+ toast(T("admin_panel_closed"));
 }
 
 function admShowTab(name){
@@ -1533,14 +2337,14 @@ async function loadAdmStats(){
 // ── Admin: Change admin key (Mode 1) or DB admin password ──
 async function admShowChangePw(){
  const pw = prompt('輸入新管理密碼（至少4位）：');
- if(!pw||pw.length<4){toast('❌ 密碼至少4位');return}
+ if(!pw||pw.length<4){toast(T("pwd_min_4"));return}
  const pw2 = prompt('確認新密碼：');
- if(pw!==pw2){toast('❌ 兩次密碼唔一致',1);return}
+ if(pw!==pw2){toast(T("pwd_mismatch"),1);return}
  try{
   // Update admin_key in DB config (no restart needed)
   const r=await fetch(API_BASE+'/api/admin/change-own-key',{method:'POST',headers:_admHeaders(),body:JSON.stringify({new_key:pw})});
   const d=await r.json();
-  if(d.ok) toast('✅ 管理密碼已修改，下次請用新密碼登入');
+  if(d.ok) toast(T("admin_pwd_changed"));
   else toast('❌ '+(d.error||'失敗'),1);
  }catch(e){toast('❌ '+e.message,1)}
 }
@@ -1847,7 +2651,7 @@ function admBulkRenew(){
   const today=new Date().toISOString().split('T')[0];
   const newExp=new Date(Date.now()+30*86400000).toISOString().split('T')[0];
   fetch(API_BASE+'/api/admin/batch-extend',{method:'POST',headers:h,body:JSON.stringify({new_expires:newExp})})
-  .then(()=>{toast('✅ 已續期');admLoadMembers();admLoadExpired()})
+  .then(()=>{toast(T("renewed_ok"));admLoadMembers();admLoadExpired()})
   .catch(e=>toast('❌ '+e.message,1));
  }).catch(e=>toast('❌ '+e.message,1));
 }
@@ -1864,7 +2668,7 @@ function admExportCSV(){
    var url=URL.createObjectURL(blob);
    var a=document.createElement('a');a.href=url;a.download='members_'+new Date().toISOString().split('T')[0]+'.csv';a.click();
    URL.revokeObjectURL(url);
-   toast('✅ 已匯出');
+   toast(T("exported_ok"));
   });
  }).catch(e=>toast('❌ '+e.message,1));
 }
@@ -1875,18 +2679,18 @@ function admClearExpired(){
   const h=_admHeaders();
   const today=new Date().toISOString().split('T')[0];
   fetch(API_BASE+'/api/admin/batch-free',{method:'POST',headers:h})
-  .then(()=>{toast('✅ 已清除');admLoadMembers();admLoadExpired()})
+  .then(()=>{toast(T("cleared_ok"));admLoadMembers();admLoadExpired()})
   .catch(e=>toast('❌ '+e.message,1));
  }).catch(e=>toast('❌ '+e.message,1));
 }
 
 function admSendNotify(){
- toast('ℹ️ 推送通知需後端支持，暫不可用',1);
+ toast(T("push_not_supported"),1);
 }
 
 function admSetServer(){
  var url=document.getElementById('adm-server-url').value.trim();
- if(!url){toast('❌ 請輸入地址',1);return}
+ if(!url){toast(T("enter_address"),1);return}
  localStorage.setItem('jymy_server',url);
  if(window.JymyNative&&window.JymyNative.setServerUrl)window.JymyNative.setServerUrl(url);
  toast('✅ 伺服器已儲存：'+url);
@@ -2538,7 +3342,7 @@ function previewPostVid(e){
  const inp=document.getElementById('post-vid-input');
  const f=inp.files[0];if(!f)return;
  // Validate video type
- if(!f.type.startsWith('video/')){alert('請選擇影片檔案');inp.value='';return}
+ if(!f.type.startsWith('video/')){alert(T('select_video_file'));inp.value='';return}
  const prev=document.getElementById('post-vid-preview');
  var url=URL.createObjectURL(f);
  var sz=(f.size/1024/1024).toFixed(1);
@@ -2564,30 +3368,30 @@ async function createPost(){
  // Upload video if any
  const vidInput=document.getElementById('post-vid-input');
  if(vidInput.files.length){
-  toast('⏳ 影片上傳中...',0);
+  toast(T('video_uploading'),0);
   try{
    const fd=new FormData();fd.append('file',vidInput.files[0]);
-   const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+(token||'')},body:fd});
+   const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+(localStorage.getItem('jymy_token')||token||'')},body:fd});
    const d=await r.json();
    if(d.url)videoUrl=d.url;
-   else throw new Error(d.error||'影片上傳失敗');
-   toast('✅ 影片上傳成功',0);
-  }catch(e){toast('❌ 影片上傳失敗：'+e.message,1);console.error('video upload fail',e)}
+   else throw new Error(d.error||T('video_upload_fail'));
+   toast('✅ '+T('video_upload_ok'),0);
+  }catch(e){toast('❌ '+T('video_upload_fail')+'：'+e.message,1);console.error('video upload fail',e)}
  }
- if(!content&&!imageUrls.length&&!videoUrl){alert('請輸入內容或上傳圖片/影片');return}
+ if(!content&&!imageUrls.length&&!videoUrl){alert(T('enter_content'));return}
  try{
   await api('/api/posts',{method:'POST',body:{content:content,images:JSON.stringify(imageUrls),video_url:videoUrl}});
   document.getElementById('post-content').value='';
   preview.innerHTML='';vidPreview.innerHTML='';fileInput.value='';vidInput.value='';
   loadPosts();
- }catch(e){alert('發佈失敗：'+e.message)}
+ }catch(e){alert(T('publish_fail')+'：'+e.message)}
 }
 function insertEmoji(e){const ta=document.getElementById('post-content');const s=ta.selectionStart;ta.value=ta.value.substring(0,s)+e+ta.value.substring(ta.selectionEnd);ta.focus();ta.selectionStart=ta.selectionEnd=s+e.length}
 
 async function loadPosts(){
  try{
   const d=await api('/api/posts');const el=document.getElementById('posts-container');
-  if(!d.posts.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--sub)">暫無朋友圈動態</div>';return}
+  if(!d.posts.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--sub)">'+T('no_posts')+'</div>';return}
   el.innerHTML=d.posts.map(p=>{
    let imgs='';try{const arr=JSON.parse(p.images||'[]');imgs=arr.map(u=>`<img src="${API_BASE+u}" style="width:calc(33% - 4px);height:120px;object-fit:cover;border-radius:8px;margin:2px" onclick="window.open('${API_BASE+u}')">`).join('')}catch(e){}
    let vidHtml='';if(p.video_url){vidHtml=`<div style="margin-bottom:4px"><video src="${API_BASE+p.video_url}" controls preload="metadata" style="width:100%;max-height:300px;border-radius:8px;background:#000" playsinline></video></div>`}
@@ -2598,7 +3402,7 @@ async function loadPosts(){
      ${avHtml}
      <div><div style="font-weight:700;font-size:14px;color:var(--text)">${p.nickname||p.username}</div>
      <div style="font-size:11px;color:var(--sub)">${p.created_at||''}</div></div>
-     ${p.user_id===me.id?`<button style="margin-left:auto;padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="deletePost(${p.id})">刪除</button>`:''}
+     ${p.user_id===me.id?`<button style="margin-left:auto;padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="deletePost(${p.id})">${T('delete_post')}</button>`:''}
     </div>
     <div style="font-size:14px;line-height:1.6;margin-bottom:8px;white-space:pre-wrap">${p.content||''}</div>
     ${imgs?`<div style="display:flex;flex-wrap:wrap;margin-bottom:4px">${imgs}</div>`:''}
@@ -2613,8 +3417,8 @@ async function loadPosts(){
  }catch(e){console.error('loadPosts',e)}
 }
 async function deletePost(pid){
- if(!confirm('確認刪除？'))return;
- try{await api('/api/posts/'+pid,{method:'DELETE'});loadPosts()}catch(e){alert('刪除失敗')}
+ if(!confirm(T('confirm_delete')))return;
+ try{await api('/api/posts/'+pid,{method:'DELETE'});loadPosts()}catch(e){alert(T('delete_fail'))}
 }
 
 // ═══════════════════════════ POST Like/Comment/Reply ═══════════════════════════
@@ -2639,7 +3443,7 @@ async function loadPostComments(pid){
    h+=' <span style="font-size:11px;color:var(--sub)">'+(c.created_at||'')+'</span></div>';
    h+='<div style="font-size:13px;color:var(--text);margin-left:30px">'+esc(c.text)+'</div>';
    const cname=esc(c.nickname||c.username).replace(/'/g,"\\'");
-   h+='<div style="margin-left:30px;margin-top:4px"><span style="font-size:11px;color:var(--pink);cursor:pointer" onclick="showReplyInput('+pid+','+c.id+',\''+cname+'\')">回覆</span></div>';
+   h+='<div style="margin-left:30px;margin-top:4px"><span style="font-size:11px;color:var(--pink);cursor:pointer" onclick="showReplyInput('+pid+','+c.id+',\''+cname+'\')">'+T('reply')+'</span></div>';
    if(c.replies&&c.replies.length){
     h+='<div style="margin-left:30px;margin-top:4px;padding:4px 8px;background:var(--card);border-radius:8px">';
     c.replies.forEach(rp=>{
@@ -2652,8 +3456,8 @@ async function loadPostComments(pid){
    h+='</div>';
   });
   h+='<div style="display:flex;gap:8px;margin-top:8px;align-items:flex-end">';
-  h+='<textarea id="comment-input-'+pid+'" placeholder="寫評論..." style="flex:1;width:0;padding:10px 14px;font-size:15px;min-height:56px;max-height:140px;resize:vertical;line-height:1.5;border-radius:12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:inherit;outline:none"></textarea>';
-  h+='<button onclick="addPostComment('+pid+')" style="padding:6px 10px;font-size:13px;white-space:nowrap;height:40px;min-width:48px;max-width:56px;border-radius:10px;background:linear-gradient(135deg,var(--amber),var(--purple));color:#fff;font-weight:600;border:none;cursor:pointer;flex-shrink:0">發送</button>';
+  h+='<textarea id="comment-input-'+pid+'" placeholder="'+T('write_comment')+'" style="flex:1;width:0;padding:10px 14px;font-size:15px;min-height:56px;max-height:140px;resize:vertical;line-height:1.5;border-radius:12px;background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:inherit;outline:none"></textarea>';
+  h+='<button onclick="addPostComment('+pid+')" style="padding:6px 10px;font-size:13px;white-space:nowrap;height:40px;min-width:48px;max-width:56px;border-radius:10px;background:linear-gradient(135deg,var(--amber),var(--purple));color:#fff;font-weight:600;border:none;cursor:pointer;flex-shrink:0">'+T('send')+'</button>';
   h+='</div></div>';
   el.innerHTML=h;
  }catch(e){console.error('loadPostComments',e)}
@@ -2663,14 +3467,14 @@ async function addPostComment(pid){
  const text=inp.value.trim();if(!text)return;
  const cid=inp.dataset.replyCid;
  if(cid){
-  try{await api('/api/posts/'+pid+'/comments/'+cid+'/reply',{method:'POST',body:{text:text}});inp.value='';delete inp.dataset.replyCid;inp.placeholder='寫評論...';loadPostComments(pid);loadPosts()}catch(e){alert('回覆失敗')}
+  try{await api('/api/posts/'+pid+'/comments/'+cid+'/reply',{method:'POST',body:{text:text}});inp.value='';delete inp.dataset.replyCid;inp.placeholder=T('write_comment');loadPostComments(pid);loadPosts()}catch(e){alert(T('reply_fail'))}
  }else{
-  try{await api('/api/posts/'+pid+'/comments',{method:'POST',body:{text:text}});inp.value='';loadPostComments(pid);loadPosts()}catch(e){alert('評論失敗')}
+  try{await api('/api/posts/'+pid+'/comments',{method:'POST',body:{text:text}});inp.value='';loadPostComments(pid);loadPosts()}catch(e){alert(T('comment_fail'))}
  }
 }
 function showReplyInput(pid,cid,name){
  const el=document.getElementById('comment-input-'+pid);
- if(el){el.placeholder='回覆 '+name+'...';el.dataset.replyCid=cid}
+ if(el){el.placeholder=T('reply')+' '+name+'...';el.dataset.replyCid=cid}
 }
 
 // ═══════════ AVATAR UPLOAD in saveProf ═══════════
