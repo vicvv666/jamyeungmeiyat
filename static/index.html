@@ -3349,7 +3349,7 @@ async function loadFriendsPending(){
    <button style="padding:2px 8px;border:1px solid var(--green);border-radius:6px;background:none;color:var(--green);cursor:pointer;font-size:10px" onclick="acceptFriend(${f.id})">✅ 接受</button>
    <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="rejectFriend(${f.id})">❌ 拒絕</button>
   </div>`).join('')
- }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+ }catch(e){const el=document.getElementById('friend-pending');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
 }
 async function loadFriendsList(){
  try{const d=await api('/api/friends');const el=document.getElementById('friend-list');
@@ -3359,7 +3359,7 @@ async function loadFriendsList(){
    <span style="color:var(--text);font-weight:600">${f.nickname||f.username}</span>
    <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px;margin-left:auto" onclick="removeFriend(${f.id})">移除</button>
   </div>`).join('')
- }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+ }catch(e){const el=document.getElementById('friend-list');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
 }
 async function loadFriendsSuggest(){
  try{const d=await api('/api/friends/suggest');const el=document.getElementById('friend-suggest');
@@ -3370,7 +3370,7 @@ async function loadFriendsSuggest(){
    <span style="font-size:10px;color:var(--amber);margin-left:4px">${f.membership||''}</span>
    <button style="padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:var(--pink);color:#fff;cursor:pointer;font-size:10px;margin-left:auto" onclick="addFriend(${f.id})">➕ 加友</button>
   </div>`).join('')
- }catch(e){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+ }catch(e){const el=document.getElementById('friend-suggest');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
 }
 async function addFriend(uid){
  try{await api('/api/friends/add',{method:'POST',body:{username:await _getUsername(uid)}});loadFriendsAll()}catch(e){alert(e.message)}
