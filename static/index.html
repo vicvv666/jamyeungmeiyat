@@ -363,6 +363,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <div class="tabs">
   <button class="tab active" data-page="checkin" onclick="showPage('checkin')"><span class="tab-icon">🍺</span><span id="tab-checkin">報到</span></button>
   <button class="tab" data-page="timeline" onclick="showPage('timeline')"><span class="tab-icon">🌐</span><span id="tab-timeline">動態</span></button>
+  <button class="tab" data-page="friends" onclick="showPage('friends')"><span class="tab-icon">👫</span><span id="tab-friends">酒友圈</span></button>
   <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party">酒局</span></button>
   <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
    <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
@@ -398,48 +399,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </div>
 
 <div class="page" id="page-timeline">
-  <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
-    <div class="card-header" data-i18n="post_title">📸 發朋友圈</div>
-    <div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap" id="emoji-bar">
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍺')">🍺</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍻')">🍻</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥂')">🥂</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥃')">🥃</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍷')">🍷</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍶')">🍶</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍹')">🍹</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🧊')">🧊</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍸')">🍸</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥤')">🥤</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍾')">🍾</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🫗')">🫗</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('😵')">😵</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🤪')">🤪</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('😴')">😴</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥴')">🥴</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💃')">💃</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🕺')">🕺</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🎉')">🎉</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🤢')">🤢</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('❤️')">❤️</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🔥')">🔥</span>
-     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💪')">💪</span>
-    </div>
-    <textarea class="textarea" id="post-content" data-i18n-placeholder="post_placeholder" style="margin-bottom:8px;min-height:60px"></textarea>
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
-     <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--amber);border-radius:12px;font-size:13px;color:var(--amber);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      📷 上傳圖片<input type="file" aria-label="Upload Image" data-i18n-attr="aria-label:upload_img" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
-     </label>
-     <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--purple);border-radius:12px;font-size:13px;color:var(--purple);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      🎬 上傳影片<input type="file" aria-label="Upload Video" data-i18n-attr="aria-label:upload_vid" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
-     </label>
-     <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
-     <div id="post-vid-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
-    </div>
-    <button class="btn btn-primary" onclick="createPost()" style="width:100%" data-i18n="publish_btn">📱 發佈</button>
-  </div>
   <div id="tl-container"></div>
-  <div id="posts-container" style="margin-top:12px"></div>
 </div>
 
 <div class="page" id="page-party">
@@ -570,6 +530,11 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price">¥198</div><div class="plan-feat">每年/徽章</div></div>
   </div>
   <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'" data-i18n="ad_cooperation">📢 廣告合作<br>vichoo2020@gmail.com</div>
+</div>
+
+<!-- 酒友圈 Page -->
+<div class="page" id="page-friends">
+  <!-- 朋友管理区 -->
   <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
     <div class="card-header" data-i18n="friends_circle">👫 酒友圈</div>
     <div id="friends-section">
@@ -578,7 +543,49 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
      <div><div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:6px" data-i18n="suggest_friends">🔍 推薦酒友</div><div id="friend-suggest" style="font-size:12px;color:var(--sub)">載入中...</div></div>
     </div>
   </div>
-</div>
+  <!-- 朋友圈发帖区 -->
+  <div class="card" style="margin-top:8px;border:2px solid var(--amber);background:rgba(245,158,11,0.05)">
+    <div class="card-header" data-i18n="post_title">📸 發朋友圈</div>
+    <div style="margin-bottom:6px;display:flex;gap:4px;flex-wrap:wrap" id="emoji-bar">
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍺')">🍺</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍻')">🍻</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥂')">🥂</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥃')">🥃</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍷')">🍷</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍶')">🍶</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍹')">🍹</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🧊')">🧊</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍸')">🍸</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥤')">🥤</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🍾')">🍾</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🫗')">🫗</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('😵')">😵</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🤪')">🤪</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('😴')">😴</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🥴')">🥴</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💃')">💃</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🕺')">🕺</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🎉')">🎉</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🤢')">🤢</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('❤️')">❤️</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('🔥')">🔥</span>
+     <span style="cursor:pointer;font-size:20px" onclick="insertEmoji('💪')">💪</span>
+    </div>
+    <textarea class="textarea" id="post-content" data-i18n-placeholder="post_placeholder" style="margin-bottom:8px;min-height:60px"></textarea>
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+     <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--amber);border-radius:12px;font-size:13px;color:var(--amber);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      📷 上傳圖片<input type="file" aria-label="Upload Image" data-i18n-attr="aria-label:upload_img" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
+     </label>
+     <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--purple);border-radius:12px;font-size:13px;color:var(--purple);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      🎬 上傳影片<input type="file" aria-label="Upload Video" data-i18n-attr="aria-label:upload_vid" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
+     </label>
+     <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+     <div id="post-vid-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+    </div>
+    <button class="btn btn-primary" onclick="createPost()" style="width:100%" data-i18n="publish_btn">📱 發佈</button>
+  </div>
+  <!-- 帖子列表 -->
+  <div id="posts-container" style="margin-top:12px"></div>
 </div>
 
 <!-- Admin Panel (独立弹窗) -->
@@ -728,6 +735,26 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
         <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);color:#fff;font-size:10px;padding:2px 0;text-align:center" data-i18n="change_avatar">📷 更換</div>
       </div>
       <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="prevAv(event)">
+    </div>
+    <!-- 默认头像选择器 -->
+    <div style="margin-bottom:12px">
+      <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:6px" data-i18n="default_avatar_label">🍻 預設頭像</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center" id="emoji-avatar-picker">
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🍺')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🍺</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🍻')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🍻</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🥃')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🥃</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🍷')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🍷</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🍶')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🍶</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🍹')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🍹</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🍾')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🍾</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🥂')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🥂</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'😵')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">😵</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🤪')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🤪</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🥴')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🥴</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'💃')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">💃</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🕺')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🕺</span>
+       <span style="cursor:pointer;font-size:28px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:50%;border:2px solid var(--border);background:var(--card);transition:all .2s" onclick="pickEmojiAv(this,'🧊')" onmouseover="this.style.borderColor='var(--amber)';this.style.transform='scale(1.15)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='scale(1)'">🧊</span>
+      </div>
     </div>
     <div style="margin-bottom:10px">
       <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="nickname_label">🏷️ 花名</label>
@@ -912,6 +939,7 @@ function updateNav(){
     const trig=document.getElementById('user-trigger');
     const av=me.avatar;
     if(av&&av.startsWith('/')){trig.innerHTML='<img src="'+API_BASE+av+'">'}
+    else if(av&&av.startsWith('emoji:')){trig.textContent=av.replace('emoji:','')}
     else{trig.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
     const ms=document.getElementById('dd-mem'),ex=document.getElementById('dd-exp');
     if(me.membership&&me.membership!=='free'){ms.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');ex.textContent=T('expires_label')+(me.member_expires||'永久')}
@@ -929,7 +957,7 @@ function showPage(name){
   if(_pgHist.length > 10) _pgHist.shift();
 
   // Determine slide direction based on tab index
-  const tabs = ['checkin','timeline','party','stats','dice','member'];
+  const tabs = ['checkin','timeline','friends','party','stats','dice','member'];
   const idx = tabs.indexOf(name);
   const prevIdx = tabs.indexOf(curName);
   let slideCls = '';
@@ -950,7 +978,7 @@ function showPage(name){
   if(tb)tb.classList.add('active');
   // Reset scroll position to top when switching pages
   window.scrollTo({top:0,behavior:'smooth'});
-  if(name==='timeline'){loadTL();loadPosts()}if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();
+  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();
 }
 
 // ═══════ SWIPE GESTURE SUPPORT ═══════
@@ -985,7 +1013,7 @@ document.addEventListener('touchend', function(e){
   if(Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
   if(e.target.closest('.tabs') || e.target.closest('.nav') || e.target.closest('.modal-overlay') || e.target.closest('.pay-modal')) return;
 
-  const tabs = ['checkin','timeline','party','stats','dice','member'];
+  const tabs = ['checkin','timeline','friends','party','stats','dice','member'];
   const cur = document.querySelector('.page.active');
   if(!cur) return;
   const curName = cur.id.replace('page-','');
@@ -1186,7 +1214,7 @@ const L={
   username:'用戶名',
   password:'密碼',
   confirm_delete:'確認刪除？',
-  please_login:T('please_login'),
+  please_login:'請先登入',
   login_success:'登入成功！',
   register_success:'註冊成功！',
   new_pwd_min:'新密碼最少4位',
@@ -1245,6 +1273,7 @@ const L={
   supabase_no_pwd:'❌ Supabase 模式下暫不支持直接改密',
   pwd_reset_ok:'✅ 密碼已重設',
   friends_circle:'👫 酒友圈',
+  tab_friends:'酒友圈',
   admin_label:'管理員',
   adm_change_pwd:'🔑 改密',
   adm_members:'會員',
@@ -1516,6 +1545,7 @@ const L={
   supabase_no_pwd:'❌ Supabase 模式下暂不支持直接改密',
   pwd_reset_ok:'✅ 密码已重设',
   friends_circle:'👫 酒友圈',
+  tab_friends:'酒友圈',
   admin_label:'管理员',
   adm_change_pwd:'🔑 改密',
   adm_members:'会员',
@@ -1787,6 +1817,7 @@ const L={
   supabase_no_pwd:'❌ Password change not supported in Supabase mode',
   pwd_reset_ok:'✅ Password reset',
   friends_circle:'👫 Friends Circle',
+  tab_friends:'Friends',
   admin_label:'Admin',
   adm_change_pwd:'🔑 Change Pwd',
   adm_members:'Members',
@@ -1835,7 +1866,7 @@ function updTitles(){
   // App title
   document.getElementById('nav-title').textContent='🍺 '+T('app_title');
   // Tabs
-  ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});
+  ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});const tf=document.getElementById('tab-friends');if(tf)tf.textContent=T('tab_friends');
   const diceTab=document.querySelector('[data-page="dice"] .t,.tab[data-page="dice"] span:last-child');
   if(diceTab)diceTab.textContent=T('tab_dice');
   // Refresh all data-i18n elements
@@ -1972,8 +2003,9 @@ async function loadTL(){
  let h='';
  items.forEach(item=>{
  const st=STATUSES[item.status]||STATUSES[0];
- const av=item.avatar&&item.avatar.startsWith('/')?API_BASE+item.avatar:'';
- h+='<div class="tl-item"><div class="tl-avatar">'+(av?'<img src="'+av+'">':'🍺')+'</div><div class="tl-body"><div class="tl-name">'+esc(item.nickname)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
+  const av=item.avatar&&item.avatar.startsWith('/')?API_BASE+item.avatar:(item.avatar&&item.avatar.startsWith('emoji:')?item.avatar.replace('emoji:',''):'');
+  const avH=item.avatar&&item.avatar.startsWith('emoji:')?'<span style="font-size:24px">'+av+'</span>':(av?'<img src="'+av+'">':'🍺');
+  h+='<div class="tl-item"><div class="tl-avatar">'+avH+'</div><div class="tl-body"><div class="tl-name">'+esc(item.nickname)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
  h+='<button class="btn btn-outline btn-sm" onclick="doLike('+item.id+')">❤️ <span id="lk-'+item.id+'">'+(item.likes||0)+'</span></button>';
  h+='<button class="btn btn-outline btn-sm" onclick="openCmt('+item.id+')">💬 <span id="ct-'+item.id+'">'+(item.comments||0)+'</span></button>';
  h+='<div style="display:flex;gap:2px;flex-wrap:wrap">';
@@ -2077,7 +2109,8 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
  if(aw){
   if(me.avatar&&me.avatar.startsWith('/api/avatar/')){
    aw.innerHTML='<img src="'+API_BASE+me.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
-  }else{aw.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
+  }else if(me.avatar&&me.avatar.startsWith('emoji:')){aw.textContent=me.avatar.replace('emoji:','')}
+  else{aw.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
  }
  var nk=document.getElementById('mem-nick');if(nk)nk.textContent=me.nickname||me.username||'-';
  var un=document.getElementById('mem-username');if(un)un.textContent='@'+(me.username||'-');
@@ -2133,7 +2166,7 @@ function updLegalLinks(){
   const ld=document.getElementById('lt-disc-txt');if(ld)ld.textContent=T('disclaimer');
   const lc=document.getElementById('lt-ct-txt');if(lc)lc.textContent=T('contact');
 }
-function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');document.getElementById('pay-fb').style.display='none';img.style.display='block';var triedLocal=false,triedRemote=false;function loadLocal(){if(ASSET_BASE){triedLocal=true;img.src=ASSET_BASE+QR_M[t];img.onerror=loadRemote}else{loadRemote()}}function loadRemote(){if(API_BASE&&triedLocal){triedRemote=true;img.src=API_BASE+QR_M[t];img.onerror=showFallback}else{showFallback()}}function showFallback(){img.style.display='none';document.getElementById('pay-fb').style.display='block'}loadLocal()}
+function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');document.getElementById('pay-fb').style.display='none';img.style.display='block';function trySrc(src,onfail){img.onload=function(){img.onload=null;img.onerror=null};img.onerror=function(){img.onload=null;img.onerror=null;onfail()};img.src=src}function loadLocal(){if(ASSET_BASE){trySrc(ASSET_BASE+QR_M[t],loadRemote)}else{loadRemote()}}function loadRemote(){if(API_BASE){trySrc(API_BASE+QR_M[t],loadDirect)}else{loadDirect()}}function loadDirect(){trySrc(QR_M[t],showFallback)}function showFallback(){img.style.display='none';document.getElementById('pay-fb').style.display='block'}loadLocal()}
 async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});me.membership=r.membership;me.member_expires=r.expires;saveS();closePay();updateNav();updMem();toast(T("upgrade_success"))}catch(e){toast('❌ '+e.message,1)}}
 
 // ═══════ PROFILE ═══════
@@ -2143,15 +2176,44 @@ function openProfile(){
   document.getElementById('p-phone').value=me?.phone||'';
   document.getElementById('p-email').value=me?.email||'';
   document.getElementById('p-oldpw').value='';document.getElementById('p-newpw').value='';
+  _selectedEmojiAv='';_highlightEmojiAv();
   if(me?.avatar && me.avatar.startsWith('/api/avatar/')){
     document.getElementById('av-prev').innerHTML='<img src="'+API_BASE+me.avatar+'">';
+  } else if(me?.avatar && /^emoji:/.test(me.avatar)){
+    const emoji=me.avatar.replace('emoji:','');
+    document.getElementById('av-prev').textContent=emoji;
+    _selectedEmojiAv=emoji;_highlightEmojiAv();
   } else {
     document.getElementById('av-prev').textContent=(me?.nickname||me?.username||'?').charAt(0).toUpperCase();
   }
 }
 function closeProf(){const el=document.getElementById('prof-mod');el.style.display='none';el.classList.remove('show')}
-function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('av-prev').innerHTML='<img src="'+ev.target.result+'">'};r.readAsDataURL(f)}
+function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('av-prev').innerHTML='<img src="'+ev.target.result+'">';_selectedEmojiAv='';_highlightEmojiAv()};r.readAsDataURL(f)}
+var _selectedEmojiAv='';
+function pickEmojiAv(el,emoji){
+  _selectedEmojiAv=emoji;
+  document.getElementById('av-prev').textContent=emoji;
+  document.getElementById('av-inp').value='';
+  _highlightEmojiAv();
+}
+function _highlightEmojiAv(){
+  document.querySelectorAll('#emoji-avatar-picker span').forEach(s=>{
+    if(s.textContent===_selectedEmojiAv){s.style.borderColor='var(--amber)';s.style.background='rgba(245,158,11,0.15)'}
+    else{s.style.borderColor='var(--border)';s.style.background='var(--card)'}
+  });
+}
 async function saveProf(){
+ if(!me)return toast(T('please_login'),1);
+ // Handle emoji avatar (priority over file upload)
+ if(_selectedEmojiAv){
+  try{
+   if(me?.id !== 0){
+    await api('/api/update-profile',{method:'POST',body:{nickname:document.getElementById('p-nick').value.trim(),avatar:'emoji:'+_selectedEmojiAv}});
+    me.avatar='emoji:'+_selectedEmojiAv;
+   }
+   _doSaveProf();return;
+  }catch(e){alert('頭像保存失敗：'+e.message)}
+ }
  // Handle avatar upload first
  var avFile=document.getElementById('av-inp').files[0];
  if(avFile){
@@ -3348,7 +3410,7 @@ function previewPostVid(e){
  var sz=(f.size/1024/1024).toFixed(1);
  prev.innerHTML=`<div style="position:relative;width:120px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--purple)"><video src="${url}" style="width:100%;height:100%;object-fit:cover" muted preload="metadata"></video><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;font-size:9px;padding:2px 6px;display:flex;justify-content:space-between"><span>🎬</span><span>${sz}MB</span></div></div>`;
 }
-async function createPost(){
+async function createPost(tab){
  const content=document.getElementById('post-content').value.trim();
  const preview=document.getElementById('post-img-preview');
  const vidPreview=document.getElementById('post-vid-preview');
@@ -3388,15 +3450,20 @@ async function createPost(){
 }
 function insertEmoji(e){const ta=document.getElementById('post-content');const s=ta.selectionStart;ta.value=ta.value.substring(0,s)+e+ta.value.substring(ta.selectionEnd);ta.focus();ta.selectionStart=ta.selectionEnd=s+e.length}
 
-async function loadPosts(){
+async function loadPosts(tab){
  try{
-  const d=await api('/api/posts');const el=document.getElementById('posts-container');
-  if(!d.posts.length){el.innerHTML='<div class="card" style="text-align:center;color:var(--sub)">'+T('no_posts')+'</div>';return}
+  const d=await api('/api/posts');
+  const el=document.getElementById('posts-container');
+  if(!d.posts.length){
+   if(el)el.innerHTML='<div class="card" style="text-align:center;color:var(--sub)">'+T('no_posts')+'</div>';
+   return;
+  }
   el.innerHTML=d.posts.map(p=>{
    let imgs='';try{const arr=JSON.parse(p.images||'[]');imgs=arr.map(u=>`<img src="${API_BASE+u}" style="width:calc(33% - 4px);height:120px;object-fit:cover;border-radius:8px;margin:2px" onclick="window.open('${API_BASE+u}')">`).join('')}catch(e){}
    let vidHtml='';if(p.video_url){vidHtml=`<div style="margin-bottom:4px"><video src="${API_BASE+p.video_url}" controls preload="metadata" style="width:100%;max-height:300px;border-radius:8px;background:#000" playsinline></video></div>`}
    const avSrc=p.avatar&&p.avatar.startsWith('/api/')?API_BASE+p.avatar:'';
-   const avHtml=avSrc?`<img src="${avSrc}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.outerHTML='<span style=font-size:28px>👤</span>'">`:'<span style="font-size:28px">👤</span>';
+   const avEmoji=p.avatar&&p.avatar.startsWith('emoji:')?p.avatar.replace('emoji:',''):'';
+   const avHtml=avEmoji?`<span style="font-size:28px">${avEmoji}</span>`:avSrc?`<img src="${avSrc}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.outerHTML='<span style=font-size:28px>👤</span>'">`:'<span style="font-size:28px">👤</span>';
    return `<div class="card" style="margin-bottom:10px">
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
      ${avHtml}
@@ -3414,12 +3481,12 @@ async function loadPosts(){
     <div id="post-comments-${p.id}" style="display:none;margin-top:8px"></div>
    </div>`
   }).join('');
- }catch(e){console.error('loadPosts',e)}
-}
-async function deletePost(pid){
- if(!confirm(T('confirm_delete')))return;
- try{await api('/api/posts/'+pid,{method:'DELETE'});loadPosts()}catch(e){alert(T('delete_fail'))}
-}
+  }catch(e){console.error('loadPosts',e)}
+  }
+  async function deletePost(pid){
+  if(!confirm(T('confirm_delete')))return;
+  try{await api('/api/posts/'+pid,{method:'DELETE'});loadPosts()}catch(e){alert(T('delete_fail'))}
+  }
 
 // ═══════════════════════════ POST Like/Comment/Reply ═══════════════════════════
 async function togglePostLike(pid){
@@ -3436,7 +3503,8 @@ async function loadPostComments(pid){
   let h='<div style="padding:8px 0">';
   d.comments.forEach(c=>{
    const cav=c.avatar&&c.avatar.startsWith('/api/')?API_BASE+c.avatar:'';
-   const cavHtml=cav?'<img src="'+cav+'" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'👤';
+   const cEmoji=c.avatar&&c.avatar.startsWith('emoji:')?c.avatar.replace('emoji:',''):'';
+   const cavHtml=cEmoji?'<span style="font-size:22px">'+cEmoji+'</span>':cav?'<img src="'+cav+'" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'👤';
    h+='<div style="margin-bottom:8px;padding-left:4px">';
    h+='<div style="display:flex;gap:6px;align-items:center;margin-bottom:4px">'+cavHtml;
    h+=' <span style="font-weight:600;font-size:12px;color:var(--text)">'+esc(c.nickname||c.username)+'</span>';

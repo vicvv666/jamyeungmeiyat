@@ -656,6 +656,8 @@ def api_update_profile():
         db.execute('UPDATE users SET email=? WHERE id=?',(d['email'],g.uid))
     if d.get('lang'):
         db.execute('UPDATE users SET lang=? WHERE id=?',(d['lang'],g.uid))
+    if 'avatar' in d:
+        db.execute('UPDATE users SET avatar=? WHERE id=?',(d['avatar'],g.uid))
     db.commit()
     u = db.execute('SELECT * FROM users WHERE id=?',(g.uid,)).fetchone()
     user_data = dict(u)
