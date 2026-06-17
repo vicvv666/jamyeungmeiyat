@@ -221,6 +221,8 @@ CREATE TABLE IF NOT EXISTS users (
             lng         REAL DEFAULT 0,
             meet_time   TEXT DEFAULT '',
             status      TEXT DEFAULT 'upcoming',
+            description TEXT DEFAULT '',
+            max_members INTEGER DEFAULT 0,
             created_at  TEXT DEFAULT (datetime('now','localtime'))
         );
         CREATE TABLE IF NOT EXISTS party_rsvp (
@@ -403,6 +405,11 @@ CREATE TABLE IF NOT EXISTS users (
     except: pass
     # posts表加video_url列
     try: db.execute('ALTER TABLE posts ADD COLUMN video_url TEXT DEFAULT ""')
+    except: pass
+    # parties表加description和max_members列
+    try: db.execute('ALTER TABLE parties ADD COLUMN description TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE parties ADD COLUMN max_members INTEGER DEFAULT 0')
     except: pass
     db.commit()
     db.close()

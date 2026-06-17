@@ -3311,46 +3311,86 @@ setTimeout(initDice,200);setTimeout(startChallengePoll,3000);
 let _admCheckins=[], _admParties=[], _admPosts=[];
 const _statusMap={0:'酒鬼',1:'微醺',2:'清醒',4:'報到',5:'想飲',10:'到咗',11:'開咗',12:'飲緊',13:'繼續',14:'加酒',15:'暢飲',16:'醉緊',17:'好醉',18:'陶醉',19:'飄飄',20:'斷片',21:'想嘔',22:'暈暈',23:'趴低',24:'轉場',25:'溝酒',26:'猜枚',27:'直落',28:'飲咗',29:'返歸',30:'醒晒',31:'聽日'};
 function _statusOpts(){return Object.entries(_statusMap).map(([k,v])=>[Number(k),v])}
+function _admCardRow(label,val,color){
+ const d=document.createElement('div');d.style.cssText='display:flex;gap:6px;font-size:12px;line-height:1.6';
+ const lb=document.createElement('span');lb.style.cssText='color:var(--sub);min-width:50px';lb.textContent=label;
+ const vl=document.createElement('span');vl.style.cssText='color:'+(color||'var(--fg)');vl.textContent=val||'-';
+ d.appendChild(lb);d.appendChild(vl);return d;
+}
 
 async function admLoadCheckins(){
  try{const d=await api('/api/admin/checkins');const el=document.getElementById('adm-checkin-list');
   _admCheckins=d.checkins||[];
   if(!_admCheckins.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無動態</div>';return}
-  el.innerHTML=_admCheckins.map((c,i)=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-   <div><span style="color:var(--amber);font-weight:700">@${c.username||c.nickname}</span>
-   <span style="color:var(--sub);margin-left:6px">${_statusMap[c.status]||'報到'}</span>
-   <span style="color:var(--sub);margin-left:6px;font-size:11px">${c.note||''}</span>
-   <span style="color:var(--sub);margin-left:6px;font-size:10px">${c.created_at||''}</span></div>
-   <div style="display:flex;gap:4px">
-   <button data-idx="${i}" data-act="edit-ci" style="padding:2px 8px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px">編輯</button>
-   <button data-idx="${i}" data-act="del-ci" style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px">刪除</button></div></div>`).join('')
+  el.innerHTML='';
+  _admCheckins.forEach((c,i)=>{
+   const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
+   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
+   const name=document.createElement('span');name.style.cssText='color:var(--amber);font-weight:700;font-size:13px';name.textContent='@'+(c.username||c.nickname);
+   const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+c.id;
+   const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
+   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-ci';eb.style.cssText='padding:2px 8px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px';eb.textContent='編輯';
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-ci';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent='刪除';
+   btns.appendChild(eb);btns.appendChild(db_);
+   head.appendChild(name);head.appendChild(id);head.appendChild(btns);
+   card.appendChild(head);
+   card.appendChild(_admCardRow('狀態',_statusMap[c.status]||'報到','var(--amber)'));
+   card.appendChild(_admCardRow('備註',c.note));
+   if(c.photo)card.appendChild(_admCardRow('相片',c.photo));
+   if(c.party_id)card.appendChild(_admCardRow('酒局','#'+c.party_id));
+   card.appendChild(_admCardRow('時間',c.created_at));
+   el.appendChild(card);
+  })
  }catch(e){console.error('admLoadCheckins',e)}
 }
 async function admLoadParties(){
  try{const d=await api('/api/admin/parties');const el=document.getElementById('adm-party-list');
   _admParties=d.parties||[];
   if(!_admParties.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無酒局</div>';return}
-  el.innerHTML=_admParties.map((p,i)=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-   <div><span style="color:var(--purple);font-weight:700">${p.title||'無標題'}</span>
-   <span style="color:var(--sub);margin-left:6px">📍${p.location||'-'}</span>
-   <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.meet_time||p.created_at||''}</span>
-   <span style="background:var(--${p.status==='upcoming'?'amber':'green'});color:#fff;padding:1px 6px;border-radius:8px;font-size:10px;margin-left:6px">${p.status}</span></div>
-   <div style="display:flex;gap:4px">
-   <button data-idx="${i}" data-act="edit-py" style="padding:2px 8px;border:1px solid var(--purple);border-radius:6px;background:none;color:var(--purple);cursor:pointer;font-size:10px">編輯</button>
-   <button data-idx="${i}" data-act="del-py" style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px">刪除</button></div></div>`).join('')
+  el.innerHTML='';
+  _admParties.forEach((p,i)=>{
+   const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
+   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
+   const title=document.createElement('span');title.style.cssText='color:var(--purple);font-weight:700;font-size:13px';title.textContent=(p.title||'無標題');
+   const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+p.id;
+   const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
+   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-py';eb.style.cssText='padding:2px 8px;border:1px solid var(--purple);border-radius:6px;background:none;color:var(--purple);cursor:pointer;font-size:10px';eb.textContent='編輯';
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-py';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent='刪除';
+   btns.appendChild(eb);btns.appendChild(db_);
+   head.appendChild(title);head.appendChild(id);head.appendChild(btns);
+   card.appendChild(head);
+   card.appendChild(_admCardRow('創建者','@'+(p.username||p.nickname)));
+   card.appendChild(_admCardRow('地點',p.location));
+   card.appendChild(_admCardRow('時間',p.meet_time));
+   card.appendChild(_admCardRow('狀態',p.status,p.status==='upcoming'?'var(--amber)':'var(--green)'));
+   if(p.description)card.appendChild(_admCardRow('描述',p.description));
+   if(p.max_members)card.appendChild(_admCardRow('人數上限',p.max_members));
+   card.appendChild(_admCardRow('創建於',p.created_at));
+   el.appendChild(card);
+  })
  }catch(e){console.error('admLoadParties',e)}
 }
 async function admLoadAdmPosts(){
  try{const d=await api('/api/admin/posts');const el=document.getElementById('adm-post-list');
   _admPosts=d.posts||[];
   if(!_admPosts.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無帖子</div>';return}
-  el.innerHTML=_admPosts.map((p,i)=>`<div style="padding:8px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-   <div><span style="color:var(--pink);font-weight:700">@${p.username||p.nickname}</span>
-   <span style="color:var(--sub);margin-left:6px">${(p.content||'').substring(0,40)}</span>
-   <span style="color:var(--sub);margin-left:6px;font-size:10px">${p.created_at||''}</span></div>
-   <div style="display:flex;gap:4px">
-   <button data-idx="${i}" data-act="edit-po" style="padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:none;color:var(--pink);cursor:pointer;font-size:10px">編輯</button>
-   <button data-idx="${i}" data-act="del-po" style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px">刪除</button></div></div>`).join('')
+  el.innerHTML='';
+  _admPosts.forEach((p,i)=>{
+   const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
+   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
+   const name=document.createElement('span');name.style.cssText='color:var(--pink);font-weight:700;font-size:13px';name.textContent='@'+(p.username||p.nickname);
+   const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+p.id;
+   const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
+   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-po';eb.style.cssText='padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:none;color:var(--pink);cursor:pointer;font-size:10px';eb.textContent='編輯';
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-po';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent='刪除';
+   btns.appendChild(eb);btns.appendChild(db_);
+   head.appendChild(name);head.appendChild(id);head.appendChild(btns);
+   card.appendChild(head);
+   card.appendChild(_admCardRow('內容',p.content));
+   if(p.image_url)card.appendChild(_admCardRow('圖片',p.image_url));
+   card.appendChild(_admCardRow('時間',p.created_at));
+   el.appendChild(card);
+  })
  }catch(e){console.error('admLoadAdmPosts',e)}
 }
 
