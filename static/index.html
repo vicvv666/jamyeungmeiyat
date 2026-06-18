@@ -728,6 +728,13 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   </div>
 </div>
 
+<!-- FRIEND PROFILE MODAL -->
+<div class="modal-overlay" id="friend-profile-mod" style="display:none" onclick="if(event.target===this)closeFriendProfile()">
+ <div class="modal" style="max-width:400px">
+  <div id="friend-profile-body" style="text-align:center;padding:20px">載入中...</div>
+ </div>
+</div>
+
 <!-- LEGAL (Terms / Disclaimer / Contact) -->
 <div class="modal-overlay" id="legal-mod" style="display:none" onclick="if(event.target===this)closeLegal()">
   <div class="modal" style="max-width:460px">
@@ -2168,7 +2175,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
      var av=f.avatar&&f.avatar.startsWith('emoji:')?f.avatar.replace('emoji:',''):'👤';
      var avSrc=f.avatar&&f.avatar.startsWith('/api/')?API_BASE+f.avatar:'';
      var avHtml=avSrc?'<img src="'+avSrc+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.outerHTML=\'👤\'">':'<span style="font-size:24px">'+av+'</span>';
-     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+avHtml+'<div><div style="font-weight:600;color:var(--text)">'+(f.nickname||f.username||'?')+'</div><div style="font-size:10px;color:var(--sub)">@'+(f.username||'-')+'</div></div></div>';
+     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="showMemFriend('+f.id+')">'+avHtml+'<div><div style="font-weight:600;color:var(--text)">'+(f.nickname||f.username||'?')+'</div><div style="font-size:10px;color:var(--sub)">@'+(f.username||'-')+'</div></div></div>';
     }).join('');
    }
   }).catch(()=>{});
@@ -2183,7 +2190,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
      var imgHtml='';
      try{var arr=JSON.parse(p.images||'[]');if(arr.length)imgHtml='<img src="'+API_BASE+arr[0]+'" style="width:48px;height:48px;border-radius:8px;object-fit:cover;margin-left:auto">'}catch(e){}
      var vidHtml=p.video_url?'🎬':'';
-     return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1;overflow:hidden"><div style="font-size:13px;color:var(--text);white-space:nowrap;text-overflow:ellipsis;overflow:hidden">'+(p.content||'')+'</div><div style="font-size:10px;color:var(--sub);margin-top:2px">'+(p.created_at||'')+vidHtml+' ❤️'+(p.like_count||0)+' 💬'+(p.comment_count||0)+'</div></div>'+imgHtml+'</div>';
+     return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="goToPost('+p.id+')"><div style="flex:1;overflow:hidden"><div style="font-size:13px;color:var(--text);white-space:nowrap;text-overflow:ellipsis;overflow:hidden">'+(p.content||'')+'</div><div style="font-size:10px;color:var(--sub);margin-top:2px">'+(p.created_at||'')+vidHtml+' ❤️'+(p.like_count||0)+' 💬'+(p.comment_count||0)+'</div></div>'+imgHtml+'</div>';
     }).join('');
    }
   }).catch(()=>{});
@@ -2216,6 +2223,45 @@ function toggleMemSection(id){
  var arrId=id.replace('-sec','-arr');
  var arr=document.getElementById(arrId);
  if(arr)arr.textContent=shown?'▼':'▲';
+}
+
+// ═══════ FRIEND PROFILE MODAL ═══════
+function showMemFriend(uid){
+ var mod=document.getElementById('friend-profile-mod');
+ var body=document.getElementById('friend-profile-body');
+ if(!mod||!body)return;
+ body.innerHTML='<div style="padding:20px;color:var(--sub)">載入中...</div>';
+ mod.style.display='flex';
+ api('/api/user/'+uid).then(d=>{
+  var u=d.user||d;
+  var av=u.avatar&&u.avatar.startsWith('emoji:')?u.avatar.replace('emoji:',''):'👤';
+  var avSrc=u.avatar&&u.avatar.startsWith('/api/')?API_BASE+u.avatar:'';
+  var avHtml=avSrc?'<img src="'+avSrc+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover" onerror="this.outerHTML=\'👤\'">':'<span style="font-size:48px">'+av+'</span>';
+  body.innerHTML='<div style="margin-bottom:12px">'+avHtml+'</div>'+
+   '<div style="font-size:18px;font-weight:700;color:var(--text)">'+esc(u.nickname||u.username||'?')+'</div>'+
+   '<div style="font-size:12px;color:var(--sub);margin-bottom:12px">@'+esc(u.username||'-')+'</div>'+
+   '<div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">'+
+    '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.checkin_count||0)+'</div><div style="font-size:10px;color:var(--sub)" data-i18n="checkins">報到</div></div>'+
+    '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.friend_count||0)+'</div><div style="font-size:10px;color:var(--sub)" data-i18n="friends">酒友</div></div>'+
+    '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.post_count||0)+'</div><div style="font-size:10px;color:var(--sub)">帖子</div></div>'+
+   '</div>'+
+   (u.bio?'<div style="font-size:13px;color:var(--text);margin-bottom:12px;text-align:left;background:var(--card);padding:8px 12px;border-radius:8px">'+esc(u.bio)+'</div>':'')+
+   (u.vip_until&&new Date(u.vip_until)>new Date()?'<div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600">⭐ VIP</div>':'')+
+   '<div style="margin-top:12px"><button class="btn btn-primary" style="font-size:13px;padding:6px 16px" onclick="addFriend('+uid+');closeFriendProfile()" data-i18n="add_friend">加酒友</button></div>';
+ }).catch(()=>{
+  body.innerHTML='<div style="padding:20px;color:var(--red)">載入失敗</div>';
+ });
+}
+function closeFriendProfile(){document.getElementById('friend-profile-mod').style.display='none'}
+
+// ═══════ GO TO POST (from member page) ═══════
+function goToPost(pid){
+ showPage('friends');
+ setTimeout(function(){
+  var el=document.getElementById('post-'+pid);
+  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='2px solid var(--amber)';setTimeout(function(){el.style.outline=''},2000)}
+  else{togglePostComments(pid)}
+ },600);
 }
 
 // ═══════ LEGAL (Terms / Disclaimer / Contact) ═══════
