@@ -387,8 +387,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header" data-i18n="download_title">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px"><span data-i18n="download_hint">喺手機安裝 App 體驗更佳！</span></div>
-  <a id="apk-dl-link" href="/jamyeungmeiyat-debug.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.1.0 · 2.8MB</div>
+  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.6.0/app-release.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
+  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.6.0 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.6.0/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">備用下載</a></div>
  </div>
  <!-- Legal Footer on main page -->
  <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
@@ -530,6 +530,21 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price">¥198</div><div class="plan-feat">每年/徽章</div></div>
   </div>
   <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'" data-i18n="ad_cooperation">📢 廣告合作<br>vichoo2020@gmail.com</div>
+  <!-- My Checkins -->
+  <div class="card" style="margin-top:8px;border:1.5px solid var(--amber);background:rgba(245,158,11,0.04)">
+    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-chk-sec')">🍺 <span data-i18n="mem_my_checkins">我嘅報到</span> <span id="mem-chk-arr" style="float:right">▼</span></div>
+    <div id="mem-chk-sec" style="max-height:300px;overflow-y:auto;display:none"><div id="mem-chk-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div></div>
+  </div>
+  <!-- My Friends -->
+  <div class="card" style="margin-top:8px;border:1.5px solid var(--pink);background:rgba(236,72,153,0.04)">
+    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-frd-sec')">👫 <span data-i18n="mem_my_friends">我嘅酒友</span> <span id="mem-frd-arr" style="float:right">▼</span></div>
+    <div id="mem-frd-sec" style="max-height:300px;overflow-y:auto;display:none"><div id="mem-frd-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div></div>
+  </div>
+  <!-- My Posts -->
+  <div class="card" style="margin-top:8px;border:1.5px solid var(--purple);background:rgba(139,92,246,0.04)">
+    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-post-sec')">📸 <span data-i18n="mem_my_posts">我嘅帖子</span> <span id="mem-post-arr" style="float:right">▼</span></div>
+    <div id="mem-post-sec" style="max-height:400px;overflow-y:auto;display:none"><div id="mem-post-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div></div>
+  </div>
 </div>
 
 <!-- 酒友圈 Page -->
@@ -1111,6 +1126,10 @@ const L={
   download_title:'📱 下載 App',
   download_hint:'喺手機安裝 App 體驗更佳！',
   download_btn:'下載',
+  download_mirror:'備用下載',
+  mem_my_checkins:'我嘅報到',
+  mem_my_friends:'我嘅酒友',
+  mem_my_posts:'我嘅帖子',
   terms_link:'使用條款',
   disc_link:'免責聲明',
   contact_link:'聯絡我們',
@@ -1384,6 +1403,10 @@ const L={
   download_title:'📱 下载 App',
   download_hint:'在手机安装 App 体验更佳！',
   download_btn:'下载',
+  download_mirror:'备用下载',
+  mem_my_checkins:'我的报到',
+  mem_my_friends:'我的酒友',
+  mem_my_posts:'我的帖子',
   terms_link:'使用条款',
   disc_link:'免责声明',
   contact_link:'联系我们',
@@ -1657,6 +1680,10 @@ const L={
   download_title:'📱 Download App',
   download_hint:'Better experience on mobile!',
   download_btn:'Download',
+  download_mirror:'Mirror Download',
+  mem_my_checkins:'My Checkins',
+  mem_my_friends:'My Friends',
+  mem_my_posts:'My Posts',
   terms_link:'Terms',
   disc_link:'Disclaimer',
   contact_link:'Contact Us',
@@ -2124,17 +2151,53 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   if(me.email)parts.push('📧 '+me.email);
   ct.textContent=parts.join('  ')||'未填寫聯繫方式';
  }
- // Load stats counts
+ // Load stats counts + member section lists
  if(me&&me.id!==undefined){
   api('/api/me').then(d=>{
    var u=d.user||{};
    var cc=document.getElementById('mem-chk-count');if(cc)cc.textContent=u.checkin_count||0;
   }).catch(()=>{});
   api('/api/friends').then(d=>{
-   var fc=document.getElementById('mem-frd-count');if(fc)fc.textContent=(d.friends||[]).length;
+   var frs=d.friends||[];
+   var fc=document.getElementById('mem-frd-count');if(fc)fc.textContent=frs.length;
+   // Render friends list in member page
+   var fl=document.getElementById('mem-frd-list');
+   if(fl){
+    if(!frs.length)fl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">仲未有酒友 🥲</div>';
+    else fl.innerHTML=frs.map(f=>{
+     var av=f.avatar&&f.avatar.startsWith('emoji:')?f.avatar.replace('emoji:',''):'👤';
+     var avSrc=f.avatar&&f.avatar.startsWith('/api/')?API_BASE+f.avatar:'';
+     var avHtml=avSrc?'<img src="'+avSrc+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.outerHTML=\'👤\'">':'<span style="font-size:24px">'+av+'</span>';
+     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+avHtml+'<div><div style="font-weight:600;color:var(--text)">'+(f.nickname||f.username||'?')+'</div><div style="font-size:10px;color:var(--sub)">@'+(f.username||'-')+'</div></div></div>';
+    }).join('');
+   }
   }).catch(()=>{});
-  api('/api/posts?limit=999').then(d=>{
-   var pc=document.getElementById('mem-post-count');if(pc)pc.textContent=(d.posts||[]).filter(p=>p.user_id===me.id).length;
+  api('/api/posts?per_page=50').then(d=>{
+   var myPosts=(d.posts||[]).filter(p=>p.user_id===me.id);
+   var pc=document.getElementById('mem-post-count');if(pc)pc.textContent=myPosts.length;
+   // Render my posts list in member page
+   var pl=document.getElementById('mem-post-list');
+   if(pl){
+    if(!myPosts.length)pl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">仲未發過帖 📝</div>';
+    else pl.innerHTML=myPosts.slice(0,20).map(p=>{
+     var imgHtml='';
+     try{var arr=JSON.parse(p.images||'[]');if(arr.length)imgHtml='<img src="'+API_BASE+arr[0]+'" style="width:48px;height:48px;border-radius:8px;object-fit:cover;margin-left:auto">'}catch(e){}
+     var vidHtml=p.video_url?'🎬':'';
+     return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><div style="flex:1;overflow:hidden"><div style="font-size:13px;color:var(--text);white-space:nowrap;text-overflow:ellipsis;overflow:hidden">'+(p.content||'')+'</div><div style="font-size:10px;color:var(--sub);margin-top:2px">'+(p.created_at||'')+vidHtml+' ❤️'+(p.like_count||0)+' 💬'+(p.comment_count||0)+'</div></div>'+imgHtml+'</div>';
+    }).join('');
+   }
+  }).catch(()=>{});
+  // Load my checkins list
+  api('/api/timeline?limit=50').then(d=>{
+   var cks=(d.timeline||[]).filter(c=>c.user_id===me.id);
+   var cl=document.getElementById('mem-chk-list');
+   if(cl){
+    if(!cks.length)cl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">仲未報到過 🍺</div>';
+    else cl.innerHTML=cks.slice(0,20).map(c=>{
+     var st=_statusMap[c.status]||'其他';
+     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:16px">🍺</span><div style="flex:1"><div style="font-weight:600;color:var(--text);font-size:13px">'+st+'</div><div style="font-size:10px;color:var(--sub)">'+(c.created_at||'')+(c.note?' · '+c.note:'')+'</div></div></div>';
+    }).join('');
+   }
   }).catch(()=>{});
  }
  // Membership
@@ -2142,6 +2205,18 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
 function selP(p){selPlan=p;document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));const el=document.getElementById('plan-'+p);if(el)el.classList.add('selected');showPay()}
 function showPay(){if(!me)return toast(T('please_login'),1);document.getElementById('pay-plan-name').textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';document.getElementById('pay-usd').textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');document.getElementById('pay-mod').style.display='flex'}
 function closePay(){document.getElementById('pay-mod').style.display='none'}
+
+// ═══════ MEMBER SECTIONS (toggle expand/collapse) ═══════
+function toggleMemSection(id){
+ var sec=document.getElementById(id);
+ if(!sec)return;
+ var shown=sec.style.display!=='none';
+ sec.style.display=shown?'none':'block';
+ // Update arrow indicator
+ var arrId=id.replace('-sec','-arr');
+ var arr=document.getElementById(arrId);
+ if(arr)arr.textContent=shown?'▼':'▲';
+}
 
 // ═══════ LEGAL (Terms / Disclaimer / Contact) ═══════
 let legalTab='terms';
@@ -3587,7 +3662,12 @@ function previewPostVid(e){
  const prev=document.getElementById('post-vid-preview');
  var url=URL.createObjectURL(f);
  var sz=(f.size/1024/1024).toFixed(1);
- prev.innerHTML=`<div style="position:relative;width:120px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--purple)"><video src="${url}" style="width:100%;height:100%;object-fit:cover" muted preload="metadata"></video><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;font-size:9px;padding:2px 6px;display:flex;justify-content:space-between"><span>🎬</span><span>${sz}MB</span></div></div>`;
+ // Show preview with progress bar placeholder
+ prev.innerHTML=`<div style="width:100%;max-width:320px;position:relative;border-radius:8px;overflow:hidden;border:2px solid var(--purple)">
+  <video src="${url}" style="width:100%;max-height:200px;object-fit:cover" muted preload="metadata" playsinline></video>
+  <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.7);color:#fff;font-size:10px;padding:3px 6px;display:flex;justify-content:space-between;align-items:center"><span>🎬 ${sz}MB</span><span id="vid-up-pct" style="color:var(--amber)">就緒</span></div>
+  <div style="position:absolute;bottom:24px;left:0;right:0;height:4px;background:rgba(255,255,255,0.15)"><div id="vid-up-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--amber),var(--purple));border-radius:2px;transition:width .3s"></div></div>
+ </div>`;
 }
 async function createPost(tab){
  const content=document.getElementById('post-content').value.trim();
@@ -3606,16 +3686,33 @@ async function createPost(tab){
    }catch(e){console.error('upload fail',e)}
   }
  }
- // Upload video if any
+ // Upload video if any (with progress bar)
  const vidInput=document.getElementById('post-vid-input');
  if(vidInput.files.length){
   toast(T('video_uploading'),0);
   try{
-   const fd=new FormData();fd.append('file',vidInput.files[0]);
-   const r=await fetch(API_BASE+'/api/upload',{method:'POST',headers:{'Authorization':'Bearer '+(localStorage.getItem('jymy_token')||token||'')},body:fd});
-   const d=await r.json();
-   if(d.url)videoUrl=d.url;
-   else throw new Error(d.error||T('video_upload_fail'));
+   videoUrl=await new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    const fd=new FormData();fd.append('file',vidInput.files[0]);
+    xhr.open('POST',API_BASE+'/api/upload');
+    xhr.setRequestHeader('Authorization','Bearer '+(localStorage.getItem('jymy_token')||token||''));
+    xhr.upload.onprogress=function(ev){
+     if(ev.lengthComputable){
+      var pct=Math.round(ev.loaded/ev.total*100);
+      var bar=document.getElementById('vid-up-bar');
+      var txt=document.getElementById('vid-up-pct');
+      if(bar)bar.style.width=pct+'%';
+      if(txt)txt.textContent=pct+'%';
+     }
+    };
+    xhr.onload=function(){
+     if(xhr.status>=200&&xhr.status<300){
+      try{var d=JSON.parse(xhr.responseText);if(d.url)resolve(d.url);else reject(new Error(d.error||T('video_upload_fail')))}catch(e){reject(new Error(T('video_upload_fail')))}
+     }else{reject(new Error(T('video_upload_fail')+' ('+xhr.status+')'))}
+    };
+    xhr.onerror=function(){reject(new Error(T('video_upload_fail')))};
+    xhr.send(fd);
+   });
    toast('✅ '+T('video_upload_ok'),0);
   }catch(e){toast('❌ '+T('video_upload_fail')+'：'+e.message,1);console.error('video upload fail',e)}
  }
