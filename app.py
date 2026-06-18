@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """今晚飲咗未 — 飲酒社交打卡 App 後端"""
 
-import os, json, hashlib, uuid, time, base64, io, re, gzip, logging, random
+import os, json, hashlib, hmac, uuid, time, base64, io, re, gzip, logging, random
 from datetime import datetime, date, timedelta
 from pathlib import Path
 from io import BytesIO
@@ -49,7 +49,7 @@ def sanitize_html(text):
 # No additional CSRF tokens needed.
 
 # ─── Security & GZIP Middleware ──────────────────────
-_ALLOWED_ORIGINS = {'https://drunk.vic999.com','http://drunk.vic999.com','https://www.drunk.vic999.com','null'}
+_ALLOWED_ORIGINS = {'https://drunk.vic999.com','http://drunk.vic999.com','https://www.drunk.vic999.com'}
 _IP_BLACKLIST = set()
 _GENERAL_RATE = {}  # ip -> [timestamps]
 _GENERAL_LIMIT = 200   # 200 req/min per IP (static assets excluded)
@@ -101,10 +101,8 @@ def gzip_response(response):
     if origin in _ALLOWED_ORIGINS:
         response.headers['Access-Control-Allow-Origin'] = origin
         response.headers['Vary'] = 'Origin'
-    elif not origin:  # APK WebView / same-origin
-        response.headers['Access-Control-Allow-Origin'] = 'null'
-    else:
-        response.headers['Access-Control-Allow-Origin'] = 'null'
+    # APK WebView / same-origin: no Origin header → no CORS header needed (same-origin request)
+    # Unknown origin → no CORS header → browser blocks the request (security)
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Admin-Token'
     response.headers['Access-Control-Max-Age'] = '86400'
@@ -116,7 +114,7 @@ def gzip_response(response):
         "style-src 'self' 'unsafe-inline'; "
         "img-src 'self' data: blob: https:; "
         "font-src 'self' https://fonts.gstatic.com; "
-        "connect-src 'self' http: https:; "
+        "connect-src 'self' https://drunk.vic999.com https://*.vic999.com; "
         "manifest-src 'self'; "
         "base-uri 'self'; "
         "form-action 'self'; "
@@ -501,21 +499,65 @@ def _get_admin_user():
     return os.environ.get('ADMIN_USER', 'admin')
 
 # ═══════════════════ Helpers ═══════════════════════════
-def _hash(pw):
-    salt = b'jymy_salt_2026'
-    return hashlib.pbkdf2_hmac('sha256', pw.encode(), salt, 100000).hex()
+_SIGNING_KEY = os.environ.get('SIGNING_KEY', app.secret_key).encode()
+
+def _hash(pw, salt=None):
+    """Hash password with PBKDF2. If salt=None, uses legacy fixed salt (v1).
+    New registrations and successful logins auto-upgrade to v2 (random salt)."""
+    if salt is None:
+        salt = b'jymy_salt_2026'  # Legacy v1
+    return hashlib.pbkdf2_hmac('sha256', pw.encode(), salt, 600000).hex()
+
+def _hash_v2(pw, salt_hex=None):
+    """v2 hash: per-user random salt, 600k iterations. Returns 'v2:salt:hash'."""
+    if salt_hex is None:
+        salt = os.urandom(16)
+        salt_hex = salt.hex()
+    else:
+        salt = bytes.fromhex(salt_hex)
+    h = hashlib.pbkdf2_hmac('sha256', pw.encode(), salt, 600000).hex()
+    return f'v2:{salt_hex}:{h}'
+
+def _verify_pw(pw, stored_hash):
+    """Verify password against stored hash (v1 or v2). Returns (is_correct, needs_upgrade)."""
+    if stored_hash.startswith('v2:'):
+        parts = stored_hash.split(':')
+        salt_hex = parts[1]
+        salt = bytes.fromhex(salt_hex)
+        candidate = hashlib.pbkdf2_hmac('sha256', pw.encode(), salt, 600000).hex()
+        return candidate == parts[2], False  # v2 never needs upgrade
+    else:
+        # Legacy v1: fixed salt, 100k iters
+        h_v1_100k = hashlib.pbkdf2_hmac('sha256', pw.encode(), b'jymy_salt_2026', 100000).hex()
+        if h_v1_100k == stored_hash:
+            return True, True  # Correct but needs upgrade to v2
+        # Also try 600k in case already migrated but with same salt
+        h_v1_600k = hashlib.pbkdf2_hmac('sha256', pw.encode(), b'jymy_salt_2026', 600000).hex()
+        return h_v1_600k == stored_hash, True
 
 def _token_for(user_id):
+    """Generate HMAC-signed token (v2). Format: base64(uid:expiry:nonce:signature)"""
     expiry = time.time() + 7 * 86400  # 7 days
-    payload = f'{user_id}:{expiry}:{uuid.uuid4().hex[:8]}'
-    return base64.b64encode(payload.encode()).decode()
+    nonce = uuid.uuid4().hex[:8]
+    payload = f'{user_id}:{expiry}:{nonce}'
+    sig = hmac.new(_SIGNING_KEY, payload.encode(), hashlib.sha256).hexdigest()[:16]
+    return base64.b64encode(f'{payload}:{sig}'.encode()).decode()
 
 def _decode_token(tok):
+    """Verify HMAC signature and decode token. Returns uid or None."""
     try:
-        parts = base64.b64decode(tok.encode()).decode().split(':')
+        raw = base64.b64decode(tok.encode()).decode()
+        parts = raw.split(':')
         uid = int(parts[0])
         expiry = float(parts[1])
+        nonce = parts[2]
+        sig = parts[3]
         if time.time() > expiry:
+            return None
+        payload = f'{uid}:{expiry}:{nonce}'
+        expected_sig = hmac.new(_SIGNING_KEY, payload.encode(), hashlib.sha256).hexdigest()[:16]
+        if not hmac.compare_digest(sig, expected_sig):
+            log.warning('Token HMAC mismatch for uid=%s', uid)
             return None
         return uid
     except: return None
@@ -601,7 +643,7 @@ def api_register():
         return jsonify({'error':'用戶名已存在'}), 409
 
     db.execute('INSERT INTO users (username,password,nickname,lang) VALUES (?,?,?,?)',
-               (username, _hash(pw), nickname, lang))
+               (username, _hash_v2(pw), nickname, lang))
     db.commit()
     uid = db.execute('SELECT id FROM users WHERE username=?',(username,)).fetchone()['id']
     tok = _token_for(uid)
@@ -613,14 +655,24 @@ def api_login():
     username = (d.get('username','') or '').strip().lower()
     pw = d.get('password','')
     db = get_db()
-    u = db.execute('SELECT * FROM users WHERE username=? AND password=?',
-                   (username, _hash(pw))).fetchone()
-    if not u:
-        return jsonify({'error':'用戶名或密碼錯誤'}), 401
-    # Rate limit login attempts too
+    # Rate limit login attempts
     ip = request.remote_addr or 'unknown'
     if not _check_rate_limit(ip, limit=10, window=3600):
         return jsonify({'error':'登入嘗試過於頻繁，請稍後再試'}), 429
+    u = db.execute('SELECT * FROM users WHERE username=?',(username,)).fetchone()
+    if not u:
+        return jsonify({'error':'用戶名或密碼錯誤'}), 401
+    is_correct, needs_upgrade = _verify_pw(pw, u['password'])
+    if not is_correct:
+        return jsonify({'error':'用戶名或密碼錯誤'}), 401
+    # Auto-upgrade hash to v2 on successful login
+    if needs_upgrade:
+        try:
+            db.execute('UPDATE users SET password=? WHERE id=?', (_hash_v2(pw), u['id']))
+            db.commit()
+            log.info('Password upgraded to v2 for uid=%s', u['id'])
+        except Exception as e:
+            log.warning('Failed to upgrade password for uid=%s: %s', u['id'], e)
     tok = _token_for(u['id'])
     # Strip sensitive fields from user dict before returning
     user_data = dict(u)
@@ -1054,6 +1106,9 @@ def api_upload():
     ext = f.filename.rsplit('.',1)[1].lower()
     new_name = f'{uuid.uuid4().hex[:12]}.{ext}'
     path = UPLOAD_DIR / new_name
+    # Verify path is within UPLOAD_DIR (prevent path traversal)
+    if not str(path.resolve()).startswith(str(UPLOAD_DIR.resolve())):
+        return jsonify({'error':'非法路徑'}), 400
     f.save(str(path))
     url = f'/static/uploads/{new_name}'
     return jsonify({'ok':True, 'url':url, 'path':str(path)})
@@ -1180,16 +1235,26 @@ def _check_admin():
         tok = d.get('token','')
     if not tok:
         return False
-    # Decode token - the token is the user_id (admin's user id)
+    # Mode 1: Standalone admin key login (legacy format)
     try:
         payload = base64.b64decode(tok.encode()).decode()
         parts = payload.split(':')
-        # Mode 1: Standalone admin key login
         if parts[0] == '0' and len(parts) > 1 and parts[1] == 'admin_key_login':
             return True
-        # Mode 2: Regular admin user login
+    except: pass
+    # Mode 2: HMAC-signed token (v2)
+    uid = _decode_token(tok)
+    if uid is not None:
+        try:
+            db = get_db()
+            row = db.execute('SELECT admin FROM users WHERE id=?', (uid,)).fetchone()
+            return row and row['admin'] == 1
+        except: pass
+    # Mode 3: Legacy base64 token format
+    try:
+        payload = base64.b64decode(tok.encode()).decode()
+        parts = payload.split(':')
         uid = int(parts[0])
-        # Verify the user is an admin
         db = get_db()
         row = db.execute('SELECT admin FROM users WHERE id=?', (uid,)).fetchone()
         return row and row['admin'] == 1
@@ -1219,12 +1284,21 @@ def api_admin_login():
         return jsonify({'error':'請輸入用戶名和密碼'}), 400
     db = get_db()
     user = db.execute('SELECT id,password,admin FROM users WHERE username=?', (username,)).fetchone()
-    if not user or user['password'] != _hash(password):
+    if not user:
+        return jsonify({'error':'用戶名或密碼錯誤'}), 403
+    is_correct, needs_upgrade = _verify_pw(password, user['password'])
+    if not is_correct:
         return jsonify({'error':'用戶名或密碼錯誤'}), 403
     if user['admin'] != 1:
         return jsonify({'error':'該帳號無管理員權限'}), 403
-    # Generate token from user id
-    token = base64.b64encode(f'{user["id"]}:admin_login'.encode()).decode()
+    # Auto-upgrade hash to v2
+    if needs_upgrade:
+        try:
+            db.execute('UPDATE users SET password=? WHERE id=?', (_hash_v2(password), user['id']))
+            db.commit()
+        except: pass
+    # Generate HMAC-signed token from user id
+    token = _token_for(user['id'])
     return jsonify({'token': token, 'user_id': user['id'], 'mode': 'user'})
 
 @app.route('/api/admin/setup', methods=['POST'])
