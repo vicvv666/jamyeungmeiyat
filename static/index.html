@@ -1001,6 +1001,8 @@ function showPage(name){
   if(tb)tb.classList.add('active');
   // Reset scroll position to top when switching pages
   window.scrollTo({top:0,behavior:'smooth'});
+  // Close any open modal overlays when switching pages
+  document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
   if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();
 }
 
@@ -2260,11 +2262,11 @@ async function addFriendThenClose(uid){
 
 // ═══════ GO TO POST (from member page) ═══════
 function goToPost(pid){
+ closeFriendProfile();
  showPage('friends');
  setTimeout(function(){
   var el=document.getElementById('post-'+pid);
-  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='2px solid var(--amber)';setTimeout(function(){el.style.outline=''},2000)}
-  else{togglePostComments(pid)}
+  if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.outline='2px solid var(--amber)';setTimeout(function(){if(el)el.style.outline=''},2000)}
  },600);
 }
 
@@ -3820,6 +3822,7 @@ async function togglePostLike(pid){
 }
 async function togglePostComments(pid){
  const el=document.getElementById('post-comments-'+pid);
+ if(!el)return;
  if(el.style.display==='none'){el.style.display='block';loadPostComments(pid)}
  else{el.style.display='none'}
 }
