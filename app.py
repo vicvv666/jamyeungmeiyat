@@ -978,7 +978,7 @@ def api_user_profile(uid):
     u = db.execute('SELECT id,username,nickname,avatar,membership,member_expires,created_at FROM users WHERE id=?',(uid,)).fetchone()
     if not u: return jsonify({'error':'用戶不存在'}), 404
     chk_cnt = db.execute('SELECT COUNT(*) FROM checkins WHERE user_id=?',(uid,)).fetchone()[0]
-    frd_cnt = db.execute('SELECT COUNT(*) FROM friendships WHERE (user_id=? OR friend_id=?) AND status="accepted"',(uid,uid)).fetchone()[0]
+    frd_cnt = db.execute('SELECT COUNT(*) FROM friends WHERE (user_id=? OR friend_id=?) AND status="accepted"',(uid,uid)).fetchone()[0]
     post_cnt = db.execute('SELECT COUNT(*) FROM posts WHERE user_id=?',(uid,)).fetchone()[0]
     r = dict(u)
     r['checkin_count'] = chk_cnt
