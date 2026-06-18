@@ -589,7 +589,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </div>
 
 <!-- Admin Panel (独立弹窗) -->
-<div class="modal-overlay" id="admin-mod" onclick="if(event.target===this)admClose()">
+<div class="modal-overlay" id="admin-mod" style="position:relative" onclick="if(event.target===this)admClose()">
  <div class="modal" style="max-width:520px;max-height:90dvh;overflow-y:auto">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
    <h3 style="color:var(--pink);margin:0" data-i18n="admin_panel">🔧 管理員面板</h3>
@@ -2357,6 +2357,8 @@ function admOpen(){
 }
 function admClose(){
  const el=document.getElementById('admin-mod');el.style.display='none';el.classList.remove('show');
+ // Also close any open edit modal
+ const ov=document.getElementById('adm-edit-ov');if(ov)ov.style.display='none';
 }
 
 function admLogout(){
@@ -3398,14 +3400,18 @@ async function admLoadAdmPosts(){
 document.addEventListener('click',function(e){
  const btn=e.target.closest('[data-act]');
  if(!btn)return;
+ e.stopPropagation(); // prevent bubbling to admin-mod overlay
  const act=btn.dataset.act, idx=parseInt(btn.dataset.idx);
+ console.log('[adm] data-act click:',act,'idx:',idx);
  if(act==='edit-ci'&&_admCheckins[idx]){
   const c=_admCheckins[idx];
+  console.log('[adm] edit-ci:',c.id,c.status,c.note);
   admEditCheckin(c.id,c.status,c.note||'');
  }else if(act==='del-ci'&&_admCheckins[idx]){
   admDeleteCheckin(_admCheckins[idx].id);
  }else if(act==='edit-py'&&_admParties[idx]){
   const p=_admParties[idx];
+  console.log('[adm] edit-py:',p.id,p.title);
   admEditParty(p.id,p.title||'',p.location||'',p.meet_time||'',p.status||'upcoming',p.description||'',p.max_members||0);
  }else if(act==='del-py'&&_admParties[idx]){
   admDeleteParty(_admParties[idx].id);
@@ -3433,8 +3439,19 @@ async function admDeletePost(pid){
 // esc() already defined at L1853 using DOM textContent
 
 function _adminModal(title,fields,onSave){
+ console.log('[adm] _adminModal called:',title,'fields:',fields.length);
+ // Reuse admin panel's own modal overlay instead of creating a separate one
  let ov=document.getElementById('adm-edit-ov');
- if(!ov){ov=document.createElement('div');ov.id='adm-edit-ov';ov.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center';document.body.appendChild(ov)}
+ if(!ov){
+  // Create overlay INSIDE admin-mod to avoid z-index/stacking issues
+  let adminMod=document.getElementById('admin-mod');
+  if(!adminMod){console.error('[adm] admin-mod not found');return}
+  ov=document.createElement('div');
+  ov.id='adm-edit-ov';
+  ov.style.cssText='position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:100;display:flex;align-items:center;justify-content:center';
+  adminMod.appendChild(ov);
+  console.log('[adm] created adm-edit-ov inside admin-mod');
+ }
  let box=document.createElement('div');
  box.style.cssText='background:var(--card);border-radius:16px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto';
  let h3=document.createElement('h3');h3.style.cssText='margin:0 0 16px;color:var(--text)';h3.textContent=title;
@@ -3468,6 +3485,8 @@ function _adminModal(title,fields,onSave){
  cancelBtn.onclick=()=>{ov.style.display='none'};
  btns.appendChild(saveBtn);btns.appendChild(cancelBtn);box.appendChild(btns);
  ov.innerHTML='';ov.appendChild(box);ov.style.display='flex';
+ // Click overlay background to close (not clicking the box itself)
+ ov.onclick=(e)=>{if(e.target===ov)ov.style.display='none'};
 }
 
 function admEditCheckin(id,status,note){
