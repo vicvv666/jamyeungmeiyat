@@ -943,13 +943,13 @@ async function restoreS(){
 }
 
 // ═══════ NAV ═══════
-function toggleUM(){const d=document.getElementById('user-drop');d.style.display=d.style.display==='block'?'none':'block'}
-document.addEventListener('click',e=>{if(!e.target.closest('.user-menu'))document.getElementById('user-drop').style.display='none'})
+function toggleUM(){const d=document.getElementById('user-drop');if(d)d.style.display=d.style.display==='block'?'none':'block'}
+document.addEventListener('click',e=>{if(!e.target.closest('.user-menu')){const d=document.getElementById('user-drop');if(d)d.style.display='none'}})
 
-function showAuth(){const el=document.getElementById('auth-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0'}
-function closeAuth(){const el=document.getElementById('auth-mod');el.style.display='none';el.classList.remove('show')}
-function showLogin(){document.getElementById('auth-form').style.display='block';document.getElementById('reg-form').style.display='none'}
-function showReg(){document.getElementById('auth-form').style.display='none';document.getElementById('reg-form').style.display='block'}
+function showAuth(){const el=document.getElementById('auth-mod');if(!el)return;el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0'}
+function closeAuth(){const el=document.getElementById('auth-mod');if(!el)return;el.style.display='none';el.classList.remove('show')}
+function showLogin(){var a=document.getElementById('auth-form'),b=document.getElementById('reg-form');if(a)a.style.display='block';if(b)b.style.display='none'}
+function showReg(){var a=document.getElementById('auth-form'),b=document.getElementById('reg-form');if(a)a.style.display='none';if(b)b.style.display='block'}
 
 function updateNav(){
   const menu=document.getElementById('user-menu'),btn=document.getElementById('btn-auth');
@@ -2068,8 +2068,8 @@ async function doLike(cid){
 }
 
 // ═══════ COMMENTS ═══════
-function openCmt(cid){curCid=cid;const el=document.getElementById('cmt-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';document.getElementById('cmt-inp').value='';loadCmt(cid)}
-function closeCmt(){const el=document.getElementById('cmt-mod');el.style.display='none';el.classList.remove('show');curCid=null}
+function openCmt(cid){curCid=cid;const el=document.getElementById('cmt-mod');if(!el)return;el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';var inp=document.getElementById('cmt-inp');if(inp)inp.value='';loadCmt(cid)}
+function closeCmt(){const el=document.getElementById('cmt-mod');if(!el)return;el.style.display='none';el.classList.remove('show');curCmt=null}
 async function loadCmt(cid){
  try{
  let comments=[];
@@ -2122,8 +2122,8 @@ async function rsvp(pid,resp){
  loadParties();
  }catch(e){}
 }
-function openJnl(pid){curPid=pid;const el=document.getElementById('jnl-mod');el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';document.getElementById('jnl-inp').value='';loadJnl(pid)}
-function closeJnl(){const el=document.getElementById('jnl-mod');el.style.display='none';el.classList.remove('show');curPid=null}
+function openJnl(pid){curPid=pid;const el=document.getElementById('jnl-mod');if(!el)return;el.style.display='flex';el.style.position='fixed';el.classList.add('show');el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';var inp=document.getElementById('jnl-inp');if(inp)inp.value='';loadJnl(pid)}
+function closeJnl(){const el=document.getElementById('jnl-mod');if(!el)return;el.style.display='none';el.classList.remove('show');curPid=null}
 async function loadJnl(pid){
   try{const d=await api('/api/party/'+pid+'/journal');let h='';
     (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b>'+esc(j.nickname)+'</b>: '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
@@ -2210,8 +2210,8 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
  // Membership
  if(me.membership&&me.membership!=='free'){s.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');e.textContent='到期：'+(me.member_expires||'永久')}else{s.textContent='🆓 免費會員';e.textContent='升級享受完整功能'}}
 function selP(p){selPlan=p;document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));const el=document.getElementById('plan-'+p);if(el)el.classList.add('selected');showPay()}
-function showPay(){if(!me)return toast(T('please_login'),1);document.getElementById('pay-plan-name').textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';document.getElementById('pay-usd').textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');document.getElementById('pay-mod').style.display='flex'}
-function closePay(){document.getElementById('pay-mod').style.display='none'}
+function showPay(){if(!me)return toast(T('please_login'),1);var pn=document.getElementById('pay-plan-name'),pu=document.getElementById('pay-usd'),pm=document.getElementById('pay-mod');if(pn)pn.textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';if(pu)pu.textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');if(pm)pm.style.display='flex'}
+function closePay(){var el=document.getElementById('pay-mod');if(el)el.style.display='none'}
 
 // ═══════ MEMBER SECTIONS (toggle expand/collapse) ═══════
 function toggleMemSection(id){
@@ -2247,12 +2247,16 @@ function showMemFriend(uid){
    '</div>'+
    (u.bio?'<div style="font-size:13px;color:var(--text);margin-bottom:12px;text-align:left;background:var(--card);padding:8px 12px;border-radius:8px">'+esc(u.bio)+'</div>':'')+
    (u.vip_until&&new Date(u.vip_until)>new Date()?'<div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600">⭐ VIP</div>':'')+
-   '<div style="margin-top:12px"><button class="btn btn-primary" style="font-size:13px;padding:6px 16px" onclick="addFriend('+uid+');closeFriendProfile()" data-i18n="add_friend">加酒友</button></div>';
+   '<div style="margin-top:12px"><button class="btn btn-primary" style="font-size:13px;padding:6px 16px" onclick="addFriendThenClose('+uid+')" data-i18n="add_friend">加酒友</button></div>';
  }).catch(()=>{
   body.innerHTML='<div style="padding:20px;color:var(--red)">載入失敗</div>';
  });
 }
-function closeFriendProfile(){document.getElementById('friend-profile-mod').style.display='none'}
+function closeFriendProfile(){var el=document.getElementById('friend-profile-mod');if(el)el.style.display='none'}
+
+async function addFriendThenClose(uid){
+ try{await addFriend(uid);closeFriendProfile();toast(T('friend_added')||'已加酒友')}catch(e){toast(e.message||'加友失敗',1)}
+}
 
 // ═══════ GO TO POST (from member page) ═══════
 function goToPost(pid){
@@ -3295,7 +3299,7 @@ function challengeFriend(){
  }).catch(function(){diceToast(T('no_online_players'))});
 }
 function doChallenge(friendId){
- document.getElementById('friend-list-modal').style.display='none';
+ var m=document.getElementById('friend-list-modal');if(m)m.style.display='none';
  var dice=parseInt(document.getElementById('challenge-dice').value)||2;
  var rounds=parseInt(document.getElementById('challenge-rounds').value)||1;
  _diceApi('POST','/api/dice/challenge',{challenged_id:friendId,dice:dice,rounds:rounds}).then(function(r){
@@ -3673,7 +3677,7 @@ async function loadFriendsSuggest(){
  }catch(e){const el=document.getElementById('friend-suggest');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
 }
 async function addFriend(uid){
- try{await api('/api/friends/add',{method:'POST',body:{username:await _getUsername(uid)}});loadFriendsAll()}catch(e){alert(e.message)}
+ try{var un=await _getUsername(uid);if(!un)throw new Error('用戶不存在');await api('/api/friends/add',{method:'POST',body:{username:un}});loadFriendsAll()}catch(e){throw e}
 }
 async function _getUsername(uid){
  const d=await api('/api/user/'+uid);return d.username||''
