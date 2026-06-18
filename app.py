@@ -31,6 +31,9 @@ app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max upload (video su
 # ─── Matchmaking queue (in-memory) ──────────────────
 _matchmaking_queue = []  # [{uid, dice, rounds, joined_at, room_created}, ...]
 
+# ─── Expiry cron throttle ──────────────────────────────
+_last_expiry_check = 0.0  # timestamp of last _cron_check_expired run
+
 # ─── HTML Input Sanitizer ──────────────────────────
 _HTML_TAGS_RE = re.compile(r'<[^>]*>')
 
@@ -567,8 +570,90 @@ def _user_info(uid):
     if uid == 0:
         return {'id':0,'username':'admin','nickname':'管理員','membership':'admin','avatar':''}
     db = get_db()
-    u = db.execute('SELECT id,username,nickname,membership,avatar FROM users WHERE id=?',(uid,)).fetchone()
-    return dict(u) if u else {'id':uid,'username':'','nickname':'','membership':'free','avatar':''}
+    u = db.execute('SELECT id,username,nickname,membership,membership_level,avatar FROM users WHERE id=?',(uid,)).fetchone()
+    return dict(u) if u else {'id':uid,'username':'','nickname':'','membership':'free','membership_level':0,'avatar':''}
+
+def _get_membership(uid):
+    """Get user membership plan and level. Returns (plan, level, expires)."""
+    if uid == 0:
+        return 'admin', 99, '2099-12-31'
+    db = get_db()
+    u = db.execute('SELECT membership, member_expires FROM users WHERE id=?', (uid,)).fetchone()
+    if not u:
+        return 'free', 0, ''
+    plan = u['membership'] or 'free'
+    expires = u['member_expires'] or ''
+    # Check expiry
+    if plan not in ('free', '') and expires and expires < datetime.now().strftime('%Y-%m-%d'):
+        db.execute("UPDATE users SET membership='free', member_expires='' WHERE id=?", (uid,))
+        db.commit()
+        return 'free', 0, ''
+    level = {'free':0, 'jiuyau':1, 'jaugwai':2, 'jausan':3}.get(plan, 0)
+    return plan, level, expires
+
+def _mem_dice_max(level):
+    """Max dice count per membership level"""
+    return {0:2, 1:3, 2:4, 3:5}.get(level, 2)
+
+def _mem_note_max(level):
+    """Max note length per membership level"""
+    return {0:200, 1:500, 2:1000, 3:2000}.get(level, 200)
+
+def _mem_photo_max(level):
+    """Max photo count per membership level"""
+    return {0:1, 1:3, 2:9, 3:9}.get(level, 1)
+
+def _mem_friends_max(level):
+    """Max friends per membership level"""
+    return {0:50, 1:200, 2:500, 3:9999}.get(level, 50)
+
+def _mem_daily_posts(level):
+    """Max posts per day per membership level"""
+    return {0:3, 1:10, 2:999, 3:999}.get(level, 3)
+
+def _mem_post_images_max(level):
+    """Max images per post per membership level"""
+    return {0:1, 1:4, 2:9, 3:9}.get(level, 1)
+
+def _mem_post_chars_max(level):
+    """Max characters per post per membership level"""
+    return {0:500, 1:1000, 2:2000, 3:5000}.get(level, 500)
+
+def _mem_parties_max(level):
+    """Max parties user can create per month per membership level"""
+    return {0:1, 1:3, 2:5, 3:8}.get(level, 1)
+
+def _mem_check_expired(uid, db):
+    """Check and downgrade a specific user if membership expired. Returns True if downgraded."""
+    u = db.execute('SELECT membership_level,member_expires FROM users WHERE id=?',(uid,)).fetchone()
+    if not u or not u['member_expires']: return False
+    import datetime
+    try:
+        exp = datetime.datetime.fromisoformat(u['member_expires'])
+        if datetime.datetime.utcnow() > exp and u['membership_level'] > 0:
+            db.execute('UPDATE users SET membership_level=0,membership=? WHERE id=?',('free',uid))
+            return True
+    except: pass
+    return False
+
+def _cron_check_expired():
+    """Auto-downgrade expired members. Call periodically."""
+    db = get_db()
+    today = datetime.now().strftime('%Y-%m-%d')
+    expired = db.execute("""
+        SELECT id, membership FROM users 
+        WHERE membership NOT IN ('free','') 
+        AND membership != 'admin'
+        AND member_expires != '' AND member_expires < ?
+    """, (today,)).fetchall()
+    count = 0
+    for u in expired:
+        db.execute("UPDATE users SET membership='free', member_expires='' WHERE id=?", (u['id'],))
+        count += 1
+    if count:
+        db.commit()
+        log.info('🔄 Auto-downgraded %d expired members', count)
+    return count
 
 def _admin_guard():
     """For APIs that query users table: return admin user dict or None.
@@ -646,8 +731,12 @@ def api_register():
                (username, _hash_v2(pw), nickname, lang))
     db.commit()
     uid = db.execute('SELECT id FROM users WHERE username=?',(username,)).fetchone()['id']
+    # P0-5: 7-day free trial — new users get jiuyau for 7 days
+    trial_expires = (date.today() + timedelta(days=7)).isoformat()
+    db.execute("UPDATE users SET membership='jiuyau', member_expires=? WHERE id=?", (trial_expires, uid))
+    db.commit()
     tok = _token_for(uid)
-    return jsonify({'token':tok, 'user':{'id':uid,'username':username,'nickname':nickname,'lang':lang,'membership':'free'}})
+    return jsonify({'token':tok, 'user':{'id':uid,'username':username,'nickname':nickname,'lang':lang,'membership':'jiuyau','member_expires':trial_expires}})
 
 @app.route('/api/login', methods=['POST'])
 def api_login():
@@ -781,7 +870,7 @@ def api_avatar(uid):
 def api_leaderboard():
     db = get_db()
     rows = db.execute("""
-        SELECT u.id, u.username, u.nickname, u.avatar,
+        SELECT u.id, u.username, u.nickname, u.avatar, u.membership_level,
                (SELECT COUNT(*) FROM checkins WHERE user_id=u.id) as checkin_count,
                (SELECT COUNT(*) FROM checkin_likes cl 
                 JOIN checkins c ON cl.checkin_id=c.id WHERE c.user_id=u.id) as total_likes
@@ -797,31 +886,36 @@ def api_leaderboard():
 def api_checkin():
     db = get_db()
     today = date.today().isoformat()
-    u = None
-    if g.uid == 0:
-        u = {'membership':'admin','member_expires':'2099-12-31'}
-    else:
-        u = db.execute('SELECT membership, member_expires FROM users WHERE id=?',(g.uid,)).fetchone()
-    if not u:
-        return jsonify({'error':'用戶不存在'}), 404
+    plan, mem_level, mem_exp = _get_membership(g.uid)
 
-    # 免費限制每日5次
-    if u['membership'] == 'free' or not u['member_expires'] or u['member_expires'] < today:
+    # 免費/Jiuyau限制每日5次，Jaugwai/Jausan無限制
+    if mem_level <= 1:
         cnt = db.execute("""SELECT COUNT(*) FROM checkins 
             WHERE user_id=? AND date(created_at)=?""",(g.uid,today)).fetchone()[0]
         if cnt >= 5:
             return jsonify({'error':'今日免費次數已用完，請升級會員'}), 429
+    else:
+        cnt = -1  # unlimited
 
     d = request.get_json(force=True) or {}
     status = int(d.get('status',0))
-    note = sanitize_html(d.get('note',''))[:200]
+    note = sanitize_html(d.get('note',''))[:_mem_note_max(mem_level)]
     photo_raw = d.get('photo','')
+    # P0-4: 免費用戶只能上傳1張相（目前photo係單值，多相時需前端配合）
+    # 未來多張相: photo_list = d.get('photos', [])，限制 len <= _mem_photo_max(mem_level)
+    if not photo_raw and mem_level < 1:
+        # 免費用戶未傳相 — 標記可上傳數量供前端展示
+        pass
     # 如果 photo 以 http:// 或 https:// 开头，保持原样（外部图片链接）
     # 否则视为 base64，截断到 500KB 后存入数据库
     if photo_raw.startswith(('http://','https://')):
         photo = photo_raw[:2048]
     else:
         photo = photo_raw[:500000]
+    # 免費用戶只接受1張相（之後前端可傳photos陣列）
+    photos_extra = d.get('photos', [])
+    if isinstance(photos_extra, list) and len(photos_extra) > _mem_photo_max(mem_level):
+        return jsonify({'error':f'免費用戶只可上傳{_mem_photo_max(mem_level)}張相，升級解鎖更多 💎', 'max_photos': _mem_photo_max(mem_level)}), 403
     lat = float(d.get('lat',0) or 0)
     lng = float(d.get('lng',0) or 0)
     party_id = int(d.get('party_id',0) or 0)
@@ -831,7 +925,8 @@ def api_checkin():
     db.commit()
     cid = db.execute('SELECT last_insert_rowid()').fetchone()[0]
     ci = db.execute('SELECT * FROM checkins WHERE id=?',(cid,)).fetchone()
-    return jsonify({'checkin':dict(ci), 'remaining':(5-cnt-1) if u['membership']=='free' else 999})
+    remaining = (5-cnt-1) if mem_level <= 1 and cnt >= 0 else 999
+    return jsonify({'checkin':dict(ci), 'remaining':remaining})
 
 @app.route('/api/timeline')
 @auth_required
@@ -840,7 +935,7 @@ def api_timeline():
     offset = int(request.args.get('offset',0))
     lang = request.args.get('lang','zh-HK')
     db = get_db()
-    rows = db.execute("""SELECT c.*, u.nickname, u.avatar, u.lang
+    rows = db.execute("""SELECT c.*, u.nickname, u.avatar, u.lang, u.membership_level
         FROM checkins c JOIN users u ON c.user_id=u.id
         ORDER BY c.created_at DESC LIMIT ? OFFSET ?""",(limit,offset)).fetchall()
     items = []
@@ -872,10 +967,29 @@ def api_stats():
         dist[r['status']] = r['cnt']
     return jsonify({'total':total,'today':today,'week':week,'status_dist':dist})
 
+# ═══════════════════ Ads (P0-3) ══════════════════════════
+@app.route('/api/ads')
+@auth_required
+def api_ads():
+    """Return ads for free users, empty for paid members."""
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level >= 1:  # Any paid member = no ads
+        return jsonify({'ads': [], 'ad_free': True})
+    # Free user gets contextual ads
+    return jsonify({'ads': [
+        {'id': 1, 'type': 'banner', 'text': '💎 升級會員，去廣告+更多功能', 'action': 'upgrade', 'placement': 'timeline'},
+        {'id': 2, 'type': 'interstitial', 'text': '🥈 酒鬼月費僅¥18 — 開房對戰+4粒骰', 'action': 'upgrade', 'placement': 'checkin'},
+        {'id': 3, 'type': 'banner', 'text': '🍻 酒友¥8/月 — 打卡無限+3張相', 'action': 'upgrade', 'placement': 'dice'},
+    ], 'ad_free': False})
+
 # ═══════════════════ Party ═══════════════════════════════
 @app.route('/api/party', methods=['POST'])
 @auth_required
 def api_create_party():
+    # P0-6: Free users cannot create parties
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 1:
+        return jsonify({'error':'免費用戶不能開酒局，請升級會員 💎'}), 403
     d = request.get_json(force=True) or {}
     title = sanitize_html(d.get('title',''))[:50]
     location = sanitize_html(d.get('location',''))[:100]
@@ -894,7 +1008,7 @@ def api_create_party():
 @auth_required
 def api_parties():
     db = get_db()
-    rows = db.execute("""SELECT p.*, u.nickname as creator_nickname,
+    rows = db.execute("""SELECT p.*, u.nickname as creator_nickname, u.membership_level as creator_membership_level,
         (SELECT COUNT(*) FROM party_rsvp WHERE party_id=p.id AND response='going') as going_count
         FROM parties p JOIN users u ON p.creator_id=u.id
         WHERE p.status='upcoming' ORDER BY p.meet_time ASC LIMIT 20""").fetchall()
@@ -902,7 +1016,7 @@ def api_parties():
     for r in rows:
         pd = dict(r)
         # get rsvp users
-        rsvp_rows = db.execute("""SELECT pr.response, u.nickname, u.id as uid FROM party_rsvp pr 
+        rsvp_rows = db.execute("""SELECT pr.response, u.nickname, u.id as uid, u.membership_level FROM party_rsvp pr 
             JOIN users u ON pr.user_id=u.id WHERE pr.party_id=?""",(r['id'],)).fetchall()
         pd['attendees'] = [dict(rr) for rr in rsvp_rows]
         # get journal count
@@ -937,7 +1051,7 @@ def api_party_journal(pid):
 @auth_required
 def api_get_party_journal(pid):
     db = get_db()
-    rows = db.execute("""SELECT pj.*, u.nickname FROM party_journal pj
+    rows = db.execute("""SELECT pj.*, u.nickname, u.membership_level FROM party_journal pj
         JOIN users u ON pj.user_id=u.id WHERE pj.party_id=? ORDER BY pj.created_at DESC LIMIT 30""",
         (pid,)).fetchall()
     return jsonify({'journal':[dict(r) for r in rows]})
@@ -947,7 +1061,7 @@ def api_get_party_journal(pid):
 @auth_required
 def api_friends():
     db = get_db()
-    rows = db.execute("""SELECT u.id, u.nickname, u.avatar, f.status
+    rows = db.execute("""SELECT u.id, u.nickname, u.avatar, u.membership_level, f.status
         FROM friends f JOIN users u ON (CASE WHEN f.user_id=? THEN f.friend_id ELSE f.user_id END)=u.id
         WHERE (f.user_id=? OR f.friend_id=?) AND u.id!=?""",
         (g.uid,g.uid,g.uid,g.uid)).fetchall()
@@ -966,6 +1080,14 @@ def api_add_friend():
     fu = db.execute('SELECT id FROM users WHERE username=?',(friend_username,)).fetchone()
     if not fu: return jsonify({'error':'用戶不存在'}), 404
     if fu['id'] == g.uid: return jsonify({'error':'不能加自己'}), 400
+    # P0-6: Friend limit by membership
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    friend_count = db.execute("""SELECT COUNT(*) FROM friends 
+        WHERE (user_id=? OR friend_id=?) AND status='accepted'""",
+        (g.uid,g.uid)).fetchone()[0]
+    if friend_count >= _mem_friends_max(mem_level):
+        max_f = _mem_friends_max(mem_level)
+        return jsonify({'error':f'酒友數量已達上限({max_f}人)，請升級會員 💎'}), 403
     db.execute('INSERT OR REPLACE INTO friends (user_id,friend_id,status) VALUES (?,?,?)',
                (g.uid, fu['id'], 'pending'))
     db.commit()
@@ -1007,7 +1129,7 @@ def api_remove_friend():
 @auth_required
 def api_friends_suggest():
     db = get_db()
-    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, u.membership
+    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, u.membership, u.membership_level
         FROM users u WHERE u.id!=? AND u.id NOT IN (
             SELECT CASE WHEN user_id=? THEN friend_id ELSE user_id END FROM friends
             WHERE user_id=? OR friend_id=?
@@ -1018,7 +1140,7 @@ def api_friends_suggest():
 @auth_required
 def api_friends_pending():
     db = get_db()
-    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, f.user_id as from_uid
+    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, u.membership_level, f.user_id as from_uid
         FROM friends f JOIN users u ON f.user_id=u.id
         WHERE f.friend_id=? AND f.status='pending' ORDER BY f.rowid DESC""", (g.uid,)).fetchall()
     return jsonify({'pending':[dict(r) for r in rows]})
@@ -1027,7 +1149,7 @@ def api_friends_pending():
 @auth_required
 def api_user_profile(uid):
     db = get_db()
-    u = db.execute('SELECT id,username,nickname,avatar,membership,member_expires,created_at FROM users WHERE id=?',(uid,)).fetchone()
+    u = db.execute('SELECT id,username,nickname,avatar,membership,membership_level,member_expires,created_at FROM users WHERE id=?',(uid,)).fetchone()
     if not u: return jsonify({'error':'用戶不存在'}), 404
     chk_cnt = db.execute('SELECT COUNT(*) FROM checkins WHERE user_id=?',(uid,)).fetchone()[0]
     frd_cnt = db.execute('SELECT COUNT(*) FROM friends WHERE (user_id=? OR friend_id=?) AND status="accepted"',(uid,uid)).fetchone()[0]
@@ -1037,6 +1159,7 @@ def api_user_profile(uid):
     r['friend_count'] = frd_cnt
     r['post_count'] = post_cnt
     r['vip_until'] = r.get('member_expires','')
+    r['membership_level'] = r.get('membership_level',0)
     return jsonify(r)
 
 # ═══════════════════ Reactions + Likes + Comments ═══════
@@ -1078,7 +1201,7 @@ def api_comment(cid):
     db = get_db()
     db.execute('INSERT INTO checkin_comments (checkin_id,user_id,text) VALUES (?,?,?)',(cid,g.uid,text))
     db.commit()
-    rows = db.execute("""SELECT co.*, u.nickname FROM checkin_comments co 
+    rows = db.execute("""SELECT co.*, u.nickname, u.membership_level FROM checkin_comments co 
         JOIN users u ON co.user_id=u.id WHERE co.checkin_id=? ORDER BY co.created_at DESC LIMIT 20""",(cid,)).fetchall()
     return jsonify({'comments':[dict(r) for r in reversed(rows)]})
 
@@ -1086,7 +1209,7 @@ def api_comment(cid):
 @auth_required
 def api_get_comments(cid):
     db = get_db()
-    rows = db.execute("""SELECT co.*, u.nickname FROM checkin_comments co 
+    rows = db.execute("""SELECT co.*, u.nickname, u.membership_level FROM checkin_comments co 
         JOIN users u ON co.user_id=u.id WHERE co.checkin_id=? ORDER BY co.created_at ASC LIMIT 50""",(cid,)).fetchall()
     return jsonify({'comments':[dict(r) for r in rows]})
 
@@ -1117,13 +1240,28 @@ def api_upload():
 @app.route('/api/posts', methods=['POST'])
 @auth_required
 def api_create_post():
+    # P0-6: 帖子發布頻率 + 內容長度 + 圖片數量按會員等級限制
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    db = get_db()
+    # 每日發帖頻率限制
+    today = date.today().isoformat()
+    post_today = db.execute("SELECT COUNT(*) FROM posts WHERE user_id=? AND date(created_at)=?", (g.uid, today)).fetchone()[0]
+    if post_today >= _mem_daily_posts(mem_level):
+        return jsonify({'error':f'今日發帖次數已達上限({_mem_daily_posts(mem_level)})，請升級會員 💎'}), 429
     d = request.get_json(force=True) or {}
-    content = sanitize_html(d.get('content',''))[:2000]
+    content = sanitize_html(d.get('content',''))[:_mem_post_chars_max(mem_level)]
     images = d.get('images','')  # JSON array of image URLs
+    # 圖片數量限制
+    if images:
+        try:
+            img_list = json.loads(images) if isinstance(images, str) else images
+            if len(img_list) > _mem_post_images_max(mem_level):
+                return jsonify({'error':f'你嘅會員等級最多上傳{_mem_post_images_max(mem_level)}張圖，升級解鎖更多 💎'}), 403
+        except:
+            pass
     video_url = d.get('video_url','')  # video URL
     if not content and not images and not video_url:
         return jsonify({'error':'請輸入內容或上傳圖片/影片'}), 400
-    db = get_db()
     db.execute('INSERT INTO posts (user_id, content, images, video_url) VALUES (?,?,?,?)',
                (g.uid, content, images if isinstance(images,str) else json.dumps(images), video_url))
     db.commit()
@@ -1136,7 +1274,7 @@ def api_get_posts():
     page = max(1, int(request.args.get('page',1)))
     per = min(50, int(request.args.get('per_page',20)))
     off = (page-1)*per
-    rows = db.execute("""SELECT p.*, u.username, u.nickname, u.avatar,
+    rows = db.execute("""SELECT p.*, u.username, u.nickname, u.avatar, u.membership_level,
         (SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id=p.id) as like_count,
         (SELECT COUNT(*) FROM post_comments pc WHERE pc.post_id=p.id) as comment_count
         FROM posts p JOIN users u ON p.user_id=u.id
@@ -1186,7 +1324,7 @@ def api_post_comments(pid):
     results = []
     for r in rows:
         d = dict(r)
-        reply_rows = db.execute('''SELECT r.*, u.username, u.nickname, u.avatar
+        reply_rows = db.execute('''SELECT r.*, u.username, u.nickname, u.avatar, u.membership_level
             FROM post_replies r JOIN users u ON r.user_id=u.id
             WHERE r.comment_id=? ORDER BY r.id''',(r['id'],)).fetchall()
         d['replies'] = [dict(rr) for rr in reply_rows]
@@ -2008,7 +2146,11 @@ def _dice_room_to_dict(row):
 @app.route('/api/dice/room/create', methods=['POST'])
 @auth_required
 def dice_room_create():
-    """Create a new dice room"""
+    """Create a new dice room — requires membership_level >= 2 (酒鬼+)"""
+    # P0-1: 開房限制 — 免費/酒友不能開房
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 2:
+        return jsonify({'error': '開房需要酒鬼及以上會員，請升級 💎', 'upgrade_required': True, 'min_level': 2}), 403
     import random, string
     code = ''.join(random.choices('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', k=6))
     db = get_db()
@@ -2077,6 +2219,11 @@ def dice_room_start():
     code = (d.get('code') or '').upper()
     dice_n = int(d.get('dice', 2))
     rounds = int(d.get('rounds', 1))
+    # P0-2: 骰子數量按會員等級限制
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    max_dice = _mem_dice_max(mem_level)
+    if dice_n > max_dice:
+        return jsonify({'error': f'你嘅會員等級最多用{max_dice}粒骰，升級可解鎖更多 💎', 'max_dice': max_dice, 'upgrade_required': True}), 403
     db = get_db()
     room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
     if not room or room['creator_id'] != g.uid:
@@ -2214,6 +2361,15 @@ def dice_heartbeat():
     d = request.get_json(silent=True) or {}
     room_id = (d.get('room_id') or '').strip().upper()
     db = get_db()
+    # P0-8: 每5分鐘執行一次過期會員自動降級（心跳觸發，節流）
+    global _last_expiry_check
+    now_ts = time.time()
+    if now_ts - _last_expiry_check > 300:
+        _last_expiry_check = now_ts
+        try:
+            _cron_check_expired()
+        except Exception as e:
+            log.warning('Expiry cron failed: %s', e)
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # upsert heartbeat
     db.execute('INSERT OR REPLACE INTO dice_heartbeat (user_id, room_id, last_seen) VALUES (?, ?, ?)',
@@ -2254,12 +2410,19 @@ def dice_room_online(code):
 @app.route('/api/dice/challenge', methods=['POST'])
 @auth_required
 def dice_challenge():
-    """Initiate a battle challenge"""
+    """Initiate a battle challenge — requires membership_level >= 2 (酒鬼+)"""
+    # P0-1+P0-2: 約戰限制 — 免費/酒友不能約戰 + 骰子數量限制
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 2:
+        return jsonify({'error': '約戰需要酒鬼及以上會員，請升級 💎', 'upgrade_required': True, 'min_level': 2}), 403
     d = request.get_json(force=True) or {}
     challenged_id = int(d.get('challenged_id') or 0)
     dice_n = int(d.get('dice') or 2)
     rounds = int(d.get('rounds') or 1)
     wager = int(d.get('wager') or 0)
+    max_dice = _mem_dice_max(mem_level)
+    if dice_n > max_dice:
+        return jsonify({'error': f'你嘅會員等級最多用{max_dice}粒骰，升級可解鎖更多 💎', 'max_dice': max_dice}), 403
     if not challenged_id or challenged_id == g.uid:
         return jsonify({'error': '無效嘅挑戰對象'}), 400
     db = get_db()
@@ -2380,8 +2543,10 @@ def dice_online_players():
 def dice_matchmaking():
     """Find a random match or join queue"""
     global _matchmaking_queue
+    # P0-2: 匹配骰子數量按會員等級限制
+    plan, mem_level, mem_exp = _get_membership(g.uid)
     d = request.get_json(force=True) or {}
-    dice_n = int(d.get('dice') or 2)
+    dice_n = min(int(d.get('dice') or 2), _mem_dice_max(mem_level))
     rounds = int(d.get('rounds') or 1)
     now = time.time()
     db = get_db()

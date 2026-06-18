@@ -381,6 +381,16 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .avatar-preview{width:80px;height:80px;border-radius:50%;background:var(--border);margin:8px auto;display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid var(--amber);cursor:pointer;overflow:hidden}
 .avatar-preview img{width:100%;height:100%;object-fit:cover}
 .date-input{border:2px solid var(--purple)!important;background:rgba(139,92,246,0.08)!important}
+/* ─── Membership Badge & Nickname Color ─── */
+.mem-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-left:4px;vertical-align:middle;letter-spacing:.5px}
+.mem-badge-1{background:linear-gradient(135deg,#CD7F32,#B87333);color:#fff}
+.mem-badge-2{background:linear-gradient(135deg,#C0C0C0,#A8A8A8);color:#222}
+.mem-badge-3{background:linear-gradient(135deg,#FFD700,#FFA500);color:#222;text-shadow:0 0 4px rgba(255,215,0,.4)}
+.nick-1{color:#CD7F32!important}.nick-2{color:#C0C0C0!important}.nick-3{color:var(--amber)!important;text-shadow:0 0 8px rgba(245,158,11,.3)}
+.mem-lock{position:relative;display:inline-block}
+.mem-lock::after{content:'🔒';position:absolute;top:-4px;right:-8px;font-size:10px}
+.mem-card-glow-2{box-shadow:0 0 12px rgba(192,192,192,.15)!important}
+.mem-card-glow-3{box-shadow:0 0 16px rgba(255,215,0,.2)!important;border-color:rgba(255,215,0,.25)!important}
 .attendee-list{max-height:0;overflow:hidden;transition:max-height .3s}.attendee-list.open{max-height:300px;overflow-y:auto}
 .attendee-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
 .clickable{cursor:pointer;color:var(--purple);font-weight:600}
@@ -497,9 +507,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
   <div class="card-header" data-i18n="face_off">🎯 面對面對決 <span id="room-lock" style="font-size:11px;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:auto">🔒</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
-   <button class="btn btn-outline" id="btn-create-room" onclick="createRoom()" style="border-color:var(--purple);color:var(--purple)" data-i18n="open_room">🏠 開房</button>
+   <button class="btn btn-outline" id="btn-create-room" onclick="if(memLocked(2,'開房'))return;createRoom()" style="border-color:var(--purple);color:var(--purple)" data-i18n="open_room">🏠 開房</button>
    <button class="btn btn-outline" id="btn-join-room" onclick="showJoinRoom()" data-i18n="join_room" style="border-color:var(--purple);color:var(--purple)">🚪 加入</button>
-   <button class="btn btn-outline" id="btn-challenge" onclick="showChallengePanel()" style="border-color:var(--pink);color:var(--pink)">⚔️ <span data-i18n="challenge_title">約戰</span></button>
+   <button class="btn btn-outline" id="btn-challenge" onclick="if(memLocked(2,'約戰'))return;showChallengePanel()" style="border-color:var(--pink);color:var(--pink)">⚔️ <span data-i18n="challenge_title">約戰</span></button>
   </div>
   <!-- Challenge Panel -->
   <div id="challenge-panel" style="display:none;margin-top:10px;padding:12px;background:rgba(236,72,153,0.06);border:1px solid rgba(236,72,153,0.2);border-radius:12px">
@@ -955,6 +965,55 @@ function fireConfetti(){
   }
   document.body.appendChild(container);
   setTimeout(()=>container.remove(),3500);
+}
+
+// ═══════ MEMBERSHIP HELPERS ═══════
+function memLevel(){if(!me||!me.membership||me.membership==='free'||me.membership==='admin')return 0;return{jiuyau:1,jaugwai:2,jausan:3}[me.membership]||0}
+function memBadge(lv){if(!lv)lv=memLevel();if(!lv)return'';const n={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'}[lv]||'';return '<span class="mem-badge mem-badge-'+lv+'">'+n+'</span>'}
+function memNickClass(lv){if(!lv)lv=memLevel();return lv?'nick-'+lv:''}
+function memCardClass(lv){if(!lv)lv=memLevel();if(lv>=2)return'mem-card-glow-'+lv;return''}
+function memLocked(requiredLv,action){const lv=memLevel();if(lv>=requiredLv)return false;const names={1:'酒友',2:'酒鬼',3:'酒神'};toast('🔒 '+action+' 需要升級至'+(names[requiredLv]||'VIP')+' 💎',1);showUpgradeModal(requiredLv);return true}
+
+// ─── Ad Banner for free users ───
+async function loadAdBanner(container){
+  try{
+    const r=await fetch(API+'/api/ads',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}});
+    const d=await r.json();
+    if(!d.ads||!d.ads.length)return;
+    const ad=d.ads[Math.floor(Math.random()*d.ads.length)];
+    const el=document.createElement('div');
+    el.className='card';el.style.cssText='margin:8px 0;padding:10px;background:rgba(245,158,11,0.08);border:1px dashed var(--amber);text-align:center;font-size:12px;position:relative';
+    el.innerHTML='<span style="color:var(--amber);font-size:10px;position:absolute;top:4px;right:8px">AD</span><div style="font-weight:600">'+esc(ad.title||'')+'</div><div style="color:var(--sub);margin:4px 0">'+esc(ad.body||'')+'</div>'+(ad.link?'<a href="'+esc(ad.link)+'" target="_blank" rel="noopener" style="color:var(--amber);font-size:11px">了解更多 →</a>':'');
+    container.appendChild(el);
+  }catch(e){}
+}
+
+// ─── Upgrade Modal ───
+function showUpgradeModal(requiredLv){
+  const names={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
+  const prices={1:'¥9.9/月',2:'¥19.9/月',3:'¥39.9/月'};
+  const perks={1:'骰盅開房+3骰+3相打卡+500字筆記+200好友',2:'4骰+9相+1000字+500好友+酒局5個',3:'5骰+無限好友+8酒局+2000字+炫彩暱稱'};
+  let h='<div id="upgrade-overlay" onclick="if(event.target===this)this.remove()" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center">';
+  h+='<div style="background:var(--card);border-radius:16px;padding:24px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3)">';
+  h+='<div style="font-size:28px;text-align:center;margin-bottom:8px">💎</div>';
+  h+='<div style="font-size:18px;font-weight:700;text-align:center;color:var(--amber);margin-bottom:12px">升級至 '+names[requiredLv]+'</div>';
+  h+='<div style="background:var(--bg);border-radius:10px;padding:12px;font-size:13px;color:var(--text);margin-bottom:16px">'+perks[requiredLv]+'</div>';
+  // show all tiers
+  [1,2,3].forEach(lv=>{
+    const sel=lv===requiredLv?'border:2px solid var(--amber);background:rgba(245,158,11,0.1)':'border:1px solid var(--border)';
+    h+='<div onclick="document.querySelectorAll(\'.ug-tier\').forEach(e=>e.style.borderColor=\'var(--border)\');this.style.borderColor=\'var(--amber)\';document.getElementById(\'ug-lv\').value='+lv+'" class="ug-tier" style="'+sel+';border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;display:flex;justify-content:space-between;align-items:center">';
+    h+='<b>'+names[lv]+'</b><span style="color:var(--amber);font-weight:700">'+prices[lv]+'</span></div>';
+  });
+  h+='<input type="hidden" id="ug-lv" value="'+requiredLv+'">';
+  h+='<button class="btn btn-primary" style="width:100%;margin-top:12px;font-size:16px;font-weight:700;padding:12px" onclick="doUpgrade()">🚀 立即升級</button>';
+  h+='<div style="text-align:center;margin-top:8px"><a href="#" onclick="event.preventDefault();document.getElementById(\'upgrade-overlay\').remove()" style="font-size:12px;color:var(--sub)">下次再講</a></div>';
+  h+='</div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+}
+async function doUpgrade(){
+  const lv=parseInt(document.getElementById('ug-lv')?.value||1);
+  toast('📱 請聯繫管理員開通會員：微信/支付寶轉賬後截圖發送',1);
+  document.getElementById('upgrade-overlay')?.remove();
 }
 
 // ═══════ LOADER ═══════
@@ -2103,7 +2162,7 @@ async function loadTL(){
  const st=STATUSES[item.status]||STATUSES[0];
   const av=item.avatar&&item.avatar.startsWith('/')?API_BASE+item.avatar:(item.avatar&&item.avatar.startsWith('emoji:')?item.avatar.replace('emoji:',''):'');
   const avH=item.avatar&&item.avatar.startsWith('emoji:')?'<span style="font-size:24px">'+av+'</span>':(av?'<img src="'+av+'">':'🍺');
-  h+='<div class="tl-item"><div class="tl-avatar">'+avH+'</div><div class="tl-body"><div class="tl-name">'+esc(item.nickname)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
+  h+='<div class="tl-item"><div class="tl-avatar">'+avH+'</div><div class="tl-body"><div class="tl-name '+memNickClass(item.membership_level||0)+'">'+esc(item.nickname)+' '+memBadge(item.membership_level||0)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
  h+='<button class="btn btn-outline btn-sm" onclick="doLike('+item.id+')">❤️ <span id="lk-'+item.id+'">'+(item.likes||0)+'</span></button>';
  h+='<button class="btn btn-outline btn-sm" onclick="openCmt('+item.id+')">💬 <span id="ct-'+item.id+'">'+(item.comments||0)+'</span></button>';
  h+='<div style="display:flex;gap:2px;flex-wrap:wrap">';
@@ -2112,7 +2171,9 @@ async function loadTL(){
  });
  if(!items.length)h='<div class="empty"><div class="empty-icon">🍺</div>'+T('no_timeline')+'</div>';
  c.innerHTML=h;
- }catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'</div>'}
+ // P0-3: 非會員timeline插廣告
+ if(memLevel()===0)loadAdBanner(c);
+}catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'</div>'}
 }
 async function doRe(cid,emoji){
  try{
@@ -2134,7 +2195,7 @@ async function loadCmt(cid){
  try{
  let comments=[];
   const d=await api('/api/checkin/'+cid+'/comments');comments=d.comments||[];
- let h='';comments.forEach(c=>{h+='<div class="comment-item"><b>'+esc(c.nickname)+'</b>: '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
+ let h='';comments.forEach(c=>{h+='<div class="comment-item"><b class="'+memNickClass(c.membership_level||0)+'">'+esc(c.nickname)+'</b>'+memBadge(c.membership_level||0)+': '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
  if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">'+T('no_comments')+'</div>';
  h+='<div class="emoji-picker">';CM_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="insEm(\''+e+'\')" style="font-size:22px">'+e+'</button>'});h+='</div>';
  document.getElementById('cmt-list').innerHTML=h;
@@ -2186,7 +2247,7 @@ function openJnl(pid){curPid=pid;const el=document.getElementById('jnl-mod');if(
 function closeJnl(){const el=document.getElementById('jnl-mod');if(!el)return;el.style.display='none';el.classList.remove('show');curPid=null}
 async function loadJnl(pid){
   try{const d=await api('/api/party/'+pid+'/journal');let h='';
-    (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b>'+esc(j.nickname)+'</b>: '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
+    (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b class="'+memNickClass(j.membership_level||0)+'">'+esc(j.nickname)+'</b>'+memBadge(j.membership_level||0)+': '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
     if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有記錄</div>';
     document.getElementById('jnl-list').innerHTML=h;
   }catch(e){}}
@@ -2202,6 +2263,9 @@ async function loadStats(){
 
 // ═══════ MEMBER ═══════
 function updMem(){const s=document.getElementById('mem-status'),e=document.getElementById('mem-exp');if(!me)return;
+ const lv=memLevel();
+ const lvNames=['免費會員','🥉 酒友','🥈 酒鬼','🥇 酒神'];
+ const lvColors=['var(--sub)','var(--amber)','#a855f7','linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6)'];
  // Update profile card
  var aw=document.getElementById('mem-avatar-wrap');
  if(aw){
@@ -2209,9 +2273,17 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
    aw.innerHTML='<img src="'+API_BASE+me.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
   }else if(me.avatar&&me.avatar.startsWith('emoji:')){aw.textContent=me.avatar.replace('emoji:','')}
   else{aw.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
+  // Membership glow on avatar
+  if(lv>=2)aw.style.boxShadow='0 0 20px rgba(245,158,11,'+(0.2+lv*0.1)+')';
  }
- var nk=document.getElementById('mem-nick');if(nk)nk.textContent=me.nickname||me.username||'-';
+ var nk=document.getElementById('mem-nick');if(nk){nk.textContent=me.nickname||me.username||'-';nk.className=memNickClass(lv);}
  var un=document.getElementById('mem-username');if(un)un.textContent='@'+(me.username||'-');
+ if(s){s.textContent=lvNames[lv]||'免費會員';if(lv>=3)s.style.background='linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6)',s.style.webkitBackgroundClip='text',s.style.webkitTextFillColor='transparent';else if(lv>0)s.style.color='var(--amber)';}
+ if(e)e.textContent=me.member_expires?'到期：'+me.member_expires:'';
+ // Highlight active plan card
+ document.querySelectorAll('.plan-card').forEach(c=>c.style.borderColor='var(--border)');
+ var planMap={1:'plan-jiuyau',2:'plan-jaugwai',3:'plan-jausan'};
+ if(lv>0){var pc=document.getElementById(planMap[lv]);if(pc)pc.style.borderColor='var(--amber)';}
  var ct=document.getElementById('mem-contact');if(ct){
   var parts=[];
   if(me.phone)parts.push('📞 '+me.phone);
@@ -2306,7 +2378,7 @@ function showMemFriend(uid){
     '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.post_count||0)+'</div><div style="font-size:10px;color:var(--sub)">帖子</div></div>'+
    '</div>'+
    (u.bio?'<div style="font-size:13px;color:var(--text);margin-bottom:12px;text-align:left;background:var(--card);padding:8px 12px;border-radius:8px">'+esc(u.bio)+'</div>':'')+
-   (u.vip_until&&new Date(u.vip_until)>new Date()?'<div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600">⭐ VIP</div>':'')+
+   (u.membership_level&&u.membership_level>0?'<div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600">'+(['','🥉酒友','🥈酒鬼','🥇酒神'][u.membership_level]||'⭐VIP')+'</div>':'')+
    '<div style="margin-top:12px"><button class="btn btn-primary" style="font-size:13px;padding:6px 16px" onclick="addFriendThenClose('+uid+')" data-i18n="add_friend">加酒友</button></div>';
  }).catch(()=>{
   body.innerHTML='<div style="padding:20px;color:var(--red)">載入失敗</div>';
@@ -2653,7 +2725,7 @@ async function admLoadMembers(){
  const isExp = u.member_expires && u.member_expires < new Date().toISOString().split('T')[0];
  const isAdm = u.admin === 1;
  html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
- html += '<div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
+ html += '<div class="tl-name '+memNickClass(u.membership_level||0)+'">'+esc(u.nickname||u.username)+' '+memBadge(u.membership_level||0)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
  html += '<div style="font-size:11px;color:var(--sub);margin:2px 0">ID:'+u.id+' · 註冊:'+(u.created_at||'')+(u.phone?' · 📞 '+esc(u.phone):'')+(u.email?' · 📧 '+esc(u.email):'')+'</div>';
  html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
  html += '<span style="font-size:12px;padding:2px 8px;border-radius:4px;background:'+(plan==='free'?'var(--card)':isExp?'var(--red)':'linear-gradient(135deg,var(--amber),var(--purple))')+';color:#fff">'+(plan==='free'?'🆓':plan)+'</span>';
@@ -2691,7 +2763,7 @@ async function admSearchMember(){
  users.forEach(u => {
  const plan = u.membership || 'free';
  const isAdm = u.admin === 1;
- html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body"><div class="tl-name">'+esc(u.nickname||u.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
+ html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body"><div class="tl-name '+memNickClass(u.membership_level||0)+'">'+esc(u.nickname||u.username)+' '+memBadge(u.membership_level||0)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
  html += '<div style="font-size:11px;color:var(--sub)">ID:'+u.id+' · '+plan+' · '+(u.member_expires||'—')+(u.phone?' · 📞 '+esc(u.phone):'')+(u.email?' · 📧 '+esc(u.email):'')+'</div>';
  html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
  html += '<select onchange="admSetPlan('+u.id+',this.value)" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px">';
@@ -2801,7 +2873,7 @@ async function admLoadPayments(){
  const isConfirmed = p.confirmed === 1;
  html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
  html += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap">';
- html += '<div><b>'+esc(p.nickname||p.username||'')+'</b> <span style="font-size:11px;color:var(--sub)">@'+esc(p.username||'')+'</span></div>';
+ html += '<div><b class="'+memNickClass(p.membership_level||0)+'">'+esc(p.nickname||p.username||'')+'</b> '+memBadge(p.membership_level||0)+' <span style="font-size:11px;color:var(--sub)">@'+esc(p.username||'')+'</span></div>';
  html += '<span style="font-size:13px;font-weight:700;color:'+(isConfirmed?'var(--green)':'var(--amber)')+'">¥'+p.amount+' · '+p.plan+'</span>';
  html += '</div>';
  html += '<div style="font-size:11px;color:var(--sub);margin:4px 0">方式：'+p.method+' · '+(p.paid_at||'')+'</div>';
@@ -2843,7 +2915,7 @@ async function admLoadExpired(){
  let html = '';
  members.forEach(m => {
  html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
- html += '<div class="tl-name">'+esc(m.nickname||m.username)+' <span style="color:var(--sub);font-size:10px">@'+esc(m.username)+'</span></div>';
+ html += '<div class="tl-name '+memNickClass(m.membership_level||0)+'">'+esc(m.nickname||m.username)+' '+memBadge(m.membership_level||0)+' <span style="color:var(--sub);font-size:10px">@'+esc(m.username)+'</span></div>';
  html += '<div style="font-size:11px;margin:4px 0;color:var(--red)">⚠️ 已到期：'+m.member_expires+'</div>';
  html += '<div style="display:flex;gap:6px"><button class="btn btn-outline btn-sm" onclick="admVerifyMember('+m.id+')">🔄 續期</button></div>';
  html += '</div></div>';
@@ -2963,8 +3035,14 @@ function admSetServer(){
 }
 
 // ═══════ 🎲 DICE GAME — REALISTIC 3D DICE ═══════
+const DICE_MEM_LIMITS_LEVEL={0:2,1:3,2:4,3:5};
+const DICE_ROOM_OPEN_LEVEL={0:false,1:false,2:true,3:true};
+function _diceLevel(){return memLevel()}
+function _diceLimit(){return DICE_MEM_LIMITS_LEVEL[_diceLevel()]||2}
+function _diceCanRoom(){return DICE_ROOM_OPEN_LEVEL[_diceLevel()]||false}
+// Legacy compat
 const DICE_MEM_LIMITS={free:2,jiuyau:3,jaugwai:4,jausan:5};
-const DICE_ROOM_LEVEL={free:true,jiuyau:true,jaugwai:true,jausan:true};
+const DICE_ROOM_LEVEL={free:false,jiuyau:false,jaugwai:true,jausan:true};
 let _diceCount=2,_diceVals=[],_diceShaking=false,_diceBC=null,_diceRoom=null,_diceIsHost=false;
 try{_diceBC=new BroadcastChannel('dice-room')}catch(e){}
 
@@ -3002,13 +3080,13 @@ var DOTS={1:[0,0,0,0,1,0,0,0,0],2:[0,0,1,0,0,0,1,0,0],3:[0,0,1,0,1,0,1,0,0],4:[1
 var FACE_ROT={1:'rotateX(0deg) rotateY(0deg)',2:'rotateY(-90deg)',3:'rotateX(-90deg)',4:'rotateX(90deg)',5:'rotateY(90deg)',6:'rotateY(180deg)'};
 
 function initDice(){
- var mem=_diceMem(),limit=DICE_MEM_LIMITS[mem]||2;
+ var lv=_diceLevel(),limit=_diceLimit(),canRoom=_diceCanRoom();
  _diceCount=Math.min(_diceCount,limit);
  // Update dice hint based on membership
  var hint=document.getElementById('dice-mem-hint');
  if(hint){
-  var memNames={free:'免費',jiuyau:'🥉酒友',jaugwai:'🥈酒鬼',jausan:'🥇酒神',admin:'👑管理'};
-  hint.textContent='選擇骰數（'+(memNames[mem]||mem)+'最多'+limit+'粒）';
+  var memNames={0:'免費',1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
+  hint.textContent='選擇骰數（'+(memNames[lv]||'免費')+'最多'+limit+'粒）';
  }
  var row=document.getElementById('dice-count-row');
  if(!row)return;
@@ -3018,16 +3096,17 @@ function initDice(){
   b.className='dice-num-btn'+(i===_diceCount?' active':'')+(i>limit?' locked':'');
   b.textContent=i;
   if(i<=limit)(function(n){b.onclick=function(){_diceCount=n;initDice();renderDice3D(n)}})(i);
+  else b.onclick=function(){memLocked(1,(''+i+'粒骰子'))};
   row.appendChild(b);
  }
  renderDice3D(_diceCount);
- var rl=document.getElementById('room-lock');if(rl)rl.style.display=DICE_ROOM_LEVEL[mem]?'none':'';
+ var rl=document.getElementById('room-lock');if(rl)rl.style.display=canRoom?'none':'';
  var bc1=document.getElementById('btn-create-room'),bj1=document.getElementById('btn-join-room');
- if(bc1)bc1.disabled=!DICE_ROOM_LEVEL[mem];
- if(bj1)bj1.disabled=mem==='free';
+ if(bc1)bc1.disabled=!canRoom;
+ if(bj1)bj1.disabled=lv<1;
  // Hide upgrade card for premium members
  var uc=document.getElementById('dice-upgrade-hint')?.parentElement;
- if(uc) uc.style.display=(mem==='jausan'||mem==='admin')?'none':'';
+ if(uc) uc.style.display=(lv>=3)?'none':'';
  if(_diceBC)_diceBC.onmessage=function(e){handleDiceMsg(e.data)};
 }
 
