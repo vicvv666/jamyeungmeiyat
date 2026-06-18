@@ -589,7 +589,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </div>
 
 <!-- Admin Panel (独立弹窗) -->
-<div class="modal-overlay" id="admin-mod" style="position:relative" onclick="if(event.target===this)admClose()">
+<div class="modal-overlay" id="admin-mod" onclick="if(event.target===this)admClose()">
  <div class="modal" style="max-width:520px;max-height:90dvh;overflow-y:auto">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
    <h3 style="color:var(--pink);margin:0" data-i18n="admin_panel">🔧 管理員面板</h3>
@@ -615,11 +615,11 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
    <!-- Stats page -->
    <div class="adm-page active" id="adm-stats">
     <div class="stats-row" style="margin-bottom:12px">
-     <div><div class="stat-num" id="adm-users">0</div><div class="stat-label" data-i18n="username">用戶</div></div>
-     <div><div class="stat-num" id="adm-checkins">0</div><div class="stat-label" data-i18n="checkin">報到</div></div>
-     <div><div class="stat-num" id="adm-vips">0</div><div class="stat-label">VIP</div></div>
+     <div><div class="stat-num" id="adm-user-count">0</div><div class="stat-label" data-i18n="username">用戶</div></div>
+     <div><div class="stat-num" id="adm-checkin-count">0</div><div class="stat-label" data-i18n="checkin">報到</div></div>
+     <div><div class="stat-num" id="adm-vip-count">0</div><div class="stat-label">VIP</div></div>
     </div>
-    <div style="text-align:center;margin-bottom:8px;font-size:11px;color:var(--sub)" data-i18n="party_total">酒局總數：<span id="adm-parties">0</span></div>
+    <div style="text-align:center;margin-bottom:8px;font-size:11px;color:var(--sub)" data-i18n="party_total">酒局總數：<span id="adm-party-count">0</span></div>
     <button class="btn btn-primary" onclick="loadAdmin()" data-i18n="refresh">🔄 刷新</button>
    </div>
    <!-- Members page -->
@@ -2395,10 +2395,10 @@ async function loadAdmStats(){
   const r = await fetch(API_BASE+'/api/admin/stats',{headers:h});
   const d = await r.json();
   const s = d.stats || {};
-  document.getElementById('adm-users').textContent = s.total_users || 0;
-  document.getElementById('adm-checkins').textContent = s.total_checkins || 0;
-  document.getElementById('adm-vips').textContent = s.vip_count || 0;
-  document.getElementById('adm-parties').textContent = s.total_parties || 0;
+  document.getElementById('adm-user-count').textContent = s.total_users || 0;
+  document.getElementById('adm-checkin-count').textContent = s.total_checkins || 0;
+  document.getElementById('adm-vip-count').textContent = s.vip_count || 0;
+  document.getElementById('adm-party-count').textContent = s.total_parties || 0;
  }catch(e){console.error('loadAdmStats', e)}
 }
 
@@ -3440,20 +3440,17 @@ async function admDeletePost(pid){
 
 function _adminModal(title,fields,onSave){
  console.log('[adm] _adminModal called:',title,'fields:',fields.length);
- // Reuse admin panel's own modal overlay instead of creating a separate one
  let ov=document.getElementById('adm-edit-ov');
  if(!ov){
-  // Create overlay INSIDE admin-mod to avoid z-index/stacking issues
-  let adminMod=document.getElementById('admin-mod');
-  if(!adminMod){console.error('[adm] admin-mod not found');return}
   ov=document.createElement('div');
   ov.id='adm-edit-ov';
-  ov.style.cssText='position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:100;display:flex;align-items:center;justify-content:center';
-  adminMod.appendChild(ov);
-  console.log('[adm] created adm-edit-ov inside admin-mod');
+  ov.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:99999;display:flex;align-items:center;justify-content:center';
+  document.body.appendChild(ov);
+  console.log('[adm] created adm-edit-ov on body, z-index:99999');
  }
  let box=document.createElement('div');
  box.style.cssText='background:var(--card);border-radius:16px;padding:24px;width:90%;max-width:400px;max-height:80vh;overflow-y:auto';
+ box.onclick=(e)=>e.stopPropagation(); // prevent all clicks inside box from bubbling to admin-mod
  let h3=document.createElement('h3');h3.style.cssText='margin:0 0 16px;color:var(--text)';h3.textContent=title;
  box.appendChild(h3);
  let inputs={};
@@ -3479,14 +3476,14 @@ function _adminModal(title,fields,onSave){
  let btns=document.createElement('div');btns.style.cssText='display:flex;gap:8px;margin-top:16px';
  let saveBtn=document.createElement('button');saveBtn.textContent='儲存';
  saveBtn.style.cssText='flex:1;padding:10px;border:none;border-radius:8px;background:var(--amber);color:#fff;cursor:pointer;font-weight:700';
- saveBtn.onclick=()=>{ov.style.display='none';onSave()};
+ saveBtn.onclick=(e)=>{e.stopPropagation();ov.style.display='none';onSave()};
  let cancelBtn=document.createElement('button');cancelBtn.textContent='取消';
  cancelBtn.style.cssText='flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);cursor:pointer';
- cancelBtn.onclick=()=>{ov.style.display='none'};
+ cancelBtn.onclick=(e)=>{e.stopPropagation();ov.style.display='none'};
  btns.appendChild(saveBtn);btns.appendChild(cancelBtn);box.appendChild(btns);
  ov.innerHTML='';ov.appendChild(box);ov.style.display='flex';
- // Click overlay background to close (not clicking the box itself)
- ov.onclick=(e)=>{if(e.target===ov)ov.style.display='none'};
+ // Click overlay background to close edit modal (prevent bubbling to admin-mod)
+ ov.onclick=(e)=>{if(e.target===ov){ov.style.display='none';e.stopPropagation()}};
 }
 
 function admEditCheckin(id,status,note){
