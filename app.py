@@ -675,6 +675,11 @@ def auth_required(f):
     @wraps(f)
     def wrap(*a, **kw):
         tok = request.headers.get('Authorization','').replace('Bearer ','')
+        # Also accept X-Admin-Token for admin sessions
+        if not tok:
+            adm = request.headers.get('X-Admin-Token','')
+            if adm and adm.startswith('0:admin_key_login:'):
+                tok = adm
         uid = _decode_token(tok)
         if uid is None:
             return jsonify({'error':'請先登入'}), 401
