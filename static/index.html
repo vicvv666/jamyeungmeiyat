@@ -286,7 +286,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
 .lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:10px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:48px;white-space:nowrap}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:11px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:48px;white-space:nowrap}
 .tab .tab-icon{font-size:20px;margin-bottom:2px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block}
 .tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:4px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
@@ -569,7 +569,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.08));border:1px solid rgba(139,92,246,0.15);padding:10px">
   <span style="font-size:20px">💎</span>
   <span style="font-weight:700;font-size:13px;color:var(--pink);margin-left:4px" data-i18n="unlock_dice">解鎖更多骰盅玩法</span>
-  <div id="dice-upgrade-hint" data-i18n="dice_upgrade_hint" style="font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5">🥉 酒友 ¥8/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥18/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥198/年 — 5粒骰 + 自訂規則</div>
+  <div id="dice-upgrade-hint" data-i18n="dice_upgrade_hint" style="font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5">🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥39.9/月 — 5粒骰 + 自訂規則</div>
  </div>
 </div>
 
@@ -594,9 +594,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="font-size:12px;color:var(--sub)" id="mem-exp"></div>
   </div>
   <div class="plans-row">
-    <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name" data-i18n="member_jiuyau">🥉 酒友</div><div class="plan-price">¥8</div><div class="plan-feat">每月/打卡</div></div>
-    <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')"><div class="plan-name" data-i18n="member_jaugwai">🥈 酒鬼</div><div class="plan-price">¥18</div><div class="plan-feat">每月/導出</div></div>
-    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price">¥198</div><div class="plan-feat">每年/徽章</div></div>
+    <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name" data-i18n="member_jiuyau">🥉 酒友</div><div class="plan-price">¥9.9</div><div class="plan-feat">月費</div></div>
+    <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')"><div class="plan-name" data-i18n="member_jaugwai">🥈 酒鬼</div><div class="plan-price">¥19.9</div><div class="plan-feat">月費</div></div>
+    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price">¥39.9</div><div class="plan-feat">月費</div></div>
   </div>
   <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'" data-i18n="ad_cooperation">📢 廣告合作<br>vichoo2020@gmail.com</div>
   <!-- My Checkins -->
@@ -1364,9 +1364,9 @@ const L={
   yearly_badge:'每年/徽章',
   ad_cooperation:'廣告合作',
   plan_select:'選擇方案',
-  plan_jiuyau:'🥉酒友 ¥8/月',
-  plan_jaugwai:'🥈酒鬼 ¥18/月',
-  plan_jausan:'🥇酒神 ¥198/年',
+  plan_jiuyau:'🥉酒友 ¥9.9/月',
+  plan_jaugwai:'🥈酒鬼 ¥19.9/月',
+  plan_jausan:'🥇酒神 ¥39.9/月',
   upgrade_btn:'🚀 立即升級',
   change_avatar:'更換',
   avatar_label:'頭像',
@@ -1458,7 +1458,7 @@ const L={
   journal_title:'📝 酒局記錄',
   pay_scan_hint:'請掃描對應支付方式二維碼<br>或複製帳號付款',
   pay_done_btn:'✅ 已完成付款',
-  dice_upgrade_hint:'🥉 酒友 ¥8/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥18/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥198/年 — 全部解鎖',
+  dice_upgrade_hint:'🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥39.9/月 — 全部解鎖',
   pay_hint_after:'付款後點擊「已完成付款」',
   phone_label:'📞 電話號碼',
   username:'用戶名',
@@ -1641,9 +1641,9 @@ const L={
   yearly_badge:'每年/徽章',
   ad_cooperation:'广告合作',
   plan_select:'选择方案',
-  plan_jiuyau:'🥉酒友 ¥8/月',
-  plan_jaugwai:'🥈酒鬼 ¥18/月',
-  plan_jausan:'🥇酒神 ¥198/年',
+  plan_jiuyau:'🥉酒友 ¥9.9/月',
+  plan_jaugwai:'🥈酒鬼 ¥19.9/月',
+  plan_jausan:'🥇酒神 ¥39.9/月',
   upgrade_btn:'🚀 立即升级',
   change_avatar:'更换',
   avatar_label:'头像',
@@ -1735,7 +1735,7 @@ const L={
   journal_title:'📝 酒局记录',
   pay_scan_hint:'请扫描对应支付方式二维码<br>或复制帐号付款',
   pay_done_btn:'✅ 已完成付款',
-  dice_upgrade_hint:'🥉 酒友 ¥8/月 — 3粒骰 + 加入房间 ｜ 🥈 酒鬼 ¥18/月 — 4粒骰 + 开房 ｜ 🥇 酒神 ¥198/年 — 全部解锁',
+  dice_upgrade_hint:'🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房间 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 开房 ｜ 🥇 酒神 ¥39.9/月 — 全部解锁',
   pay_hint_after:'付款后点击「已完成付款」',
   phone_label:'📞 电话号码',
   username:'用户名',
@@ -2038,9 +2038,7 @@ function updTitles(){
   // App title
   document.getElementById('nav-title').textContent='🍺 '+T('app_title');
   // Tabs
-  ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});const tf=document.getElementById('tab-friends');if(tf)tf.textContent=T('tab_friends');
-  const diceTab=document.querySelector('[data-page="dice"] .t,.tab[data-page="dice"] span:last-child');
-  if(diceTab)diceTab.textContent=T('tab_dice');
+  ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});const tf=document.getElementById('tab-friends');if(tf)tf.textContent=T('tab_friends');const td=document.getElementById('tab-dice');if(td)td.textContent=T('tab_dice');
   // Refresh all data-i18n elements
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const k=el.getAttribute('data-i18n');
@@ -2078,7 +2076,7 @@ const GKEYS=['grp_hei_sau','grp_seung_gan','grp_jui_gan','grp_baau_cho','grp_jyu
 const RE_EM=['🍻','🫣','🤣','❤️','🔥','😭','💀','🥂','👏','🎉','🤤','😈'];
 const CM_EM=['😍','🤣','👍','🔥','❤️','🥂','🫣','💀','🎉','👏','😈','💪','🍺','🍻','😭','🤤'];
 const QR_M={alipay:'qrcodes/alipay.jpg',wechat:'qrcodes/wechat.png',paypal:'qrcodes/paypal.jpg'};
-const PAY_U={jiuyau:'1.20',jaugwai:'2.50',jausan:'28.00'};
+const PAY_U={jiuyau:'1.40',jaugwai:'2.80',jausan:'5.60'};
 
 function buildGrid(){
   const g=document.getElementById('status-grid');g.innerHTML='';
@@ -2360,7 +2358,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
  // Membership
  if(me.membership&&me.membership!=='free'){s.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');e.textContent='到期：'+(me.member_expires||'永久')}else{s.textContent='🆓 免費會員';e.textContent='升級享受完整功能'}}
 function selP(p){selPlan=p;document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));const el=document.getElementById('plan-'+p);if(el)el.classList.add('selected');showPay()}
-function showPay(){if(!me)return toast(T('please_login'),1);var pn=document.getElementById('pay-plan-name'),pu=document.getElementById('pay-usd'),pm=document.getElementById('pay-mod');if(pn)pn.textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';if(pu)pu.textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');if(pm)pm.style.display='flex'}
+function showPay(){if(!me)return toast(T('please_login'),1);var pn=document.getElementById('pay-plan-name'),pu=document.getElementById('pay-usd'),pm=document.getElementById('pay-mod');if(pn)pn.textContent={jiuyau:'🥉酒友 ¥9.9/月',jaugwai:'🥈酒鬼 ¥19.9/月',jausan:'🥇酒神 ¥39.9/月'}[selPlan]||'';if(pu)pu.textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');if(pm)pm.style.display='flex'}
 function closePay(){var el=document.getElementById('pay-mod');if(el)el.style.display='none'}
 
 // ═══════ MEMBER SECTIONS (toggle expand/collapse) ═══════
@@ -3114,7 +3112,7 @@ function initDice(){
   b.className='dice-num-btn'+(i===_diceCount?' active':'')+(i>limit?' locked':'');
   b.textContent=i;
   if(i<=limit)(function(n){b.onclick=function(){_diceCount=n;initDice();renderDice3D(n)}})(i);
-  else b.onclick=function(){memLocked(1,(''+i+'粒骰子'))};
+  else b.onclick=function(){memLocked(i-2,(''+i+'粒骰子'))};
   row.appendChild(b);
  }
  renderDice3D(_diceCount);

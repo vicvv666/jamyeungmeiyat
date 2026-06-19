@@ -990,8 +990,8 @@ def api_ads():
     # Free user gets contextual ads
     return jsonify({'ads': [
         {'id': 1, 'type': 'banner', 'text': '💎 升級會員，去廣告+更多功能', 'action': 'upgrade', 'placement': 'timeline'},
-        {'id': 2, 'type': 'interstitial', 'text': '🥈 酒鬼月費僅¥18 — 開房對戰+4粒骰', 'action': 'upgrade', 'placement': 'checkin'},
-        {'id': 3, 'type': 'banner', 'text': '🍻 酒友¥8/月 — 打卡無限+3張相', 'action': 'upgrade', 'placement': 'dice'},
+        {'id': 2, 'type': 'interstitial', 'text': '🥈 酒鬼月費僅¥19.9 — 開房對戰+4粒骰', 'action': 'upgrade', 'placement': 'checkin'},
+        {'id': 3, 'type': 'banner', 'text': '🍻 酒友¥9.9/月 — 打卡無限+3張相', 'action': 'upgrade', 'placement': 'dice'},
     ], 'ad_free': False})
 
 # ═══════════════════ Party ═══════════════════════════════
@@ -1904,10 +1904,9 @@ def api_mark_notification_read(nid):
 def api_upgrade():
     d = request.get_json(force=True) or {}
     plan = d.get('plan','jiuyau')  # jiuyau / jaugwai / jausan
-    plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':365}
+    plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':30}
     days = plan_days.get(plan, 30)
-    expires = datetime.now().strftime('%Y-%m-%d') if plan=='jausan' else \
-              f"{(datetime.now().timestamp() + days*86400):.0f}"
+    expires = datetime.now() + timedelta(days=days)
     # 用 ISO date
     from datetime import timedelta
     exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
@@ -1936,7 +1935,7 @@ def api_submit_payment():
     method = d.get('method', 'alipay')
     receipt = d.get('receipt', '')[:500]
     amount = float(d.get('amount', 0) or 0)
-    plan_amounts = {'jiuyau': 8, 'jaugwai': 18, 'jausan': 198}
+    plan_amounts = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 39.9}
     if plan not in plan_amounts:
         return jsonify({'error':'無效方案'}), 400
     db = get_db()
