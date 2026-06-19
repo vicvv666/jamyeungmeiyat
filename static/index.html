@@ -3492,7 +3492,9 @@ function startDicePoll(){
   _diceApi('GET','/api/dice/room/'+_diceRoom.id).then(function(r){
    if(r.error){stopDicePoll();return}
    var prev=_diceRoom;_diceRoom=r.room;
-   if(prev.status!==_diceRoom.status||
+    if(!_diceRoom.players)_diceRoom.players=[];
+    if(!_diceRoom.results)_diceRoom.results={};
+    if(prev.status!==_diceRoom.status||
       JSON.stringify(prev.players)!==JSON.stringify(_diceRoom.players)||
       JSON.stringify(prev.results)!==JSON.stringify(_diceRoom.results)){
     showDiceRoom();
@@ -3589,11 +3591,12 @@ function loadChallengeList(){
  _diceApi('GET','/api/dice/challenge/list').then(function(r){
   if(r.challenges&&r.challenges.length>0){
    var c=r.challenges[0];
-   _pendingChallenge={code:c.id,from:c.players[0]};
-   var n=document.getElementById('challenge-notify');
-   var t=document.getElementById('challenge-notify-text');
-   if(n&&t){
-    t.textContent='⚔️ '+(c.players[0].name||'?')+' '+T('challenge_received');
+    if(!c.players||!c.players.length)return;
+    _pendingChallenge={code:c.id,from:c.players[0]};
+    var n=document.getElementById('challenge-notify');
+    var t=document.getElementById('challenge-notify-text');
+    if(n&&t){
+     t.textContent='⚔️ '+(c.players[0].name||'?')+' '+T('challenge_received');
     n.style.display='block';
     setTimeout(function(){n.style.display='none'},15000);
    }
