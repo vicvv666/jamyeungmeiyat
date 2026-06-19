@@ -1066,7 +1066,12 @@ async function restoreS(){
  const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
    adminToken = localStorage.getItem('jymy_admin_token') || '';
    try{me=JSON.parse(localStorage.getItem('jymy_me')||'null')}catch(e){me=null}
-   try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){token=null;me=null;clearS();return false}
+   try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){
+    // /api/me failed — retry once before giving up (cold start / network blip)
+    console.warn('restoreS /api/me failed, retrying...',e.message);
+    try{await new Promise(r=>setTimeout(r,1500));const r2=await api('/api/me');me=r2.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e2){
+     console.error('restoreS /api/me retry also failed',e2.message);token=null;me=null;clearS();return false}
+   }
 }
 
 // ═══════ NAV ═══════
@@ -2159,9 +2164,11 @@ async function doCheckin(){
 }
 
 // ═══════ TIMELINE ═══════
+let _loadTLPending=false;
 async function loadTL(){
+ if(_loadTLPending)return;_loadTLPending=true;
  const c=document.getElementById('tl-container');
- if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>'+T('login_to_view')+'</div>';return}
+ if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>'+T('login_to_view')+'</div>';_loadTLPending=false;return}
  showLoader('tl-container');
  try{
  let items=[];
@@ -2184,6 +2191,7 @@ async function loadTL(){
  // P0-3: 非會員timeline插廣告
  if(memLevel()===0)loadAdBanner(c);
 }catch(e){console.error('loadTL error:',e);c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="loadTL()">🔄 重试</button><div style="font-size:11px;color:var(--sub);margin-top:4px">'+esc(e.message)+'</div></div>'}
+finally{_loadTLPending=false}
 }
 async function doRe(cid,emoji){
  try{
