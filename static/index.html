@@ -937,10 +937,16 @@ async function api(url,opts={}){
   if(opts.body&&typeof opts.body==='object'){h['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
   const furl = API_BASE + url;
   console.log('API:', furl, opts.method||'GET');
-  const r=await fetch(furl,{method:opts.method||'GET',headers:h,body:opts.body});
-  const d=await r.json();
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),15000);
+  try{
+  const r=await fetch(furl,{method:opts.method||'GET',headers:h,body:opts.body,signal:ctrl.signal});
+  clearTimeout(timer);
+  const txt=await r.text();
+  let d;try{d=JSON.parse(txt)}catch(e){throw new Error('Server error '+(r.status||''))}
   if(!r.ok) throw new Error(d.error||'Error '+r.status);
   return d;
+  }catch(e){clearTimeout(timer);if(e.name==='AbortError')throw new Error('请求超时');throw e;}
 }
 
 // ═══════ TOAST ═══════
@@ -969,7 +975,7 @@ function fireConfetti(){
 }
 
 // ═══════ MEMBERSHIP HELPERS ═══════
-function memLevel(){if(!me||!me.membership||me.membership==='free'||me.membership==='admin')return 0;return{jiuyau:1,jaugwai:2,jausan:3}[me.membership]||0}
+function memLevel(){if(!me||!me.membership||me.membership==='free')return 0;if(me.membership==='admin')return 3;return{jiuyau:1,jaugwai:2,jausan:3}[me.membership]||0}
 function memBadge(lv){if(!lv)lv=memLevel();if(!lv)return'';const n={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'}[lv]||'';return '<span class="mem-badge mem-badge-'+lv+'">'+n+'</span>'}
 function memNickClass(lv){if(!lv)lv=memLevel();return lv?'nick-'+lv:''}
 function memCardClass(lv){if(!lv)lv=memLevel();if(lv>=2)return'mem-card-glow-'+lv;return''}
@@ -2177,7 +2183,7 @@ async function loadTL(){
  c.innerHTML=h;
  // P0-3: 非會員timeline插廣告
  if(memLevel()===0)loadAdBanner(c);
-}catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'</div>'}
+}catch(e){console.error('loadTL error:',e);c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="loadTL()">🔄 重试</button><div style="font-size:11px;color:var(--sub);margin-top:4px">'+esc(e.message)+'</div></div>'}
 }
 async function doRe(cid,emoji){
  try{

@@ -938,18 +938,17 @@ def api_timeline():
     offset = int(request.args.get('offset',0))
     lang = request.args.get('lang','zh-HK')
     db = get_db()
-    rows = db.execute("""SELECT c.*, u.nickname, u.avatar, u.lang, u.membership_level
-        FROM checkins c JOIN users u ON c.user_id=u.id
+    rows = db.execute("""SELECT c.*, u.nickname, u.avatar, u.lang, u.membership_level,
+        COALESCE(r.cnt,0) as reactions, COALESCE(l.cnt,0) as likes,
+        COALESCE(cc.cnt,0) as comments, COALESCE(rp.cnt,0) as replies_count
+        FROM checkins c
+        JOIN users u ON c.user_id=u.id
+        LEFT JOIN (SELECT checkin_id,COUNT(*) cnt FROM reactions GROUP BY checkin_id) r ON r.checkin_id=c.id
+        LEFT JOIN (SELECT checkin_id,COUNT(*) cnt FROM checkin_likes GROUP BY checkin_id) l ON l.checkin_id=c.id
+        LEFT JOIN (SELECT checkin_id,COUNT(*) cnt FROM checkin_comments GROUP BY checkin_id) cc ON cc.checkin_id=c.id
+        LEFT JOIN (SELECT checkin_id,COUNT(*) cnt FROM checkin_replies GROUP BY checkin_id) rp ON rp.checkin_id=c.id
         ORDER BY c.created_at DESC LIMIT ? OFFSET ?""",(limit,offset)).fetchall()
-    items = []
-    for r in rows:
-        d = dict(r)
-        rc = db.execute('SELECT COUNT(*) FROM reactions WHERE checkin_id=?',(r['id'],)).fetchone()[0]
-        lc = db.execute('SELECT COUNT(*) FROM checkin_likes WHERE checkin_id=?',(r['id'],)).fetchone()[0]
-        cc = db.execute('SELECT COUNT(*) FROM checkin_comments WHERE checkin_id=?',(r['id'],)).fetchone()[0]
-        rpc = db.execute('SELECT COUNT(*) FROM checkin_replies WHERE checkin_id=?',(r['id'],)).fetchone()[0]
-        d['reactions'] = rc; d['likes'] = lc; d['comments'] = cc; d['replies_count'] = rpc
-        items.append(d)
+    items = [dict(r) for r in rows]
     return jsonify({'timeline':items, 'lang_map':LANG.get(lang, LANG['zh-HK'])})
 
 @app.route('/api/stats')
