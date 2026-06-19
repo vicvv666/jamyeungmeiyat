@@ -678,8 +678,13 @@ def auth_required(f):
         # Also accept X-Admin-Token for admin sessions
         if not tok:
             adm = request.headers.get('X-Admin-Token','')
-            if adm and adm.startswith('0:admin_key_login:'):
-                tok = adm
+            if adm:
+                try:
+                    raw = base64.b64decode(adm.encode()).decode()
+                    if raw.startswith('0:admin_key_login:'):
+                        tok = adm
+                except Exception:
+                    pass
         uid = _decode_token(tok)
         if uid is None:
             return jsonify({'error':'請先登入'}), 401
