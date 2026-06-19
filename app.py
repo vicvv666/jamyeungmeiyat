@@ -573,8 +573,12 @@ def _user_info(uid):
     if uid == 0:
         return {'id':0,'username':'admin','nickname':'管理員','membership':'admin','avatar':''}
     db = get_db()
-    u = db.execute('SELECT id,username,nickname,membership,membership_level,avatar FROM users WHERE id=?',(uid,)).fetchone()
-    return dict(u) if u else {'id':uid,'username':'','nickname':'','membership':'free','membership_level':0,'avatar':''}
+    u = db.execute('SELECT id,username,nickname,membership,avatar FROM users WHERE id=?',(uid,)).fetchone()
+    if u:
+        d = dict(u)
+        d['membership_level'] = {'jausan':3,'jaugwai':2,'jiuyau':1}.get(d.get('membership','free'),0)
+        return d
+    return {'id':uid,'username':'','nickname':'','membership':'free','membership_level':0,'avatar':''}
 
 def _get_membership(uid):
     """Get user membership plan and level. Returns (plan, level, expires)."""
@@ -628,13 +632,13 @@ def _mem_parties_max(level):
 
 def _mem_check_expired(uid, db):
     """Check and downgrade a specific user if membership expired. Returns True if downgraded."""
-    u = db.execute('SELECT membership_level,member_expires FROM users WHERE id=?',(uid,)).fetchone()
+    u = db.execute('SELECT membership,member_expires FROM users WHERE id=?',(uid,)).fetchone()
     if not u or not u['member_expires']: return False
     import datetime
     try:
         exp = datetime.datetime.fromisoformat(u['member_expires'])
-        if datetime.datetime.utcnow() > exp and u['membership_level'] > 0:
-            db.execute('UPDATE users SET membership_level=0,membership=? WHERE id=?',('free',uid))
+        if datetime.datetime.utcnow() > exp and u['membership'] not in ('free','','admin'):
+            db.execute('UPDATE users SET membership=? WHERE id=?',('free',uid))
             return True
     except: pass
     return False
@@ -883,7 +887,8 @@ def api_avatar(uid):
 def api_leaderboard():
     db = get_db()
     rows = db.execute("""
-        SELECT u.id, u.username, u.nickname, u.avatar, u.membership_level,
+        SELECT u.id, u.username, u.nickname, u.avatar,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
                (SELECT COUNT(*) FROM checkins WHERE user_id=u.id) as checkin_count,
                (SELECT COUNT(*) FROM checkin_likes cl 
                 JOIN checkins c ON cl.checkin_id=c.id WHERE c.user_id=u.id) as total_likes
@@ -948,7 +953,8 @@ def api_timeline():
     offset = int(request.args.get('offset',0))
     lang = request.args.get('lang','zh-HK')
     db = get_db()
-    rows = db.execute("""SELECT c.*, u.nickname, u.avatar, u.lang, u.membership_level,
+    rows = db.execute("""SELECT c.*, u.nickname, u.avatar, u.lang,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
         COALESCE(r.cnt,0) as reactions, COALESCE(l.cnt,0) as likes,
         COALESCE(cc.cnt,0) as comments, COALESCE(rp.cnt,0) as replies_count
         FROM checkins c
@@ -1020,7 +1026,8 @@ def api_create_party():
 @auth_required
 def api_parties():
     db = get_db()
-    rows = db.execute("""SELECT p.*, u.nickname as creator_nickname, u.membership_level as creator_membership_level,
+    rows = db.execute("""SELECT p.*, u.nickname as creator_nickname,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as creator_membership_level,
         (SELECT COUNT(*) FROM party_rsvp WHERE party_id=p.id AND response='going') as going_count
         FROM parties p JOIN users u ON p.creator_id=u.id
         WHERE p.status='upcoming' ORDER BY p.meet_time ASC LIMIT 20""").fetchall()
@@ -1028,7 +1035,8 @@ def api_parties():
     for r in rows:
         pd = dict(r)
         # get rsvp users
-        rsvp_rows = db.execute("""SELECT pr.response, u.nickname, u.id as uid, u.membership_level FROM party_rsvp pr 
+        rsvp_rows = db.execute("""SELECT pr.response, u.nickname, u.id as uid,
+            CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level FROM party_rsvp pr 
             JOIN users u ON pr.user_id=u.id WHERE pr.party_id=?""",(r['id'],)).fetchall()
         pd['attendees'] = [dict(rr) for rr in rsvp_rows]
         # get journal count
@@ -1063,7 +1071,8 @@ def api_party_journal(pid):
 @auth_required
 def api_get_party_journal(pid):
     db = get_db()
-    rows = db.execute("""SELECT pj.*, u.nickname, u.membership_level FROM party_journal pj
+    rows = db.execute("""SELECT pj.*, u.nickname,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level FROM party_journal pj
         JOIN users u ON pj.user_id=u.id WHERE pj.party_id=? ORDER BY pj.created_at DESC LIMIT 30""",
         (pid,)).fetchall()
     return jsonify({'journal':[dict(r) for r in rows]})
@@ -1073,7 +1082,9 @@ def api_get_party_journal(pid):
 @auth_required
 def api_friends():
     db = get_db()
-    rows = db.execute("""SELECT u.id, u.nickname, u.avatar, u.membership_level, f.status,
+    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
+        u.membership, f.status,
         (SELECT COUNT(*) FROM checkins WHERE user_id=u.id) as checkin_count,
         (SELECT COUNT(*) FROM friends WHERE (user_id=u.id OR friend_id=u.id) AND status='accepted') as friend_count
         FROM friends f JOIN users u ON (CASE WHEN f.user_id=? THEN f.friend_id ELSE f.user_id END)=u.id
@@ -1143,7 +1154,8 @@ def api_remove_friend():
 @auth_required
 def api_friends_suggest():
     db = get_db()
-    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, u.membership, u.membership_level
+    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, u.membership,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level
         FROM users u WHERE u.id!=? AND u.id NOT IN (
             SELECT CASE WHEN user_id=? THEN friend_id ELSE user_id END FROM friends
             WHERE user_id=? OR friend_id=?
@@ -1154,7 +1166,8 @@ def api_friends_suggest():
 @auth_required
 def api_friends_pending():
     db = get_db()
-    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar, u.membership_level, f.user_id as from_uid
+    rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level, f.user_id as from_uid
         FROM friends f JOIN users u ON f.user_id=u.id
         WHERE f.friend_id=? AND f.status='pending' ORDER BY f.rowid DESC""", (g.uid,)).fetchall()
     return jsonify({'pending':[dict(r) for r in rows]})
@@ -1215,7 +1228,8 @@ def api_comment(cid):
     db = get_db()
     db.execute('INSERT INTO checkin_comments (checkin_id,user_id,text) VALUES (?,?,?)',(cid,g.uid,text))
     db.commit()
-    rows = db.execute("""SELECT co.*, u.nickname, u.membership_level FROM checkin_comments co 
+    rows = db.execute("""SELECT co.*, u.nickname,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level FROM checkin_comments co
         JOIN users u ON co.user_id=u.id WHERE co.checkin_id=? ORDER BY co.created_at DESC LIMIT 20""",(cid,)).fetchall()
     return jsonify({'comments':[dict(r) for r in reversed(rows)]})
 
@@ -1223,7 +1237,8 @@ def api_comment(cid):
 @auth_required
 def api_get_comments(cid):
     db = get_db()
-    rows = db.execute("""SELECT co.*, u.nickname, u.membership_level FROM checkin_comments co 
+    rows = db.execute("""SELECT co.*, u.nickname,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level FROM checkin_comments co
         JOIN users u ON co.user_id=u.id WHERE co.checkin_id=? ORDER BY co.created_at ASC LIMIT 50""",(cid,)).fetchall()
     return jsonify({'comments':[dict(r) for r in rows]})
 
@@ -1288,7 +1303,8 @@ def api_get_posts():
     page = max(1, int(request.args.get('page',1)))
     per = min(50, int(request.args.get('per_page',20)))
     off = (page-1)*per
-    rows = db.execute("""SELECT p.*, u.username, u.nickname, u.avatar, u.membership_level,
+    rows = db.execute("""SELECT p.*, u.username, u.nickname, u.avatar,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
         (SELECT COUNT(*) FROM post_likes pl WHERE pl.post_id=p.id) as like_count,
         (SELECT COUNT(*) FROM post_comments pc WHERE pc.post_id=p.id) as comment_count
         FROM posts p JOIN users u ON p.user_id=u.id
@@ -1338,7 +1354,8 @@ def api_post_comments(pid):
     results = []
     for r in rows:
         d = dict(r)
-        reply_rows = db.execute('''SELECT r.*, u.username, u.nickname, u.avatar, u.membership_level
+        reply_rows = db.execute('''SELECT r.*, u.username, u.nickname, u.avatar,
+            CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level
             FROM post_replies r JOIN users u ON r.user_id=u.id
             WHERE r.comment_id=? ORDER BY r.id''',(r['id'],)).fetchall()
         d['replies'] = [dict(rr) for rr in reply_rows]
