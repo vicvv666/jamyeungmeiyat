@@ -3924,13 +3924,13 @@ async function loadFriendsList(){
  try{const d=await api('/api/friends');const el=document.getElementById('friend-list');
   if(!d||!d.friends){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>';return}
   const cnt=document.getElementById('my-friends-count');
-  const accepted=d.friends.filter(f=>f.status==='accepted');
-  if(cnt)cnt.textContent='('+accepted.length+')';
-  if(!accepted.length){el.innerHTML='<span style="color:var(--sub)">仲未有酒友，去推薦區添加啦！</span>';return}
+  const frs=d.friends;  // API now only returns accepted friends
+  if(cnt)cnt.textContent='('+frs.length+')';
+  if(!frs.length){el.innerHTML='<span style="color:var(--sub)">仲未有酒友，去推薦區添加啦！</span>';return}
   var html='';
-  for(var i=0;i<accepted.length;i++){
+  for(var i=0;i<frs.length;i++){
    try{
-    var f=accepted[i];
+    var f=frs[i];
     var nc=memNickClass(f.membership_level||0);
     var bdg=memBadge(f.membership_level||0);
     html+='<div class="friend-card" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:all .2s" onclick="toggleFriendDetail('+f.id+')" onmouseover="this.style.borderColor=\'var(--green)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
