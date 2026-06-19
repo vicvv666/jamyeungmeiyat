@@ -1904,11 +1904,9 @@ def api_mark_notification_read(nid):
 def api_upgrade():
     d = request.get_json(force=True) or {}
     plan = d.get('plan','jiuyau')  # jiuyau / jaugwai / jausan
+    from datetime import timedelta
     plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':30}
     days = plan_days.get(plan, 30)
-    expires = datetime.now() + timedelta(days=days)
-    # 用 ISO date
-    from datetime import timedelta
     exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
     db = get_db()
     db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',

@@ -1401,6 +1401,7 @@ const L={
   pay_title:'升級方案',
   feedback_hint:'支付後請通知管理員確認',
   upgrade_success:'升級成功',
+  pay_submitted:'✅ 付款已提交，等待管理員確認',
   upgrade_fail:'升級失敗',
   admin_no_pwd_change:'管理員不支持改密碼',
   admin_login:'管理員登入',
@@ -1678,6 +1679,7 @@ const L={
   pay_title:'升級方案',
   feedback_hint:'支付后请通知管理员确认',
   upgrade_success:'升级成功',
+  pay_submitted:'✅ 付款已提交，等待管理员确认',
   upgrade_fail:'升级失败',
   admin_no_pwd_change:'管理员不支持改密码',
   admin_login:'管理员登录',
@@ -1955,6 +1957,7 @@ const L={
   pay_title:'Upgrade Plan',
   feedback_hint:'Notify admin after payment',
   upgrade_success:'Upgrade success!',
+  pay_submitted:'✅ Payment submitted, awaiting admin confirmation',
   upgrade_fail:'Upgrade failed',
   admin_no_pwd_change:'Admin password change not supported',
   admin_login:'Admin Login',
@@ -2444,7 +2447,7 @@ function updLegalLinks(){
   const lc=document.getElementById('lt-ct-txt');if(lc)lc.textContent=T('contact');
 }
 function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');document.getElementById('pay-fb').style.display='none';img.style.display='block';function trySrc(src,onfail){img.onload=function(){img.onload=null;img.onerror=null};img.onerror=function(){img.onload=null;img.onerror=null;onfail()};img.src=src}function loadLocal(){if(ASSET_BASE){trySrc(ASSET_BASE+'/'+QR_M[t],loadRemote)}else{loadRemote()}}function loadRemote(){if(API_BASE){trySrc(API_BASE+'/'+QR_M[t],loadDirect)}else{loadDirect()}}function loadDirect(){trySrc('/'+QR_M[t],showFallback)}function showFallback(){img.style.display='none';document.getElementById('pay-fb').style.display='block'}loadLocal()}
-async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});me.membership=r.membership;me.member_expires=r.expires;saveS();closePay();updateNav();updMem();toast(T("upgrade_success"))}catch(e){toast('❌ '+e.message,1)}}
+async function cfmPay(){if(!me)return;try{const r=await api('/api/payment/submit',{method:'POST',body:{plan:selPlan,method:payQR,amount:parseFloat(({jiuyau:'9.9',jaugwai:'19.9',jausan:'39.9'}[selPlan]||'9.9')),receipt:'QR掃碼付款'}});closePay();toast(T('pay_submitted')||'✅ 付款已提交，等待管理員確認')}catch(e){toast('❌ '+e.message,1)}}
 
 // ═══════ PROFILE ═══════
 function openProfile(){
