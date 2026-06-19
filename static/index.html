@@ -655,7 +655,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="card-header" data-i18n="friends_circle">👫 酒友圈</div>
     <div id="friends-section">
      <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--pink);margin-bottom:6px" data-i18n="pending_requests">📨 待處理請求</div><div id="friend-pending" style="font-size:12px;color:var(--sub)">載入中...</div></div>
-     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px" data-i18n="my_friends">🤝 我嘅酒友</div><div id="friend-list" style="font-size:12px;color:var(--sub)">載入中...</div></div>
+     <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:4px" onclick="toggleFriendList()" id="my-friends-header" data-i18n="my_friends">🤝 我嘅酒友 <span id="my-friends-arrow" style="font-size:10px">▼</span><span id="my-friends-count" style="font-size:10px;color:var(--sub);margin-left:4px"></span></div><div id="friend-list" style="font-size:12px;color:var(--sub)">載入中...</div></div>
      <div><div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:6px" data-i18n="suggest_friends">🔍 推薦酒友</div><div id="friend-suggest" style="font-size:12px;color:var(--sub)">載入中...</div></div>
     </div>
   </div>
@@ -3922,12 +3922,31 @@ async function loadFriendsPending(){
 }
 async function loadFriendsList(){
  try{const d=await api('/api/friends');const el=document.getElementById('friend-list');
-  if(!d.friends.length){el.innerHTML='<span style="color:var(--sub)">仲未有酒友，去推薦區添加啦！</span>';return}
-  el.innerHTML=d.friends.filter(f=>f.status==='accepted').map(f=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
-   <img src="${API_BASE+'/api/avatar/'+f.id}" style="width:28px;height:28px;border-radius:50%;object-fit:cover" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2228%22 height=%2228%22><rect fill=%22%232A2A3A%22 width=%2228%22 height=%2228%22/><text y=%2218%22 x=%2214%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2216%22>👤</text></svg>'">
-   <span style="color:var(--text);font-weight:600">${f.nickname||f.username}</span>
-   <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px;margin-left:auto" onclick="removeFriend(${f.id})">移除</button>
-  </div>`).join('')
+  const cnt=document.getElementById('my-friends-count');
+  const accepted=d.friends.filter(f=>f.status==='accepted');
+  if(cnt)cnt.textContent='('+accepted.length+')';
+  if(!accepted.length){el.innerHTML='<span style="color:var(--sub)">仲未有酒友，去推薦區添加啦！</span>';return}
+  el.innerHTML=accepted.map(f=>{
+   var nc=memNickClass(f.membership_level||0);
+   var bdg=memBadge(f.membership_level||0);
+   return '<div class="friend-card" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:all .2s" onclick="toggleFriendDetail('+f.id+')" onmouseover="this.style.borderColor=\'var(--green)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
+    +'<div style="display:flex;align-items:center;gap:8px">'
+    +'<img src="'+API_BASE+'/api/avatar/'+f.id+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><rect fill=%22%232A2A3A%22 width=%2232%22 height=%2232%22/><text y=%2220%22 x=%2216%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2218%22>👤</text></svg>\'">'
+    +'<b class="'+nc+'">'+(f.nickname||f.username)+'</b> '+bdg
+    +'<span style="font-size:10px;color:var(--sub);margin-left:auto">@'+(f.username||'-')+'</span>'
+    +'<span id="farr-'+f.id+'" style="font-size:10px;color:var(--sub)">▼</span>'
+    +'</div>'
+    +'<div id="fdet-'+f.id+'" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:12px">'
+    +'<div style="display:flex;gap:12px;color:var(--sub)">'
+    +'<span>📅 '+(f.checkin_count||0)+' '+T('stats_checkins')+'</span>'
+    +'<span>👥 '+(f.friend_count||'-')+' '+T('stats_friends')+'</span>'
+    +'<span>🎖️ '+(memName(f.membership_level||0))+'</span>'
+    +'</div>'
+    +'<div style="margin-top:6px;display:flex;gap:6px">'
+    +'<button style="padding:3px 10px;border:1px solid var(--pink);border-radius:6px;background:var(--pink);color:#fff;cursor:pointer;font-size:10px" onclick="event.stopPropagation();openChat('+f.id+')">💬 聊天</button>'
+    +'<button style="padding:3px 10px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="event.stopPropagation();removeFriend('+f.id+')">🗑️ 移除</button>'
+    +'</div></div></div>'
+  }).join('')
  }catch(e){const el=document.getElementById('friend-list');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
 }
 async function loadFriendsSuggest(){
@@ -3952,6 +3971,27 @@ async function acceptFriend(uid){
 }
 async function rejectFriend(uid){
  try{await api('/api/friends/reject',{method:'POST',body:{user_id:uid}});loadFriendsAll()}catch(e){alert(e.message)}
+}
+function toggleFriendDetail(fid){
+ var det=document.getElementById('fdet-'+fid);
+ var arr=document.getElementById('farr-'+fid);
+ if(!det)return;
+ if(det.style.display==='none'){det.style.display='block';if(arr)arr.textContent='▲';}
+ else{det.style.display='none';if(arr)arr.textContent='▼';}
+}
+function toggleFriendList(){
+ var el=document.getElementById('friend-list');
+ var arr=document.getElementById('my-friends-arrow');
+ if(!el)return;
+ if(el.style.display==='none'){el.style.display='block';if(arr)arr.textContent='▲';}
+ else{el.style.display='none';if(arr)arr.textContent='▼';}
+}
+function openChat(uid){
+ showMemFriend(uid);
+}
+function memName(lv){
+ var m={0:T('free_member'),1:'🥉'+T('member_jiuyau_name','酒友'),2:'🥈'+T('member_jaugwai_name','酒鬼'),3:'🥇'+T('member_jausan_name','酒神')};
+ return m[lv]||m[0];
 }
 async function removeFriend(uid){
  if(!confirm('確認移除呢位酒友？'))return;

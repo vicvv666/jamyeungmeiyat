@@ -1073,7 +1073,9 @@ def api_get_party_journal(pid):
 @auth_required
 def api_friends():
     db = get_db()
-    rows = db.execute("""SELECT u.id, u.nickname, u.avatar, u.membership_level, f.status
+    rows = db.execute("""SELECT u.id, u.nickname, u.avatar, u.membership_level, f.status,
+        (SELECT COUNT(*) FROM checkins WHERE user_id=u.id) as checkin_count,
+        (SELECT COUNT(*) FROM friends WHERE (user_id=u.id OR friend_id=u.id) AND status='accepted') as friend_count
         FROM friends f JOIN users u ON (CASE WHEN f.user_id=? THEN f.friend_id ELSE f.user_id END)=u.id
         WHERE (f.user_id=? OR f.friend_id=?) AND u.id!=?""",
         (g.uid,g.uid,g.uid,g.uid)).fetchall()
