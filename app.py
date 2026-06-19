@@ -1971,7 +1971,7 @@ def api_admin_confirm_payment():
         db.execute('UPDATE payments SET confirmed=1 WHERE id=?', (pid,))
         # Upgrade user membership
         plan = pmt['plan']
-        plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':365}
+        plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':30}
         days = plan_days.get(plan, 30)
         from datetime import timedelta
         exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')

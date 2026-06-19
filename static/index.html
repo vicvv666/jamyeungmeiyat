@@ -383,15 +383,17 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .avatar-preview img{width:100%;height:100%;object-fit:cover}
 .date-input{border:2px solid var(--purple)!important;background:rgba(139,92,246,0.08)!important}
 /* ─── Membership Badge & Nickname Color ─── */
-.mem-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-left:4px;vertical-align:middle;letter-spacing:.5px}
+.mem-badge{font-size:10px;padding:1px 5px;border-radius:4px;margin-left:3px;display:inline-block;vertical-align:middle}
 .mem-badge-1{background:linear-gradient(135deg,#CD7F32,#B87333);color:#fff}
-.mem-badge-2{background:linear-gradient(135deg,#C0C0C0,#A8A8A8);color:#222}
-.mem-badge-3{background:linear-gradient(135deg,#FFD700,#FFA500);color:#222;text-shadow:0 0 4px rgba(255,215,0,.4)}
-.nick-1{color:#CD7F32!important}.nick-2{color:#C0C0C0!important}.nick-3{color:var(--amber)!important;text-shadow:0 0 8px rgba(245,158,11,.3)}
+.mem-badge-2{background:linear-gradient(135deg,#8b5cf6,#6366f1);color:#fff;text-shadow:0 0 4px rgba(139,92,246,.3)}
+.mem-badge-3{background:linear-gradient(135deg,#FFD700,#FF6B00,#FF2D55);color:#fff;text-shadow:0 0 6px rgba(255,107,0,.4);animation:badge-shine 2s ease-in-out infinite}
+@keyframes badge-shine{0%,100%{filter:brightness(1)}50%{filter:brightness(1.3)}}
+.nick-1{color:#CD7F32!important;font-weight:600}.nick-2{color:#a78bfa!important;text-shadow:0 0 6px rgba(167,139,250,.25);font-weight:600}.nick-3{background:linear-gradient(90deg,#f59e0b,#ef4444,#ec4899,#8b5cf6,#3b82f6);-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;background-clip:text!important;font-weight:700;filter:brightness(1.1)}
 .mem-lock{position:relative;display:inline-block}
 .mem-lock::after{content:'🔒';position:absolute;top:-4px;right:-8px;font-size:10px}
-.mem-card-glow-2{box-shadow:0 0 12px rgba(192,192,192,.15)!important}
-.mem-card-glow-3{box-shadow:0 0 16px rgba(255,215,0,.2)!important;border-color:rgba(255,215,0,.25)!important}
+.mem-card-glow-2{box-shadow:0 0 12px rgba(99,102,241,.2)!important;border-color:#6366f1!important}
+.mem-card-glow-3{box-shadow:0 0 16px rgba(245,158,11,.25)!important;border-color:var(--amber)!important;animation:card-pulse 3s ease-in-out infinite}
+@keyframes card-pulse{0%,100%{box-shadow:0 0 16px rgba(245,158,11,.25)}50%{box-shadow:0 0 24px rgba(245,158,11,.4)}}
 .attendee-list{max-height:0;overflow:hidden;transition:max-height .3s}.attendee-list.open{max-height:300px;overflow-y:auto}
 .attendee-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
 .clickable{cursor:pointer;color:var(--purple);font-weight:600}
@@ -575,7 +577,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 
 <div class="page" id="page-member">
   <!-- 个人资料卡 -->
-  <div class="card" style="text-align:center;border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(236,72,153,0.04));padding:20px 16px">
+  <div id="mem-profile-card" class="card" style="text-align:center;border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(236,72,153,0.04));padding:20px 16px">
+    <div id="exp-warn" style="display:none;background:rgba(245,158,11,0.12);border:1px solid var(--amber);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--amber)"></div>
     <div class="card-header" style="border:none;padding:0;margin-bottom:12px">👤 個人資料</div>
     <div id="mem-avatar-wrap" style="margin:0 auto 10px;width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--card);box-shadow:0 2px 12px rgba(245,158,11,0.2)" onclick="openProfile()">👤</div>
     <div style="font-weight:700;font-size:17px;color:var(--text)" id="mem-nick">-</div>
@@ -593,10 +596,39 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="font-weight:700;font-size:16px" id="mem-status" data-i18n="free_member">免費會員</div>
     <div style="font-size:12px;color:var(--sub)" id="mem-exp"></div>
   </div>
+  <!-- 功能對比表 -->
+  <div class="card" style="padding:0;overflow:hidden;margin-top:8px">
+    <div style="font-weight:700;font-size:14px;padding:12px 12px 8px;text-align:center;border-bottom:1px solid var(--border)">📊 <span data-i18n="compare_title">功能對比</span></div>
+    <div style="overflow-x:auto">
+      <table style="width:100%;font-size:11px;border-collapse:collapse;min-width:320px">
+        <thead><tr style="background:var(--bg)">
+          <th style="padding:8px 6px;text-align:left;color:var(--sub)" data-i18n="compare_feature">功能</th>
+          <th style="padding:8px 4px;text-align:center;color:var(--sub)">🆓</th>
+          <th style="padding:8px 4px;text-align:center;color:#d97706">🥉</th>
+          <th style="padding:8px 4px;text-align:center;color:#6366f1">🥈</th>
+          <th style="padding:8px 4px;text-align:center;color:#dc2626">🥇</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🎲 <span data-i18n="cmp_dice">骰子</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">2</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">4</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">5</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">📸 <span data-i18n="cmp_photos">打卡相</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">1</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">9</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">9</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">📝 <span data-i18n="cmp_note">筆記字數</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">200</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">500</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">1K</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">2K</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">👫 <span data-i18n="cmp_friends">酒友數</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">200</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">500</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🍺 <span data-i18n="cmp_daily">每日發帖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">10</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">∞</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🎯 <span data-i18n="cmp_party">月建酒局</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">1</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">5</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">8</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🏠 <span data-i18n="cmp_room">開房約戰</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🚫 <span data-i18n="cmp_noad">去廣告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">⭐ <span data-i18n="cmp_badge">專屬徽章</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🌈 <span data-i18n="cmp_rainbow">炫彩暱稱</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">⚡ <span data-i18n="cmp_priority">優先匹配</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔥 <span data-i18n="cmp_fx">專屬特效</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
   <div class="plans-row">
     <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name" data-i18n="member_jiuyau">🥉 酒友</div><div class="plan-price">¥9.9</div><div class="plan-feat">月費</div></div>
-    <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')"><div class="plan-name" data-i18n="member_jaugwai">🥈 酒鬼</div><div class="plan-price">¥19.9</div><div class="plan-feat">月費</div></div>
-    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price">¥39.9</div><div class="plan-feat">月費</div></div>
+    <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')" style="position:relative;border-color:#6366f1;background:rgba(99,102,241,0.08)"><div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:9px;padding:2px 8px;border-radius:8px;white-space:nowrap" data-i18n="most_popular">🔥 最受歡迎</div><div class="plan-name" data-i18n="member_jaugwai">🥈 酒鬼</div><div class="plan-price">¥19.9</div><div class="plan-feat">月費</div></div>
+    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')" style="position:relative"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price">¥39.9</div><div class="plan-feat">月費</div></div>
   </div>
   <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'" data-i18n="ad_cooperation">📢 廣告合作<br>vichoo2020@gmail.com</div>
   <!-- My Checkins -->
@@ -999,12 +1031,21 @@ async function loadAdBanner(container){
 function showUpgradeModal(requiredLv){
   const names={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
   const prices={1:'¥9.9/月',2:'¥19.9/月',3:'¥39.9/月'};
-  const perks={1:'骰盅開房+3骰+3相打卡+500字筆記+200好友',2:'4骰+9相+1000字+500好友+酒局5個',3:'5骰+無限好友+8酒局+2000字+炫彩暱稱'};
-  let h='<div id="upgrade-overlay" onclick="if(event.target===this)this.remove()" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center">';
-  h+='<div style="background:var(--card);border-radius:16px;padding:24px;max-width:340px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.3)">';
-  h+='<div style="font-size:28px;text-align:center;margin-bottom:8px">💎</div>';
-  h+='<div style="font-size:18px;font-weight:700;text-align:center;color:var(--amber);margin-bottom:12px">升級至 '+names[requiredLv]+'</div>';
-  h+='<div style="background:var(--bg);border-radius:10px;padding:12px;font-size:13px;color:var(--text);margin-bottom:16px">'+perks[requiredLv]+'</div>';
+  const perksList={
+    1:['🎲 3粒骰子','📸 打卡3張相','📝 500字筆記','👫 200個酒友','🍺 每日10帖','🏠 骰盅開房','🚫 去廣告'],
+    2:['🎲 4粒骰子','📸 打卡9張相','📝 1000字筆記','👫 500個酒友','🍺 每日無限帖','🏠 開房+約戰','🎯 每月5酒局','🚫 去廣告','⭐ 專屬徽章'],
+    3:['🎲 5粒骰子','📸 打卡9張相','📝 2000字筆記','👫 無限酒友','🍺 每日無限帖','🏠 開房+約戰','🎯 每月8酒局','🚫 去廣告','⭐ 專屬徽章','🌈 炫彩暱稱','⚡ 優先匹配','🔥 酒神專屬特效']
+  };
+  let h='<div id="upgrade-overlay" onclick="if(event.target===this)this.remove()" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center">';
+  h+='<div style="background:var(--card);border-radius:16px;padding:24px;max-width:380px;width:92%;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-height:85vh;overflow-y:auto">';
+  h+='<div style="font-size:32px;text-align:center;margin-bottom:4px">💎</div>';
+  h+='<div style="font-size:18px;font-weight:700;text-align:center;color:var(--amber);margin-bottom:16px">升級至 '+names[requiredLv]+'</div>';
+  // Perk list with checkmarks
+  h+='<div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:16px">';
+  perksList[requiredLv].forEach(p=>{
+    h+='<div style="padding:4px 0;font-size:13px;color:var(--text)">✅ '+p+'</div>';
+  });
+  h+='</div>';
   // show all tiers
   [1,2,3].forEach(lv=>{
     const sel=lv===requiredLv?'border:2px solid var(--amber);background:rgba(245,158,11,0.1)':'border:1px solid var(--border)';
@@ -1354,6 +1395,24 @@ const L={
   no_contact:'未填寫聯繫方式',
   free_member:'免費會員',
   upgrade_prompt:'升級享受完整功能',
+  compare_title:'功能對比',
+  compare_feature:'功能',
+  cmp_dice:'骰子',
+  cmp_photos:'打卡相',
+  cmp_note:'筆記字數',
+  cmp_friends:'酒友數',
+  cmp_daily:'每日發帖',
+  cmp_party:'月建酒局',
+  cmp_room:'開房約戰',
+  cmp_noad:'去廣告',
+  cmp_badge:'專屬徽章',
+  cmp_rainbow:'炫彩暱稱',
+  cmp_priority:'優先匹配',
+  cmp_fx:'專屬特效',
+  most_popular:'🔥 最受歡迎',
+  exp_soon:'會員即將到期',
+  exp_days:'日',
+  exp_renew:'立即續費',
   member_jiuyau:'🥉酒友',
   member_jaugwai:'🥈酒鬼',
   member_jausan:'🥇酒神',
@@ -1632,6 +1691,24 @@ const L={
   no_contact:'未填写联系方式',
   free_member:'免费会员',
   upgrade_prompt:'升级享受完整功能',
+  compare_title:'功能对比',
+  compare_feature:'功能',
+  cmp_dice:'骰子',
+  cmp_photos:'打卡相',
+  cmp_note:'笔记字数',
+  cmp_friends:'酒友数',
+  cmp_daily:'每日发帖',
+  cmp_party:'月建酒局',
+  cmp_room:'开房约战',
+  cmp_noad:'去广告',
+  cmp_badge:'专属徽章',
+  cmp_rainbow:'炫彩昵称',
+  cmp_priority:'优先匹配',
+  cmp_fx:'专属特效',
+  most_popular:'🔥 最受欢迎',
+  exp_soon:'会员即将到期',
+  exp_days:'日',
+  exp_renew:'立即续费',
   member_jiuyau:'🥉酒友',
   member_jaugwai:'🥈酒鬼',
   member_jausan:'🥇酒神',
@@ -1910,6 +1987,24 @@ const L={
   no_contact:'No contact info',
   free_member:'Free Member',
   upgrade_prompt:'Upgrade for full features',
+  compare_title:'Feature Comparison',
+  compare_feature:'Feature',
+  cmp_dice:'Dice',
+  cmp_photos:'Check-in Photos',
+  cmp_note:'Note Length',
+  cmp_friends:'Friends Limit',
+  cmp_daily:'Daily Posts',
+  cmp_party:'Monthly Parties',
+  cmp_room:'Room & Challenge',
+  cmp_noad:'Ad-free',
+  cmp_badge:'Exclusive Badge',
+  cmp_rainbow:'Rainbow Nickname',
+  cmp_priority:'Priority Matching',
+  cmp_fx:'Exclusive Effects',
+  most_popular:'🔥 Most Popular',
+  exp_soon:'Membership expiring in',
+  exp_days:'days',
+  exp_renew:'Renew Now',
   member_jiuyau:'🥉Friend',
   member_jaugwai:'🥈Drunker',
   member_jausan:'🥇God',
@@ -2297,6 +2392,15 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
  }
  var nk=document.getElementById('mem-nick');if(nk){nk.textContent=me.nickname||me.username||'-';nk.className=memNickClass(lv);}
  var un=document.getElementById('mem-username');if(un)un.textContent='@'+(me.username||'-');
+ // Expiry warning banner
+ var expWarn=document.getElementById('exp-warn');
+ if(expWarn){
+   if(lv>0&&me.member_expires){
+     var expDate=new Date(me.member_expires);var now=new Date();var daysLeft=Math.ceil((expDate-now)/(1000*60*60*24));
+     if(daysLeft<=7&&daysLeft>=0){expWarn.style.display='block';expWarn.innerHTML='⏰ '+T('exp_soon')+' <b>'+daysLeft+'</b> '+T('exp_days')+' <span style="color:var(--amber);cursor:pointer;text-decoration:underline" onclick="showPay()">'+T('exp_renew')+'</span>';
+     }else{expWarn.style.display='none';}
+   }else{expWarn.style.display='none';}
+ }
  if(s){s.textContent=lvNames[lv]||'免費會員';if(lv>=3)s.style.background='linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6)',s.style.webkitBackgroundClip='text',s.style.webkitTextFillColor='transparent';else if(lv>0)s.style.color='var(--amber)';}
  if(e)e.textContent=me.member_expires?'到期：'+me.member_expires:'';
  // Highlight active plan card
