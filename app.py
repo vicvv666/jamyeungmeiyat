@@ -2627,7 +2627,11 @@ def dice_matchmaking_cancel():
 # ═══════════════════ PWA ═══════════════════════════════
 @app.route('/')
 def index():
-    return send_from_directory(str(PWA_DIR), 'index.html')
+    resp = send_from_directory(str(PWA_DIR), 'index.html')
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    resp.headers['Pragma'] = 'no-cache'
+    resp.headers['Expires'] = '0'
+    return resp
 
 @app.route('/manifest.json')
 def manifest():
@@ -2635,7 +2639,9 @@ def manifest():
 
 @app.route('/sw.js')
 def service_worker():
-    return send_from_directory(str(PWA_DIR), 'sw.js')
+    resp = send_from_directory(str(PWA_DIR), 'sw.js')
+    resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return resp
 
 @app.route('/robots.txt')
 def robots_txt():
