@@ -343,7 +343,7 @@ CREATE TABLE IF NOT EXISTS users (
     """)
     db.commit()
     # Migrate: add columns if missing (existing DB safe)
-    for col, typ in [('phone','TEXT'),('email','TEXT'),('avatar','TEXT')]:
+    for col, typ in [('phone','TEXT'),('email','TEXT'),('avatar','TEXT'),('membership_level','INTEGER DEFAULT 0'),('member_expires','TEXT DEFAULT \"\"')]:
         try: db.execute(f'ALTER TABLE users ADD COLUMN {col} {typ} DEFAULT ""')
         except: pass
     # dice_rooms extra columns
@@ -547,9 +547,12 @@ def _token_for(user_id):
     return base64.b64encode(f'{payload}:{sig}'.encode()).decode()
 
 def _decode_token(tok):
-    """Verify HMAC signature and decode token. Returns uid or None."""
+    """Verify HMAC signature and decode token. Returns uid or None. Admin token (0:admin_key_login:xxx) returns 0."""
     try:
         raw = base64.b64decode(tok.encode()).decode()
+        # Admin key-login token: uid=0, no HMAC
+        if raw.startswith('0:admin_key_login:'):
+            return 0
         parts = raw.split(':')
         uid = int(parts[0])
         expiry = float(parts[1])
@@ -1354,13 +1357,6 @@ def api_post_reply_comment(pid, cid):
     db.execute('INSERT INTO post_replies(comment_id,post_id,user_id,text) VALUES(?,?,?,?)',(cid,pid,g.uid,text))
     db.commit()
     return jsonify({'ok':True})
-
-# ═══════════════════ Ads ═══════════════════════════════
-@app.route('/api/ads')
-def api_ads():
-    db = get_db()
-    rows = db.execute('SELECT * FROM ads WHERE active=1').fetchall()
-    return jsonify({'ads':[dict(r) for r in rows]})
 
 # ═══════════════════ Admin ═══════════════════════════════
 def _check_admin():

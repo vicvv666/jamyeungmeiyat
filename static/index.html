@@ -286,9 +286,10 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
 .lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:10px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;overflow:hidden}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:10px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:48px;white-space:nowrap}
 .tab .tab-icon{font-size:20px;margin-bottom:2px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:4px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:4px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
 .tab.active{color:var(--amber)}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
@@ -1012,8 +1013,11 @@ function showUpgradeModal(requiredLv){
 }
 async function doUpgrade(){
   const lv=parseInt(document.getElementById('ug-lv')?.value||1);
-  toast('📱 請聯繫管理員開通會員：微信/支付寶轉賬後截圖發送',1);
+  const planMap={1:'jiuyau',2:'jaugwai',3:'jausan'};
+  selPlan=planMap[lv]||'jiuyau';
+  // close upgrade modal, open payment QR modal
   document.getElementById('upgrade-overlay')?.remove();
+  showPay();
 }
 
 // ═══════ LOADER ═══════
@@ -1050,7 +1054,7 @@ async function restoreS(){
    me={id:0,username:'admin',nickname:T('admin_login'),lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
    saveS();
   }
-  loadAdmin(); updateNav(); return true;
+  loadAdmin(); updateNav(); buildGrid(); showPage('checkin'); window._admRefreshed=true; refreshAll(); updTitles(); return true;
  }
  // Flask mode: use local token + /api/me
  const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
@@ -2964,7 +2968,7 @@ async function admLoadAudit(){
  }
  buildGrid();updTitles();
  // Flask API mode - no Supabase SDK needed
- function startApp(){ restoreS().then(ok=>{updateNav();if(me){refreshAll()}else{setTimeout(showAuth,600);loadAdmin()}}); }
+ function startApp(){ restoreS().then(ok=>{updateNav();if(me && !window._admRefreshed){refreshAll()}else if(!me){setTimeout(showAuth,600);loadAdmin()}}); }
  startApp();
 })();
 
