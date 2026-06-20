@@ -318,11 +318,12 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
 .lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:11px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:48px;white-space:nowrap}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:12px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:44px;white-space:nowrap;overflow:visible}
 .tab .tab-icon{font-size:20px;margin-bottom:2px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:4px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:4px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;will-change:auto;contain:layout style}
 .tabs::-webkit-scrollbar{display:none}
 .tab.active{color:var(--amber)}
+.tab span{display:inline-block;min-width:fit-content;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .pulse-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:4px}
@@ -985,6 +986,40 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 // ═══════ GLOBAL STATE ═══════
 let me=null,token=null,selStatus=-1,selPlan='jiuyau',lang='zh-HK',payQR='alipay',curCid=null,curPid=null;
 
+// ═══════ DICE SOUND ENGINE (Web Audio API) ═══════
+const DICE_SND=(function(){
+  let ctx=null;
+  function getCtx(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx}
+  function noise(dur,freq,vol){
+    try{
+      const c=getCtx(),t=c.currentTime;
+      const buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate);
+      const d=buf.getChannelData(0);
+      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*vol;
+      const src=c.createBufferSource();src.buffer=buf;
+      const filt=c.createBiquadFilter();filt.type='bandpass';filt.frequency.value=freq;filt.Q.value=1.5;
+      const g=c.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      src.connect(filt);filt.connect(g);g.connect(c.destination);src.start(t);src.stop(t+dur);
+    }catch(e){}
+  }
+  function tone(freq,dur,vol,type){
+    try{
+      const c=getCtx(),t=c.currentTime;
+      const o=c.createOscillator();o.type=type||'sine';o.frequency.value=freq;
+      const g=c.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur);
+    }catch(e){}
+  }
+  return{
+    shake(){for(let i=0;i<3;i++)setTimeout(()=>noise(0.08,800+Math.random()*400,0.15),i*60)},
+    roll(){noise(0.12,1200,0.2);setTimeout(()=>noise(0.06,2000,0.1),150)},
+    land(){tone(180,0.18,0.12,'triangle');setTimeout(()=>tone(260,0.1,0.06,'sine'),80)},
+    win(){[523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.25,0.1,'sine'),i*120))},
+    unlock(){tone(880,0.15,0.08,'sine');setTimeout(()=>tone(1100,0.2,0.1,'sine'),100)},
+    resume(){try{const c=getCtx();if(c.state==='suspended')c.resume()}catch(e){}}
+  }
+})();
+
 // ═══════ ASSET BASE (already defined in <head> for cover img) ═══════
 // ASSET_BASE is defined in <head> as var, don't redeclare with const
 
@@ -1268,6 +1303,7 @@ let _touchStartX = 0, _touchStartY = 0, _touchDx = 0;
 const SWIPE_THRESHOLD = 50;
 
 document.addEventListener('touchstart', function(e){
+  DICE_SND.resume(); // Unlock AudioContext on first touch (iOS)
   if(e.target.closest('.tabs') || e.target.closest('.page')) {
     _touchStartX = e.changedTouches[0].screenX;
     _touchStartY = e.changedTouches[0].screenY;
@@ -3392,9 +3428,11 @@ function create3DDice(val){
 function shakeSolo(){
  if(_diceShaking)return;
  _diceShaking=true;
+ DICE_SND.resume(); // Unlock AudioContext on user gesture
  var btn=document.getElementById('btn-shake');
  if(btn){btn.disabled=true;btn.textContent='搖緊...'}
  if(navigator.vibrate)navigator.vibrate([100,50,100,50,100,50,200]);
+ DICE_SND.shake();
  var area=document.getElementById('dice-area');
  var table=document.getElementById('dice-table');
  var sr=document.getElementById('solo-result');if(sr)sr.textContent='';
@@ -3437,6 +3475,7 @@ function shakeSolo(){
  // Phase 3: Lift cup, reveal dice
  setTimeout(function(){
   if(cup)cup.classList.add('lifting');
+  DICE_SND.roll(); // Cup lift + dice rolling sound
   dies.forEach(function(d){
    d.style.transition='none';d.style.opacity='1';d.classList.add('rolling');
   });
@@ -3444,6 +3483,7 @@ function shakeSolo(){
 
  // Phase 4: Stop rolling, land with bounce
  setTimeout(function(){
+  DICE_SND.land(); // Dice landing thud
   var res=[];
   dies.forEach(function(d,i){
    var v=Math.floor(Math.random()*6)+1;res.push(v);_diceVals[i]=v;
@@ -3529,6 +3569,7 @@ function shakeRoom(){
  var myRes=_diceRoom.results[myId]||[];
  var maxR=((_diceRoom.rules||{}).rounds||1);
  if(myRes.length>=maxR){diceToast('你已搖完');return}
+ DICE_SND.resume();DICE_SND.shake();
  var vals=[];for(var i=0;i<((_diceRoom.rules||{}).dice||2);i++)vals.push(Math.floor(Math.random()*6)+1);
  if(navigator.vibrate)navigator.vibrate([80,40,80]);
  _diceApi('POST','/api/dice/room/shake',{code:_diceRoom.id,values:vals}).then(function(r){
@@ -3547,6 +3588,7 @@ function revealAll(){
  if(!_diceIsHost){diceToast('只有房主開盅');return}
  _diceApi('POST','/api/dice/room/reveal',{code:_diceRoom.id}).then(function(r){
   if(r.error){diceToast('❌ '+r.error);return}
+  DICE_SND.roll();setTimeout(()=>DICE_SND.land(),400);
   _diceRoom=r.room;renderBattle();updRoomPlayers();diceToast('🔥 開盅！');
  }).catch(function(){diceToast('❌ 開盅失敗')});
 }
