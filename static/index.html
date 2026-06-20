@@ -318,12 +318,14 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
 .lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
-.tab{flex:1 1 0%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 0 1px;color:var(--sub);font-size:9px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;white-space:nowrap;overflow:visible;letter-spacing:-0.5px;line-height:1.2}
-.tab .tab-icon{font-size:15px;margin-bottom:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block;line-height:1}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;will-change:auto;contain:layout style}
+.tab{flex:1 1 0%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0 3px;color:var(--sub);font-size:11px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;white-space:nowrap;overflow:visible;letter-spacing:-0.2px;line-height:1.3}
+.tab .tab-icon{font-size:20px;margin-bottom:1px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block;line-height:1}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden}
 .tabs::-webkit-scrollbar{display:none}
 .tab.active{color:var(--amber)}
 .tab span{display:inline-block;min-width:fit-content;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+@media(max-width:360px){.tab{font-size:10px;padding:3px 0 2px}.tab .tab-icon{font-size:17px}}
+@media(min-width:414px){.tab{font-size:12px;padding:5px 0 3px}.tab .tab-icon{font-size:22px}}
 @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .pulse-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-left:4px}
@@ -1397,6 +1399,9 @@ function showPage(name){
   document.querySelectorAll('.tab').forEach(tb=>tb.classList.remove('active'));
   const tb=document.querySelector('[data-page="'+name+'"]');
   if(tb)tb.classList.add('active');
+  // Force repaint of tab bar to prevent text disappearing on some devices
+  const tabsBar=document.querySelector('.tabs');
+  if(tabsBar){tabsBar.style.display='none';tabsBar.offsetHeight;tabsBar.style.display=''}
   // Reset scroll position to top when switching pages
   window.scrollTo({top:0,behavior:'smooth'});
   // Close any open modal overlays when switching pages
