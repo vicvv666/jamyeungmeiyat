@@ -431,6 +431,16 @@ CREATE TABLE IF NOT EXISTS users (
     except: pass
     try: db.execute('ALTER TABLE users ADD COLUMN drink_age INTEGER DEFAULT 0')
     except: pass
+    # Private messages table
+    try: db.execute('''CREATE TABLE IF NOT EXISTS private_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender_id INTEGER NOT NULL,
+        receiver_id INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        read INTEGER DEFAULT 0
+    )''')
+    except: pass
     db.commit()
     db.close()
 
@@ -687,7 +697,8 @@ def _admin_guard():
     if g.uid == 0:
         return {'id':0,'username':'admin','nickname':'管理員','membership':'admin',
                 'password':'','phone':'','email':'','lang':'zh-HK',
-                'member_expires':'2099-12-31','avatar':'','admin':1}, None
+                'member_expires':'2099-12-31','avatar':'','admin':1,
+                'region':'','gender':'','age':0,'drink_age':0}, None
     db = get_db()
     u = db.execute('SELECT * FROM users WHERE id=?',(g.uid,)).fetchone()
     if not u:
@@ -1127,7 +1138,7 @@ def api_friends():
     db = get_db()
     rows = db.execute("""SELECT u.id, u.username, u.nickname, u.avatar,
         CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
-        u.membership, f.status,
+        u.membership, f.status, u.region, u.gender, u.age, u.drink_age,
         (SELECT COUNT(*) FROM checkins WHERE user_id=u.id) as checkin_count,
         (SELECT COUNT(*) FROM friends WHERE (user_id=u.id OR friend_id=u.id) AND status='accepted') as friend_count
         FROM friends f JOIN users u ON (CASE WHEN f.user_id=? THEN f.friend_id ELSE f.user_id END)=u.id
@@ -1214,6 +1225,49 @@ def api_friends_pending():
         FROM friends f JOIN users u ON f.user_id=u.id
         WHERE f.friend_id=? AND f.status='pending' ORDER BY f.rowid DESC""", (g.uid,)).fetchall()
     return jsonify({'pending':[dict(r) for r in rows]})
+
+# ═══════════ Private Messages ═══════════
+@app.route('/api/messages/<int:peer_id>')
+@auth_required
+def api_messages(peer_id):
+    db = get_db()
+    msgs = db.execute('''SELECT id, sender_id, receiver_id, content, created_at, read
+        FROM private_messages WHERE (sender_id=? AND receiver_id=?) OR (sender_id=? AND receiver_id=?)
+        ORDER BY id DESC LIMIT 50''', (g.uid, peer_id, peer_id, g.uid)).fetchall()
+    # Mark unread as read
+    db.execute('UPDATE private_messages SET read=1 WHERE sender_id=? AND receiver_id=? AND read=0', (peer_id, g.uid))
+    db.commit()
+    return jsonify({'messages':[dict(m) for m in reversed(msgs)]})
+
+@app.route('/api/messages/send', methods=['POST'])
+@auth_required
+def api_messages_send():
+    d = request.get_json(force=True) or {}
+    to_uid = d.get('to')
+    content = (d.get('content') or '').strip()
+    if not to_uid or not content:
+        return jsonify({'error':'缺少收件人或內容'}), 400
+    if len(content) > 500:
+        return jsonify({'error':'訊息太長（最多500字）'}), 400
+    db = get_db()
+    # Check they are friends (accepted)
+    fr = db.execute("""SELECT 1 FROM friends WHERE status='accepted'
+        AND ((user_id=? AND friend_id=?) OR (user_id=? AND friend_id=?))""",
+        (g.uid, to_uid, to_uid, g.uid)).fetchone()
+    if not fr and g.uid != 0:
+        return jsonify({'error':'只能同酒友傾偈'}), 403
+    u, _ = _admin_guard()
+    db.execute('INSERT INTO private_messages (sender_id, receiver_id, content) VALUES (?,?,?)',
+               (g.uid, to_uid, content))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/messages/unread')
+@auth_required
+def api_messages_unread():
+    db = get_db()
+    cnt = db.execute('SELECT COUNT(*) FROM private_messages WHERE receiver_id=? AND read=0', (g.uid,)).fetchone()[0]
+    return jsonify({'unread': cnt})
 
 @app.route('/api/user/<int:uid>')
 @auth_required

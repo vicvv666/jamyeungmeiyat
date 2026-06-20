@@ -761,6 +761,22 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <div id="posts-container" style="margin-top:12px"></div>
 </div>
 
+<!-- Chat Modal -->
+<div class="modal-overlay" id="chat-mod" onclick="if(event.target===this)closeChat()" style="display:none;z-index:1100">
+  <div id="chat-box" style="position:fixed;bottom:0;left:0;right:0;max-width:420px;margin:0 auto;background:var(--bg);border-top-left-radius:16px;border-top-right-radius:16px;box-shadow:0 -4px 24px rgba(0,0,0,0.5);display:flex;flex-direction:column;max-height:70vh">
+    <div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:8px">
+      <button style="background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer" onclick="closeChat()">✕</button>
+      <img id="chat-av" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover">
+      <b id="chat-nick" style="color:var(--text);font-size:14px">-</b>
+      <span style="font-size:11px;color:var(--sub)" id="chat-un">@-</span>
+    </div>
+    <div id="chat-msgs" style="flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px;min-height:200px;max-height:50vh"></div>
+    <div style="display:flex;gap:6px;padding:8px 14px;border-top:1px solid var(--border)">
+      <input id="chat-inp" placeholder="講嘢..." style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px" onkeydown="if(event.key==='Enter')sendChat()">
+      <button onclick="sendChat()" style="padding:8px 14px;border:none;border-radius:8px;background:var(--amber);color:#fff;font-weight:700;cursor:pointer">送出</button>
+    </div>
+  </div>
+</div>
 <!-- Admin Panel (独立弹窗) -->
 <div class="modal-overlay" id="admin-mod" onclick="if(event.target===this)admClose()">
  <div class="modal" style="max-width:520px;max-height:90dvh;overflow-y:auto">
@@ -4319,11 +4335,12 @@ async function loadFriendsList(){
     +'<span id="farr-'+f.id+'" style="font-size:10px;color:var(--sub)">▼</span>'
     +'</div>'
     +'<div id="fdet-'+f.id+'" style="display:none;margin-top:6px;padding-top:6px;border-top:1px solid var(--border);font-size:12px">'
-    +'<div style="display:flex;gap:12px;color:var(--sub)">'
+    +'<div style="display:flex;gap:12px;color:var(--sub);flex-wrap:wrap">'
     +'<span>📅 '+(f.checkin_count||0)+' '+T('stats_checkins')+'</span>'
     +'<span>👥 '+(f.friend_count||'-')+' '+T('stats_friends')+'</span>'
     +'<span>🎖️ '+(memName(f.membership_level||0))+'</span>'
     +'</div>'
+    +'<div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap" id="ftags-'+f.id+'"></div>'
     +'<div style="margin-top:6px;display:flex;gap:6px">'
     +'<button style="padding:3px 10px;border:1px solid var(--pink);border-radius:6px;background:var(--pink);color:#fff;cursor:pointer;font-size:10px" onclick="event.stopPropagation();openChat('+f.id+')">💬 聊天</button>'
     +'<button style="padding:3px 10px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="event.stopPropagation();removeFriend('+f.id+')">🗑️ 移除</button>'
@@ -4331,6 +4348,18 @@ async function loadFriendsList(){
    }catch(e){console.error('render friend err:',e,f)}
   }
   el.innerHTML=html;
+  // Fill friend tags (region/gender/age/drink_age)
+  var _rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};
+  var _gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};
+  for(var i=0;i<frs.length;i++){
+   var f=frs[i],tc=document.getElementById('ftags-'+f.id);
+   if(!tc)continue;var ts=[];
+   if(f.region)ts.push('<span style="font-size:11px;background:rgba(245,158,11,0.1);padding:2px 8px;border-radius:8px">'+(_rgnMap[f.region]||f.region)+'</span>');
+   if(f.gender)ts.push('<span style="font-size:11px;background:rgba(236,72,153,0.1);padding:2px 8px;border-radius:8px">'+(_gdrMap[f.gender]||f.gender)+'</span>');
+   if(f.age)ts.push('<span style="font-size:11px;background:rgba(139,92,246,0.1);padding:2px 8px;border-radius:8px">🎂 '+f.age+'歲</span>');
+   if(f.drink_age)ts.push('<span style="font-size:11px;background:rgba(34,197,94,0.1);padding:2px 8px;border-radius:8px">🍺 酒齡'+f.drink_age+'年</span>');
+   tc.innerHTML=ts.join('');
+  }
  }catch(e){console.error('loadFriendsList err:',e);const el=document.getElementById('friend-list');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
 }
 async function loadFriendsSuggest(){
@@ -4370,8 +4399,50 @@ function toggleFriendList(){
  if(el.style.display==='none'){el.style.display='block';if(arr)arr.textContent='▲';}
  else{el.style.display='none';if(arr)arr.textContent='▼';}
 }
+var _chatPeer=0;
 function openChat(uid){
- showMemFriend(uid);
+ _chatPeer=uid;
+ document.getElementById('chat-mod').style.display='flex';
+ // load peer info
+ api('/api/user/'+uid).then(d=>{
+  var u=d.user||{};
+  document.getElementById('chat-nick').textContent=u.nickname||u.username||'?';
+  document.getElementById('chat-un').textContent='@'+(u.username||'-');
+  document.getElementById('chat-av').src=API_BASE+'/api/avatar/'+uid;
+ }).catch(()=>{});
+ loadChatMsgs();
+ _chatPoll=setInterval(loadChatMsgs,5000);
+}
+function closeChat(){
+ document.getElementById('chat-mod').style.display='none';
+ if(_chatPoll){clearInterval(_chatPoll);_chatPoll=null}
+ _chatPeer=0;
+}
+var _chatPoll=null;
+async function loadChatMsgs(){
+ if(!_chatPeer)return;
+ try{
+  var d=await api('/api/messages/'+_chatPeer);
+  var msgs=d.messages||[];
+  var el=document.getElementById('chat-msgs');
+  var wasBottom=el.scrollTop+el.clientHeight>=el.scrollHeight-30;
+  var html='';
+  for(var i=0;i<msgs.length;i++){
+   var m=msgs[i];
+   var isMine=m.sender_id===(me?.id||0);
+   html+='<div style="display:flex;'+(isMine?'justify-content:flex-end':'')+'"><div style="max-width:75%;padding:8px 12px;border-radius:12px;font-size:13px;'+(isMine?'background:var(--amber);color:#fff;border-bottom-right-radius:4px':'background:var(--card);color:var(--text);border-bottom-left-radius:4px')+'">'+esc(m.content)+'<div style="font-size:10px;margin-top:2px;opacity:0.6;text-align:right">'+(m.created_at||'')+'</div></div></div>';
+  }
+  el.innerHTML=html||'<div style="text-align:center;color:var(--sub);font-size:12px">仲未有對話，講聲嗨啦！</div>';
+  if(wasBottom)el.scrollTop=el.scrollHeight;
+ }catch(e){console.error('loadChatMsgs err',e)}
+}
+async function sendChat(){
+ var inp=document.getElementById('chat-inp');
+ var msg=inp.value.trim();
+ if(!msg||!_chatPeer)return;
+ inp.value='';
+ try{await api('/api/messages/send',{method:'POST',body:{to:_chatPeer,content:msg}});loadChatMsgs()}
+ catch(e){alert('傳送失敗：'+e.message)}
 }
 function memName(lv){
  var m={0:T('free_member'),1:'🥉'+T('member_jiuyau_name','酒友'),2:'🥈'+T('member_jaugwai_name','酒鬼'),3:'🥇'+T('member_jausan_name','酒神')};
