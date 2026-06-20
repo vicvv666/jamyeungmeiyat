@@ -126,7 +126,7 @@
     "price": "0",
     "priceCurrency": "HKD"
   },
-  "installUrl": "https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.3.1/app-release.apk",
+  "installUrl": "https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.5.0/app-release.apk",
   "image": "https://drunk.vic999.com/cover-480.webp",
   "aggregateRating": {
     "@type": "AggregateRating",
@@ -185,7 +185,7 @@
       "name": "點樣下載今晚飲咗未App？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "可以透過瀏覽器直接使用，或者下載Android APK安裝。下載連結：https://drunk.vic999.com/apk/jymy.apk"
+        "text": "可以透過瀏覽器直接使用，或者下載Android APK安裝。下載連結：https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.5.0/app-release.apk"
       }
     },
     {
@@ -492,8 +492,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header" data-i18n="download_title">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px"><span data-i18n="download_hint">喺手機安裝 App 體驗更佳！</span></div>
-  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.4.2/app-release.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.4.2 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.4.2/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">備用下載</a></div>
+  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.5.0/app-release.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
+  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.5.0 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.5.0/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">備用下載</a></div>
  </div>
  <!-- Legal Footer on main page -->
  <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
@@ -685,8 +685,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="font-size:28px;margin-bottom:6px">📱</div>
     <div style="font-weight:700;font-size:14px;margin-bottom:4px" data-i18n="apk_download_title">下載 Android App</div>
     <div style="font-size:11px;color:var(--sub);margin-bottom:10px" data-i18n="apk_download_desc">更好體驗 · 離線打卡 · 推送通知</div>
-    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.4.2/app-release.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download>🚀 下載 APK v1.4.2</a>
-    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.4.2/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">備用下載</a> · Android 5.0+</div>
+    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.5.0/app-release.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download>🚀 下載 APK v1.5.0</a>
+    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.5.0/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">備用下載</a> · Android 5.0+</div>
   </div>
   <!-- My Checkins -->
   <div class="card" style="margin-top:8px;border:1.5px solid var(--amber);background:rgba(245,158,11,0.04)">
@@ -2841,9 +2841,18 @@ function showMemFriend(uid){
   var av=u.avatar&&u.avatar.startsWith('emoji:')?u.avatar.replace('emoji:',''):'👤';
   var avSrc=u.avatar&&u.avatar.startsWith('/api/')?API_BASE+u.avatar:'';
   var avHtml=avSrc?'<img src="'+avSrc+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover" onerror="this.outerHTML=\'👤\'">':'<span style="font-size:48px">'+av+'</span>';
+  var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};
+  var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};
+  var tags=[];
+  if(u.region)tags.push('<span style="font-size:11px;background:rgba(245,158,11,0.1);padding:2px 8px;border-radius:8px">'+(rgnMap[u.region]||u.region)+'</span>');
+  if(u.gender)tags.push('<span style="font-size:11px;background:rgba(236,72,153,0.1);padding:2px 8px;border-radius:8px">'+(gdrMap[u.gender]||u.gender)+'</span>');
+  if(u.age)tags.push('<span style="font-size:11px;background:rgba(139,92,246,0.1);padding:2px 8px;border-radius:8px">🎂 '+u.age+'歲</span>');
+  if(u.drink_age)tags.push('<span style="font-size:11px;background:rgba(34,197,94,0.1);padding:2px 8px;border-radius:8px">🍺 酒齡'+u.drink_age+'年</span>');
+  var tagHtml=tags.length?'<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:8px">'+tags.join('')+'</div>':'';
   body.innerHTML='<div style="margin-bottom:12px">'+avHtml+'</div>'+
    '<div style="font-size:18px;font-weight:700;color:var(--text)">'+esc(u.nickname||u.username||'?')+'</div>'+
-   '<div style="font-size:12px;color:var(--sub);margin-bottom:12px">@'+esc(u.username||'-')+'</div>'+
+   '<div style="font-size:12px;color:var(--sub);margin-bottom:8px">@'+esc(u.username||'-')+'</div>'+
+   tagHtml+
    '<div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">'+
     '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.checkin_count||0)+'</div><div style="font-size:10px;color:var(--sub)" data-i18n="checkins">報到</div></div>'+
     '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.friend_count||0)+'</div><div style="font-size:10px;color:var(--sub)" data-i18n="friends">酒友</div></div>'+
@@ -3166,6 +3175,14 @@ async function admEditUser(uid, username){
  if(phone===null) return;
  const email = prompt('電郵：');
  if(email===null) return;
+ const region = prompt('地區（HK/MO/TW/CN-GD/CN-BJ/CN-SH/CN-GX/CN-FJ/CN-ZJ/CN-OTHER/MY/SG/JP/KR/US/UK/AU/OTHER）：');
+ if(region===null) return;
+ const gender = prompt('性別（M/F/O）：');
+ if(gender===null) return;
+ const age = prompt('年齡：');
+ if(age===null) return;
+ const drink_age = prompt('酒齡（年）：');
+ if(drink_age===null) return;
  try{
   await _admCheck();
   const h = _admHeaders();
@@ -3173,6 +3190,10 @@ async function admEditUser(uid, username){
   if(nick!=='') body.nickname = nick;
   body.phone = phone||'';
   body.email = email||'';
+  if(region!=='') body.region = region;
+  if(gender!=='') body.gender = gender;
+  if(age!=='') body.age = parseInt(age)||0;
+  if(drink_age!=='') body.drink_age = parseInt(drink_age)||0;
   const r=await fetch(API_BASE+'/api/admin/update-profile',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify(body)});
   const d=await r.json();
   if(d.ok) toast('✅ 已更新');
@@ -3210,7 +3231,7 @@ async function admLoadMembers(){
  const isAdm = u.admin === 1;
  html += '<div class="tl-item" style="padding:8px 0"><div class="tl-body">';
  html += '<div class="tl-name '+memNickClass(u.membership_level||0)+'">'+esc(u.nickname||u.username)+' '+memBadge(u.membership_level||0)+' <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
- html += '<div style="font-size:11px;color:var(--sub);margin:2px 0">ID:'+u.id+' · 註冊:'+(u.created_at||'')+(u.phone?' · 📞 '+esc(u.phone):'')+(u.email?' · 📧 '+esc(u.email):'')+'</div>';
+ html += '<div style=\"font-size:11px;color:var(--sub);margin:2px 0\">ID:'+u.id+' · 註冊:'+(u.created_at||'')+(u.region?' · 🌍 '+esc(u.region):'')+(u.gender?' · '+(u.gender==='M'?'👨':u.gender==='F'?'👩':'🧑'):'')+(u.age?' · 🎂 '+u.age:'')+(u.drink_age?' · 🍺 '+u.drink_age+'年':'')+(u.phone?' · 📞 '+esc(u.phone):'')+(u.email?' · 📧 '+esc(u.email):'')+'</div>';
  html += '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:4px">';
  html += '<span style="font-size:12px;padding:2px 8px;border-radius:4px;background:'+(plan==='free'?'var(--card)':isExp?'var(--red)':'linear-gradient(135deg,var(--amber),var(--purple))')+';color:#fff">'+(plan==='free'?'🆓':plan)+'</span>';
  if(isAdm) html += '<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--pink);color:#fff">👑 管理員</span>';

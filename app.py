@@ -1219,7 +1219,7 @@ def api_friends_pending():
 @auth_required
 def api_user_profile(uid):
     db = get_db()
-    u = db.execute('SELECT id,username,nickname,avatar,membership,membership_level,member_expires,created_at FROM users WHERE id=?',(uid,)).fetchone()
+    u = db.execute('SELECT id,username,nickname,avatar,membership,membership_level,member_expires,created_at,region,gender,age,drink_age,bio FROM users WHERE id=?',(uid,)).fetchone()
     if not u: return jsonify({'error':'用戶不存在'}), 404
     chk_cnt = db.execute('SELECT COUNT(*) FROM checkins WHERE user_id=?',(uid,)).fetchone()[0]
     frd_cnt = db.execute('SELECT COUNT(*) FROM friends WHERE (user_id=? OR friend_id=?) AND status="accepted"',(uid,uid)).fetchone()[0]
@@ -1624,7 +1624,7 @@ def api_admin_refresh_token():
 def api_admin_members():
     if not _check_admin(): return jsonify({'error':'未授權'}), 403
     db = get_db()
-    users = db.execute('SELECT id,username,nickname,membership,member_expires,created_at,admin FROM users ORDER BY id').fetchall()
+    users = db.execute('SELECT id,username,nickname,membership,membership_level,member_expires,created_at,admin,phone,email,region,gender,age,drink_age FROM users ORDER BY id').fetchall()
     return jsonify({'users':[dict(u) for u in users]})
 
 @app.route('/api/admin/member/set', methods=['POST'])
@@ -1711,6 +1711,14 @@ def api_admin_update_profile():
         db.execute('UPDATE users SET email=? WHERE id=?', (d['email'], uid))
     if d.get('membership'):
         db.execute('UPDATE users SET membership=? WHERE id=?', (d['membership'], uid))
+    if 'region' in d:
+        db.execute('UPDATE users SET region=? WHERE id=?', (d['region'], uid))
+    if 'gender' in d:
+        db.execute('UPDATE users SET gender=? WHERE id=?', (d['gender'], uid))
+    if 'age' in d:
+        db.execute('UPDATE users SET age=? WHERE id=?', (int(d['age']) or 0, uid))
+    if 'drink_age' in d:
+        db.execute('UPDATE users SET drink_age=? WHERE id=?', (int(d['drink_age']) or 0, uid))
     db.commit()
     u = db.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
     if not u: return jsonify({'error':'用戶不存在'}), 404
