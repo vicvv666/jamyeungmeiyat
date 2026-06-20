@@ -766,10 +766,10 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <div id="chat-box" style="position:fixed;bottom:0;left:0;right:0;max-width:420px;margin:0 auto;background:var(--bg);border-top-left-radius:20px;border-top-right-radius:20px;box-shadow:0 -4px 32px rgba(0,0,0,0.6);display:flex;flex-direction:column;max-height:75vh">
     <div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:10px;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(236,72,153,0.1))">
       <button style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:4px" onclick="closeChat()">✕</button>
-      <img id="chat-av" src="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--amber)" onerror="this.style.display='none'">
+      <div id="chat-av-wrap" style="width:32px;height:32px;border-radius:50%;border:2px solid var(--amber);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--card);font-size:18px;flex-shrink:0">👤</div>
       <div style="flex:1">
-        <b id="chat-nick" style="color:var(--text);font-size:14px;display:block">-</b>
-        <span style="font-size:11px;color:var(--sub)" id="chat-un">@-</span>
+        <b id="chat-nick" style="color:var(--text);font-size:14px;display:block"></b>
+        <span style="font-size:11px;color:var(--sub)" id="chat-un"></span>
       </div>
       <span id="chat-mem-badge" style="font-size:10px;padding:2px 8px;border-radius:8px;background:var(--amber);color:#fff;display:none"></span>
     </div>
@@ -969,9 +969,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
       <div>
-        <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="region_label">📍 地區</label>
+        <label style="font-size:12px;color:var(--amber);display:block;margin-bottom:4px;font-weight:600" data-i18n="region_label">📍 地區</label>
         <select class="input" id="p-region" style="padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);width:100%">
-          <option value="" data-i18n="region_default">選擇地區</option>
+          <option value="" disabled selected data-i18n="region_default">選擇地區</option>
           <option value="HK">🇭🇰 香港</option>
           <option value="MO">🇲🇴 澳門</option>
           <option value="TW">🇹🇼 台灣</option>
@@ -993,9 +993,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
         </select>
       </div>
       <div>
-        <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="gender_label">👤 性別</label>
+        <label style="font-size:12px;color:var(--pink);display:block;margin-bottom:4px;font-weight:600" data-i18n="gender_label">👤 性別</label>
         <select class="input" id="p-gender" style="padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);width:100%">
-          <option value="" data-i18n="gender_default">選擇</option>
+          <option value="" disabled selected data-i18n="gender_default">選擇</option>
           <option value="M">👨 男</option>
           <option value="F">👩 女</option>
           <option value="O">🧑 其他</option>
@@ -1004,11 +1004,11 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
       <div>
-        <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="age_label">🎂 年齡</label>
+        <label style="font-size:12px;color:#a855f7;display:block;margin-bottom:4px;font-weight:600" data-i18n="age_label">🎂 年齡</label>
         <input class="input" id="p-age" type="number" min="18" max="99" placeholder="18-99" data-i18n-placeholder="age_placeholder">
       </div>
       <div>
-        <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="drinkage_label">🍺 酒齡(年)</label>
+        <label style="font-size:12px;color:#22c55e;display:block;margin-bottom:4px;font-weight:600" data-i18n="drinkage_label">🍺 酒齡(年)</label>
         <input class="input" id="p-drinkage" type="number" min="0" max="80" placeholder="0-80" data-i18n-placeholder="drinkage_placeholder">
       </div>
     </div>
@@ -2937,7 +2937,7 @@ function toggleMemSection(id){
 
 // ═══════ FRIEND PROFILE MODAL ═══════
 function showMemFriend(uid){
- var mod=document.getElementById('frd-mod'),body=document.getElementById('frd-body');
+ var mod=document.getElementById('friend-profile-mod'),body=document.getElementById('friend-profile-body');
  if(!mod||!body)return;
  // Admin user (id=0) — show local me data instead of API call
   if(uid===0 && me && me.admin){
@@ -4514,10 +4514,16 @@ function openChat(uid){
   var u=d.user||{};
   document.getElementById('chat-nick').textContent=u.nickname||u.username||'?';
   document.getElementById('chat-un').textContent='@'+(u.username||'-');
-  var avEl=document.getElementById('chat-av');
-  if(u.avatar && u.avatar.startsWith('/api/avatar/')){avEl.src=API_BASE+u.avatar;avEl.style.display='';}
-  else if(u.avatar && /^emoji:/.test(u.avatar)){avEl.src='';avEl.style.display='none';}
-  else{avEl.src=API_BASE+'/api/avatar/'+uid;avEl.style.display='';}
+  var avWrap=document.getElementById('chat-av-wrap');
+  if(avWrap){
+   if(u.avatar && u.avatar.startsWith('/api/avatar/')){
+    avWrap.innerHTML='<img src="'+API_BASE+u.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
+   } else if(u.avatar && /^emoji:/.test(u.avatar)){
+    avWrap.textContent=u.avatar.replace('emoji:','')||'👤';
+   } else {
+    avWrap.innerHTML='<img src="'+API_BASE+'/api/avatar/'+uid+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
+   }
+  }
   // membership badge
   var badge=document.getElementById('chat-mem-badge');
   var memMap={'jausan':'🥇酒神','jaugwai':'🥈酒鬼','jiuyau':'🥉酒友'};
