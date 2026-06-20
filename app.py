@@ -610,19 +610,19 @@ def _mem_dice_max(level):
 
 def _mem_note_max(level):
     """Max note length per membership level"""
-    return {0:200, 1:500, 2:1000, 3:2000}.get(level, 200)
+    return {0:200, 1:500, 2:1000, 3:3000}.get(level, 200)
 
 def _mem_photo_max(level):
     """Max photo count per membership level"""
-    return {0:1, 1:3, 2:9, 3:9}.get(level, 1)
+    return {0:1, 1:5, 2:9, 3:9}.get(level, 1)
 
 def _mem_friends_max(level):
     """Max friends per membership level"""
-    return {0:50, 1:200, 2:500, 3:9999}.get(level, 50)
+    return {0:80, 1:300, 2:500, 3:9999}.get(level, 80)
 
 def _mem_daily_posts(level):
     """Max posts per day per membership level"""
-    return {0:3, 1:10, 2:999, 3:999}.get(level, 3)
+    return {0:5, 1:15, 2:999, 3:999}.get(level, 5)
 
 def _mem_post_images_max(level):
     """Max images per post per membership level"""
@@ -634,7 +634,7 @@ def _mem_post_chars_max(level):
 
 def _mem_parties_max(level):
     """Max parties user can create per month per membership level"""
-    return {0:1, 1:3, 2:5, 3:8}.get(level, 1)
+    return {0:1, 1:3, 2:5, 3:999}.get(level, 1)
 
 def _mem_check_expired(uid, db):
     """Check and downgrade a specific user if membership expired. Returns True if downgraded."""
@@ -754,8 +754,8 @@ def api_register():
                (username, _hash_v2(pw), nickname, lang))
     db.commit()
     uid = db.execute('SELECT id FROM users WHERE username=?',(username,)).fetchone()['id']
-    # P0-5: 7-day free trial — new users get jiuyau for 7 days
-    trial_expires = (date.today() + timedelta(days=7)).isoformat()
+    # P0-2: 14-day free trial — new users get jiuyau for 14 days
+    trial_expires = (date.today() + timedelta(days=14)).isoformat()
     db.execute("UPDATE users SET membership='jiuyau', member_expires=? WHERE id=?", (trial_expires, uid))
     db.commit()
     tok = _token_for(uid)
@@ -790,6 +790,20 @@ def api_login():
     user_data = dict(u)
     user_data.pop('password', None)
     return jsonify({'token':tok, 'user':user_data})
+
+@app.route('/api/plans')
+def api_plans():
+    """Public: return membership plan pricing."""
+    return jsonify({'plans': {
+        'jiuyau':  {'monthly':9.9,  'annual':69,  'name_zh':'🥉酒友', 'level':1},
+        'jaugwai': {'monthly':19.9, 'annual':149, 'name_zh':'🥈酒鬼', 'level':2},
+        'jausan':  {'monthly':39.9, 'annual':299, 'name_zh':'🥇酒神', 'level':3},
+    }, 'limits': {
+        0: {'dice':2,'photos':1,'note':200,'friends':80,'daily_posts':5,'parties_month':1,'post_imgs':1,'post_chars':500},
+        1: {'dice':3,'photos':5,'note':500,'friends':300,'daily_posts':15,'parties_month':3,'post_imgs':4,'post_chars':1000},
+        2: {'dice':4,'photos':9,'note':1000,'friends':500,'daily_posts':999,'parties_month':5,'post_imgs':9,'post_chars':2000},
+        3: {'dice':5,'photos':9,'note':3000,'friends':9999,'daily_posts':999,'parties_month':999,'post_imgs':9,'post_chars':5000},
+    }})
 
 @app.route('/api/me')
 @auth_required
@@ -917,7 +931,7 @@ def api_checkin():
         cnt = db.execute("""SELECT COUNT(*) FROM checkins 
             WHERE user_id=? AND date(created_at)=?""",(g.uid,today)).fetchone()[0]
         if cnt >= 5:
-            return jsonify({'error':'今日免費次數已用完，請升級會員'}), 429
+            return jsonify({'error':'今日免費次數已用完，升級酒友可無限打卡 📸'}), 429
     else:
         cnt = -1  # unlimited
 
@@ -1118,7 +1132,7 @@ def api_add_friend():
         (g.uid,g.uid)).fetchone()[0]
     if friend_count >= _mem_friends_max(mem_level):
         max_f = _mem_friends_max(mem_level)
-        return jsonify({'error':f'酒友數量已達上限({max_f}人)，請升級會員 💎'}), 403
+        return jsonify({'error':f'酒友數量已達上限({max_f}人)，升級酒友可加300人 💎'}), 403
     db.execute('INSERT OR REPLACE INTO friends (user_id,friend_id,status) VALUES (?,?,?)',
                (g.uid, fu['id'], 'pending'))
     db.commit()
@@ -1299,7 +1313,7 @@ def api_create_post():
     today = date.today().isoformat()
     post_today = db.execute("SELECT COUNT(*) FROM posts WHERE user_id=? AND date(created_at)=?", (g.uid, today)).fetchone()[0]
     if post_today >= _mem_daily_posts(mem_level):
-        return jsonify({'error':f'今日發帖次數已達上限({_mem_daily_posts(mem_level)})，請升級會員 💎'}), 429
+        return jsonify({'error':f'今日發帖次數已達上限({_mem_daily_posts(mem_level)})，升級酒友可發15帖 💎'}), 429
     d = request.get_json(force=True) or {}
     content = sanitize_html(d.get('content',''))[:_mem_post_chars_max(mem_level)]
     images = d.get('images','')  # JSON array of image URLs
@@ -1942,15 +1956,15 @@ def api_mark_notification_read(nid):
 def api_upgrade():
     d = request.get_json(force=True) or {}
     plan = d.get('plan','jiuyau')  # jiuyau / jaugwai / jausan
+    billing = d.get('billing', 'monthly')  # monthly or annual
     from datetime import timedelta
-    plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':30}
-    days = plan_days.get(plan, 30)
+    days = 365 if billing == 'annual' else 30
     exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
     db = get_db()
     db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',
                (plan, exp_date, g.uid))
     db.commit()
-    return jsonify({'ok':True, 'membership':plan, 'expires':exp_date})
+    return jsonify({'ok':True, 'membership':plan, 'expires':exp_date, 'billing':billing})
 
 # ═══════════════════ Payment Records ═════════════════════
 @app.route('/api/payments', methods=['GET'])
@@ -1972,12 +1986,18 @@ def api_submit_payment():
     receipt = d.get('receipt', '')[:500]
     amount = float(d.get('amount', 0) or 0)
     plan_amounts = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 39.9}
+    plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 299}
+    billing = d.get('billing', 'monthly')  # monthly or annual
     if plan not in plan_amounts:
         return jsonify({'error':'無效方案'}), 400
+    if billing == 'annual':
+        amount = amount or plan_amounts_annual.get(plan, 0)
+    else:
+        amount = amount or plan_amounts[plan]
     db = get_db()
     db.execute(
         'INSERT INTO payments (user_id,plan,amount,method,receipt,confirmed) VALUES (?,?,?,?,?,0)',
-        (g.uid, plan, amount or plan_amounts[plan], method, receipt))
+        (g.uid, plan, amount, method, receipt))
     db.commit()
     pid = db.execute('SELECT last_insert_rowid()').fetchone()[0]
     return jsonify({'ok':True, 'payment_id':pid, 'msg':'付款已提交，等待管理員確認'})
@@ -2007,10 +2027,14 @@ def api_admin_confirm_payment():
     if confirm:
         # Update payment record
         db.execute('UPDATE payments SET confirmed=1 WHERE id=?', (pid,))
-        # Upgrade user membership
+        # Upgrade user membership — auto-detect annual vs monthly by amount
         plan = pmt['plan']
-        plan_days = {'jiuyau':30, 'jaugwai':30, 'jausan':30}
-        days = plan_days.get(plan, 30)
+        plan_amounts_monthly = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 39.9}
+        plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 299}
+        paid = pmt['amount'] or 0
+        # If amount >= annual price * 0.9, treat as annual
+        is_annual = paid >= plan_amounts_annual.get(plan, 999) * 0.9
+        days = 365 if is_annual else 30
         from datetime import timedelta
         exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
         db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',
