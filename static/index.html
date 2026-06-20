@@ -318,9 +318,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
 .lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
-.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;color:var(--sub);font-size:12px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:44px;white-space:nowrap;overflow:visible}
-.tab .tab-icon{font-size:20px;margin-bottom:2px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;padding:4px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;will-change:auto;contain:layout style}
+.tab{flex:1 1 0%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2px 0 1px;color:var(--sub);font-size:9px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;white-space:nowrap;overflow:visible;letter-spacing:-0.5px;line-height:1.2}
+.tab .tab-icon{font-size:15px;margin-bottom:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block;line-height:1}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;will-change:auto;contain:layout style}
 .tabs::-webkit-scrollbar{display:none}
 .tab.active{color:var(--amber)}
 .tab span{display:inline-block;min-width:fit-content;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
@@ -467,7 +467,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <div class="tabs">
   <button class="tab active" data-page="checkin" onclick="showPage('checkin')"><span class="tab-icon">🍺</span><span id="tab-checkin">報到</span></button>
   <button class="tab" data-page="timeline" onclick="showPage('timeline')"><span class="tab-icon">🌐</span><span id="tab-timeline">動態</span></button>
-  <button class="tab" data-page="friends" onclick="showPage('friends')"><span class="tab-icon">👫</span><span id="tab-friends">酒友圈</span></button>
+  <button class="tab" data-page="friends" onclick="showPage('friends')"><span class="tab-icon">👫</span><span id="tab-friends">酒友</span></button>
   <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party">酒局</span></button>
   <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
    <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
@@ -478,7 +478,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 
 <div class="page active" id="page-checkin">
  <div class="card" style="padding:0;overflow:hidden;border:none">
-  <img id="cover-img" src="cover.png" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.png'}else{this.style.display='none'">
+  <img id="cover-img" src="cover.png" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.png'}else{this.style.display='none'}">
   <div style="padding:16px">
    <div style="font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">🍺 <span data-i18n="chk_title">今晚飲咗未？</span></div>
    <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px" data-i18n="chk_subtitle">飲酒社交打卡 · 骰盅對決 · 酒局約起</div>
@@ -491,8 +491,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header" data-i18n="download_title">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px"><span data-i18n="download_hint">喺手機安裝 App 體驗更佳！</span></div>
-  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.6.0/app-release.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.6.0 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.6.0/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">備用下載</a></div>
+  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.4.1/app-release.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
+  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v1.4.1 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.4.1/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">備用下載</a></div>
  </div>
  <!-- Legal Footer on main page -->
  <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
@@ -988,34 +988,140 @@ let me=null,token=null,selStatus=-1,selPlan='jiuyau',lang='zh-HK',payQR='alipay'
 
 // ═══════ DICE SOUND ENGINE (Web Audio API) ═══════
 const DICE_SND=(function(){
-  let ctx=null;
-  function getCtx(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx}
-  function noise(dur,freq,vol){
+  let ctx=null,comp=null;
+  function getCtx(){
+    if(!ctx){
+      ctx=new(window.AudioContext||window.webkitAudioContext)();
+      comp=ctx.createDynamicsCompressor();
+      comp.threshold.value=-24;comp.knee.value=30;comp.ratio.value=12;
+      comp.attack.value=0.003;comp.release.value=0.25;
+      comp.connect(ctx.destination);
+    }
+    return ctx;
+  }
+  // Stereo noise burst for realistic shake/rattle
+  function stereoNoise(dur,freq,vol,pan){
     try{
       const c=getCtx(),t=c.currentTime;
-      const buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate);
-      const d=buf.getChannelData(0);
-      for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*vol;
+      const buf=c.createBuffer(2,c.sampleRate*dur,c.sampleRate);
+      const L=buf.getChannelData(0),R=buf.getChannelData(1);
+      for(let i=0;i<L.length;i++){
+        const v=(Math.random()*2-1)*vol;
+        // Stereo spread: slight random offset between channels
+        const p=Math.sin(i/c.sampleRate*(200+freq))*0.3; // moving pan
+        L[i]=v*(1-p);R[i]=v*(1+p);
+      }
       const src=c.createBufferSource();src.buffer=buf;
-      const filt=c.createBiquadFilter();filt.type='bandpass';filt.frequency.value=freq;filt.Q.value=1.5;
-      const g=c.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
-      src.connect(filt);filt.connect(g);g.connect(c.destination);src.start(t);src.stop(t+dur);
+      const hp=c.createBiquadFilter();hp.type='highpass';hp.frequency.value=Math.max(80,freq-400);
+      const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=freq;bp.Q.value=1.2;
+      const g=c.createGain();
+      g.gain.setValueAtTime(vol,t);
+      g.gain.setValueAtTime(vol*0.9,t+dur*0.3);
+      g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      const merger=c.createChannelMerger(2);
+      src.connect(bp);bp.connect(hp);hp.connect(g);
+      // Split stereo to merger
+      const splitter=c.createChannelSplitter(2);
+      const panner=c.createStereoPanner();panner.pan.value=pan||0;
+      g.connect(panner);panner.connect(comp);
+      src.start(t);src.stop(t+dur);
     }catch(e){}
   }
-  function tone(freq,dur,vol,type){
+  // Deep impact thud for dice landing
+  function thud(freq,dur,vol){
     try{
       const c=getCtx(),t=c.currentTime;
-      const o=c.createOscillator();o.type=type||'sine';o.frequency.value=freq;
-      const g=c.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
-      o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur);
+      const o=c.createOscillator();o.type='sine';
+      o.frequency.setValueAtTime(freq,t);
+      o.frequency.exponentialRampToValueAtTime(Math.max(30,freq/4),t+dur);
+      const o2=c.createOscillator();o2.type='triangle';
+      o2.frequency.setValueAtTime(freq*2.5,t);
+      o2.frequency.exponentialRampToValueAtTime(Math.max(40,freq/3),t+dur*0.6);
+      const g=c.createGain();
+      g.gain.setValueAtTime(vol,t);
+      g.gain.setValueAtTime(vol*0.7,t+0.01);
+      g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      const g2=c.createGain();
+      g2.gain.setValueAtTime(vol*0.4,t);
+      g2.gain.exponentialRampToValueAtTime(0.001,t+dur*0.5);
+      const panner=c.createStereoPanner();panner.pan.value=(Math.random()-0.5)*0.6;
+      o.connect(g);o2.connect(g2);g.connect(panner);g2.connect(panner);panner.connect(comp);
+      o.start(t);o.stop(t+dur);o2.start(t);o2.stop(t+dur);
+    }catch(e){}
+  }
+  // Short click/clack for individual dice hitting each other
+  function clack(vol,pan){
+    try{
+      const c=getCtx(),t=c.currentTime;
+      const o=c.createOscillator();o.type='square';
+      o.frequency.setValueAtTime(2800+Math.random()*1500,t);
+      o.frequency.exponentialRampToValueAtTime(600,t+0.015);
+      const g=c.createGain();
+      g.gain.setValueAtTime(vol,t);
+      g.gain.exponentialRampToValueAtTime(0.001,t+0.04);
+      const panner=c.createStereoPanner();panner.pan.value=pan||0;
+      o.connect(g);g.connect(panner);panner.connect(comp);
+      o.start(t);o.stop(t+0.05);
+    }catch(e){}
+  }
+  // Cup rumble: deep resonance simulating ceramic cup shaking
+  function cupRumble(dur,vol){
+    try{
+      const c=getCtx(),t=c.currentTime;
+      const o=c.createOscillator();o.type='sawtooth';
+      o.frequency.setValueAtTime(60,t);
+      // Slight wobble
+      o.frequency.linearRampToValueAtTime(70,t+dur*0.3);
+      o.frequency.linearRampToValueAtTime(55,t+dur*0.7);
+      o.frequency.linearRampToValueAtTime(65,t+dur);
+      const bp=c.createBiquadFilter();bp.type='bandpass';bp.frequency.value=120;bp.Q.value=3;
+      const g=c.createGain();
+      g.gain.setValueAtTime(0.001,t);
+      g.gain.linearRampToValueAtTime(vol,t+0.05);
+      g.gain.setValueAtTime(vol*0.8,t+dur*0.5);
+      g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+      o.connect(bp);bp.connect(g);g.connect(comp);
+      o.start(t);o.stop(t+dur);
     }catch(e){}
   }
   return{
-    shake(){for(let i=0;i<3;i++)setTimeout(()=>noise(0.08,800+Math.random()*400,0.15),i*60)},
-    roll(){noise(0.12,1200,0.2);setTimeout(()=>noise(0.06,2000,0.1),150)},
-    land(){tone(180,0.18,0.12,'triangle');setTimeout(()=>tone(260,0.1,0.06,'sine'),80)},
-    win(){[523,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.25,0.1,'sine'),i*120))},
-    unlock(){tone(880,0.15,0.08,'sine');setTimeout(()=>tone(1100,0.2,0.1,'sine'),100)},
+    // Shake cup: layered rumble + rattle + clacks
+    shake(){
+      cupRumble(0.55,0.35);
+      for(let i=0;i<5;i++) setTimeout(()=>stereoNoise(0.1,900+Math.random()*500,0.25,(Math.random()-0.5)*0.8),i*90);
+      for(let i=0;i<4;i++) setTimeout(()=>clack(0.2,(Math.random()-0.5)*0.9),50+i*70);
+    },
+    // Roll/dice tumbling out of cup
+    roll(){
+      // Tumbling rattle
+      for(let i=0;i<6;i++) setTimeout(()=>clack(0.25+Math.random()*0.1,(Math.random()-0.5)*0.9),i*50);
+      // Rolling on surface
+      stereoNoise(0.25,1400,0.3,0);
+      setTimeout(()=>stereoNoise(0.15,1800,0.2,(Math.random()-0.5)*0.5),100);
+    },
+    // Dice landing thud
+    land(){
+      thud(120,0.35,0.5);
+      setTimeout(()=>thud(90,0.2,0.3),(Math.random()*60+40));
+      setTimeout(()=>clack(0.15,(Math.random()-0.5)*0.7),30);
+      // Secondary smaller die landing
+      setTimeout(()=>thud(150,0.15,0.2),80);
+    },
+    // Win fanfare
+    win(){[523,659,784,1047].forEach((f,i)=>setTimeout(()=>{
+      const c=getCtx(),t=c.currentTime;
+      const o=c.createOscillator();o.type='sine';o.frequency.value=f;
+      const g=c.createGain();g.gain.setValueAtTime(0.18,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+      o.connect(g);g.connect(comp);o.start(t);o.stop(t+0.3);
+    },i*130))},
+    // Unlock sound
+    unlock(){
+      const c=getCtx(),t=c.currentTime;
+      const o=c.createOscillator();o.type='sine';
+      o.frequency.setValueAtTime(880,t);o.frequency.linearRampToValueAtTime(1320,t+0.15);
+      const g=c.createGain();g.gain.setValueAtTime(0.12,t);g.gain.exponentialRampToValueAtTime(0.001,t+0.3);
+      o.connect(g);g.connect(comp);o.start(t);o.stop(t+0.3);
+    },
     resume(){try{const c=getCtx();if(c.state==='suspended')c.resume()}catch(e){}}
   }
 })();
@@ -1617,7 +1723,7 @@ const L={
   supabase_no_pwd:'❌ Supabase 模式下暫不支持直接改密',
   pwd_reset_ok:'✅ 密碼已重設',
   friends_circle:'👫 酒友圈',
-  tab_friends:'酒友圈',
+  tab_friends:'酒友',
   admin_label:'管理員',
   adm_change_pwd:'🔑 改密',
   adm_members:'會員',
@@ -1916,7 +2022,7 @@ const L={
   supabase_no_pwd:'❌ Supabase 模式下暂不支持直接改密',
   pwd_reset_ok:'✅ 密码已重设',
   friends_circle:'👫 酒友圈',
-  tab_friends:'酒友圈',
+  tab_friends:'酒友',
   admin_label:'管理员',
   adm_change_pwd:'🔑 改密',
   adm_members:'会员',
