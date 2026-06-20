@@ -1387,7 +1387,7 @@ const L={
   member:'會員',
   login:'登入',
   logout:'登出',
-  tab_dice:'骰盅',
+  tab_checkin:'報到',tab_timeline:'動態',tab_party:'酒局',tab_stats:'統計',tab_member:'會員',tab_dice:'骰盅',
   terms:'使用條款',
   disclaimer:'免責聲明',
   contact:'聯絡我們',
@@ -1686,7 +1686,7 @@ const L={
   member:'会员',
   login:'登录',
   logout:'退出',
-  tab_dice:'骰盅',
+  tab_checkin:'报到',tab_timeline:'动态',tab_party:'酒局',tab_stats:'统计',tab_member:'会员',tab_dice:'骰盅',
   terms:'使用条款',
   disclaimer:'免责声明',
   contact:'联系我们',
@@ -1985,7 +1985,7 @@ const L={
   member:'Member',
   login:'Login',
   logout:'Logout',
-  tab_dice:'Dice',
+  tab_checkin:'Check-in',tab_timeline:'Feed',tab_party:'Party',tab_stats:'Stats',tab_member:'VIP',tab_dice:'Dice',
   terms:'Terms',
   disclaimer:'Disclaimer',
   contact:'Contact Us',
@@ -2265,7 +2265,7 @@ function updTitles(){
   // App title
   document.getElementById('nav-title').textContent='🍺 '+T('app_title');
   // Tabs
-  ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});const tf=document.getElementById('tab-friends');if(tf)tf.textContent=T('tab_friends');const td=document.getElementById('tab-dice');if(td)td.textContent=T('tab_dice');
+  ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T('tab_'+k)});const tf=document.getElementById('tab-friends');if(tf)tf.textContent=T('tab_friends');const td=document.getElementById('tab-dice');if(td)td.textContent=T('tab_dice');
   // Refresh all data-i18n elements
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const k=el.getAttribute('data-i18n');
