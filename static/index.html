@@ -763,17 +763,20 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 
 <!-- Chat Modal -->
 <div class="modal-overlay" id="chat-mod" onclick="if(event.target===this)closeChat()" style="display:none;z-index:1100">
-  <div id="chat-box" style="position:fixed;bottom:0;left:0;right:0;max-width:420px;margin:0 auto;background:var(--bg);border-top-left-radius:16px;border-top-right-radius:16px;box-shadow:0 -4px 24px rgba(0,0,0,0.5);display:flex;flex-direction:column;max-height:70vh">
-    <div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);gap:8px">
-      <button style="background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer" onclick="closeChat()">✕</button>
-      <img id="chat-av" src="" style="width:28px;height:28px;border-radius:50%;object-fit:cover">
-      <b id="chat-nick" style="color:var(--text);font-size:14px">-</b>
-      <span style="font-size:11px;color:var(--sub)" id="chat-un">@-</span>
+  <div id="chat-box" style="position:fixed;bottom:0;left:0;right:0;max-width:420px;margin:0 auto;background:var(--bg);border-top-left-radius:20px;border-top-right-radius:20px;box-shadow:0 -4px 32px rgba(0,0,0,0.6);display:flex;flex-direction:column;max-height:75vh">
+    <div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);gap:10px;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(236,72,153,0.1))">
+      <button style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:4px" onclick="closeChat()">✕</button>
+      <img id="chat-av" src="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--amber)" onerror="this.style.display='none'">
+      <div style="flex:1">
+        <b id="chat-nick" style="color:var(--text);font-size:14px;display:block">-</b>
+        <span style="font-size:11px;color:var(--sub)" id="chat-un">@-</span>
+      </div>
+      <span id="chat-mem-badge" style="font-size:10px;padding:2px 8px;border-radius:8px;background:var(--amber);color:#fff;display:none"></span>
     </div>
-    <div id="chat-msgs" style="flex:1;overflow-y:auto;padding:10px 14px;display:flex;flex-direction:column;gap:6px;min-height:200px;max-height:50vh"></div>
-    <div style="display:flex;gap:6px;padding:8px 14px;border-top:1px solid var(--border)">
-      <input id="chat-inp" placeholder="講嘢..." style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px" onkeydown="if(event.key==='Enter')sendChat()">
-      <button onclick="sendChat()" style="padding:8px 14px;border:none;border-radius:8px;background:var(--amber);color:#fff;font-weight:700;cursor:pointer">送出</button>
+    <div id="chat-msgs" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-height:200px;max-height:55vh"></div>
+    <div style="display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--card)">
+      <input id="chat-inp" placeholder="講嘢..." style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-size:14px;outline:none" onkeydown="if(event.key==='Enter')sendChat()" onfocus="this.style.borderColor='var(--amber)'" onblur="this.style.borderColor='var(--border)'">
+      <button onclick="sendChat()" style="padding:10px 18px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--amber),#e67e22);color:#fff;font-weight:700;cursor:pointer;font-size:14px;transition:transform 0.1s" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform=''">📤</button>
     </div>
   </div>
 </div>
@@ -2537,8 +2540,8 @@ async function doLogin(){
     // Also set global token so api() calls include Authorization
     token=adminToken;localStorage.setItem('jymy_token',token);
     // Set virtual admin user so nav shows properly
-    me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:''};
-    saveS();closeAuth();updateNav();buildGrid();updTitles();
+    me={id:0,username:'admin',nickname:'管理員',lang:'zh-HK',membership:'admin',admin:1,member_expires:'永久',avatar:'',region:'',gender:'',age:0,drink_age:0};
+    saveS();closeAuth();updateNav();buildGrid();updTitles();updMem();
     admOpen();
     toast(T("admin_login_ok"));return;
    }
@@ -2559,7 +2562,7 @@ async function doLogin(){
   adminToken='';localStorage.removeItem('jymy_admin_token');
  }
  sessionStorage.setItem('jymy_pw',p);
- saveS();toast(T("login_success"));closeAuth();updateNav();buildGrid();updTitles();
+ saveS();toast(T("login_success"));closeAuth();updateNav();buildGrid();updTitles();updMem();
  setTimeout(()=>refreshAll(),300);
  }catch(e){let msg=e.message||'登入失敗';if(msg.includes('Invalid login'))msg='用戶名或密碼錯誤';if(msg.includes('Email not confirmed'))msg='帳號未確認，請稍後重試';toast('❌ '+msg,1)}
 }
@@ -2744,15 +2747,15 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   if(me.email)parts.push('📧 '+me.email);
   ct.textContent=parts.join('  ')||'未填寫聯繫方式';
  }
- // Show profile tags: region / gender / age / drink_age
- var rgn=document.getElementById('mem-region');
- if(rgn){var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};rgn.textContent=me.region?rgnMap[me.region]||me.region:'';rgn.style.display=rgn.textContent?'':'none';}
- var gdr=document.getElementById('mem-gender');
- if(gdr){var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};gdr.textContent=me.gender?gdrMap[me.gender]||me.gender:'';gdr.style.display=gdr.textContent?'':'none';}
- var mg=document.getElementById('mem-age');
- if(mg){mg.textContent=me.age?'🎂 '+me.age+'歲':'';mg.style.display=mg.textContent?'':'none';}
- var md=document.getElementById('mem-drinkage');
- if(md){md.textContent=me.drink_age?'🍺 酒齡'+me.drink_age+'年':'';md.style.display=md.textContent?'':'none';}
+ // Show profile tags: region / gender / age / drink_age (always show label)
+  var rgn=document.getElementById('mem-region');
+  if(rgn){var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};rgn.textContent='📍 '+(me.region?rgnMap[me.region]||me.region:'未填寫');rgn.style.display='';}
+  var gdr=document.getElementById('mem-gender');
+  if(gdr){var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};gdr.textContent='👤 '+(me.gender?gdrMap[me.gender]||me.gender:'未填寫');gdr.style.display='';}
+  var mg=document.getElementById('mem-age');
+  if(mg){mg.textContent='🎂 '+(me.age?me.age+'歲':'未填寫');mg.style.display='';}
+  var md=document.getElementById('mem-drinkage');
+  if(md){md.textContent='🍺 '+(me.drink_age?me.drink_age+'年':'未填寫');md.style.display='';}
  // Load stats counts + member section lists
  if(me&&me.id!==undefined){
   api('/api/me').then(d=>{
@@ -4408,7 +4411,15 @@ function openChat(uid){
   var u=d.user||{};
   document.getElementById('chat-nick').textContent=u.nickname||u.username||'?';
   document.getElementById('chat-un').textContent='@'+(u.username||'-');
-  document.getElementById('chat-av').src=API_BASE+'/api/avatar/'+uid;
+  var avEl=document.getElementById('chat-av');
+  if(u.avatar && u.avatar.startsWith('/api/avatar/')){avEl.src=API_BASE+u.avatar;avEl.style.display='';}
+  else if(u.avatar && /^emoji:/.test(u.avatar)){avEl.src='';avEl.style.display='none';}
+  else{avEl.src=API_BASE+'/api/avatar/'+uid;avEl.style.display='';}
+  // membership badge
+  var badge=document.getElementById('chat-mem-badge');
+  var memMap={'jausan':'🥇酒神','jaugwai':'🥈酒鬼','jiuyau':'🥉酒友'};
+  if(u.membership && memMap[u.membership]){badge.textContent=memMap[u.membership];badge.style.display='';}
+  else{badge.style.display='none';}
  }).catch(()=>{});
  loadChatMsgs();
  _chatPoll=setInterval(loadChatMsgs,5000);
