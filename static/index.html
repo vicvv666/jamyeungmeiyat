@@ -1847,7 +1847,12 @@ const L={
   phone_label:'📞 電話號碼',
   username:'用戶名',
   password:'密碼',
-  apk_server_hint:'設定 APK 連接的伺服器地址'
+  apk_server_hint:'設定 APK 連接的伺服器地址',
+  region_label:'📍 地區',
+  gender_label:'👤 性別',
+  age_label:'🎂 年齡',
+  drinkage_label:'🍺 酒齡(年)',
+  not_filled:'未填寫'
 },
 'zh-CN':{
   st_mai_yum:'没喝',
@@ -2146,7 +2151,12 @@ const L={
   phone_label:'📞 电话号码',
   username:'用户名',
   password:'密码',
-  apk_server_hint:'设置 APK 连接的服务器地址'
+  apk_server_hint:'设置 APK 连接的服务器地址',
+  region_label:'📍 地区',
+  gender_label:'👤 性别',
+  age_label:'🎂 年龄',
+  drinkage_label:'🍺 酒龄(年)',
+  not_filled:'未填写'
 },
 'en':{
   st_mai_yum:'Sober',
@@ -2445,7 +2455,12 @@ const L={
   phone_label:'📞 Phone',
   username:'Username',
   password:'Password',
-  apk_server_hint:'Set APK server address'
+  apk_server_hint:'Set APK server address',
+  region_label:'📍 Region',
+  gender_label:'👤 Gender',
+  age_label:'🎂 Age',
+  drinkage_label:'🍺 Drinking Age(yr)',
+  not_filled:'Not filled'
 }
 };
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
@@ -2748,14 +2763,14 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   ct.textContent=parts.join('  ')||'未填寫聯繫方式';
  }
  // Show profile tags: region / gender / age / drink_age (always show label)
-  var rgn=document.getElementById('mem-region');
-  if(rgn){var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};rgn.textContent='📍 '+(me.region?rgnMap[me.region]||me.region:'未填寫');rgn.style.display='';}
-  var gdr=document.getElementById('mem-gender');
-  if(gdr){var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};gdr.textContent='👤 '+(me.gender?gdrMap[me.gender]||me.gender:'未填寫');gdr.style.display='';}
-  var mg=document.getElementById('mem-age');
-  if(mg){mg.textContent='🎂 '+(me.age?me.age+'歲':'未填寫');mg.style.display='';}
-  var md=document.getElementById('mem-drinkage');
-  if(md){md.textContent='🍺 '+(me.drink_age?me.drink_age+'年':'未填寫');md.style.display='';}
+   var rgn=document.getElementById('mem-region');
+   if(rgn){var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};rgn.textContent=me.region?('📍 '+(rgnMap[me.region]||me.region)):T('not_filled');rgn.style.display='';}
+   var gdr=document.getElementById('mem-gender');
+   if(gdr){var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};gdr.textContent=me.gender?('👤 '+(gdrMap[me.gender]||me.gender)):T('not_filled');gdr.style.display='';}
+   var mg=document.getElementById('mem-age');
+   if(mg){mg.textContent=me.age?('🎂 '+me.age+'歲'):T('not_filled');mg.style.display='';}
+   var md=document.getElementById('mem-drinkage');
+   if(md){md.textContent=me.drink_age?('🍺 '+me.drink_age+'年'):T('not_filled');md.style.display='';}
  // Load stats counts + member section lists
  if(me&&me.id!==undefined){
   api('/api/me').then(d=>{
