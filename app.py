@@ -38,13 +38,15 @@ _last_expiry_check = 0.0  # timestamp of last _cron_check_expired run
 _HTML_TAGS_RE = re.compile(r'<[^>]*>')
 
 def sanitize_html(text):
-    """Strip HTML tags to prevent XSS. Allow only common safe characters."""
+    """Strip HTML tags and dangerous protocols to prevent XSS."""
     if not text:
         return ''
-    # Remove HTML tags
     text = _HTML_TAGS_RE.sub('', text)
-    # Remove script injection attempts
-    text = text.replace('javascript:', '').replace('data:', '')
+    # Remove dangerous protocols (case-insensitive, with whitespace tricks)
+    text = re.sub(r'(?:j\s*a\s*v\s*a\s*s\s*c\s*r\s*i\s*p\s*t|v\s*b\s*s\s*c\s*r\s*i\s*p\s*t|l\s*i\s*v\s*e\s*s\s*c\s*r\s*i\s*p\s*t)\s*:', '', text, flags=re.IGNORECASE)
+    text = text.replace('data:text/html', '')
+    # Strip control characters (null, CR; replace LF with space)
+    text = ''.join(c for c in text if ord(c) >= 32 or c in ('\t',))
     return text[:5000]
 
 # ─── CSRF exemption for API routes ─────────────────
@@ -113,11 +115,12 @@ def gzip_response(response):
     # ── Security headers ──
     response.headers['Content-Security-Policy'] = (
         "default-src 'self' data: blob:; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
-        "style-src 'self' 'unsafe-inline'; "
-        "img-src 'self' data: blob: https:; "
-        "font-src 'self' https://fonts.gstatic.com; "
-        "connect-src 'self' https://drunk.vic999.com https://*.vic999.com; "
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "img-src 'self' data: blob: https: http:; "
+        "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; "
+        "connect-src 'self' https://drunk.vic999.com https://*.vic999.com https://cdn.jsdelivr.net; "
+        "media-src 'self' blob: https://drunk.vic999.com; "
         "manifest-src 'self'; "
         "base-uri 'self'; "
         "form-action 'self'; "
@@ -761,10 +764,10 @@ def api_login():
     username = (d.get('username','') or '').strip().lower()
     pw = d.get('password','')
     db = get_db()
-    # Rate limit login attempts
+    # Rate limit login attempts (5 per hour per IP)
     ip = request.remote_addr or 'unknown'
-    if not _check_rate_limit(ip, limit=10, window=3600):
-        return jsonify({'error':'登入嘗試過於頻繁，請稍後再試'}), 429
+    if not _check_rate_limit(ip, limit=5, window=3600):
+        return jsonify({'error':'登入嘗試過於頻繁，請一小時後再試'}), 429
     u = db.execute('SELECT * FROM users WHERE username=?',(username,)).fetchone()
     if not u:
         return jsonify({'error':'用戶名或密碼錯誤'}), 401
@@ -1244,6 +1247,10 @@ def api_get_comments(cid):
 
 # ═══════════════════ Upload ═══════════════════════════
 ALLOWED_EXT = {'png','jpg','jpeg','gif','webp','mp4','mov','avi','mkv','webm'}
+_VIDEO_EXT = {'mp4','mov','avi','mkv','webm'}
+_IMAGE_EXT = {'png','jpg','jpeg','gif','webp'}
+_MAX_IMAGE = 5 * 1024 * 1024   # 5MB per image
+_MAX_VIDEO = 50 * 1024 * 1024  # 50MB per video (members only)
 def _allowed_file(name):
     return '.' in name and name.rsplit('.',1)[1].lower() in ALLOWED_EXT
 
@@ -1256,6 +1263,19 @@ def api_upload():
     if not f.filename or not _allowed_file(f.filename):
         return jsonify({'error':'唔支援嘅檔案格式'}), 400
     ext = f.filename.rsplit('.',1)[1].lower()
+    # Size limit by file type
+    f.seek(0, 2)
+    file_size = f.tell()
+    f.seek(0)
+    if ext in _VIDEO_EXT:
+        plan, mem_level, mem_exp = _get_membership(g.uid)
+        if mem_level < 1:
+            return jsonify({'error':'影片上傳為會員專屬功能'}), 403
+        if file_size > _MAX_VIDEO:
+            return jsonify({'error':f'影片大小不能超過{_MAX_VIDEO//1024//1024}MB'}), 413
+    elif ext in _IMAGE_EXT:
+        if file_size > _MAX_IMAGE:
+            return jsonify({'error':f'圖片大小不能超過{_MAX_IMAGE//1024//1024}MB'}), 413
     new_name = f'{uuid.uuid4().hex[:12]}.{ext}'
     path = UPLOAD_DIR / new_name
     # Verify path is within UPLOAD_DIR (prevent path traversal)
@@ -1388,23 +1408,22 @@ def api_post_reply_comment(pid, cid):
 
 # ═══════════════════ Admin ═══════════════════════════════
 def _check_admin():
-    """Check if current user is an admin (based on their auth token)."""
+    """Check if current user is an admin. Only accepts X-Admin-Token header (strict source)."""
     tok = request.headers.get('X-Admin-Token','')
     if not tok:
-        tok = request.args.get('token','')
-    if not tok:
-        d = request.get_json(silent=True) or {}
-        tok = d.get('token','')
-    if not tok:
         return False
-    # Mode 1: Standalone admin key login (legacy format)
+    # Mode 1: Standalone admin key login (legacy format) — verify against actual admin credentials
     try:
         payload = base64.b64decode(tok.encode()).decode()
         parts = payload.split(':')
         if parts[0] == '0' and len(parts) > 1 and parts[1] == 'admin_key_login':
-            return True
+            # Verify the embedded username matches the configured admin user
+            expected_user = _get_admin_user()
+            embedded_user = parts[2] if len(parts) > 2 else ''
+            if hmac.compare_digest(embedded_user, expected_user):
+                return True
     except: pass
-    # Mode 2: HMAC-signed token (v2)
+    # Mode 2: HMAC-signed token (v2) — cryptographically verified
     uid = _decode_token(tok)
     if uid is not None:
         try:
@@ -1412,20 +1431,15 @@ def _check_admin():
             row = db.execute('SELECT admin FROM users WHERE id=?', (uid,)).fetchone()
             return row and row['admin'] == 1
         except: pass
-    # Mode 3: Legacy base64 token format
-    try:
-        payload = base64.b64decode(tok.encode()).decode()
-        parts = payload.split(':')
-        uid = int(parts[0])
-        db = get_db()
-        row = db.execute('SELECT admin FROM users WHERE id=?', (uid,)).fetchone()
-        return row and row['admin'] == 1
-    except:
-        return False
+    return False
 
 @app.route('/api/admin/login', methods=['POST'])
 def api_admin_login():
     """Login with independent admin account + key (or legacy user account)."""
+    # Rate limit admin login (3 per hour per IP — stricter than user login)
+    ip = request.remote_addr or 'unknown'
+    if not _check_rate_limit(ip, limit=3, window=3600):
+        return jsonify({'error':'管理員登入嘗試過於頻繁'}), 429
     d = request.get_json(force=True) or {}
     admin_user = d.get('admin_user', '').strip()
     admin_key = d.get('admin_key', '')
@@ -1434,7 +1448,8 @@ def api_admin_login():
     if admin_key:
         expected_user = _get_admin_user()
         expected_key = _get_admin_key()
-        if admin_user != expected_user or admin_key != expected_key:
+        if not (hmac.compare_digest(admin_user, expected_user) and hmac.compare_digest(admin_key, expected_key)):
+            log.warning('[SECURITY] Admin login FAILED (key mode) ip=%s user=%s', ip, admin_user)
             return jsonify({'error':'帳號或密碼錯誤'}), 403
         token = base64.b64encode(f'0:admin_key_login:{admin_user}'.encode()).decode()
         return jsonify({'token': token, 'user_id': 0, 'mode': 'key'})
@@ -1450,6 +1465,7 @@ def api_admin_login():
         return jsonify({'error':'用戶名或密碼錯誤'}), 403
     is_correct, needs_upgrade = _verify_pw(password, user['password'])
     if not is_correct:
+        log.warning('[SECURITY] Admin login FAILED (user mode) ip=%s user=%s', ip, username)
         return jsonify({'error':'用戶名或密碼錯誤'}), 403
     if user['admin'] != 1:
         return jsonify({'error':'該帳號無管理員權限'}), 403
