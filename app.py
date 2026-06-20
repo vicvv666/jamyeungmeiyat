@@ -206,6 +206,10 @@ CREATE TABLE IF NOT EXISTS users (
             phone       TEXT DEFAULT '',
             email       TEXT DEFAULT '',
             avatar      TEXT DEFAULT '',
+            region      TEXT DEFAULT '',
+            gender      TEXT DEFAULT '',
+            age         INTEGER DEFAULT 0,
+            drink_age   INTEGER DEFAULT 0,
             created_at TEXT DEFAULT (datetime('now','localtime'))
         );
         CREATE TABLE IF NOT EXISTS checkins (
@@ -417,6 +421,15 @@ CREATE TABLE IF NOT EXISTS users (
     try: db.execute('ALTER TABLE parties ADD COLUMN description TEXT DEFAULT ""')
     except: pass
     try: db.execute('ALTER TABLE parties ADD COLUMN max_members INTEGER DEFAULT 0')
+    except: pass
+    # users表加 region/gender/age/drink_age 列
+    try: db.execute('ALTER TABLE users ADD COLUMN region TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN gender TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN age INTEGER DEFAULT 0')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN drink_age INTEGER DEFAULT 0')
     except: pass
     db.commit()
     db.close()
@@ -828,8 +841,10 @@ def api_update_profile():
     # Admin (uid=0) not in users table, return mock
     if g.uid == 0:
         adm = _admin_guard()[0]
-        for k in ('nickname','phone','email','lang'):
+        for k in ('nickname','phone','email','lang','region','gender'):
             if d.get(k): adm[k] = d[k]
+        for k in ('age','drink_age'):
+            if d.get(k) is not None: adm[k] = d[k]
         adm.pop('password', None)
         return jsonify({'user':adm})
     db = get_db()
@@ -841,6 +856,14 @@ def api_update_profile():
         db.execute('UPDATE users SET email=? WHERE id=?',(d['email'],g.uid))
     if d.get('lang'):
         db.execute('UPDATE users SET lang=? WHERE id=?',(d['lang'],g.uid))
+    if d.get('region'):
+        db.execute('UPDATE users SET region=? WHERE id=?',(d['region'],g.uid))
+    if d.get('gender'):
+        db.execute('UPDATE users SET gender=? WHERE id=?',(d['gender'],g.uid))
+    if d.get('age') is not None:
+        db.execute('UPDATE users SET age=? WHERE id=?',(int(d['age']),g.uid))
+    if d.get('drink_age') is not None:
+        db.execute('UPDATE users SET drink_age=? WHERE id=?',(int(d['drink_age']),g.uid))
     if 'avatar' in d:
         db.execute('UPDATE users SET avatar=? WHERE id=?',(d['avatar'],g.uid))
     db.commit()

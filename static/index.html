@@ -618,6 +618,12 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="font-weight:700;font-size:17px;color:var(--text)" id="mem-nick">-</div>
     <div style="font-size:12px;color:var(--sub);margin-top:2px" id="mem-username">@-</div>
     <div style="font-size:12px;color:var(--sub);margin-top:4px" id="mem-contact"></div>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:6px;flex-wrap:wrap">
+      <span id="mem-region" style="font-size:11px;color:var(--sub);background:rgba(245,158,11,0.1);padding:2px 8px;border-radius:8px"></span>
+      <span id="mem-gender" style="font-size:11px;color:var(--sub);background:rgba(236,72,153,0.1);padding:2px 8px;border-radius:8px"></span>
+      <span id="mem-age" style="font-size:11px;color:var(--sub);background:rgba(139,92,246,0.1);padding:2px 8px;border-radius:8px"></span>
+      <span id="mem-drinkage" style="font-size:11px;color:var(--sub);background:rgba(34,197,94,0.1);padding:2px 8px;border-radius:8px"></span>
+    </div>
     <button class="btn btn-outline btn-sm" style="margin-top:10px;border-color:var(--amber);color:var(--amber);padding:6px 16px" onclick="openProfile()" data-i18n="edit_profile">✏️ 修改資料</button>
   </div>
   <!-- 统计卡 -->
@@ -674,6 +680,14 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="plan-card" id="plan-jausan" onclick="selP('jausan')" style="position:relative"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price" id="price-jausan">¥39.9</div><div class="plan-feat" id="feat-jausan" data-i18n="per_month">月費</div></div>
   </div>
   <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'" data-i18n="ad_cooperation">📢 廣告合作<br>vichoo2020@gmail.com</div>
+  <!-- APK Download -->
+  <div class="card" style="text-align:center;border:2px dashed var(--amber);background:rgba(245,158,11,0.04);padding:16px;margin-top:8px">
+    <div style="font-size:28px;margin-bottom:6px">📱</div>
+    <div style="font-weight:700;font-size:14px;margin-bottom:4px" data-i18n="apk_download_title">下載 Android App</div>
+    <div style="font-size:11px;color:var(--sub);margin-bottom:10px" data-i18n="apk_download_desc">更好體驗 · 離線打卡 · 推送通知</div>
+    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.4.2/app-release.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download>🚀 下載 APK v1.4.2</a>
+    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v1.4.2/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">備用下載</a> · Android 5.0+</div>
+  </div>
   <!-- My Checkins -->
   <div class="card" style="margin-top:8px;border:1.5px solid var(--amber);background:rgba(245,158,11,0.04)">
     <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-chk-sec')">🍺 <span data-i18n="mem_my_checkins">我嘅報到</span> <span id="mem-chk-arr" style="float:right">▼</span></div>
@@ -933,6 +947,51 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="margin-bottom:10px">
       <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="email_label">📧 電郵地址</label>
       <input class="input" id="p-email" type="email" data-i18n-placeholder="email_placeholder">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div>
+        <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="region_label">📍 地區</label>
+        <select class="input" id="p-region" style="padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);width:100%">
+          <option value="" data-i18n="region_default">選擇地區</option>
+          <option value="HK">🇭🇰 香港</option>
+          <option value="MO">🇲🇴 澳門</option>
+          <option value="TW">🇹🇼 台灣</option>
+          <option value="CN-GD">🇨🇳 廣東</option>
+          <option value="CN-BJ">🇨🇳 北京</option>
+          <option value="CN-SH">🇨🇳 上海</option>
+          <option value="CN-GX">🇨🇳 廣西</option>
+          <option value="CN-FJ">🇨🇳 福建</option>
+          <option value="CN-ZJ">🇨🇳 浙江</option>
+          <option value="CN-OTHER">🇨🇳 其他省份</option>
+          <option value="MY">🇲🇾 馬來西亞</option>
+          <option value="SG">🇸🇬 新加坡</option>
+          <option value="JP">🇯🇵 日本</option>
+          <option value="KR">🇰🇷 韓國</option>
+          <option value="US">🇺🇸 美國</option>
+          <option value="UK">🇬🇧 英國</option>
+          <option value="AU">🇦🇺 澳洲</option>
+          <option value="OTHER">🌍 其他</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="gender_label">👤 性別</label>
+        <select class="input" id="p-gender" style="padding:8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);width:100%">
+          <option value="" data-i18n="gender_default">選擇</option>
+          <option value="M">👨 男</option>
+          <option value="F">👩 女</option>
+          <option value="O">🧑 其他</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+      <div>
+        <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="age_label">🎂 年齡</label>
+        <input class="input" id="p-age" type="number" min="18" max="99" placeholder="18-99" data-i18n-placeholder="age_placeholder">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="drinkage_label">🍺 酒齡(年)</label>
+        <input class="input" id="p-drinkage" type="number" min="0" max="80" placeholder="0-80" data-i18n-placeholder="drinkage_placeholder">
+      </div>
     </div>
     <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
       <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="password_change">🔑 更改密碼（留空即不改）</label>
@@ -2669,6 +2728,15 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   if(me.email)parts.push('📧 '+me.email);
   ct.textContent=parts.join('  ')||'未填寫聯繫方式';
  }
+ // Show profile tags: region / gender / age / drink_age
+ var rgn=document.getElementById('mem-region');
+ if(rgn){var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};rgn.textContent=me.region?rgnMap[me.region]||me.region:'';rgn.style.display=rgn.textContent?'':'none';}
+ var gdr=document.getElementById('mem-gender');
+ if(gdr){var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};gdr.textContent=me.gender?gdrMap[me.gender]||me.gender:'';gdr.style.display=gdr.textContent?'':'none';}
+ var mg=document.getElementById('mem-age');
+ if(mg){mg.textContent=me.age?'🎂 '+me.age+'歲':'';mg.style.display=mg.textContent?'':'none';}
+ var md=document.getElementById('mem-drinkage');
+ if(md){md.textContent=me.drink_age?'🍺 酒齡'+me.drink_age+'年':'';md.style.display=md.textContent?'':'none';}
  // Load stats counts + member section lists
  if(me&&me.id!==undefined){
   api('/api/me').then(d=>{
@@ -2840,6 +2908,10 @@ function openProfile(){
   document.getElementById('p-nick').value=me?.nickname||'';
   document.getElementById('p-phone').value=me?.phone||'';
   document.getElementById('p-email').value=me?.email||'';
+  document.getElementById('p-region').value=me?.region||'';
+  document.getElementById('p-gender').value=me?.gender||'';
+  document.getElementById('p-age').value=me?.age||'';
+  document.getElementById('p-drinkage').value=me?.drink_age||'';
   document.getElementById('p-oldpw').value='';document.getElementById('p-newpw').value='';
   _selectedEmojiAv='';_highlightEmojiAv();
   if(me?.avatar && me.avatar.startsWith('/api/avatar/')){
@@ -2904,7 +2976,15 @@ async function _doSaveProf(){
    const profileData = {nickname:nick};
    if(phone) profileData.phone = phone;
    if(email) profileData.email = email;
-   if(nick || phone || email){
+   const region=document.getElementById('p-region')?.value||'';
+   const gender=document.getElementById('p-gender')?.value||'';
+   const age=document.getElementById('p-age')?.value||'';
+   const drinkAge=document.getElementById('p-drinkage')?.value||'';
+   if(region) profileData.region=region;
+   if(gender) profileData.gender=gender;
+   if(age) profileData.age=parseInt(age);
+   if(drinkAge) profileData.drink_age=parseInt(drinkAge);
+   if(nick||phone||email||region||gender||age||drinkAge){
     const r=await api('/api/update-profile',{method:'POST',body:profileData});
     if(r.user){Object.assign(me,r.user);me.avatar=me.avatar||'';}
    }
@@ -3460,19 +3540,12 @@ function _diceName(){return(me&&me.nickname)||'玩家'}
  s.textContent=
   '.dice-num-btn{width:42px;height:42px;border-radius:10px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:18px;font-weight:700;cursor:pointer;transition:all .2s}.dice-num-btn.active{border-color:var(--amber);background:rgba(245,158,11,0.12);color:var(--amber)}.dice-num-btn.locked{opacity:0.3;cursor:not-allowed}'+
   '.mini-die{width:26px;height:26px;background:#FEF3C7;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#1E1E2E;margin:2px}.mini-die.hid{background:var(--card);color:var(--sub)}'+
-  '.d3d{width:56px;height:56px;position:relative;transform-style:preserve-3d;transition:transform 0.8s cubic-bezier(0.22,0.9,0.36,1);transform:rotateX(-25deg) rotateY(25deg)}'+
-  '.d3d.bouncing{animation:dbounce 0.5s cubic-bezier(0.34,1.56,0.64,1)}'+
-  '@keyframes dbounce{0%{transform:translateY(0) rotateX(-25deg) rotateY(25deg)}30%{transform:translateY(-30px) rotateX(120deg) rotateY(80deg)}60%{transform:translateY(0) rotateX(240deg) rotateY(160deg)}80%{transform:translateY(-8px) rotateX(300deg) rotateY(220deg)}100%{transform:translateY(0)}}'+
-  '.d3d.rolling{animation:droll 0.1s linear infinite}'+
-  '@keyframes droll{0%{transform:rotateX(0) rotateY(0)}25%{transform:rotateX(90deg) rotateY(45deg) rotateZ(10deg)}50%{transform:rotateX(180deg) rotateY(90deg) rotateZ(-10deg)}75%{transform:rotateX(270deg) rotateY(135deg) rotateZ(10deg)}100%{transform:rotateX(360deg) rotateY(180deg) rotateZ(0)}}'+
-  '.d3face{position:absolute;width:56px;height:56px;border-radius:10px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:6px;backface-visibility:hidden}'+
-  '.d3face.f1{transform:translateZ(28px);background:linear-gradient(135deg,#FFFBEB,#FEF3C7);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f6{transform:rotateY(180deg) translateZ(28px);background:linear-gradient(135deg,#FEF3C7,#FDE68A);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f2{transform:rotateY(90deg) translateZ(28px);background:linear-gradient(135deg,#FFFBEB,#FEF3C7);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f5{transform:rotateY(-90deg) translateZ(28px);background:linear-gradient(135deg,#FEF3C7,#FDE68A);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f3{transform:rotateX(90deg) translateZ(28px);background:linear-gradient(135deg,#FFFBEB,#FEF3C7);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.d3face.f4{transform:rotateX(-90deg) translateZ(28px);background:linear-gradient(135deg,#FEF3C7,#FDE68A);box-shadow:inset 0 0 8px rgba(0,0,0,0.05)}'+
-  '.ddot{width:11px;height:11px;border-radius:50%;align-self:center;justify-self:center;box-shadow:inset 0 -1px 2px rgba(0,0,0,0.3),0 1px 1px rgba(255,255,255,0.4);background:radial-gradient(circle at 35% 35%,#4a3728,#1a1209)}.ddot.off{visibility:hidden}'+
+  '.die2d{width:62px;height:62px;border-radius:12px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:7px;background:linear-gradient(145deg,#FFFBEB,#FDE68A);box-shadow:0 4px 16px rgba(0,0,0,0.45),0 1px 3px rgba(0,0,0,0.25),inset 0 2px 4px rgba(255,255,255,0.6),inset 0 -2px 4px rgba(0,0,0,0.08);transition:transform 0.5s cubic-bezier(0.22,0.9,0.36,1),box-shadow 0.3s}'+
+  '.die2d.shaking{animation:dshake2d 0.08s linear infinite}'+
+  '@keyframes dshake2d{0%{transform:rotate(0deg) scale(1)}25%{transform:rotate(8deg) scale(0.95)}50%{transform:rotate(-6deg) scale(1.05)}75%{transform:rotate(4deg) scale(0.97)}100%{transform:rotate(0deg) scale(1)}}'+
+  '.die2d.landed{animation:dland2d 0.4s cubic-bezier(0.34,1.56,0.64,1)}'+
+  '@keyframes dland2d{0%{transform:scale(1.2) rotate(5deg);box-shadow:0 8px 32px rgba(0,0,0,0.5)}50%{transform:scale(0.92) rotate(-3deg)}75%{transform:scale(1.05) rotate(1deg)}100%{transform:scale(1) rotate(0deg);box-shadow:0 4px 16px rgba(0,0,0,0.45),0 1px 3px rgba(0,0,0,0.25),inset 0 2px 4px rgba(255,255,255,0.6),inset 0 -2px 4px rgba(0,0,0,0.08)}}'+
+  '.die2d .ddot{width:12px;height:12px;border-radius:50%;align-self:center;justify-self:center;box-shadow:inset 0 -2px 3px rgba(0,0,0,0.35),0 1px 2px rgba(255,255,255,0.5);background:radial-gradient(circle at 35% 35%,#5a4030,#1a1209)}.die2d .ddot.off{visibility:hidden}'+
   '.d3cup{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:80px;height:70px;background:linear-gradient(180deg,#8B5E3C 0%,#6B3F1F 40%,#4A2A10 100%);border-radius:10px 10px 40% 40%;box-shadow:0 8px 20px rgba(0,0,0,0.6),inset 0 -4px 8px rgba(255,255,255,0.1),inset 0 4px 8px rgba(0,0,0,0.3);z-index:10;transition:all 0.5s cubic-bezier(0.34,1.56,0.64,1);display:flex;align-items:center;justify-content:center}'+
   '.d3cup::before{content:"";position:absolute;top:4px;left:10px;right:10px;height:8px;background:linear-gradient(180deg,rgba(255,255,255,0.15),transparent);border-radius:4px}'+
   '.d3cup.lifting{transform:translate(-50%,-120%) rotate(-8deg);opacity:0;pointer-events:none}'+
@@ -3481,7 +3554,6 @@ function _diceName(){return(me&&me.nickname)||'玩家'}
 })();
 
 var DOTS={1:[0,0,0,0,1,0,0,0,0],2:[0,0,1,0,0,0,1,0,0],3:[0,0,1,0,1,0,1,0,0],4:[1,0,1,0,0,0,1,0,1],5:[1,0,1,0,1,0,1,0,1],6:[1,0,1,1,0,1,1,0,1]};
-var FACE_ROT={1:'rotateX(0deg) rotateY(0deg)',2:'rotateY(-90deg)',3:'rotateX(-90deg)',4:'rotateX(90deg)',5:'rotateY(90deg)',6:'rotateY(180deg)'};
 
 function initDice(){
  var lv=_diceLevel(),limit=_diceLimit(),canRoom=_diceCanRoom();
@@ -3532,18 +3604,13 @@ function renderDice3D(n){
  area.appendChild(coverDie);
 }
 
-function create3DDice(val){
- var d=document.createElement('div');d.className='d3d';
- for(var f=1;f<=6;f++){
-  var face=document.createElement('div');face.className='d3face f'+f;
-  var dots=DOTS[f];
-  for(var k=0;k<9;k++){
-   var dot=document.createElement('div');dot.className='ddot'+(dots[k]?'':' off');
-   face.appendChild(dot);
-  }
-  d.appendChild(face);
+function create2DDice(val){
+ var d=document.createElement('div');d.className='die2d';
+ var dots=DOTS[val];
+ for(var k=0;k<9;k++){
+  var dot=document.createElement('div');dot.className='ddot'+(dots[k]?'':' off');
+  d.appendChild(dot);
  }
- d.style.transform=FACE_ROT[val]||'';
  d.dataset.val=val;
  return d;
 }
@@ -3570,11 +3637,12 @@ function shakeSolo(){
  area.innerHTML='';_diceVals=[];
  var n=_diceCount;
  var cols = (n===2||n===4) ? 2 : 3;
- area.style.gridTemplateColumns = 'repeat('+cols+',56px)';
+ area.style.display='grid';area.style.gap='10px';area.style.justifyContent='center';
+ area.style.gridTemplateColumns = 'repeat('+cols+',62px)';
  var dies=[];
  for(var i=0;i<n;i++){
   var v=Math.floor(Math.random()*6)+1;_diceVals.push(v);
-  var d=create3DDice(v);
+  var d=create2DDice(v);
   d.style.opacity='0';d.style.transition='none';
   area.appendChild(d);dies.push(d);
  }
@@ -3600,23 +3668,25 @@ function shakeSolo(){
   if(cup)cup.classList.add('lifting');
   DICE_SND.roll(); // Cup lift + dice rolling sound
   dies.forEach(function(d){
-   d.style.transition='none';d.style.opacity='1';d.classList.add('rolling');
+   d.style.transition='none';d.style.opacity='1';d.classList.add('shaking');
   });
  },900);
 
- // Phase 4: Stop rolling, land with bounce
+ // Phase 4: Stop shaking, land with bounce
  setTimeout(function(){
   DICE_SND.land(); // Dice landing thud
   var res=[];
   dies.forEach(function(d,i){
    var v=Math.floor(Math.random()*6)+1;res.push(v);_diceVals[i]=v;
-   d.classList.remove('rolling');
-   d.style.transition='transform 0.6s cubic-bezier(0.22,0.9,0.36,1)';
-   var rx2=Math.floor(Math.random()*10-5),ry2=Math.floor(Math.random()*10-5);
-   d.style.transform=FACE_ROT[v]+' rotateX('+rx2+'deg) rotateY('+ry2+'deg)';
+   d.classList.remove('shaking');
+   // Re-render with final value
+   var dots=DOTS[v];var ddots=d.querySelectorAll('.ddot');
+   for(var k=0;k<9;k++){if(dots[k]){ddots[k].classList.remove('off')}else{ddots[k].classList.add('off')}}
    d.dataset.val=v;
-   setTimeout(function(){d.classList.add('bouncing')},50);
-   setTimeout(function(){d.classList.remove('bouncing')},600);
+   var tilt=Math.floor(Math.random()*8-4);
+   d.style.transform='rotate('+tilt+'deg)';
+   setTimeout(function(){d.classList.add('landed')},30);
+   setTimeout(function(){d.classList.remove('landed')},450);
   });
   var total=res.reduce(function(a,b){return a+b},0);
   if(sr){sr.textContent='擲出 '+res.join(' + ')+' = '+total+' 點 🎉';sr.scrollIntoView({behavior:'smooth',block:'center'})}
