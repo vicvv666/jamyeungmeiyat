@@ -1852,7 +1852,31 @@ const L={
   gender_label:'👤 性別',
   age_label:'🎂 年齡',
   drinkage_label:'🍺 酒齡(年)',
-  not_filled:'未填寫'
+  not_filled:'未填寫',
+  region_default:'選擇地區',
+  gender_default:'選擇性別',
+  member_jiuyau_name:'酒友',
+  member_jaugwai_name:'酒鬼',
+  member_jausan_name:'酒神',
+  add_friend:'加酒友',
+  friend_added:'已加酒友',
+  friends:'酒友',
+  checkins:'報到',
+  vip_required:'需要會員',
+  agree_terms:'同意條款',
+  apk_download_title:'下載 APK',
+  apk_download_desc:'安裝 APK 獲得更好體驗',
+  default_avatar_label:'預設頭像',
+  tab_dice:'骰盅',
+  age_placeholder:'輸入年齡(18-99)',
+  drinkage_placeholder:'輸入酒齡(0-80)',
+  chat_placeholder:'講嘢...',
+  note_placeholder:'寫低飲咗啲乜...',
+  party_name_ph:'酒局名稱',
+  party_loc_ph:'地點',
+  nickname_placeholder:'改個花名',
+  room_code:'輸入房間碼',
+  post_placeholder:'分享飲酒心得...'
 },
 'zh-CN':{
   st_mai_yum:'没喝',
@@ -2156,7 +2180,31 @@ const L={
   gender_label:'👤 性别',
   age_label:'🎂 年龄',
   drinkage_label:'🍺 酒龄(年)',
-  not_filled:'未填写'
+  not_filled:'未填写',
+  region_default:'选择地区',
+  gender_default:'选择性别',
+  member_jiuyau_name:'酒友',
+  member_jaugwai_name:'酒鬼',
+  member_jausan_name:'酒神',
+  add_friend:'加酒友',
+  friend_added:'已加酒友',
+  friends:'酒友',
+  checkins:'报到',
+  vip_required:'需要会员',
+  agree_terms:'同意条款',
+  apk_download_title:'下载 APK',
+  apk_download_desc:'安装 APK 获得更好体验',
+  default_avatar_label:'默认头像',
+  tab_dice:'骰盅',
+  age_placeholder:'输入年龄(18-99)',
+  drinkage_placeholder:'输入酒龄(0-80)',
+  chat_placeholder:'说话...',
+  note_placeholder:'写下喝了什么...',
+  party_name_ph:'酒局名称',
+  party_loc_ph:'地点',
+  nickname_placeholder:'起个花名',
+  room_code:'输入房间码',
+  post_placeholder:'分享喝酒心得...'
 },
 'en':{
   st_mai_yum:'Sober',
@@ -2460,7 +2508,31 @@ const L={
   gender_label:'👤 Gender',
   age_label:'🎂 Age',
   drinkage_label:'🍺 Drinking Age(yr)',
-  not_filled:'Not filled'
+  not_filled:'Not filled',
+  region_default:'Select region',
+  gender_default:'Select gender',
+  member_jiuyau_name:'Drinker',
+  member_jaugwai_name:'Drunkard',
+  member_jausan_name:'Alcohol God',
+  add_friend:'Add Friend',
+  friend_added:'Friend Added',
+  friends:'Friends',
+  checkins:'Check-ins',
+  vip_required:'VIP Required',
+  agree_terms:'Agree Terms',
+  apk_download_title:'Download APK',
+  apk_download_desc:'Install APK for better experience',
+  default_avatar_label:'Default Avatar',
+  tab_dice:'Dice',
+  age_placeholder:'Enter age (18-99)',
+  drinkage_placeholder:'Drinking years (0-80)',
+  chat_placeholder:'Say something...',
+  note_placeholder:'What did you drink...',
+  party_name_ph:'Party name',
+  party_loc_ph:'Location',
+  nickname_placeholder:'Pick a nickname',
+  room_code:'Enter room code',
+  post_placeholder:'Share your drinking story...'
 }
 };
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
@@ -2788,7 +2860,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
      var av=f.avatar&&f.avatar.startsWith('emoji:')?f.avatar.replace('emoji:',''):'👤';
      var avSrc=f.avatar&&f.avatar.startsWith('/api/')?API_BASE+f.avatar:'';
      var avHtml=avSrc?'<img src="'+avSrc+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.outerHTML=\'👤\'">':'<span style="font-size:24px">'+av+'</span>';
-     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="showMemFriend('+f.id+')">'+avHtml+'<div><div style="font-weight:600;color:var(--text)">'+(f.nickname||f.username||'?')+'</div><div style="font-size:10px;color:var(--sub)">@'+(f.username||'-')+'</div></div></div>';
+     return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="showMemFriend('+f.id+')">'+avHtml+'<div style="flex:1"><div style="font-weight:600;color:var(--text)">'+(f.nickname||f.username||'?')+'</div><div style="font-size:10px;color:var(--sub)">@'+(f.username||'-')+'</div><div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap">'+(f.region?'<span style="font-size:10px;background:rgba(245,158,11,0.1);padding:1px 6px;border-radius:6px">'+({'HK':'🇭🇰','MO':'🇲🇴','TW':'🇹🇼'}[f.region]||'🌍')+({'HK':'香港','MO':'澳門','TW':'台灣','CN-GD':'廣東','CN-BJ':'北京','CN-SH':'上海','MY':'馬來西亞','SG':'新加坡','JP':'日本','KR':'韓國','US':'美國','UK':'英國','AU':'澳洲','OTHER':'其他'}[f.region]||f.region)+'</span>':'')+(f.gender?'<span style="font-size:10px;background:rgba(236,72,153,0.1);padding:1px 6px;border-radius:6px">'+({'M':'👨男','F':'👩女','O':'🧑其他'}[f.gender]||f.gender)+'</span>':'')+(f.age?'<span style="font-size:10px;background:rgba(139,92,246,0.1);padding:1px 6px;border-radius:6px">🎂'+f.age+'</span>':'')+(f.drink_age?'<span style="font-size:10px;background:rgba(34,197,94,0.1);padding:1px 6px;border-radius:6px">🍺'+f.drink_age+'年</span>':'')+'</div></div></div>';
     }).join('');
    }
   }).catch(()=>{});
@@ -2865,12 +2937,28 @@ function toggleMemSection(id){
 
 // ═══════ FRIEND PROFILE MODAL ═══════
 function showMemFriend(uid){
- var mod=document.getElementById('friend-profile-mod');
- var body=document.getElementById('friend-profile-body');
+ var mod=document.getElementById('frd-mod'),body=document.getElementById('frd-body');
  if(!mod||!body)return;
- body.innerHTML='<div style="padding:20px;color:var(--sub)">載入中...</div>';
- mod.style.display='flex';
- api('/api/user/'+uid).then(d=>{
+ // Admin user (id=0) — show local me data instead of API call
+  if(uid===0 && me && me.admin){
+   var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};
+   var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};
+   var tags=[];
+   if(me.region)tags.push('<span style="font-size:11px;background:rgba(245,158,11,0.1);padding:2px 8px;border-radius:8px">'+(rgnMap[me.region]||me.region)+'</span>');
+   if(me.gender)tags.push('<span style="font-size:11px;background:rgba(236,72,153,0.1);padding:2px 8px;border-radius:8px">'+(gdrMap[me.gender]||me.gender)+'</span>');
+   if(me.age)tags.push('<span style="font-size:11px;background:rgba(139,92,246,0.1);padding:2px 8px;border-radius:8px">🎂 '+me.age+'歲</span>');
+   if(me.drink_age)tags.push('<span style="font-size:11px;background:rgba(34,197,94,0.1);padding:2px 8px;border-radius:8px">🍺 酒齡'+me.drink_age+'年</span>');
+   var tagHtml=tags.length?'<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:8px">'+tags.join('')+'</div>':'';
+   body.innerHTML='<div style="font-size:36px;margin-bottom:8px">👑</div>'+
+    '<div style="font-size:18px;font-weight:700;color:var(--text)">'+(me.nickname||me.username)+'</div>'+
+    '<div style="font-size:12px;color:var(--sub);margin-bottom:6px">@'+me.username+'</div>'+
+    '<div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600">🥇管理員</div>'+
+    tagHtml;
+   mod.style.display='flex';return;
+  }
+  body.innerHTML='<div style="padding:20px;color:var(--sub)">載入中...</div>';
+  mod.style.display='flex';
+  api('/api/user/'+uid).then(d=>{
   var u=d.user||d;
   var av=u.avatar&&u.avatar.startsWith('emoji:')?u.avatar.replace('emoji:',''):'👤';
   var avSrc=u.avatar&&u.avatar.startsWith('/api/')?API_BASE+u.avatar:'';
@@ -4456,7 +4544,7 @@ async function loadChatMsgs(){
   for(var i=0;i<msgs.length;i++){
    var m=msgs[i];
    var isMine=m.sender_id===(me?.id||0);
-   html+='<div style="display:flex;'+(isMine?'justify-content:flex-end':'')+'"><div style="max-width:75%;padding:8px 12px;border-radius:12px;font-size:13px;'+(isMine?'background:var(--amber);color:#fff;border-bottom-right-radius:4px':'background:var(--card);color:var(--text);border-bottom-left-radius:4px')+'">'+esc(m.content)+'<div style="font-size:10px;margin-top:2px;opacity:0.6;text-align:right">'+(m.created_at||'')+'</div></div></div>';
+   html+='<div style="display:flex;'+(isMine?'justify-content:flex-end':'')+'"><div style="max-width:75%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;'+(isMine?'background:linear-gradient(135deg,var(--amber),#e67e22);color:#fff;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(245,158,11,0.3)':'background:var(--card);color:var(--text);border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.15)')+'">'+esc(m.content)+'<div style="font-size:10px;margin-top:3px;opacity:0.6;text-align:right">'+(m.created_at||'')+'</div></div></div>';
   }
   el.innerHTML=html||'<div style="text-align:center;color:var(--sub);font-size:12px">仲未有對話，講聲嗨啦！</div>';
   if(wasBottom)el.scrollTop=el.scrollHeight;
