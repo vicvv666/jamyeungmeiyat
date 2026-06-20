@@ -112,24 +112,27 @@ def gzip_response(response):
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Admin-Token'
     response.headers['Access-Control-Max-Age'] = '86400'
     response.headers['Access-Control-Allow-Credentials'] = 'true'
-    # ── Security headers ──
-    response.headers['Content-Security-Policy'] = (
-        "default-src 'self' data: blob:; "
-        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        "img-src 'self' data: blob: https: http:; "
-        "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; "
-        "connect-src 'self' https://drunk.vic999.com https://*.vic999.com https://cdn.jsdelivr.net; "
-        "media-src 'self' blob: https://drunk.vic999.com; "
-        "manifest-src 'self'; "
-        "base-uri 'self'; "
-        "form-action 'self'; "
-        "object-src 'none'; "
-        "upgrade-insecure-requests; "
-        "frame-ancestors 'none'"
-    )
+    # ── Security headers (CSP set by nginx in production; fallback for direct :5052 access) ──
+    if 'Content-Security-Policy' not in response.headers:
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self' data: blob:; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+            "img-src 'self' data: blob: https: http:; "
+            "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; "
+            "connect-src 'self' https://drunk.vic999.com https://*.vic999.com https://cdn.jsdelivr.net; "
+            "media-src 'self' blob: https://drunk.vic999.com; "
+            "manifest-src 'self'; "
+            "base-uri 'self'; "
+            "form-action 'self'; "
+            "object-src 'none'; "
+            "upgrade-insecure-requests; "
+            "frame-ancestors 'none'"
+        )
     response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    if 'X-Frame-Options' not in response.headers:
+        response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     response.headers['Permissions-Policy'] = 'geolocation=(), camera=(), microphone=(), document-domain=(), sync-xhr=()'
     response.headers['Strict-Transport-Security'] = 'max-age=63072000; includeSubDomains; preload'
