@@ -3056,14 +3056,19 @@ def api_shop_product_detail(pid):
 @app.route('/api/shop/orders', methods=['POST'])
 @auth_required
 def api_shop_create_order():
-    """Create an order: items=[{product_id,qty}]"""
+    """Create an order: items=[{product_id,qty}]. Members get shop discount."""
     uid = g.uid
     d = request.get_json(force=True) or {}
     items = d.get('items', [])
     if not items:
         return jsonify({'error': '購物車為空'}), 400
     db = get_db()
+    # Membership discount rates: free=1.0, jiuyau=0.95, jaugwai=0.90, jausan=0.85
+    plan, mem_level, mem_exp = _get_membership(uid)
+    discount_map = {'jiuyau': 0.95, 'jaugwai': 0.90, 'jausan': 0.85}
+    discount = discount_map.get(plan, 1.0)
     total = 0
+    original_total = 0
     order_items = []
     for it in items:
         pid = int(it.get('product_id', 0))
@@ -3076,7 +3081,7 @@ def api_shop_create_order():
         if p['stock'] != -1 and p['stock'] < qty:
             return jsonify({'error': f'{p["name"]} 庫存不足'}), 400
         sub = round(p['price'] * qty, 2)
-        total += sub
+        original_total += sub
         order_items.append({
             'product_id': pid,
             'qty': qty,
@@ -3086,6 +3091,7 @@ def api_shop_create_order():
             'file_url': p['file_url'],
             'category': p['category']
         })
+    total = round(original_total * discount, 2)
     cur = db.execute('INSERT INTO orders (user_id,total_price,status) VALUES (?,?,?)',
                      (uid, total, 'pending'))
     oid = cur.lastrowid
@@ -3096,7 +3102,9 @@ def api_shop_create_order():
             db.execute('UPDATE products SET stock=stock-?, sold=sold+? WHERE id=?',
                        (oi['qty'], oi['qty'], oi['product_id']))
     db.commit()
-    return jsonify({'ok': True, 'order_id': oid, 'total': total})
+    return jsonify({'ok': True, 'order_id': oid, 'total': total,
+                    'original_total': original_total, 'discount': discount,
+                    'saved': round(original_total - total, 2)})
 
 @app.route('/api/shop/my-orders')
 @auth_required
@@ -3124,13 +3132,27 @@ def api_shop_my_orders():
 @app.route('/api/scan/verify', methods=['POST'])
 @auth_required
 def api_scan_verify():
-    """Scan a barcode and verify against liquor_db. body: {barcode}"""
+    """Scan a barcode and verify against liquor_db. body: {barcode}
+    Daily scan limit: free=3, jiuyau=20, jaugwai=100, jausan=unlimited"""
     uid = g.uid
     d = request.get_json(force=True) or {}
     barcode = str(d.get('barcode', '')).strip()
     if not barcode:
         return jsonify({'error': '請輸入條碼'}), 400
     db = get_db()
+    # Check daily scan limit by membership
+    plan, mem_level, mem_exp = _get_membership(uid)
+    scan_limits = {'jiuyau': 20, 'jaugwai': 100, 'jausan': -1}  # -1 = unlimited
+    limit = scan_limits.get(plan, 3)
+    if limit > 0:
+        today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
+        used = db.execute('SELECT COUNT(*) FROM scan_logs WHERE user_id=? AND DATE(created_at)=?',
+                          (uid, today)).fetchone()[0]
+        if used >= limit:
+            names = {'1': '酒友(20次/日)', '2': '酒鬼(100次/日)'}
+            hint = names.get(str(mem_level), 'VIP')
+            return jsonify({'error': f'今日掃碼已達上限({limit}次)，升級{hint}解鎖更多',
+                            'limit': limit, 'used': used, 'required_level': 1 if limit == 3 else 2}), 429
     liquor = db.execute('SELECT * FROM liquor_db WHERE barcode=?', (barcode,)).fetchone()
     result = 'not_found'
     liquor_data = None
@@ -3141,7 +3163,9 @@ def api_scan_verify():
     db.execute('INSERT INTO scan_logs (user_id,barcode,result,liquor_id) VALUES (?,?,?,?)',
                (uid, barcode, result, liquor['id'] if liquor else 0))
     db.commit()
-    return jsonify({'ok': True, 'result': result, 'liquor': liquor_data, 'barcode': barcode})
+    remaining = -1 if limit < 0 else max(0, limit - (used + 1 if limit > 0 else 1))
+    return jsonify({'ok': True, 'result': result, 'liquor': liquor_data, 'barcode': barcode,
+                    'scan_remaining': remaining})
 
 @app.route('/api/scan/history')
 @auth_required

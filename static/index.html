@@ -661,7 +661,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <tr><td style="padding:6px;border-top:1px solid var(--border)">⭐ <span data-i18n="cmp_badge">專屬徽章</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🌈 <span data-i18n="cmp_rainbow">炫彩暱稱</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">⚡ <span data-i18n="cmp_priority">優先匹配</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔥 <span data-i18n="cmp_fx">專屬特效</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border;color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔥 <span data-i18n="cmp_fx">專屬特效</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🏪 <span data-i18n="cmp_shop_discount">商鋪折扣</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">原價</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">95折</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">9折</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">85折</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔍 <span data-i18n="cmp_scan_limit">掃碼驗真</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3次/日</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">20次/日</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">100次/日</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
         </tbody>
       </table>
     </div>
@@ -4977,6 +4979,7 @@ function shopShowDetail(pid){
       <div style="font-size:12px;color:var(--sub);margin-bottom:8px">${catIcon} ${catLabel}${p.sub_category?' · '+p.sub_category:''}</div>
       ${p.description?`<div style="font-size:13px;color:var(--text);margin-bottom:12px;line-height:1.5">${p.description}</div>`:''}
       <div style="font-size:24px;font-weight:700;color:var(--amber);margin-bottom:4px">¥${Number(p.price).toFixed(2)} <span style="font-size:12px;color:var(--sub)">${p.currency||'CNY'}</span></div>
+      ${_shopDiscountHtml(Number(p.price))}
       <div style="font-size:12px;color:var(--sub);margin-bottom:12px">庫存: ${stockTxt}${p.sold?' · 已售'+p.sold:''}</div>
       <div style="display:flex;gap:8px">
         <button class="btn btn-primary" style="flex:1;${soldout?'opacity:0.5;pointer-events:none':''}" onclick="shopBuy(${p.id})">${soldout?'售罄':'🛒 立即購買'}</button>
@@ -4985,11 +4988,28 @@ function shopShowDetail(pid){
   }).catch(()=>toast('加載失敗','error'));
 }
 
+function _shopDiscountHtml(price){
+  const lv=memLevel();
+  if(!lv)return '';
+  const rates=[0,0.95,0.9,0.85];
+  const names=[0,'酒友','酒鬼','酒神'];
+  const r=rates[lv]||1;
+  const dp=(price*r).toFixed(2);
+  const sv=(price-dp).toFixed(2);
+  const colors=['','var(--yellow)','#6366f1','#dc2626'];
+  return `<div style="background:${colors[lv]}15;border:1px solid ${colors[lv]}40;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px">
+    <span style="color:${colors[lv]};font-weight:700">${['','🥉','🥈','🥇'][lv]} ${names[lv]}專享${Math.round(r*100)/10}折 ≈ ¥${dp}</span>
+    <span style="color:var(--green);margin-left:8px">省¥${sv}</span></div>`;
+}
+
 function shopBuy(pid){
   if(!token){toast('請先登入','error');return}
   api('/api/shop/orders',{method:'POST',body:JSON.stringify({items:[{product_id:pid,qty:1}]})})
   .then(r=>{
-    if(r.ok){toast('下單成功！訂單#'+r.order_id+'，合計¥'+r.total.toFixed(2),'success');document.getElementById('shop-detail-mod').style.display='none';shopLoadProducts(shopCurrentCat)}
+    if(r.ok){
+      let msg='下單成功！訂單#'+r.order_id+'，合計¥'+r.total.toFixed(2);
+      if(r.discount<1)msg+=' (原價¥'+r.original_total.toFixed(2)+'，省¥'+r.saved.toFixed(2)+')';
+      toast(msg,'success');document.getElementById('shop-detail-mod').style.display='none';shopLoadProducts(shopCurrentCat)}
     else toast(r.error||'下單失敗','error');
   }).catch(()=>toast('網絡錯誤','error'));
 }
@@ -5022,11 +5042,17 @@ function shopToggleMyOrders(){
 // ═══════════════════ LIQUOR SCAN / VERIFY ═══════════════════
 let _scannerStream = null;
 
+function _scanRemainHtml(remain){
+  if(remain===undefined||remain===null)return '';
+  const txt = remain<0?'無限次':remain+'次';
+  const clr = remain<0?'var(--green)':(remain>5?'var(--sub)':'var(--danger)');
+  return `<div style="font-size:11px;color:${clr};margin-top:8px;padding-top:6px;border-top:1px solid var(--border)">🔍 今日剩餘掃碼: ${txt}${remain<5&&remain>=0?' · <a href="javascript:void(0)" onclick="showUpgradeModal('+Math.min(memLevel()+1,3)+')" style="color:var(--amber)">升級解锁更多</a>':''}</div>`;
+}
+
 function scanBarcode(code){
   const barcode = code || document.getElementById('scan-barcode-input')?.value?.trim() || '';
   if(!barcode){toast('請輸入條碼','error');return}
   api('/api/scan/verify',{method:'POST',body:JSON.stringify({barcode})}).then(r=>{
-    if(!r.ok){toast(r.error||'驗證失敗','error');return}
     const el = document.getElementById('scan-result');
     el.style.display='block';
     const l = r.liquor;
@@ -5047,7 +5073,8 @@ function scanBarcode(code){
             ${l.description?`<div style="font-size:12px;margin-top:4px;line-height:1.4">${l.description}</div>`:''}
           </div>
         </div>`:''}
-        <div style="font-size:11px;color:var(--sub);margin-top:8px">條碼: ${barcode}</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:6px">條碼: ${barcode}</div>
+        ${_scanRemainHtml(r.scan_remaining)}
       </div>`;
     } else if(r.result==='unverified'){
       el.innerHTML = `<div style="padding:12px;border-radius:10px;background:rgba(245,158,11,0.1);border:2px solid var(--amber)">
@@ -5055,12 +5082,14 @@ function scanBarcode(code){
         <div style="font-size:13px;color:var(--text)">此條碼在數據庫中有記錄，但未通過正品驗證</div>
         ${l?`<div style="font-size:12px;color:var(--sub);margin-top:6px">名稱: ${l.name||''} · 品牌: ${l.brand||''}</div>`:''}
         <div style="font-size:11px;color:var(--sub);margin-top:6px">條碼: ${barcode}</div>
+        ${_scanRemainHtml(r.scan_remaining)}
       </div>`;
     } else {
       el.innerHTML = `<div style="padding:12px;border-radius:10px;background:rgba(239,68,68,0.1);border:2px solid var(--danger)">
         <div style="font-size:16px;font-weight:700;color:var(--danger);margin-bottom:4px">❌ 未找到記錄</div>
         <div style="font-size:13px;color:var(--text)">此條碼不在數據庫中，請謹慎購買</div>
         <div style="font-size:11px;color:var(--sub);margin-top:6px">條碼: ${barcode}</div>
+        ${_scanRemainHtml(r.scan_remaining)}
       </div>`;
     }
   }).catch(()=>toast('驗證失敗，請重試','error'));
