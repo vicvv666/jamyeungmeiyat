@@ -717,11 +717,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="font-size:12px;color:var(--sub);margin-top:4px">舞曲 · 酒品 · 消費券</div>
   </div>
   <!-- 分类切换 -->
-  <div style="display:flex;gap:6px;margin:10px 0;overflow-x:auto;padding-bottom:4px" id="shop-cats">
-    <button class="btn btn-primary btn-sm shop-cat-btn" data-cat="" onclick="shopLoadProducts('')">全部分类</button>
-    <button class="btn btn-outline btn-sm shop-cat-btn" data-cat="music" onclick="shopLoadProducts('music')">🎵 舞曲</button>
-    <button class="btn btn-outline btn-sm shop-cat-btn" data-cat="liquor" onclick="shopLoadProducts('liquor')">🍾 酒品</button>
-    <button class="btn btn-outline btn-sm shop-cat-btn" data-cat="voucher" onclick="shopLoadProducts('voucher')">🎫 消費券</button>
+  <div style="display:flex;gap:8px;margin:10px 0;overflow-x:auto;padding-bottom:4px" id="shop-cats">
   </div>
   <!-- 搜索 -->
   <div style="display:flex;gap:6px;margin-bottom:10px">
@@ -892,7 +888,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <button class="adm-tab" data-adm="posts" data-i18n="adm_posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📸 圈子</button>
     <button class="adm-tab" data-adm="shop" onclick="admShowTab('shop');admLoadShopProducts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🛒 商鋪</button>
     <button class="adm-tab" data-adm="orders" onclick="admShowTab('orders');admLoadShopOrders()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📦 訂單</button>
-    <button class="adm-tab" data-adm="liquor" onclick="admShowTab('liquor');admLoadLiquorDB()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🍾 酒品</button>
+    <button class="adm-tab" data-adm="liquor" onclick="admShowTab('liquor');admLoadLiquorDB()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🍾 '+T('shop_liquor')+'</button>
     <button class="adm-tab" data-adm="groups" onclick="admShowTab('groups');admLoadGroups()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 群組</button>
    </div>
    <!-- Stats page -->
@@ -981,7 +977,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
    <!-- Admin: Liquor DB -->
    <div class="adm-page" id="adm-liquor">
     <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;font-size:14px">🍾 酒品數據庫</span>
+      <span style="font-weight:700;font-size:14px">🍾 '+T('shop_liquor')+'數據庫</span>
       <div style="display:flex;gap:4px">
         <input class="input" id="adm-liquor-search" placeholder="搜索條碼/名稱..." style="margin-bottom:0;padding:4px 8px;font-size:11px;max-width:150px" onkeydown="if(event.key==='Enter')admLoadLiquorDB(this.value)">
         <button class="btn btn-primary btn-sm" onclick="admLiquorForm()">➕ 新增</button>
@@ -2063,7 +2059,51 @@ const L={
   party_loc_ph:'地點',
   nickname_placeholder:'改個花名',
   room_code:'輸入房間碼',
-  post_placeholder:'分享飲酒心得...'
+  post_placeholder:'分享飲酒心得...',
+  adm_shop:'🛒 商鋪',adm_orders:'📦 訂單',adm_liquor:'🍾 酒品',adm_groups:'👥 群組',
+  edit_product:'✏️ 編輯商品',add_product:'➕ 新增商品',edit_liquor:'✏️ 編輯酒品',add_liquor:'➕ 新增酒品',
+  save_success:'儲存成功',delete_success:'已刪除',load_failed:'加載失敗',no_records:'暫無記錄',confirm_delete:'確定刪除？',
+  product_name:'名稱',product_name_en:'英文名稱',product_category:'分類',product_sub_cat:'子分類',
+  product_desc:'描述',product_price:'價格',product_currency:'貨幣',product_stock:'庫存(-1=無限)',
+  product_sort:'排序',product_image_url:'圖片URL',product_file_url:'檔案URL(舞曲下載)',
+  product_active:'上架',product_save:'💾 保存',product_cancel:'取消',
+  liquor_barcode:'條碼 *',liquor_name:'名稱',liquor_name_en:'英文名稱',liquor_brand:'品牌',
+  liquor_type:'類型',liquor_origin:'產地',liquor_vintage:'年份',liquor_abv:'酒精度%',
+  liquor_volume:'容量ml',liquor_image:'圖片URL',liquor_desc:'描述',liquor_taste:'口感筆記',liquor_verified:'✅ 正品驗證',
+  grp_create:'＋ 創建群組',grp_explore:'🔍 發現群組',grp_tab_friends:'好友',grp_tab_groups:'群組',
+  grp_my_groups:'我的群組',grp_name:'群組名稱',grp_desc:'群組描述',grp_avatar:'頭像URL',
+  grp_public:'公開群組',grp_members:'成員',grp_join:'加入',grp_leave:'退出',
+  grp_dissolve:'解散群組',grp_kick:'踢出',grp_create_ok:'群組創建成功！',
+  grp_free_no_create:'免費用戶不能建群，請升級會員',grp_free_no_join:'免費用戶不能加群，請升級會員',grp_no_data:'暫無群組',
+  shop_all:'🏠 全部',shop_music:'🎵 舞曲',shop_liquor:'🍾 酒品',shop_voucher:'🎫 消費券',
+  shop_search_placeholder:'🔍 搜索商品...',shop_title:'今晚飲咗未 · 商鋪',
+  toast_password_mismatch:'密碼不一致',toast_select_date:'選擇日期',
+  toast_no_friends:'仲未有酒友 🥲',toast_loading:'載入中...',toast_user_not_found:'搵唔到用戶',
+  toast_updated:'已更新',toast_password_min:'密碼至少4位',toast_password_reset:'密碼已重設',
+  toast_no_audit:'暫無操作紀錄',toast_server_saved:'伺服器已儲存',toast_product_not_found:'商品不存在',
+  toast_login_first:'請先登入',toast_network_error:'網絡錯誤',toast_no_scan_hist:'暫無掃碼記錄',
+  toast_scan_fail:'驗證失敗，請重試',toast_no_camera:'無法開啟相機，請手動輸入條碼',
+  toast_browser_no_camera:'瀏覽器不支援相機，請手動輸入條碼',toast_enter_barcode:'請輸入條碼',
+  toast_no_pending:'冇待處理請求',toast_dice_win:'贏咗！',toast_not_supported:'暫不支持',
+  toast_product_updated:'商品已更新',toast_product_added:'商品已新增',
+  toast_liquor_updated:'酒品已更新',toast_liquor_added:'酒品已新增',toast_save_failed:'保存失敗',
+  order_filter_all:'全部',order_filter_pending:'待處理',order_filter_paid:'已付款',
+  order_filter_shipped:'已發貨',order_filter_delivered:'已送達',order_filter_cancelled:'已取消',
+  liquor_search_placeholder:'搜索條碼/名稱...',group_search_placeholder:'搜索群名...',no_products:'暫無商品，點擊➕新增',
+  login_failed:'登入失敗',login_wrong:'用戶名或密碼錯誤',login_unconfirmed:'帳號未確認，請稍後重試',
+  register_failed:'註冊失敗',register_exists:'用戶名已被註冊',register_pwd_short:'密碼不符合要求（最少6位）',
+  lv_free:'免費會員',lv_bronze:'🥉 酒友',lv_silver:'🥈 酒鬼',lv_gold:'🥇 酒神',
+  expires:'到期：',no_contact:'未填寫聯繫方式',not_filled:'未填寫',
+  party_no:'未有酒局',no_records2:'未有記錄',retry:'🔄 重試',
+  stats_distribution:'📊 狀態分佈',no_data:'冇數據',times:'次',
+  rsvp_yes:'✅ 到',rsvp_maybe:'🤔 可能',rsvp_no:'❌ 唔到',attend_log:'📝 記錄',
+  ppl_join:'人參加 ▸',gender_m:'👨 男',gender_f:'👩 女',gender_o:'🧑 其他',
+  age_suffix:'歲',party_loc_tbd:'未定',
+  region_hk:'🇭🇰 香港',region_mo:'🇲🇴 澳門',region_tw:'🇹🇼 台灣',region_gd:'🇨🇳 廣東',
+  region_bj:'🇨🇳 北京',region_sh:'🇨🇳 上海',region_gx:'🇨🇳 廣西',region_fj:'🇨🇳 福建',
+  region_zj:'🇨🇳 浙江',region_cn_other:'🇨🇳 其他',region_my:'🇲🇾 馬來西亞',
+  region_sg:'🇸🇬 新加坡',region_jp:'🇯🇵 日本',region_kr:'🇰🇷 韓國',
+  region_us:'🇺🇸 美國',region_gb:'🇬🇧 英國',region_au:'🇦🇺 澳洲',region_other:'🌍 其他'
 },
 'zh-CN':{
   st_mai_yum:'没喝',
@@ -2391,7 +2431,51 @@ const L={
   party_loc_ph:'地点',
   nickname_placeholder:'起个花名',
   room_code:'输入房间码',
-  post_placeholder:'分享喝酒心得...'
+  post_placeholder:'分享喝酒心得...',
+  adm_shop:'🛒 商铺',adm_orders:'📦 订单',adm_liquor:'🍾 酒品',adm_groups:'👥 群组',
+  edit_product:'✏️ 编辑商品',add_product:'➕ 新增商品',edit_liquor:'✏️ 编辑酒品',add_liquor:'➕ 新增酒品',
+  save_success:'保存成功',delete_success:'已删除',load_failed:'加载失败',no_records:'暂无记录',confirm_delete:'确定删除？',
+  product_name:'名称',product_name_en:'英文名称',product_category:'分类',product_sub_cat:'子分类',
+  product_desc:'描述',product_price:'价格',product_currency:'货币',product_stock:'库存(-1=无限)',
+  product_sort:'排序',product_image_url:'图片URL',product_file_url:'文件URL(舞曲下载)',
+  product_active:'上架',product_save:'💾 保存',product_cancel:'取消',
+  liquor_barcode:'条码 *',liquor_name:'名称',liquor_name_en:'英文名称',liquor_brand:'品牌',
+  liquor_type:'类型',liquor_origin:'产地',liquor_vintage:'年份',liquor_abv:'酒精度%',
+  liquor_volume:'容量ml',liquor_image:'图片URL',liquor_desc:'描述',liquor_taste:'口感笔记',liquor_verified:'✅ 正品验证',
+  grp_create:'＋ 创建群组',grp_explore:'🔍 发现群组',grp_tab_friends:'好友',grp_tab_groups:'群组',
+  grp_my_groups:'我的群组',grp_name:'群组名称',grp_desc:'群组描述',grp_avatar:'头像URL',
+  grp_public:'公开群组',grp_members:'成员',grp_join:'加入',grp_leave:'退出',
+  grp_dissolve:'解散群组',grp_kick:'踢出',grp_create_ok:'群组创建成功！',
+  grp_free_no_create:'免费用户不能建群，请升级会员',grp_free_no_join:'免费用户不能加群，请升级会员',grp_no_data:'暂无群组',
+  shop_all:'🏠 全部',shop_music:'🎵 舞曲',shop_liquor:'🍾 酒品',shop_voucher:'🎫 消费券',
+  shop_search_placeholder:'🔍 搜索商品...',shop_title:'今晚饮咗未 · 商铺',
+  toast_password_mismatch:'密码不一致',toast_select_date:'选择日期',
+  toast_no_friends:'还没有酒友 🥲',toast_loading:'加载中...',toast_user_not_found:'找不到用户',
+  toast_updated:'已更新',toast_password_min:'密码至少4位',toast_password_reset:'密码已重设',
+  toast_no_audit:'暂无操作记录',toast_server_saved:'服务器已保存',toast_product_not_found:'商品不存在',
+  toast_login_first:'请先登录',toast_network_error:'网络错误',toast_no_scan_hist:'暂无扫码记录',
+  toast_scan_fail:'验证失败，请重试',toast_no_camera:'无法开启相机，请手动输入条码',
+  toast_browser_no_camera:'浏览器不支持相机，请手动输入条码',toast_enter_barcode:'请输入条码',
+  toast_no_pending:'没有待处理请求',toast_dice_win:'赢了！',toast_not_supported:'暂不支持',
+  toast_product_updated:'商品已更新',toast_product_added:'商品已新增',
+  toast_liquor_updated:'酒品已更新',toast_liquor_added:'酒品已新增',toast_save_failed:'保存失败',
+  order_filter_all:'全部',order_filter_pending:'待处理',order_filter_paid:'已付款',
+  order_filter_shipped:'已发货',order_filter_delivered:'已送达',order_filter_cancelled:'已取消',
+  liquor_search_placeholder:'搜索条码/名称...',group_search_placeholder:'搜索群名...',no_products:'暂无商品，点击➕新增',
+  login_failed:'登录失败',login_wrong:'用户名或密码错误',login_unconfirmed:'账号未确认，请稍后重试',
+  register_failed:'注册失败',register_exists:'用户名已被注册',register_pwd_short:'密码不符合要求（最少6位）',
+  lv_free:'免费会员',lv_bronze:'🥉 酒友',lv_silver:'🥈 酒鬼',lv_gold:'🥇 酒神',
+  expires:'到期：',no_contact:'未填写联系方式',not_filled:'未填写',
+  party_no:'未有酒局',no_records2:'未有记录',retry:'🔄 重试',
+  stats_distribution:'📊 状态分布',no_data:'没数据',times:'次',
+  rsvp_yes:'✅ 到',rsvp_maybe:'🤔 可能',rsvp_no:'❌ 不到',attend_log:'📝 记录',
+  ppl_join:'人参加 ▸',gender_m:'👨 男',gender_f:'👩 女',gender_o:'🧑 其他',
+  age_suffix:'岁',party_loc_tbd:'未定',
+  region_hk:'🇭🇰 香港',region_mo:'🇲🇴 澳门',region_tw:'🇹🇼 台湾',region_gd:'🇨🇳 广东',
+  region_bj:'🇨🇳 北京',region_sh:'🇭🇳 上海',region_gx:'🇨🇳 广西',region_fj:'🇨🇳 福建',
+  region_zj:'🇨🇳 浙江',region_cn_other:'🇨🇳 其他',region_my:'🇲🇾 马来西亚',
+  region_sg:'🇸🇬 新加坡',region_jp:'🇯🇵 日本',region_kr:'🇰🇷 韩国',
+  region_us:'🇺🇸 美国',region_gb:'🇬🇧 英国',region_au:'🇦🇺 澳洲',region_other:'🌍 其他'
 },
 'en':{
   st_mai_yum:'Sober',
@@ -2719,7 +2803,51 @@ const L={
   party_loc_ph:'Location',
   nickname_placeholder:'Pick a nickname',
   room_code:'Enter room code',
-  post_placeholder:'Share your drinking story...'
+  post_placeholder:'Share your drinking story...',
+  adm_shop:'🛒 Shop',adm_orders:'📦 Orders',adm_liquor:'🍾 Liquor',adm_groups:'👥 Groups',
+  edit_product:'✏️ Edit Product',add_product:'➕ Add Product',edit_liquor:'✏️ Edit Liquor',add_liquor:'➕ Add Liquor',
+  save_success:'Saved',delete_success:'Deleted',load_failed:'Load failed',no_records:'No records',confirm_delete:'Confirm delete?',
+  product_name:'Name',product_name_en:'English Name',product_category:'Category',product_sub_cat:'Sub-category',
+  product_desc:'Description',product_price:'Price',product_currency:'Currency',product_stock:'Stock (-1=unlimited)',
+  product_sort:'Sort Order',product_image_url:'Image URL',product_file_url:'File URL (Music download)',
+  product_active:'Active',product_save:'💾 Save',product_cancel:'Cancel',
+  liquor_barcode:'Barcode *',liquor_name:'Name',liquor_name_en:'English Name',liquor_brand:'Brand',
+  liquor_type:'Type',liquor_origin:'Origin',liquor_vintage:'Vintage',liquor_abv:'ABV %',
+  liquor_volume:'Volume ml',liquor_image:'Image URL',liquor_desc:'Description',liquor_taste:'Taste Notes',liquor_verified:'✅ Verified',
+  grp_create:'＋ Create Group',grp_explore:'🔍 Explore',grp_tab_friends:'Friends',grp_tab_groups:'Groups',
+  grp_my_groups:'My Groups',grp_name:'Group Name',grp_desc:'Description',grp_avatar:'Avatar URL',
+  grp_public:'Public Group',grp_members:'Members',grp_join:'Join',grp_leave:'Leave',
+  grp_dissolve:'Dissolve',grp_kick:'Kick',grp_create_ok:'Group created!',
+  grp_free_no_create:'Free users cannot create groups. Upgrade!',grp_free_no_join:'Free users cannot join groups. Upgrade!',grp_no_data:'No groups yet',
+  shop_all:'🏠 All',shop_music:'🎵 Music',shop_liquor:'🍾 Liquor',shop_voucher:'🎫 Voucher',
+  shop_search_placeholder:'🔍 Search products...',shop_title:'JYMW · Shop',
+  toast_password_mismatch:'Passwords do not match',toast_select_date:'Select a date',
+  toast_no_friends:'No drinking buddies yet 🥲',toast_loading:'Loading...',toast_user_not_found:'User not found',
+  toast_updated:'Updated',toast_password_min:'Password min 4 chars',toast_password_reset:'Password reset',
+  toast_no_audit:'No audit records',toast_server_saved:'Server saved',toast_product_not_found:'Product not found',
+  toast_login_first:'Please login first',toast_network_error:'Network error',toast_no_scan_hist:'No scan records',
+  toast_scan_fail:'Verification failed, try again',toast_no_camera:'Cannot open camera, enter barcode manually',
+  toast_browser_no_camera:'Browser does not support camera',toast_enter_barcode:'Please enter barcode',
+  toast_no_pending:'No pending requests',toast_dice_win:'Won!',toast_not_supported:'Not supported',
+  toast_product_updated:'Product updated',toast_product_added:'Product added',
+  toast_liquor_updated:'Liquor updated',toast_liquor_added:'Liquor added',toast_save_failed:'Save failed',
+  order_filter_all:'All',order_filter_pending:'Pending',order_filter_paid:'Paid',
+  order_filter_shipped:'Shipped',order_filter_delivered:'Delivered',order_filter_cancelled:'Cancelled',
+  liquor_search_placeholder:'Search barcode/name...',group_search_placeholder:'Search groups...',no_products:'No products yet. Click ➕ to add',
+  login_failed:'Login failed',login_wrong:'Wrong username or password',login_unconfirmed:'Account not confirmed, try later',
+  register_failed:'Registration failed',register_exists:'Username already taken',register_pwd_short:'Password too short (min 6)',
+  lv_free:'Free',lv_bronze:'🥉 Drinker',lv_silver:'🥈 Drunkard',lv_gold:'🥇 Drunk God',
+  expires:'Expires: ',no_contact:'No contact info',not_filled:'Not filled',
+  party_no:'No parties yet',no_records2:'No records',retry:'🔄 Retry',
+  stats_distribution:'📊 Status Distribution',no_data:'No data',times:' times',
+  rsvp_yes:'✅ Going',rsvp_maybe:'🤔 Maybe',rsvp_no:'❌ Not going',attend_log:'📝 Log',
+  ppl_join:' going ▸',gender_m:'👨 Male',gender_f:'👩 Female',gender_o:'🧑 Other',
+  age_suffix:' y/o',party_loc_tbd:'TBD',
+  region_hk:'🇭🇰 Hong Kong',region_mo:'🇲🇴 Macau',region_tw:'🇹🇼 Taiwan',region_gd:'🇨🇳 Guangdong',
+  region_bj:'🇨🇳 Beijing',region_sh:'🇨🇳 Shanghai',region_gx:'🇨🇳 Guangxi',region_fj:'🇨🇳 Fujian',
+  region_zj:'🇨🇳 Zhejiang',region_cn_other:'🇨🇳 Other',region_my:'🇲🇾 Malaysia',
+  region_sg:'🇸🇬 Singapore',region_jp:'🇯🇵 Japan',region_kr:'🇰🇷 Korea',
+  region_us:'🇺🇸 USA',region_gb:'🇬🇧 UK',region_au:'🇦🇺 Australia',region_other:'🌍 Other'
 }
 };
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
@@ -2735,6 +2863,8 @@ function switchLang(l){
   if(typeof updMem==='function')updMem();
   // Refresh dice page labels
   if(typeof updDiceLabels==='function')updDiceLabels();
+  // Refresh shop category buttons
+  if(typeof _renderShopCats==='function')_renderShopCats();
 }
 function updTitles(){
   // App title
@@ -2838,18 +2968,18 @@ async function doLogin(){
  sessionStorage.setItem('jymy_pw',p);
  saveS();toast(T("login_success"));closeAuth();updateNav();buildGrid();updTitles();updMem();
  setTimeout(()=>refreshAll(),300);
- }catch(e){let msg=e.message||'登入失敗';if(msg.includes('Invalid login'))msg='用戶名或密碼錯誤';if(msg.includes('Email not confirmed'))msg='帳號未確認，請稍後重試';toast('❌ '+msg,1)}
+ }catch(e){let msg=e.message||T('login_failed');if(msg.includes('Invalid login'))msg=T('login_wrong');if(msg.includes('Email not confirmed'))msg=T('login_unconfirmed');toast('❌ '+msg,1)}
 }
 async function doRegister(){
  const u=document.getElementById('r-user').value.trim(),n=document.getElementById('r-nick').value.trim(),p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
- if(!u||p.length<4)return toast(T("username_pwd_short"),1);if(p!==p2)return toast('密碼不一致',1);
+ if(!u||p.length<4)return toast(T("username_pwd_short"),1);if(p!==p2)return toast(T('toast_password_mismatch'),1);
  const ag=document.getElementById('r-agree');if(ag&&!ag.checked)return toast(T("agree_first"),1);
  try{
  const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
  adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
  saveS();toast(T("register_success"));closeAuth();updateNav();buildGrid();updTitles();
  setTimeout(()=>refreshAll(),300);
- }catch(e){let msg=e.message||'註冊失敗';if(msg.includes('already registered'))msg='用戶名已被註冊';if(msg.includes('password'))msg='密碼不符合要求（最少6位）';toast('❌ '+msg,1)}
+ }catch(e){let msg=e.message||T('register_failed');if(msg.includes('already registered'))msg=T('register_exists');if(msg.includes('password'))msg=T('register_pwd_short');toast('❌ '+msg,1)}
 }
 async function doLogout(){
  // signOut handled by clearing token
@@ -2937,7 +3067,7 @@ async function createParty(){
  if(!me)return toast(T('please_login'),1);
  const title=document.getElementById('pa-title').value.trim(),loc=document.getElementById('pa-loc').value.trim(),
  d=document.getElementById('pa-date').value,tm=document.getElementById('pa-time').value;
- if(!title)return toast(T("enter_name"),1);if(!d)return toast('選擇日期',1);
+ if(!title)return toast(T("enter_name"),1);if(!d)return toast(T('toast_select_date'),1);
  try{
  await api('/api/party',{method:'POST',body:{title,location:loc,event_date:d+(tm?'T'+tm:'')}})
  document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();toast(T("party_created"));
@@ -2950,12 +3080,12 @@ async function loadParties(){
   const d=await api('/api/parties');parties=d.parties||[];
  let h='';
  parties.forEach(p=>{const atts=p.attendees||[];
- h+='<div class="card"><div style="font-weight:700;font-size:15px">'+esc(p.title)+'</div><div style="font-size:12px;color:var(--sub);margin:6px 0">📍 '+(esc(p.location)||'未定')+' · 🕐 '+(p.meet_time||'未定')+'</div><div style="font-size:11px;color:var(--amber)">👑 '+esc(p.creator_nickname)+'</div>';
- h+='<div style="margin:8px 0"><span class="clickable" onclick="this.nextElementSibling.classList.toggle(\'open\')">👥 '+p.going_count+'人參加 ▸</span><div class="attendee-list">';
+ h+='<div class="card"><div style="font-weight:700;font-size:15px">'+esc(p.title)+'</div><div style="font-size:12px;color:var(--sub);margin:6px 0">📍 '+(esc(p.location)||T('party_loc_tbd'))+' · 🕐 '+(p.meet_time||T('party_loc_tbd'))+'</div><div style="font-size:11px;color:var(--amber)">👑 '+esc(p.creator_nickname)+'</div>';
+ h+='<div style="margin:8px 0"><span class="clickable" onclick="this.nextElementSibling.classList.toggle(\'open\')">👥 '+p.going_count+T('ppl_join')+'</span><div class="attendee-list">';
  atts.forEach(a=>{h+='<div class="attendee-row">'+(a.response==='going'?'✅':a.response==='maybe'?'🤔':'❌')+' <b>'+esc(a.nickname)+'</b></div>'});
- h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">✅ 到</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">🤔 可能</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">❌ 唔到</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">📝 記錄 ('+(p.journal_count||0)+')</button></div></div>';
+ h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">'+T('rsvp_yes')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">'+T('rsvp_maybe')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">'+T('rsvp_no')+'</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">'+T('attend_log')+' ('+(p.journal_count||0)+')</button></div></div>';
  });
- if(!parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>未有酒局</div>';
+ if(!parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>'+T('party_no')+'</div>';
  document.getElementById('party-list').innerHTML=h;
  }catch(e){}
 }
@@ -2970,7 +3100,7 @@ function closeJnl(){const el=document.getElementById('jnl-mod');if(!el)return;el
 async function loadJnl(pid){
   try{const d=await api('/api/party/'+pid+'/journal');let h='';
     (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b class="'+memNickClass(j.membership_level||0)+'">'+esc(j.nickname)+'</b>'+memBadge(j.membership_level||0)+': '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
-    if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有記錄</div>';
+    if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">'+T('no_records2')+'</div>';
     document.getElementById('jnl-list').innerHTML=h;
   }catch(e){}}
 async function doJnl(){const t=document.getElementById('jnl-inp').value.trim();if(!t||!curPid)return;try{await api('/api/party/'+curPid+'/journal',{method:'POST',body:{content:t}});document.getElementById('jnl-inp').value='';loadJnl(curPid);loadParties()}catch(e){toast('❌ '+e.message,1)}}
@@ -2986,7 +3116,7 @@ async function loadStats(){
 // ═══════ MEMBER ═══════
 function updMem(){const s=document.getElementById('mem-status'),e=document.getElementById('mem-exp');if(!me)return;
  const lv=memLevel();
- const lvNames=['免費會員','🥉 酒友','🥈 酒鬼','🥇 酒神'];
+ const lvNames=[T('lv_free'),T('lv_bronze'),T('lv_silver'),T('lv_gold')];
  const lvColors=['var(--sub)','var(--amber)','#a855f7','linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6)'];
  // Update profile card
  var aw=document.getElementById('mem-avatar-wrap');
@@ -3009,8 +3139,8 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
      }else{expWarn.style.display='none';}
    }else{expWarn.style.display='none';}
  }
- if(s){s.textContent=lvNames[lv]||'免費會員';if(lv>=3)s.style.background='linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6)',s.style.webkitBackgroundClip='text',s.style.webkitTextFillColor='transparent';else if(lv>0)s.style.color='var(--amber)';}
- if(e)e.textContent=me.member_expires?'到期：'+me.member_expires:'';
+ if(s){s.textContent=lvNames[lv]||T('lv_free');if(lv>=3)s.style.background='linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6)',s.style.webkitBackgroundClip='text',s.style.webkitTextFillColor='transparent';else if(lv>0)s.style.color='var(--amber)';}
+ if(e)e.textContent=me.member_expires?T('expires')+me.member_expires:'';
  // Highlight active plan card
  document.querySelectorAll('.plan-card').forEach(c=>c.style.borderColor='var(--border)');
  var planMap={1:'plan-jiuyau',2:'plan-jaugwai',3:'plan-jausan'};
@@ -3019,15 +3149,15 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   var parts=[];
   if(me.phone)parts.push('📞 '+me.phone);
   if(me.email)parts.push('📧 '+me.email);
-  ct.textContent=parts.join('  ')||'未填寫聯繫方式';
+  ct.textContent=parts.join('  ')||T('no_contact');
  }
  // Show profile tags: region / gender / age / drink_age (always show label)
    var rgn=document.getElementById('mem-region');
-   if(rgn){var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};rgn.textContent=me.region?('📍 '+(rgnMap[me.region]||me.region)):T('not_filled');rgn.style.display='';}
+   if(rgn){var rgnMap={'HK':T('region_hk'),'MO':T('region_mo'),'TW':T('region_tw'),'CN-GD':T('region_gd'),'CN-BJ':T('region_bj'),'CN-SH':T('region_sh'),'CN-GX':T('region_gx'),'CN-FJ':T('region_fj'),'CN-ZJ':T('region_zj'),'CN-OTHER':T('region_cn_other'),'MY':T('region_my'),'SG':T('region_sg'),'JP':T('region_jp'),'KR':T('region_kr'),'US':T('region_us'),'UK':T('region_gb'),'AU':T('region_au'),'OTHER':T('region_other')};rgn.textContent=me.region?('📍 '+(rgnMap[me.region]||me.region)):T('not_filled');rgn.style.display='';}
    var gdr=document.getElementById('mem-gender');
-   if(gdr){var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};gdr.textContent=me.gender?('👤 '+(gdrMap[me.gender]||me.gender)):T('not_filled');gdr.style.display='';}
+   if(gdr){var gdrMap={'M':T('gender_m'),'F':T('gender_f'),'O':T('gender_o')};gdr.textContent=me.gender?('👤 '+(gdrMap[me.gender]||me.gender)):T('not_filled');gdr.style.display='';}
    var mg=document.getElementById('mem-age');
-   if(mg){mg.textContent=me.age?('🎂 '+me.age+'歲'):T('not_filled');mg.style.display='';}
+   if(mg){mg.textContent=me.age?('🎂 '+me.age+T('age_suffix')):T('not_filled');mg.style.display='';}
    var md=document.getElementById('mem-drinkage');
    if(md){md.textContent=me.drink_age?('🍺 '+me.drink_age+'年'):T('not_filled');md.style.display='';}
  // Load stats counts + member section lists
@@ -3170,7 +3300,7 @@ function showMemFriend(uid){
  api('/api/user/'+uid).then(d=>{
   renderProfile(d.user||d,false);
  }).catch(()=>{
-  body.innerHTML='<div style="padding:20px;color:var(--red);text-align:center">❌ 載入失敗<br><button class="btn" style="margin-top:10px;font-size:12px" onclick="closeFriendProfile()">關閉</button></div>';
+  body.innerHTML='<div style="padding:20px;color:var(--red);text-align:center">❌ '+T('load_failed')+'<br><button class="btn" style="margin-top:10px;font-size:12px" onclick="closeFriendProfile()">關閉</button></div>';
  });
 }
 function closeFriendProfile(){var el=document.getElementById('friend-profile-mod');if(el)el.style.display='none'}
@@ -3484,7 +3614,7 @@ async function admEditUser(uid, username){
   const data = await r.json();
   const users = data.users||[];
   const u = users.find(x=>x.id===uid);
-  if(!u){toast('❌ 搵唔到用戶',1);return;}
+  if(!u){toast(T('toast_user_not_found'),1);return;}
   var rgnOpts=['HK','MO','TW','CN-GD','CN-BJ','CN-SH','CN-GX','CN-FJ','CN-ZJ','CN-OTHER','MY','SG','JP','KR','US','UK','AU','OTHER'];
   var rgnLabels={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};
   var gdrOpts=[{v:'M',l:'👨 男'},{v:'F',l:'👩 女'},{v:'O',l:'🧑 其他'},{v:'',l:'— 不設 —'}];
@@ -3543,7 +3673,7 @@ async function admSaveUser(uid){
   body.avatar=(document.getElementById('ae-avatar').value||'').trim();
   const r=await fetch(API_BASE+'/api/admin/update-profile',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify(body)});
   const d=await r.json();
-  if(d.ok){toast('✅ 已更新');closeAdmEdit();admLoadMembers();}
+  if(d.ok){toast(T('toast_updated'));closeAdmEdit();admLoadMembers();}
   else toast('❌ '+(d.error||'失敗'),1);
  }catch(e){toast('❌ '+e.message,1)}
 }
@@ -3551,13 +3681,13 @@ async function admSaveUser(uid){
 // ── Admin: Reset user password ──
 async function admResetPw(uid, username){
  const pw = prompt('為 '+username+' 設定新密碼（至少4位）：');
- if(!pw||pw.length<4){if(pw!==null)toast('❌ 密碼至少4位');return}
+ if(!pw||pw.length<4){if(pw!==null)toast(T('toast_password_min'));return}
  try{
   await _admCheck();
   const h = _admHeaders();
   const r=await fetch(API_BASE+'/api/admin/change-password',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify({user_id:uid,new_password:pw})});
   const d=await r.json();
-  if(d.ok) toast('✅ 密碼已重設');
+  if(d.ok) toast(T('toast_password_reset'));
   else toast('❌ '+(d.error||'失敗'),1);
  }catch(e){toast('❌ '+e.message,1)}
 }
@@ -4642,11 +4772,11 @@ async function loadFriendsPending(){
    <button style="padding:2px 8px;border:1px solid var(--green);border-radius:6px;background:none;color:var(--green);cursor:pointer;font-size:10px" onclick="acceptFriend(${f.id})">✅ 接受</button>
    <button style="padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="rejectFriend(${f.id})">❌ 拒絕</button>
   </div>`).join('')
- }catch(e){const el=document.getElementById('friend-pending');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+ }catch(e){const el=document.getElementById('friend-pending');if(el)el.innerHTML='<span style="color:var(--sub)">'+T('load_failed')+'</span>'}
 }
 async function loadFriendsList(){
  try{const d=await api('/api/friends');const el=document.getElementById('friend-list');
-  if(!d||!d.friends){el.innerHTML='<span style="color:var(--sub)">載入失敗</span>';return}
+  if(!d||!d.friends){el.innerHTML='<span style="color:var(--sub)">'+T('load_failed')+'</span>';return}
   const cnt=document.getElementById('my-friends-count');
   const frs=d.friends;  // API now only returns accepted friends
   if(cnt)cnt.textContent='('+frs.length+')';
@@ -4690,7 +4820,7 @@ async function loadFriendsList(){
    if(f.drink_age)ts.push('<span style="font-size:11px;background:rgba(34,197,94,0.1);padding:2px 8px;border-radius:8px">🍺 酒齡'+f.drink_age+'年</span>');
    tc.innerHTML=ts.join('');
   }
- }catch(e){console.error('loadFriendsList err:',e);const el=document.getElementById('friend-list');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+ }catch(e){console.error('loadFriendsList err:',e);const el=document.getElementById('friend-list');if(el)el.innerHTML='<span style="color:var(--sub)">'+T('load_failed')+'</span>'}
 }
 async function loadFriendsSuggest(){
  try{const d=await api('/api/friends/suggest');const el=document.getElementById('friend-suggest');
@@ -4701,7 +4831,7 @@ async function loadFriendsSuggest(){
    <span style="font-size:10px;color:var(--amber);margin-left:4px">${f.membership||''}</span>
    <button style="padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:var(--pink);color:#fff;cursor:pointer;font-size:10px;margin-left:auto" onclick="addFriend(${f.id})">➕ 加友</button>
   </div>`).join('')
- }catch(e){const el=document.getElementById('friend-suggest');if(el)el.innerHTML='<span style="color:var(--sub)">載入失敗</span>'}
+ }catch(e){const el=document.getElementById('friend-suggest');if(el)el.innerHTML='<span style="color:var(--sub)">'+T('load_failed')+'</span>'}
 }
 async function addFriend(uid){
  try{var un=await _getUsername(uid);if(!un)throw new Error('用戶不存在');await api('/api/friends/add',{method:'POST',body:{username:un}});loadFriendsAll()}catch(e){throw e}
@@ -4983,11 +5113,30 @@ function showReplyInput(pid,cid,name){
 let shopCurrentCat = '';
 let _shopProducts = [];
 
+function _renderShopCats(){
+  const cats = [
+    {cat:'',key:'shop_all',border:'var(--amber)',bg:'linear-gradient(135deg,rgba(245,158,11,0.15),rgba(234,88,12,0.1))',activeBg:'linear-gradient(135deg,#f59e0b,#ea580c)'},
+    {cat:'music',key:'shop_music',border:'#8b5cf6',bg:'linear-gradient(135deg,rgba(139,92,246,0.15),rgba(99,102,241,0.1))',activeBg:'linear-gradient(135deg,#8b5cf6,#6366f1)'},
+    {cat:'liquor',key:'shop_liquor',border:'#f59e0b',bg:'linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.1))',activeBg:'linear-gradient(135deg,#f59e0b,#d97706)'},
+    {cat:'voucher',key:'shop_voucher',border:'#22c55e',bg:'linear-gradient(135deg,rgba(34,197,94,0.15),rgba(22,163,74,0.1))',activeBg:'linear-gradient(135deg,#22c55e,#16a34a)'}
+  ];
+  const el=document.getElementById('shop-cats');
+  if(!el)return;
+  el.innerHTML=cats.map(c=>`<button class="shop-cat-btn" data-cat="${c.cat}" onclick="shopLoadProducts('${c.cat}')" style="padding:8px 16px;border:2px solid ${c.border};border-radius:20px;background:${c.bg};color:${c.border};font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;transition:all .2s">${T(c.key)}</button>`).join('');
+}
+_renderShopCats();
+
 function shopLoadProducts(cat){
   shopCurrentCat = cat;
+  const catStyles = {'':{border:'var(--amber)',bg:'linear-gradient(135deg,#f59e0b,#ea580c)',color:'#fff'},music:{border:'#8b5cf6',bg:'linear-gradient(135deg,#8b5cf6,#6366f1)',color:'#fff'},liquor:{border:'#f59e0b',bg:'linear-gradient(135deg,#f59e0b,#d97706)',color:'#fff'},voucher:{border:'#22c55e',bg:'linear-gradient(135deg,#22c55e,#16a34a)',color:'#fff'}};
   document.querySelectorAll('.shop-cat-btn').forEach(b=>{
-    b.classList.toggle('btn-primary', b.dataset.cat===cat);
-    b.classList.toggle('btn-outline', b.dataset.cat!==cat);
+    const c = b.dataset.cat||'';
+    const s = catStyles[c]||{};
+    if(c===cat){
+      b.style.background=s.bg||'';b.style.color=s.color||'#fff';b.style.borderColor=s.border||'';b.style.transform='scale(1.05)';b.style.boxShadow='0 2px 8px rgba(0,0,0,0.15)';
+    } else {
+      b.style.background='';b.style.color=s.border||'var(--sub)';b.style.borderColor=s.border||'';b.style.transform='';b.style.boxShadow='';
+    }
   });
   const q = (document.getElementById('shop-search')?.value||'').trim();
   let url = '/api/shop/products?';
@@ -5041,7 +5190,7 @@ function renderShopProducts(products){
 
 function shopShowDetail(pid){
   api('/api/shop/product/'+pid).then(r=>{
-    if(!r.ok||!r.product){toast('商品不存在','error');return}
+    if(!r.ok||!r.product){toast(T('toast_product_not_found'),'error');return}
     const p = r.product;
     const catIcon = CAT_ICONS[p.category]||'📦';
     const catLabel = CAT_LABELS[p.category]||p.category;
@@ -5128,7 +5277,7 @@ function _scanRemainHtml(remain){
 
 function scanBarcode(code){
   const barcode = code || document.getElementById('scan-barcode-input')?.value?.trim() || '';
-  if(!barcode){toast('請輸入條碼','error');return}
+  if(!barcode){toast(T('toast_enter_barcode'),'error');return}
   api('/api/scan/verify',{method:'POST',body:JSON.stringify({barcode})}).then(r=>{
     const el = document.getElementById('scan-result');
     el.style.display='block';
@@ -5169,7 +5318,7 @@ function scanBarcode(code){
         ${_scanRemainHtml(r.scan_remaining)}
       </div>`;
     }
-  }).catch(()=>toast('驗證失敗，請重試','error'));
+  }).catch(()=>toast(T('toast_scan_fail'),'error'));
 }
 
 function openScanner(){
@@ -5180,8 +5329,8 @@ function openScanner(){
     navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(stream=>{
       _scannerStream = stream;
       video.srcObject = stream;
-    }).catch(()=>toast('無法開啟相機，請手動輸入條碼','error'));
-  } else toast('瀏覽器不支援相機，請手動輸入條碼','error');
+    }).catch(()=>toast(T('toast_no_camera'),'error'));
+  } else toast(T('toast_browser_no_camera'),'error');
 }
 
 function closeScanner(){
@@ -5195,7 +5344,7 @@ function showScanHistory(){
   if(!token){toast('請先登入','error');return}
   api('/api/scan/history').then(r=>{
     if(!r.ok||!r.history){toast('加載失敗','error');return}
-    if(!r.history.length){toast('暫無掃碼記錄','info');return}
+    if(!r.history.length){toast(T('toast_no_scan_hist'),'info');return}
     const el = document.getElementById('scan-result');
     el.style.display='block';
     const resultMap = {verified:'✅ 正品',unverified:'⚠️ 未確認',not_found:'❌ 未找到'};
@@ -5252,9 +5401,8 @@ function admProductForm(pid){
 
 function _showProductForm(p){
   const isEdit=!!p.id;
-  const mod=document.getElementById('shop-detail-mod');
-  const body=document.getElementById('shop-detail-body');
-  body.innerHTML=`<div style="font-size:18px;font-weight:700;margin-bottom:12px">${isEdit?'✏️ 編輯商品':'➕ 新增商品'}</div>
+  const box=document.getElementById('adm-product-list');
+  box.innerHTML=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">${isEdit?'✏️ 編輯商品':'➕ 新增商品'}</div>
   <div style="display:flex;flex-direction:column;gap:8px">
     <label style="font-size:12px;font-weight:600">名稱</label>
     <input class="input" id="pf-name" value="${p.name||''}" placeholder="商品名稱" style="margin-bottom:0">
@@ -5262,9 +5410,9 @@ function _showProductForm(p){
     <input class="input" id="pf-name-en" value="${p.name_en||''}" placeholder="English Name" style="margin-bottom:0">
     <label style="font-size:12px;font-weight:600">分類</label>
     <select class="input" id="pf-category" style="margin-bottom:0">
-      <option value="music" ${p.category==='music'?'selected':''}>🎵 舞曲</option>
-      <option value="liquor" ${p.category==='liquor'?'selected':''}>🍾 酒品</option>
-      <option value="voucher" ${p.category==='voucher'?'selected':''}>🎫 消費券</option>
+      <option value="music" ${p.category==='music'?'selected':''}>🎵 '+T('shop_music')+'</option>
+      <option value="liquor" ${p.category==='liquor'?'selected':''}>🍾 '+T('shop_liquor')+'</option>
+      <option value="voucher" ${p.category==='voucher'?'selected':''}>🎫 '+T('shop_voucher')+'</option>
     </select>
     <label style="font-size:12px;font-weight:600">子分類</label>
     <input class="input" id="pf-sub-cat" value="${p.sub_category||''}" placeholder="e.g. House/Whisky/餐飲券" style="margin-bottom:0">
@@ -5285,17 +5433,16 @@ function _showProductForm(p){
     <label style="font-size:12px;font-weight:600"><input type="checkbox" id="pf-active" ${p.active!==0?'checked':''}> 上架</label>
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="btn btn-primary" style="flex:1" onclick="admSaveProduct(${p.id||0})">💾 保存</button>
-      <button class="btn btn-outline" style="flex:1" onclick="document.getElementById('shop-detail-mod').style.display='none'">取消</button>
+      <button class="btn btn-outline" style="flex:1" onclick="admLoadShopProducts()">取消</button>
     </div>
   </div>`;
-  mod.style.display='flex';
 }
 
 function admSaveProduct(pid){
   const d={name:document.getElementById('pf-name').value,name_en:document.getElementById('pf-name-en').value,category:document.getElementById('pf-category').value,sub_category:document.getElementById('pf-sub-cat').value,description:document.getElementById('pf-desc').value,price:parseFloat(document.getElementById('pf-price').value)||0,currency:document.getElementById('pf-currency').value,stock:parseInt(document.getElementById('pf-stock').value),sort_order:parseInt(document.getElementById('pf-sort').value)||0,image_url:document.getElementById('pf-img').value,file_url:document.getElementById('pf-file').value,active:document.getElementById('pf-active').checked?1:0};
   if(pid)d.id=pid;
   fetch(API_BASE+'/api/admin/products',{method:'POST',headers:_admH(),body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
-    if(r.ok){toast(pid?'商品已更新':'商品已新增','success');document.getElementById('shop-detail-mod').style.display='none';admLoadShopProducts()}
+    if(r.ok){toast(pid?'商品已更新':'商品已新增','success');admLoadShopProducts()}
     else toast(r.error||'保存失敗','error');
   }).catch(()=>toast('網絡錯誤','error'));
 }
@@ -5373,9 +5520,8 @@ function admLiquorForm(lid){
 
 function _showLiquorForm(l){
   const isEdit=!!l.id;
-  const mod=document.getElementById('shop-detail-mod');
-  const body=document.getElementById('shop-detail-body');
-  body.innerHTML=`<div style="font-size:18px;font-weight:700;margin-bottom:12px">${isEdit?'✏️ 編輯酒品':'➕ 新增酒品'}</div>
+  const box=document.getElementById('adm-liquor-list');
+  box.innerHTML=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">${isEdit?'✏️ 編輯酒品':'➕ 新增酒品'}</div>
   <div style="display:flex;flex-direction:column;gap:8px">
     <label style="font-size:12px;font-weight:600">條碼 *</label>
     <input class="input" id="lf-barcode" value="${l.barcode||''}" placeholder="e.g. 6901028075862" style="margin-bottom:0">
@@ -5404,17 +5550,16 @@ function _showLiquorForm(l){
     <label style="font-size:12px;font-weight:600"><input type="checkbox" id="lf-verified" ${l.verified!==0?'checked':''}> ✅ 正品驗證</label>
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="btn btn-primary" style="flex:1" onclick="admSaveLiquor(${l.id||0})">💾 保存</button>
-      <button class="btn btn-outline" style="flex:1" onclick="document.getElementById('shop-detail-mod').style.display='none'">取消</button>
+      <button class="btn btn-outline" style="flex:1" onclick="admLoadLiquorDB()">取消</button>
     </div>
   </div>`;
-  mod.style.display='flex';
 }
 
 function admSaveLiquor(lid){
   const d={barcode:document.getElementById('lf-barcode').value,name:document.getElementById('lf-name').value,name_en:document.getElementById('lf-name-en').value,brand:document.getElementById('lf-brand').value,category:document.getElementById('lf-category').value,origin:document.getElementById('lf-origin').value,vintage:document.getElementById('lf-vintage').value,abv:parseFloat(document.getElementById('lf-abv').value)||0,volume_ml:parseInt(document.getElementById('lf-volume').value)||0,image_url:document.getElementById('lf-img').value,description:document.getElementById('lf-desc').value,taste_notes:document.getElementById('lf-taste').value,verified:document.getElementById('lf-verified').checked?1:0};
   if(lid)d.id=lid;
   fetch(API_BASE+'/api/admin/liquor',{method:'POST',headers:_admH(),body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
-    if(r.ok){toast(lid?'酒品已更新':'酒品已新增','success');document.getElementById('shop-detail-mod').style.display='none';admLoadLiquorDB()}
+    if(r.ok){toast(lid?'酒品已更新':'酒品已新增','success');admLoadLiquorDB()}
     else toast(r.error||'保存失敗','error');
   }).catch(()=>toast('網絡錯誤','error'));
 }
@@ -5443,7 +5588,7 @@ function grpLoadMy(){
   document.getElementById('grp-limit-hint').textContent=`💡 ${lim.label}：可建${lim.create<999?lim.create:'∞'}個群 · 每群${lim.members}人`;
   api('/api/groups').then(r=>{
     const el=document.getElementById('grp-my-list');
-    if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">載入失敗</div>';return}
+    if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">'+T('load_failed')+'</div>';return}
     if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">仲未加入任何群組，創建或探索一個啦！🎉</div>';return}
     el.innerHTML=r.groups.map(g=>{
       const pub=g.is_public?'🌐':'🔒';
@@ -5456,6 +5601,7 @@ function grpLoadMy(){
   }).catch(()=>{})
 }
 function grpShowCreate(){
+  if(memLevel()<1){toast(T('grp_free_no_create'),'error');memLocked(1);return}
   document.getElementById('grp-create-mod').style.display='flex';
 }
 function grpDoCreate(){
@@ -5468,6 +5614,7 @@ function grpDoCreate(){
   }).catch(()=>toast('網絡錯誤','error'))
 }
 function grpShowExplore(){
+  if(memLevel()<1){toast(T('grp_free_no_join'),'error');memLocked(1);return}
   document.getElementById('grp-explore-mod').style.display='flex';
   document.getElementById('grp-explore-q').value='';
   grpDoExplore();
@@ -5493,7 +5640,7 @@ function grpDoJoin(gid,btn){
 }
 function grpShowDetail(gid){
   api('/api/groups/'+gid).then(r=>{
-    if(!r.ok){toast(r.error||'載入失敗','error');return}
+    if(!r.ok){toast(r.error||''+T('load_failed')+'','error');return}
     const g=r.group,ms=r.members,my=r.my_role;
     const pub=g.is_public?'🌐 公開':'🔒 私密';
     const roleBtns=my==='creator'?`<button class="btn btn-outline btn-sm" onclick="grpDoEdit(${g.id})" style="font-size:11px;margin-right:4px">✏️ 編輯</button><button class="btn btn-outline btn-sm" onclick="grpDoDissolve(${g.id})" style="font-size:11px;color:var(--red)">🗑️ 解散</button>`:my?`<button class="btn btn-outline btn-sm" onclick="grpDoLeave(${g.id})" style="font-size:11px;color:var(--red)">退出群組</button>`:`<button class="btn btn-pink btn-sm" onclick="grpDoJoin(${g.id})" style="font-size:11px">加入群組</button>`;
@@ -5544,7 +5691,7 @@ function admLoadGroups(q){
   const url='/api/admin/groups'+(q?'?q='+encodeURIComponent(q):'');
   fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
     const el=document.getElementById('adm-groups-list');
-    if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">載入失敗</div>';return}
+    if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">'+T('load_failed')+'</div>';return}
     if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">暫無群組</div>';return}
     el.innerHTML=r.groups.map(g=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
       <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">${g.name} ${g.is_public?'🌐':'🔒'}</div><div style="font-size:11px;color:var(--sub)">ID:${g.id} · 創建者:${g.creator_nick||g.creator_name||'-'} · ${g.member_count}人</div></div>

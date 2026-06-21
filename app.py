@@ -3356,7 +3356,7 @@ def api_admin_liquor_delete(lid):
 # ═══════════════════ 建群功能 ═══════════════════════════════
 def _group_limits(level):
     """建群数/群人数按会员等级限制"""
-    limits = {0: (1, 10), 1: (3, 30), 2: (10, 100), 3: (999, 500)}
+    limits = {0: (0, 0), 1: (3, 30), 2: (10, 100), 3: (999, 500)}
     return limits.get(level, limits[0])
 
 @app.route('/api/groups', methods=['GET', 'POST'])
@@ -3437,12 +3437,13 @@ def api_group_join(uid, gid):
     cnt = db.execute('SELECT COUNT(*) as c FROM group_members WHERE group_id=?', (gid,)).fetchone()
     if cnt['c'] >= g['max_members']:
         return jsonify({'ok': False, 'error': '群組人數已滿'}), 403
-    # check user join limit
+    # check user join limit — free users cannot join groups
     user = db.execute('SELECT membership_level FROM users WHERE id=?', (uid,)).fetchone()
     level = user['membership_level'] if user else 0
+    if level < 1:
+        return jsonify({'ok': False, 'error': '免費用戶不能加群，請升級會員', 'required_level': 1}), 403
     _, max_members = _group_limits(level)
     my_joins = db.execute('SELECT COUNT(*) as c FROM group_members WHERE user_id=?', (uid,)).fetchone()
-    # same limit as create: use max_create for join
     max_create, _ = _group_limits(level)
     if my_joins['c'] >= max_create * 3:  # can join 3x the create limit
         return jsonify({'ok': False, 'error': '已達加群上限，升級解鎖更多', 'required_level': level + 1}), 403
