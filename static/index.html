@@ -883,13 +883,13 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <button class="adm-tab" data-adm="expired" data-i18n="adm_expired" onclick="admShowTab('expired');admLoadExpired()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚠️ 到期</button>
     <button class="adm-tab" data-adm="audit" data-i18n="adm_audit" onclick="admShowTab('audit');admLoadAudit()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📋 日誌</button>
     <button class="adm-tab" data-adm="config" data-i18n="adm_config" onclick="admShowTab('config')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚙️ 設定</button>
-    <button class="adm-tab" data-adm="checkins" data-i18n="checkin" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🌐 動態</button>
-    <button class="adm-tab" data-adm="parties" data-i18n="party" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🎯 酒局</button>
+    <button class="adm-tab" data-adm="checkins" data-i18n="checkins" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🌐 動態</button>
+    <button class="adm-tab" data-adm="parties" data-i18n="parties" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🎯 酒局</button>
     <button class="adm-tab" data-adm="posts" data-i18n="adm_posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📸 圈子</button>
-    <button class="adm-tab" data-adm="shop" onclick="admShowTab('shop');admLoadShopProducts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🛒 商鋪</button>
-    <button class="adm-tab" data-adm="orders" onclick="admShowTab('orders');admLoadShopOrders()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📦 訂單</button>
-    <button class="adm-tab" data-adm="liquor" onclick="admShowTab('liquor');admLoadLiquorDB()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🍾 '+T('shop_liquor')+'</button>
-    <button class="adm-tab" data-adm="groups" onclick="admShowTab('groups');admLoadGroups()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 群組</button>
+    <button class="adm-tab" data-adm="shop" data-i18n="adm_shop" onclick="admShowTab('shop');admLoadShopProducts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🛒 商鋪</button>
+    <button class="adm-tab" data-adm="orders" data-i18n="adm_orders" onclick="admShowTab('orders');admLoadShopOrders()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📦 訂單</button>
+    <button class="adm-tab" data-adm="liquor" data-i18n="adm_liquor" onclick="admShowTab('liquor');admLoadLiquorDB()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🍾 酒品</button>
+    <button class="adm-tab" data-adm="groups" data-i18n="adm_groups" onclick="admShowTab('groups');admLoadGroups()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 群組</button>
    </div>
    <!-- Stats page -->
    <div class="adm-page active" id="adm-stats">
@@ -2103,7 +2103,16 @@ const L={
   region_bj:'🇨🇳 北京',region_sh:'🇨🇳 上海',region_gx:'🇨🇳 廣西',region_fj:'🇨🇳 福建',
   region_zj:'🇨🇳 浙江',region_cn_other:'🇨🇳 其他',region_my:'🇲🇾 馬來西亞',
   region_sg:'🇸🇬 新加坡',region_jp:'🇯🇵 日本',region_kr:'🇰🇷 韓國',
-  region_us:'🇺🇸 美國',region_gb:'🇬🇧 英國',region_au:'🇦🇺 澳洲',region_other:'🌍 其他'
+  region_us:'🇺🇸 美國',region_gb:'🇬🇧 英國',region_au:'🇦🇺 澳洲',region_other:'🌍 其他',
+  checkins:'🌐 動態',parties:'🎯 酒局',adm_posts:'📸 圈子',
+  adm_shop:'🛒 商鋪',adm_orders:'📦 訂單',adm_liquor:'🍾 酒品',adm_groups:'👥 群組',
+  prod_name:'名稱',prod_name_ph:'商品名稱',prod_name_en:'英文名稱',
+  prod_category:'分類',prod_subcat:'子分類',prod_subcat_ph:'e.g. House/Whisky/餐飲券',
+  prod_desc:'描述',prod_desc_ph:'商品描述...',prod_price:'價格',
+  prod_currency:'貨幣',prod_stock:'庫存(-1=無限)',prod_sort:'排序',
+  prod_img_url:'圖片URL',prod_file_url:'檔案URL(舞曲下載)',prod_active:'上架',
+  save:'保存',cancel:'取消',load_failed:'載入失敗',
+  grp_free_no_create:'免費用戶不能建群，請升級會員',grp_free_no_join:'免費用戶不能加群，請升級會員'
 },
 'zh-CN':{
   st_mai_yum:'没喝',
@@ -2475,7 +2484,16 @@ const L={
   region_bj:'🇨🇳 北京',region_sh:'🇭🇳 上海',region_gx:'🇨🇳 广西',region_fj:'🇨🇳 福建',
   region_zj:'🇨🇳 浙江',region_cn_other:'🇨🇳 其他',region_my:'🇲🇾 马来西亚',
   region_sg:'🇸🇬 新加坡',region_jp:'🇯🇵 日本',region_kr:'🇰🇷 韩国',
-  region_us:'🇺🇸 美国',region_gb:'🇬🇧 英国',region_au:'🇦🇺 澳洲',region_other:'🌍 其他'
+  region_us:'🇺🇸 美国',region_gb:'🇬🇧 英国',region_au:'🇦🇺 澳洲',region_other:'🌍 其他',
+  checkins:'🌐 动态',parties:'🎯 酒局',adm_posts:'📸 圈子',
+  adm_shop:'🛒 商铺',adm_orders:'📦 订单',adm_liquor:'🍾 酒品',adm_groups:'👥 群组',
+  prod_name:'名称',prod_name_ph:'商品名称',prod_name_en:'英文名称',
+  prod_category:'分类',prod_subcat:'子分类',prod_subcat_ph:'e.g. House/Whisky/餐饮券',
+  prod_desc:'描述',prod_desc_ph:'商品描述...',prod_price:'价格',
+  prod_currency:'货币',prod_stock:'库存(-1=无限)',prod_sort:'排序',
+  prod_img_url:'图片URL',prod_file_url:'档案URL(舞曲下载)',prod_active:'上架',
+  save:'保存',cancel:'取消',load_failed:'加载失败',
+  grp_free_no_create:'免费用户不能建群，请升级会员',grp_free_no_join:'免费用户不能加群，请升级会员'
 },
 'en':{
   st_mai_yum:'Sober',
@@ -2847,7 +2865,16 @@ const L={
   region_bj:'🇨🇳 Beijing',region_sh:'🇨🇳 Shanghai',region_gx:'🇨🇳 Guangxi',region_fj:'🇨🇳 Fujian',
   region_zj:'🇨🇳 Zhejiang',region_cn_other:'🇨🇳 Other',region_my:'🇲🇾 Malaysia',
   region_sg:'🇸🇬 Singapore',region_jp:'🇯🇵 Japan',region_kr:'🇰🇷 Korea',
-  region_us:'🇺🇸 USA',region_gb:'🇬🇧 UK',region_au:'🇦🇺 Australia',region_other:'🌍 Other'
+  region_us:'🇺🇸 USA',region_gb:'🇬🇧 UK',region_au:'🇦🇺 Australia',region_other:'🌍 Other',
+  checkins:'🌐 Activity',parties:'🎯 Party',adm_posts:'📸 Posts',
+  adm_shop:'🛒 Shop',adm_orders:'📦 Orders',adm_liquor:'🍾 Liquor',adm_groups:'👥 Groups',
+  prod_name:'Name',prod_name_ph:'Product name',prod_name_en:'English Name',
+  prod_category:'Category',prod_subcat:'Sub-category',prod_subcat_ph:'e.g. House/Whisky/Dining',
+  prod_desc:'Description',prod_desc_ph:'Product description...',prod_price:'Price',
+  prod_currency:'Currency',prod_stock:'Stock(-1=unlimited)',prod_sort:'Sort Order',
+  prod_img_url:'Image URL',prod_file_url:'File URL(music download)',prod_active:'Active',
+  save:'Save',cancel:'Cancel',load_failed:'Load failed',
+  grp_free_no_create:'Free users cannot create groups, please upgrade',grp_free_no_join:'Free users cannot join groups, please upgrade'
 }
 };
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
@@ -5365,11 +5392,11 @@ function showScanHistory(){
 }
 
 // ═══════════════════ ADMIN: SHOP MANAGEMENT ═══════════════════
-function _admH(){return {Authorization:'Bearer '+adminToken,'Content-Type':'application/json'}}
+function _admH(){return {Authorization:'Bearer '+adminToken,'X-Admin-Token':adminToken,'Content-Type':'application/json'}}
 
 function admLoadShopProducts(){
   fetch(API_BASE+'/api/admin/products',{headers:_admH()}).then(r=>r.json()).then(r=>{
-    if(!r.ok){document.getElementById('adm-product-list').innerHTML='加載失敗';return}
+    if(!r.ok){document.getElementById('adm-product-list').innerHTML=T('load_failed');return}
     const products=r.products||[];
     if(!products.length){document.getElementById('adm-product-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無商品，點擊➕新增</div>';return}
     document.getElementById('adm-product-list').innerHTML=products.map(p=>{
@@ -5402,38 +5429,38 @@ function admProductForm(pid){
 function _showProductForm(p){
   const isEdit=!!p.id;
   const box=document.getElementById('adm-product-list');
-  box.innerHTML=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">${isEdit?'✏️ 編輯商品':'➕ 新增商品'}</div>
+  box.innerHTML=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">${isEdit?T('edit_product'):T('add_product')}</div>
   <div style="display:flex;flex-direction:column;gap:8px">
-    <label style="font-size:12px;font-weight:600">名稱</label>
-    <input class="input" id="pf-name" value="${p.name||''}" placeholder="商品名稱" style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600">英文名稱</label>
+    <label style="font-size:12px;font-weight:600">${T('prod_name')||'名稱'}</label>
+    <input class="input" id="pf-name" value="${p.name||''}" placeholder="${T('prod_name_ph')||'商品名稱'}" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">${T('prod_name_en')||'英文名稱'}</label>
     <input class="input" id="pf-name-en" value="${p.name_en||''}" placeholder="English Name" style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600">分類</label>
+    <label style="font-size:12px;font-weight:600">${T('prod_category')||'分類'}</label>
     <select class="input" id="pf-category" style="margin-bottom:0">
-      <option value="music" ${p.category==='music'?'selected':''}>🎵 '+T('shop_music')+'</option>
-      <option value="liquor" ${p.category==='liquor'?'selected':''}>🍾 '+T('shop_liquor')+'</option>
-      <option value="voucher" ${p.category==='voucher'?'selected':''}>🎫 '+T('shop_voucher')+'</option>
+      <option value="music" ${p.category==='music'?'selected':''}>${T('shop_music')}</option>
+      <option value="liquor" ${p.category==='liquor'?'selected':''}>${T('shop_liquor')}</option>
+      <option value="voucher" ${p.category==='voucher'?'selected':''}>${T('shop_voucher')}</option>
     </select>
-    <label style="font-size:12px;font-weight:600">子分類</label>
-    <input class="input" id="pf-sub-cat" value="${p.sub_category||''}" placeholder="e.g. House/Whisky/餐飲券" style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600">描述</label>
-    <textarea class="input" id="pf-desc" rows="3" placeholder="商品描述..." style="margin-bottom:0">${p.description||''}</textarea>
+    <label style="font-size:12px;font-weight:600">${T('prod_subcat')||'子分類'}</label>
+    <input class="input" id="pf-sub-cat" value="${p.sub_category||''}" placeholder="${T('prod_subcat_ph')||'e.g. House/Whisky/餐飲券'}" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">${T('prod_desc')||'描述'}</label>
+    <textarea class="input" id="pf-desc" rows="3" placeholder="${T('prod_desc_ph')||'商品描述...'}" style="margin-bottom:0">${p.description||''}</textarea>
     <div style="display:flex;gap:8px">
-      <div style="flex:1"><label style="font-size:12px;font-weight:600">價格</label><input class="input" id="pf-price" type="number" step="0.01" value="${p.price||0}" style="margin-bottom:0"></div>
-      <div style="flex:1"><label style="font-size:12px;font-weight:600">貨幣</label><select class="input" id="pf-currency" style="margin-bottom:0"><option value="CNY" ${(p.currency||'CNY')==='CNY'?'selected':''}>CNY</option><option value="HKD" ${p.currency==='HKD'?'selected':''}>HKD</option><option value="USD" ${p.currency==='USD'?'selected':''}>USD</option></select></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_price')||'價格'}</label><input class="input" id="pf-price" type="number" step="0.01" value="${p.price||0}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_currency')||'貨幣'}</label><select class="input" id="pf-currency" style="margin-bottom:0"><option value="CNY" ${(p.currency||'CNY')==='CNY'?'selected':''}>CNY</option><option value="HKD" ${p.currency==='HKD'?'selected':''}>HKD</option><option value="USD" ${p.currency==='USD'?'selected':''}>USD</option></select></div>
     </div>
     <div style="display:flex;gap:8px">
-      <div style="flex:1"><label style="font-size:12px;font-weight:600">庫存(-1=無限)</label><input class="input" id="pf-stock" type="number" value="${p.stock===undefined?-1:p.stock}" style="margin-bottom:0"></div>
-      <div style="flex:1"><label style="font-size:12px;font-weight:600">排序</label><input class="input" id="pf-sort" type="number" value="${p.sort_order||0}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_stock')||'庫存(-1=無限)'}</label><input class="input" id="pf-stock" type="number" value="${p.stock===undefined?-1:p.stock}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_sort')||'排序'}</label><input class="input" id="pf-sort" type="number" value="${p.sort_order||0}" style="margin-bottom:0"></div>
     </div>
-    <label style="font-size:12px;font-weight:600">圖片URL</label>
+    <label style="font-size:12px;font-weight:600">${T('prod_img_url')||'圖片URL'}</label>
     <input class="input" id="pf-img" value="${p.image_url||''}" placeholder="https://..." style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600">檔案URL(舞曲下載)</label>
+    <label style="font-size:12px;font-weight:600">${T('prod_file_url')||'檔案URL(舞曲下載)'}</label>
     <input class="input" id="pf-file" value="${p.file_url||''}" placeholder="https://...mp3" style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="pf-active" ${p.active!==0?'checked':''}> 上架</label>
+    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="pf-active" ${p.active!==0?'checked':''}> ${T('prod_active')||'上架'}</label>
     <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="btn btn-primary" style="flex:1" onclick="admSaveProduct(${p.id||0})">💾 保存</button>
-      <button class="btn btn-outline" style="flex:1" onclick="admLoadShopProducts()">取消</button>
+      <button class="btn btn-primary" style="flex:1" onclick="admSaveProduct(${p.id||0})">💾 ${T('save')||'保存'}</button>
+      <button class="btn btn-outline" style="flex:1" onclick="admLoadShopProducts()">${T('cancel')||'取消'}</button>
     </div>
   </div>`;
 }
@@ -5457,7 +5484,7 @@ function admLoadShopOrders(status){
   let url='/api/admin/orders';
   if(status)url+='?status='+status;
   fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
-    if(!r.ok){document.getElementById('adm-order-list').innerHTML='加載失敗';return}
+    if(!r.ok){document.getElementById('adm-order-list').innerHTML=T('load_failed');return}
     const orders=r.orders||[];
     if(!orders.length){document.getElementById('adm-order-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無訂單</div>';return}
     const sMap={pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
@@ -5492,7 +5519,7 @@ function admLoadLiquorDB(q){
   let url='/api/admin/liquor';
   if(q)url+='?q='+encodeURIComponent(q);
   fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
-    if(!r.ok){document.getElementById('adm-liquor-list').innerHTML='加載失敗';return}
+    if(!r.ok){document.getElementById('adm-liquor-list').innerHTML=T('load_failed');return}
     const liquors=r.liquors||[];
     if(!liquors.length){document.getElementById('adm-liquor-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無酒品數據，點擊➕新增</div>';return}
     document.getElementById('adm-liquor-list').innerHTML=liquors.map(l=>`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)">
