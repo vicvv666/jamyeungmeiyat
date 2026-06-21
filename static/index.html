@@ -473,6 +473,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
    <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
    <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
+  <button class="tab" data-page="shop" onclick="showPage('shop')"><span class="tab-icon">🛒</span><span id="tab-shop">商鋪</span></button>
 </div>
 
 <div class="content">
@@ -705,6 +706,73 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   </div>
 </div>
 
+<!-- 商鋪 Page -->
+<div class="page" id="page-shop">
+  <!-- 商铺头部 -->
+  <div class="card" style="border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(139,92,246,0.06));text-align:center;padding:20px 16px">
+    <div style="font-size:24px;margin-bottom:6px">🛒</div>
+    <div style="font-size:18px;font-weight:700;color:var(--text)">今晚飲咗未 · 商鋪</div>
+    <div style="font-size:12px;color:var(--sub);margin-top:4px">舞曲 · 酒品 · 消費券</div>
+  </div>
+  <!-- 分类切换 -->
+  <div style="display:flex;gap:6px;margin:10px 0;overflow-x:auto;padding-bottom:4px" id="shop-cats">
+    <button class="btn btn-primary btn-sm shop-cat-btn" data-cat="" onclick="shopLoadProducts('')">全部分类</button>
+    <button class="btn btn-outline btn-sm shop-cat-btn" data-cat="music" onclick="shopLoadProducts('music')">🎵 舞曲</button>
+    <button class="btn btn-outline btn-sm shop-cat-btn" data-cat="liquor" onclick="shopLoadProducts('liquor')">🍾 酒品</button>
+    <button class="btn btn-outline btn-sm shop-cat-btn" data-cat="voucher" onclick="shopLoadProducts('voucher')">🎫 消費券</button>
+  </div>
+  <!-- 搜索 -->
+  <div style="display:flex;gap:6px;margin-bottom:10px">
+    <input class="input" id="shop-search" placeholder="🔍 搜索商品..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')shopLoadProducts(shopCurrentCat)">
+    <button class="btn btn-outline btn-sm" onclick="shopLoadProducts(shopCurrentCat)">搜索</button>
+  </div>
+  <!-- 商品列表 -->
+  <div id="shop-products" style="display:grid;gap:10px"></div>
+  <!-- 商品详情弹窗 -->
+  <div id="shop-detail-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal" style="max-width:420px;max-height:85vh;overflow-y:auto">
+      <div id="shop-detail-body" style="padding:16px"></div>
+    </div>
+  </div>
+  <!-- 扫码区域 -->
+  <div class="card" style="border:2px solid #22c55e;background:linear-gradient(135deg,rgba(34,197,94,0.06),rgba(245,158,11,0.04));margin-top:12px">
+    <div class="card-header" style="border:none;padding:8px 0">🔍 酒品真偽驗證</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px">掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品詳情</div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <input class="input" id="scan-barcode-input" placeholder="📦 輸入條碼..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')scanBarcode()">
+      <button class="btn btn-primary btn-sm" onclick="scanBarcode()">驗證</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px">
+      <button class="btn btn-outline btn-sm" onclick="openScanner()" style="flex:1">📷 掃碼驗證</button>
+      <button class="btn btn-outline btn-sm" onclick="showScanHistory()" style="flex:1">📜 掃碼記錄</button>
+    </div>
+    <div id="scan-result" style="display:none"></div>
+  </div>
+  <!-- 我的订单 -->
+  <div class="card" style="margin-top:12px;border:2px solid var(--purple);background:rgba(139,92,246,0.04)">
+    <div class="card-header" style="border:none;padding:8px 0;cursor:pointer" onclick="shopToggleMyOrders()">📦 我的訂單 <span id="shop-order-count" style="font-size:11px;color:var(--sub)"></span></div>
+    <div id="shop-my-orders" style="display:none"></div>
+  </div>
+</div>
+
+<!-- 扫码摄像头弹窗 -->
+<div id="scanner-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeScanner()">
+  <div class="modal" style="max-width:400px">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)">
+      <div style="font-weight:700">📷 掃碼驗證</div>
+      <button onclick="closeScanner()" style="background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div style="padding:12px;text-align:center">
+      <video id="scanner-video" style="width:100%;border-radius:12px;background:#000" autoplay playsinline></video>
+      <div style="margin-top:8px;font-size:12px;color:var(--sub)">將條碼對準鏡頭...</div>
+      <div id="scanner-manual" style="margin-top:8px;display:flex;gap:6px">
+        <input class="input" id="scanner-input" placeholder="手動輸入條碼" style="flex:1;margin-bottom:0">
+        <button class="btn btn-primary btn-sm" onclick="scanBarcode(document.getElementById('scanner-input').value);closeScanner()">驗證</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- 酒友圈 Page -->
 <div class="page" id="page-friends">
   <!-- 朋友管理区 -->
@@ -803,6 +871,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <button class="adm-tab" data-adm="checkins" data-i18n="checkin" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🌐 動態</button>
     <button class="adm-tab" data-adm="parties" data-i18n="party" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🎯 酒局</button>
     <button class="adm-tab" data-adm="posts" data-i18n="adm_posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📸 圈子</button>
+    <button class="adm-tab" data-adm="shop" onclick="admShowTab('shop');admLoadShopProducts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🛒 商鋪</button>
+    <button class="adm-tab" data-adm="orders" onclick="admShowTab('orders');admLoadShopOrders()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📦 訂單</button>
+    <button class="adm-tab" data-adm="liquor" onclick="admShowTab('liquor');admLoadLiquorDB()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🍾 酒品</button>
    </div>
    <!-- Stats page -->
    <div class="adm-page active" id="adm-stats">
@@ -865,6 +936,38 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
    <div class="adm-page" id="adm-posts">
     <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadAdmPosts()" style="border-color:var(--pink);color:var(--pink)">🔄 刷新</button></div>
     <div id="adm-post-list" style="font-size:12px"></div>
+   </div>
+   <!-- Admin: Shop Products -->
+   <div class="adm-page" id="adm-shop">
+    <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:700;font-size:14px">🛒 商品管理</span>
+      <button class="btn btn-primary btn-sm" onclick="admProductForm()">➕ 新增商品</button>
+    </div>
+    <div id="adm-product-list" style="font-size:12px"></div>
+   </div>
+   <!-- Admin: Orders -->
+   <div class="adm-page" id="adm-orders">
+    <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:700;font-size:14px">📦 訂單管理</span>
+      <div style="display:flex;gap:4px">
+        <select id="adm-order-filter" class="input" style="margin-bottom:0;padding:4px 8px;font-size:11px" onchange="admLoadShopOrders(this.value)">
+          <option value="">全部</option><option value="pending">待處理</option><option value="paid">已付款</option><option value="shipped">已發貨</option><option value="delivered">已送達</option><option value="cancelled">已取消</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="admLoadShopOrders()">🔄</button>
+      </div>
+    </div>
+    <div id="adm-order-list" style="font-size:12px"></div>
+   </div>
+   <!-- Admin: Liquor DB -->
+   <div class="adm-page" id="adm-liquor">
+    <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:700;font-size:14px">🍾 酒品數據庫</span>
+      <div style="display:flex;gap:4px">
+        <input class="input" id="adm-liquor-search" placeholder="搜索條碼/名稱..." style="margin-bottom:0;padding:4px 8px;font-size:11px;max-width:150px" onkeydown="if(event.key==='Enter')admLoadLiquorDB(this.value)">
+        <button class="btn btn-primary btn-sm" onclick="admLiquorForm()">➕ 新增</button>
+      </div>
+    </div>
+    <div id="adm-liquor-list" style="font-size:12px"></div>
    </div>
   </div>
  </div>
@@ -1468,7 +1571,7 @@ function showPage(name){
   if(_pgHist.length > 10) _pgHist.shift();
 
   // Determine slide direction based on tab index
-  const tabs = ['checkin','timeline','friends','party','stats','dice','member'];
+  const tabs = ['checkin','timeline','friends','party','stats','dice','member','shop'];
   const idx = tabs.indexOf(name);
   const prevIdx = tabs.indexOf(curName);
   let slideCls = '';
@@ -1492,7 +1595,7 @@ function showPage(name){
     var bar=document.querySelector('.tabs');
     if(!bar)return;
     // Re-set tab text content explicitly
-    ['checkin','timeline','party','stats','member'].forEach(function(k){
+    ['checkin','timeline','party','stats','member','shop'].forEach(function(k){
       var el=document.getElementById('tab-'+k);
       if(el){el.textContent=T('tab_'+k)}
     });
@@ -1507,7 +1610,7 @@ function showPage(name){
   window.scrollTo({top:0,behavior:'smooth'});
   // Close any open modal overlays when switching pages
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
-  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();
+  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop')shopLoadProducts(shopCurrentCat||'');
 }
 
 // ═══════ SWIPE GESTURE SUPPORT ═══════
@@ -1543,7 +1646,7 @@ document.addEventListener('touchend', function(e){
   if(Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
   if(e.target.closest('.tabs') || e.target.closest('.nav') || e.target.closest('.modal-overlay') || e.target.closest('.pay-modal')) return;
 
-  const tabs = ['checkin','timeline','friends','party','stats','dice','member'];
+  const tabs = ['checkin','timeline','friends','party','stats','dice','member','shop'];
   const cur = document.querySelector('.page.active');
   if(!cur) return;
   const curName = cur.id.replace('page-','');
@@ -1599,7 +1702,7 @@ const L={
   member:'會員',
   login:'登入',
   logout:'登出',
-  tab_checkin:'報到',tab_timeline:'動態',tab_party:'酒局',tab_stats:'統計',tab_member:'會員',tab_dice:'骰盅',
+  tab_checkin:'報到',tab_timeline:'動態',tab_party:'酒局',tab_stats:'統計',tab_member:'會員',tab_dice:'骰盅',tab_shop:'商鋪',
   terms:'使用條款',
   disclaimer:'免責聲明',
   contact:'聯絡我們',
@@ -1927,7 +2030,7 @@ const L={
   member:'会员',
   login:'登录',
   logout:'退出',
-  tab_checkin:'报到',tab_timeline:'动态',tab_party:'酒局',tab_stats:'统计',tab_member:'会员',tab_dice:'骰盅',
+  tab_checkin:'报到',tab_timeline:'动态',tab_party:'酒局',tab_stats:'统计',tab_member:'会员',tab_dice:'骰盅',tab_shop:'商铺',
   terms:'使用条款',
   disclaimer:'免责声明',
   contact:'联系我们',
@@ -2255,7 +2358,7 @@ const L={
   member:'Member',
   login:'Login',
   logout:'Logout',
-  tab_checkin:'Check-in',tab_timeline:'Feed',tab_party:'Party',tab_stats:'Stats',tab_member:'VIP',tab_dice:'Dice',
+  tab_checkin:'Check-in',tab_timeline:'Feed',tab_party:'Party',tab_stats:'Stats',tab_member:'VIP',tab_dice:'Dice',tab_shop:'Shop',
   terms:'Terms',
   disclaimer:'Disclaimer',
   contact:'Contact Us',
@@ -4802,6 +4905,418 @@ function showReplyInput(pid,cid,name){
 
 // ═══════════ AVATAR UPLOAD in saveProf ═══════════
 // Override saveProf to include avatar upload
-</script>
+
+// ═══════════════════ SHOP / PRODUCTS ═══════════════════
+let shopCurrentCat = '';
+let _shopProducts = [];
+
+function shopLoadProducts(cat){
+  shopCurrentCat = cat;
+  document.querySelectorAll('.shop-cat-btn').forEach(b=>{
+    b.classList.toggle('btn-primary', b.dataset.cat===cat);
+    b.classList.toggle('btn-outline', b.dataset.cat!==cat);
+  });
+  const q = (document.getElementById('shop-search')?.value||'').trim();
+  let url = '/api/shop/products?';
+  if(cat) url += 'category='+cat+'&';
+  if(q) url += 'q='+encodeURIComponent(q)+'&';
+  api(url).then(r=>{
+    if(!r.ok){document.getElementById('shop-products').innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">加載失敗</div>';return}
+    _shopProducts = r.products||[];
+    renderShopProducts(_shopProducts);
+  }).catch(()=>{document.getElementById('shop-products').innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">加載失敗</div>'});
+}
+
+const CAT_ICONS = {music:'🎵', liquor:'🍾', voucher:'🎫'};
+const CAT_LABELS = {music:'舞曲', liquor:'酒品', voucher:'消費券'};
+
+function renderShopProducts(products){
+  const el = document.getElementById('shop-products');
+  if(!products.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--sub);font-size:14px">🏪 暫無商品</div>';return}
+  el.innerHTML = products.map(p=>{
+    const catIcon = CAT_ICONS[p.category]||'📦';
+    const catLabel = CAT_LABELS[p.category]||p.category;
+    const sold = p.sold||0;
+    const stockTxt = p.stock===-1?'':(p.stock>0?`<span style="color:#22c55e">剩${p.stock}件</span>`:`<span style="color:var(--danger)">售罄</span>`);
+    const soldout = p.stock!==-1 && p.stock<=0;
+    return `<div class="card" style="cursor:pointer;padding:0;overflow:hidden;${soldout?'opacity:0.5':''}" onclick="${soldout?'':'shopShowDetail('+p.id+')'}">
+      <div style="display:flex;gap:10px;padding:10px">
+        <div style="width:80px;height:80px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
+          ${p.image_url?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px">${catIcon}</div>`}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name||p.name_en||'商品'}</div>
+          <div style="font-size:11px;color:var(--sub);margin:2px 0">${catIcon} ${catLabel}${p.sub_category?' · '+p.sub_category:''}</div>
+          <div style="font-size:12px;color:var(--sub);margin:2px 0;max-height:32px;overflow:hidden">${p.description||''}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span style="font-size:16px;font-weight:700;color:var(--amber)">¥${Number(p.price).toFixed(2)}</span>
+            ${p.currency&&p.currency!=='CNY'?`<span style="font-size:11px;color:var(--sub)">${p.currency}</span>`:''}
+            ${stockTxt?`<span style="font-size:11px">${stockTxt}</span>`:''}
+            ${sold?`<span style="font-size:11px;color:var(--sub)">已售${sold}</span>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function shopShowDetail(pid){
+  api('/api/shop/product/'+pid).then(r=>{
+    if(!r.ok||!r.product){toast('商品不存在','error');return}
+    const p = r.product;
+    const catIcon = CAT_ICONS[p.category]||'📦';
+    const catLabel = CAT_LABELS[p.category]||p.category;
+    const stockTxt = p.stock===-1?'無限':(p.stock>0?p.stock+'件':'售罄');
+    const soldout = p.stock!==-1 && p.stock<=0;
+    document.getElementById('shop-detail-body').innerHTML = `
+      <div style="position:relative">
+        <button onclick="document.getElementById('shop-detail-mod').style.display='none'" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer">✕</button>
+        ${p.image_url?`<img src="${p.image_url}" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:12px" onerror="this.style.display='none'">`:`<div style="text-align:center;font-size:48px;padding:24px">${catIcon}</div>`}
+      </div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">${p.name||p.name_en}</div>
+      <div style="font-size:12px;color:var(--sub);margin-bottom:8px">${catIcon} ${catLabel}${p.sub_category?' · '+p.sub_category:''}</div>
+      ${p.description?`<div style="font-size:13px;color:var(--text);margin-bottom:12px;line-height:1.5">${p.description}</div>`:''}
+      <div style="font-size:24px;font-weight:700;color:var(--amber);margin-bottom:4px">¥${Number(p.price).toFixed(2)} <span style="font-size:12px;color:var(--sub)">${p.currency||'CNY'}</span></div>
+      <div style="font-size:12px;color:var(--sub);margin-bottom:12px">庫存: ${stockTxt}${p.sold?' · 已售'+p.sold:''}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1;${soldout?'opacity:0.5;pointer-events:none':''}" onclick="shopBuy(${p.id})">${soldout?'售罄':'🛒 立即購買'}</button>
+      </div>`;
+    document.getElementById('shop-detail-mod').style.display='flex';
+  }).catch(()=>toast('加載失敗','error'));
+}
+
+function shopBuy(pid){
+  if(!token){toast('請先登入','error');return}
+  api('/api/shop/orders',{method:'POST',body:JSON.stringify({items:[{product_id:pid,qty:1}]})})
+  .then(r=>{
+    if(r.ok){toast('下單成功！訂單#'+r.order_id+'，合計¥'+r.total.toFixed(2),'success');document.getElementById('shop-detail-mod').style.display='none';shopLoadProducts(shopCurrentCat)}
+    else toast(r.error||'下單失敗','error');
+  }).catch(()=>toast('網絡錯誤','error'));
+}
+
+function shopToggleMyOrders(){
+  const el = document.getElementById('shop-my-orders');
+  if(el.style.display==='none'){
+    el.style.display='block';
+    api('/api/shop/my-orders').then(r=>{
+      if(!r.ok||!r.orders){el.innerHTML='<div style="padding:8px;color:var(--sub)">加載失敗</div>';return}
+      if(!r.orders.length){el.innerHTML='<div style="padding:8px;color:var(--sub);text-align:center">暫無訂單</div>';return}
+      const statusMap = {pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
+      const statusColor = {pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
+      el.innerHTML = r.orders.map(o=>`<div style="padding:8px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-weight:600;font-size:13px">#${o.id}</span>
+          <span style="font-size:11px;color:${statusColor[o.status]||'var(--sub)'};background:${statusColor[o.status]||'var(--sub)'}20;padding:2px 8px;border-radius:10px">${statusMap[o.status]||o.status}</span>
+        </div>
+        <div style="font-size:12px;color:var(--sub);margin:4px 0">${(o.items||[]).map(i=>i.name+'×'+i.qty).join('、')}</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px">
+          <span style="color:var(--sub)">${o.created_at||''}</span>
+          <span style="font-weight:700;color:var(--amber)">¥${Number(o.total_price).toFixed(2)}</span>
+        </div>
+      </div>`).join('');
+      document.getElementById('shop-order-count').textContent = '('+r.orders.length+')';
+    }).catch(()=>{el.innerHTML='<div style="padding:8px;color:var(--sub)">加載失敗</div>'});
+  } else el.style.display='none';
+}
+
+// ═══════════════════ LIQUOR SCAN / VERIFY ═══════════════════
+let _scannerStream = null;
+
+function scanBarcode(code){
+  const barcode = code || document.getElementById('scan-barcode-input')?.value?.trim() || '';
+  if(!barcode){toast('請輸入條碼','error');return}
+  api('/api/scan/verify',{method:'POST',body:JSON.stringify({barcode})}).then(r=>{
+    if(!r.ok){toast(r.error||'驗證失敗','error');return}
+    const el = document.getElementById('scan-result');
+    el.style.display='block';
+    const l = r.liquor;
+    if(r.result==='verified'){
+      el.innerHTML = `<div style="padding:12px;border-radius:10px;background:rgba(34,197,94,0.1);border:2px solid #22c55e">
+        <div style="font-size:16px;font-weight:700;color:#22c55e;margin-bottom:8px">✅ 正品驗證通過</div>
+        ${l?`<div style="display:flex;gap:10px">
+          ${l.image_url?`<img src="${l.image_url}" style="width:60px;height:60px;border-radius:8px;object-fit:cover" onerror="this.style.display='none'">`:''}
+          <div style="flex:1">
+            <div style="font-weight:600;font-size:14px">${l.name||''}</div>
+            ${l.brand?`<div style="font-size:12px;color:var(--sub)">品牌: ${l.brand}</div>`:''}
+            ${l.category?`<div style="font-size:12px;color:var(--sub)">類型: ${l.category}</div>`:''}
+            ${l.origin?`<div style="font-size:12px;color:var(--sub)">產地: ${l.origin}</div>`:''}
+            ${l.abv?`<div style="font-size:12px;color:var(--sub)">酒精度: ${l.abv}%</div>`:''}
+            ${l.volume_ml?`<div style="font-size:12px;color:var(--sub)">容量: ${l.volume_ml}ml</div>`:''}
+            ${l.vintage?`<div style="font-size:12px;color:var(--sub)">年份: ${l.vintage}</div>`:''}
+            ${l.taste_notes?`<div style="font-size:12px;color:var(--sub)">口感: ${l.taste_notes}</div>`:''}
+            ${l.description?`<div style="font-size:12px;margin-top:4px;line-height:1.4">${l.description}</div>`:''}
+          </div>
+        </div>`:''}
+        <div style="font-size:11px;color:var(--sub);margin-top:8px">條碼: ${barcode}</div>
+      </div>`;
+    } else if(r.result==='unverified'){
+      el.innerHTML = `<div style="padding:12px;border-radius:10px;background:rgba(245,158,11,0.1);border:2px solid var(--amber)">
+        <div style="font-size:16px;font-weight:700;color:var(--amber);margin-bottom:4px">⚠️ 未能確認</div>
+        <div style="font-size:13px;color:var(--text)">此條碼在數據庫中有記錄，但未通過正品驗證</div>
+        ${l?`<div style="font-size:12px;color:var(--sub);margin-top:6px">名稱: ${l.name||''} · 品牌: ${l.brand||''}</div>`:''}
+        <div style="font-size:11px;color:var(--sub);margin-top:6px">條碼: ${barcode}</div>
+      </div>`;
+    } else {
+      el.innerHTML = `<div style="padding:12px;border-radius:10px;background:rgba(239,68,68,0.1);border:2px solid var(--danger)">
+        <div style="font-size:16px;font-weight:700;color:var(--danger);margin-bottom:4px">❌ 未找到記錄</div>
+        <div style="font-size:13px;color:var(--text)">此條碼不在數據庫中，請謹慎購買</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:6px">條碼: ${barcode}</div>
+      </div>`;
+    }
+  }).catch(()=>toast('驗證失敗，請重試','error'));
+}
+
+function openScanner(){
+  const mod = document.getElementById('scanner-mod');
+  mod.style.display='flex';
+  const video = document.getElementById('scanner-video');
+  if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia){
+    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(stream=>{
+      _scannerStream = stream;
+      video.srcObject = stream;
+    }).catch(()=>toast('無法開啟相機，請手動輸入條碼','error'));
+  } else toast('瀏覽器不支援相機，請手動輸入條碼','error');
+}
+
+function closeScanner(){
+  document.getElementById('scanner-mod').style.display='none';
+  if(_scannerStream){_scannerStream.getTracks().forEach(t=>t.stop());_scannerStream=null}
+  const video = document.getElementById('scanner-video');
+  if(video) video.srcObject = null;
+}
+
+function showScanHistory(){
+  if(!token){toast('請先登入','error');return}
+  api('/api/scan/history').then(r=>{
+    if(!r.ok||!r.history){toast('加載失敗','error');return}
+    if(!r.history.length){toast('暫無掃碼記錄','info');return}
+    const el = document.getElementById('scan-result');
+    el.style.display='block';
+    const resultMap = {verified:'✅ 正品',unverified:'⚠️ 未確認',not_found:'❌ 未找到'};
+    const colorMap = {verified:'#22c55e',unverified:'var(--amber)',not_found:'var(--danger)'};
+    el.innerHTML = `<div style="padding:8px"><div style="font-weight:600;margin-bottom:8px">📜 掃碼記錄</div>
+    ${r.history.map(h=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:13px;font-weight:500">${h.name||h.barcode}</div>
+        ${h.brand?`<div style="font-size:11px;color:var(--sub)">${h.brand}</div>`:''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:${colorMap[h.result]||'var(--sub)'}">${resultMap[h.result]||h.result}</div>
+        <div style="font-size:10px;color:var(--sub)">${h.created_at||''}</div>
+      </div>
+    </div>`).join('')}
+    </div>`;
+  }).catch(()=>toast('加載失敗','error'));
+}
+
+// ═══════════════════ ADMIN: SHOP MANAGEMENT ═══════════════════
+function _admH(){return {Authorization:'Bearer '+adminToken,'Content-Type':'application/json'}}
+
+function admLoadShopProducts(){
+  fetch(API_BASE+'/api/admin/products',{headers:_admH()}).then(r=>r.json()).then(r=>{
+    if(!r.ok){document.getElementById('adm-product-list').innerHTML='加載失敗';return}
+    const products=r.products||[];
+    if(!products.length){document.getElementById('adm-product-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無商品，點擊➕新增</div>';return}
+    document.getElementById('adm-product-list').innerHTML=products.map(p=>{
+      const catLabel=CAT_LABELS[p.category]||p.category;
+      const catIcon=CAT_ICONS[p.category]||'📦';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)">
+        <div style="width:40px;height:40px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
+          ${p.image_url?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${catIcon}</div>`}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name||p.name_en||'-'}</div>
+          <div style="font-size:11px;color:var(--sub)">${catIcon}${catLabel} · ¥${Number(p.price).toFixed(2)} · 庫存${p.stock===-1?'∞':p.stock} ${p.active?'✅':'🚫'}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="admProductForm(${p.id})" style="font-size:10px;padding:2px 8px">✏️</button>
+        <button class="btn btn-outline btn-sm" onclick="admDelProduct(${p.id})" style="font-size:10px;padding:2px 8px;color:var(--danger);border-color:var(--danger)">🗑️</button>
+      </div>`;
+    }).join('');
+  }).catch(()=>document.getElementById('adm-product-list').innerHTML='加載失敗');
+}
+
+function admProductForm(pid){
+  if(pid){
+    fetch(API_BASE+'/api/admin/products',{headers:_admH()}).then(r=>r.json()).then(r=>{
+      const product=(r.products||[]).find(p=>p.id===pid)||{};
+      _showProductForm(product);
+    }).catch(()=>{});
+  } else _showProductForm({});
+}
+
+function _showProductForm(p){
+  const isEdit=!!p.id;
+  const mod=document.getElementById('shop-detail-mod');
+  const body=document.getElementById('shop-detail-body');
+  body.innerHTML=`<div style="font-size:18px;font-weight:700;margin-bottom:12px">${isEdit?'✏️ 編輯商品':'➕ 新增商品'}</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <label style="font-size:12px;font-weight:600">名稱</label>
+    <input class="input" id="pf-name" value="${p.name||''}" placeholder="商品名稱" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">英文名稱</label>
+    <input class="input" id="pf-name-en" value="${p.name_en||''}" placeholder="English Name" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">分類</label>
+    <select class="input" id="pf-category" style="margin-bottom:0">
+      <option value="music" ${p.category==='music'?'selected':''}>🎵 舞曲</option>
+      <option value="liquor" ${p.category==='liquor'?'selected':''}>🍾 酒品</option>
+      <option value="voucher" ${p.category==='voucher'?'selected':''}>🎫 消費券</option>
+    </select>
+    <label style="font-size:12px;font-weight:600">子分類</label>
+    <input class="input" id="pf-sub-cat" value="${p.sub_category||''}" placeholder="e.g. House/Whisky/餐飲券" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">描述</label>
+    <textarea class="input" id="pf-desc" rows="3" placeholder="商品描述..." style="margin-bottom:0">${p.description||''}</textarea>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">價格</label><input class="input" id="pf-price" type="number" step="0.01" value="${p.price||0}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">貨幣</label><select class="input" id="pf-currency" style="margin-bottom:0"><option value="CNY" ${(p.currency||'CNY')==='CNY'?'selected':''}>CNY</option><option value="HKD" ${p.currency==='HKD'?'selected':''}>HKD</option><option value="USD" ${p.currency==='USD'?'selected':''}>USD</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">庫存(-1=無限)</label><input class="input" id="pf-stock" type="number" value="${p.stock===undefined?-1:p.stock}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">排序</label><input class="input" id="pf-sort" type="number" value="${p.sort_order||0}" style="margin-bottom:0"></div>
+    </div>
+    <label style="font-size:12px;font-weight:600">圖片URL</label>
+    <input class="input" id="pf-img" value="${p.image_url||''}" placeholder="https://..." style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">檔案URL(舞曲下載)</label>
+    <input class="input" id="pf-file" value="${p.file_url||''}" placeholder="https://...mp3" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="pf-active" ${p.active!==0?'checked':''}> 上架</label>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="admSaveProduct(${p.id||0})">💾 保存</button>
+      <button class="btn btn-outline" style="flex:1" onclick="document.getElementById('shop-detail-mod').style.display='none'">取消</button>
+    </div>
+  </div>`;
+  mod.style.display='flex';
+}
+
+function admSaveProduct(pid){
+  const d={name:document.getElementById('pf-name').value,name_en:document.getElementById('pf-name-en').value,category:document.getElementById('pf-category').value,sub_category:document.getElementById('pf-sub-cat').value,description:document.getElementById('pf-desc').value,price:parseFloat(document.getElementById('pf-price').value)||0,currency:document.getElementById('pf-currency').value,stock:parseInt(document.getElementById('pf-stock').value),sort_order:parseInt(document.getElementById('pf-sort').value)||0,image_url:document.getElementById('pf-img').value,file_url:document.getElementById('pf-file').value,active:document.getElementById('pf-active').checked?1:0};
+  if(pid)d.id=pid;
+  fetch(API_BASE+'/api/admin/products',{method:'POST',headers:_admH(),body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
+    if(r.ok){toast(pid?'商品已更新':'商品已新增','success');document.getElementById('shop-detail-mod').style.display='none';admLoadShopProducts()}
+    else toast(r.error||'保存失敗','error');
+  }).catch(()=>toast('網絡錯誤','error'));
+}
+
+function admDelProduct(pid){
+  if(!confirm('確定刪除此商品？'))return;
+  fetch(API_BASE+'/api/admin/products/'+pid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast('已刪除','success');admLoadShopProducts()}else toast(r.error||'刪除失敗','error')}).catch(()=>toast('網絡錯誤','error'));
+}
+
+function admLoadShopOrders(status){
+  status=status||document.getElementById('adm-order-filter')?.value||'';
+  let url='/api/admin/orders';
+  if(status)url+='?status='+status;
+  fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
+    if(!r.ok){document.getElementById('adm-order-list').innerHTML='加載失敗';return}
+    const orders=r.orders||[];
+    if(!orders.length){document.getElementById('adm-order-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無訂單</div>';return}
+    const sMap={pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
+    const sClr={pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
+    document.getElementById('adm-order-list').innerHTML=orders.map(o=>`<div style="padding:8px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span><b>#${o.id}</b> · ${o.nickname||o.username||'User#'+o.user_id}</span>
+        <span style="font-size:11px;color:${sClr[o.status]||'var(--sub)'}">${sMap[o.status]||o.status}</span>
+      </div>
+      <div style="font-size:11px;color:var(--sub)">${(o.items||[]).map(i=>i.name+'×'+i.qty).join('、')}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <span style="font-weight:700;color:var(--amber)">¥${Number(o.total_price).toFixed(2)}</span>
+        <select onchange="admUpdateOrder(${o.id},this.value)" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border)">
+          <option value="pending" ${o.status==='pending'?'selected':''}>待處理</option>
+          <option value="paid" ${o.status==='paid'?'selected':''}>已付款</option>
+          <option value="shipped" ${o.status==='shipped'?'selected':''}>已發貨</option>
+          <option value="delivered" ${o.status==='delivered'?'selected':''}>已送達</option>
+          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>已取消</option>
+        </select>
+      </div>
+      <div style="font-size:10px;color:var(--sub)">${o.created_at||''}</div>
+    </div>`).join('');
+  }).catch(()=>document.getElementById('adm-order-list').innerHTML='加載失敗');
+}
+
+function admUpdateOrder(oid,status){
+  fetch(API_BASE+'/api/admin/orders/'+oid,{method:'POST',headers:_admH(),body:JSON.stringify({status})}).then(r=>r.json()).then(r=>{if(r.ok)toast('訂單狀態已更新','success');else toast(r.error||'更新失敗','error')}).catch(()=>toast('網絡錯誤','error'));
+}
+
+function admLoadLiquorDB(q){
+  q=q||document.getElementById('adm-liquor-search')?.value||'';
+  let url='/api/admin/liquor';
+  if(q)url+='?q='+encodeURIComponent(q);
+  fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
+    if(!r.ok){document.getElementById('adm-liquor-list').innerHTML='加載失敗';return}
+    const liquors=r.liquors||[];
+    if(!liquors.length){document.getElementById('adm-liquor-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無酒品數據，點擊➕新增</div>';return}
+    document.getElementById('adm-liquor-list').innerHTML=liquors.map(l=>`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
+        ${l.image_url?`<img src="${l.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">🍾</div>'}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name||'-'} <span style="font-size:10px;color:var(--sub)">${l.brand||''}</span></div>
+        <div style="font-size:10px;color:var(--sub)">${l.barcode} · ${l.category||''} · ${l.origin||''} ${l.verified?'✅':'⚠️'}</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="admLiquorForm(${l.id})" style="font-size:10px;padding:2px 8px">✏️</button>
+      <button class="btn btn-outline btn-sm" onclick="admDelLiquor(${l.id})" style="font-size:10px;padding:2px 8px;color:var(--danger);border-color:var(--danger)">🗑️</button>
+    </div>`).join('');
+  }).catch(()=>document.getElementById('adm-liquor-list').innerHTML='加載失敗');
+}
+
+function admLiquorForm(lid){
+  if(lid){
+    fetch(API_BASE+'/api/admin/liquor',{headers:_admH()}).then(r=>r.json()).then(r=>{
+      const liquor=(r.liquors||[]).find(l=>l.id===lid)||{};
+      _showLiquorForm(liquor);
+    }).catch(()=>{});
+  } else _showLiquorForm({});
+}
+
+function _showLiquorForm(l){
+  const isEdit=!!l.id;
+  const mod=document.getElementById('shop-detail-mod');
+  const body=document.getElementById('shop-detail-body');
+  body.innerHTML=`<div style="font-size:18px;font-weight:700;margin-bottom:12px">${isEdit?'✏️ 編輯酒品':'➕ 新增酒品'}</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <label style="font-size:12px;font-weight:600">條碼 *</label>
+    <input class="input" id="lf-barcode" value="${l.barcode||''}" placeholder="e.g. 6901028075862" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">名稱</label>
+    <input class="input" id="lf-name" value="${l.name||''}" placeholder="茅臺飛天53度" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">英文名稱</label>
+    <input class="input" id="lf-name-en" value="${l.name_en||''}" placeholder="Moutai Feitian 53%" style="margin-bottom:0">
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">品牌</label><input class="input" id="lf-brand" value="${l.brand||''}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">類型</label><input class="input" id="lf-category" value="${l.category||''}" placeholder="白酒/紅酒/威士忌" style="margin-bottom:0"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">產地</label><input class="input" id="lf-origin" value="${l.origin||''}" placeholder="貴州/蘇格蘭" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">年份</label><input class="input" id="lf-vintage" value="${l.vintage||''}" placeholder="2020" style="margin-bottom:0"></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">酒精度%</label><input class="input" id="lf-abv" type="number" step="0.1" value="${l.abv||0}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">容量ml</label><input class="input" id="lf-volume" type="number" value="${l.volume_ml||0}" style="margin-bottom:0"></div>
+    </div>
+    <label style="font-size:12px;font-weight:600">圖片URL</label>
+    <input class="input" id="lf-img" value="${l.image_url||''}" placeholder="https://..." style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">描述</label>
+    <textarea class="input" id="lf-desc" rows="2" placeholder="酒品描述..." style="margin-bottom:0">${l.description||''}</textarea>
+    <label style="font-size:12px;font-weight:600">口感筆記</label>
+    <input class="input" id="lf-taste" value="${l.taste_notes||''}" placeholder="醇厚回味/果香" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="lf-verified" ${l.verified!==0?'checked':''}> ✅ 正品驗證</label>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="admSaveLiquor(${l.id||0})">💾 保存</button>
+      <button class="btn btn-outline" style="flex:1" onclick="document.getElementById('shop-detail-mod').style.display='none'">取消</button>
+    </div>
+  </div>`;
+  mod.style.display='flex';
+}
+
+function admSaveLiquor(lid){
+  const d={barcode:document.getElementById('lf-barcode').value,name:document.getElementById('lf-name').value,name_en:document.getElementById('lf-name-en').value,brand:document.getElementById('lf-brand').value,category:document.getElementById('lf-category').value,origin:document.getElementById('lf-origin').value,vintage:document.getElementById('lf-vintage').value,abv:parseFloat(document.getElementById('lf-abv').value)||0,volume_ml:parseInt(document.getElementById('lf-volume').value)||0,image_url:document.getElementById('lf-img').value,description:document.getElementById('lf-desc').value,taste_notes:document.getElementById('lf-taste').value,verified:document.getElementById('lf-verified').checked?1:0};
+  if(lid)d.id=lid;
+  fetch(API_BASE+'/api/admin/liquor',{method:'POST',headers:_admH(),body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
+    if(r.ok){toast(lid?'酒品已更新':'酒品已新增','success');document.getElementById('shop-detail-mod').style.display='none';admLoadLiquorDB()}
+    else toast(r.error||'保存失敗','error');
+  }).catch(()=>toast('網絡錯誤','error'));
+}
+
+function admDelLiquor(lid){
+  if(!confirm('確定刪除此酒品記錄？'))return;
+  fetch(API_BASE+'/api/admin/liquor/'+lid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast('已刪除','success');admLoadLiquorDB()}else toast(r.error||'刪除失敗','error')}).catch(()=>toast('網絡錯誤','error'));
+}
+
 </body>
 </html>

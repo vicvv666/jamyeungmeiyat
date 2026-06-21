@@ -441,6 +441,79 @@ CREATE TABLE IF NOT EXISTS users (
         read INTEGER DEFAULT 0
     )''')
     except: pass
+    # ── Shop / Products ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS products (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        name        TEXT NOT NULL DEFAULT '',
+        name_en     TEXT DEFAULT '',
+        category    TEXT NOT NULL DEFAULT 'music',
+        sub_category TEXT DEFAULT '',
+        description TEXT DEFAULT '',
+        price       REAL NOT NULL DEFAULT 0,
+        currency    TEXT DEFAULT 'CNY',
+        image_url   TEXT DEFAULT '',
+        file_url    TEXT DEFAULT '',
+        stock       INTEGER DEFAULT -1,
+        sold        INTEGER DEFAULT 0,
+        active      INTEGER DEFAULT 1,
+        sort_order  INTEGER DEFAULT 0,
+        extra_json  TEXT DEFAULT '{}',
+        created_at  TEXT DEFAULT (datetime('now','localtime'))
+    )''')
+    except: pass
+    # ── Orders ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS orders (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id     INTEGER NOT NULL,
+        total_price REAL NOT NULL DEFAULT 0,
+        currency    TEXT DEFAULT 'CNY',
+        status      TEXT DEFAULT 'pending',
+        pay_method  TEXT DEFAULT '',
+        pay_ref     TEXT DEFAULT '',
+        note        TEXT DEFAULT '',
+        created_at  TEXT DEFAULT (datetime('now','localtime'))
+    )''')
+    except: pass
+    try: db.execute('''CREATE TABLE IF NOT EXISTS order_items (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_id    INTEGER NOT NULL,
+        product_id  INTEGER NOT NULL,
+        qty         INTEGER DEFAULT 1,
+        unit_price  REAL DEFAULT 0,
+        sub_total   REAL DEFAULT 0,
+        extra_json  TEXT DEFAULT '{}'
+    )''')
+    except: pass
+    # ── Liquor DB (barcode verification) ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS liquor_db (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        barcode     TEXT NOT NULL UNIQUE,
+        name        TEXT NOT NULL DEFAULT '',
+        name_en     TEXT DEFAULT '',
+        brand       TEXT DEFAULT '',
+        category    TEXT DEFAULT '',
+        origin      TEXT DEFAULT '',
+        abv         REAL DEFAULT 0,
+        volume_ml   INTEGER DEFAULT 0,
+        vintage     TEXT DEFAULT '',
+        image_url   TEXT DEFAULT '',
+        description TEXT DEFAULT '',
+        taste_notes TEXT DEFAULT '',
+        verified    INTEGER DEFAULT 1,
+        extra_json  TEXT DEFAULT '{}',
+        created_at  TEXT DEFAULT (datetime('now','localtime'))
+    )''')
+    except: pass
+    # ── Scan logs ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS scan_logs (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id     INTEGER NOT NULL,
+        barcode     TEXT NOT NULL,
+        result      TEXT DEFAULT '',
+        liquor_id   INTEGER DEFAULT 0,
+        created_at  TEXT DEFAULT (datetime('now','localtime'))
+    )''')
+    except: pass
     db.commit()
     db.close()
 
@@ -2937,6 +3010,302 @@ def api_seo_stats():
         'sitemap_url': '/api/seo/sitemap',
         'static_sitemap_url': '/sitemap.xml',
     })
+
+
+# ═══════════════════ Shop / Products API ═══════════════════
+
+@app.route('/api/shop/products')
+def api_shop_products():
+    """List active products, optional ?category=music|liquor|voucher"""
+    db = get_db()
+    cat = request.args.get('category','')
+    q = request.args.get('q','').strip()
+    sql = 'SELECT id,name,name_en,category,sub_category,description,price,currency,image_url,stock,sold,sort_order FROM products WHERE active=1'
+    params = []
+    if cat:
+        sql += ' AND category=?'
+        params.append(cat)
+    if q:
+        sql += ' AND (name LIKE ? OR name_en LIKE ? OR description LIKE ?)'
+        params += [f'%{q}%', f'%{q}%', f'%{q}%']
+    sql += ' ORDER BY sort_order, id DESC'
+    rows = db.execute(sql, params).fetchall()
+    products = []
+    for r in rows:
+        d = dict(r)
+        if d.get('stock', -1) == -1:
+            d['stock_label'] = ' showcasing' if d['category'] == 'music' else ''
+        elif d['stock'] > 0:
+            d['stock_label'] = f" 剩{d['stock']}件"
+        else:
+            d['stock_label'] = ' sold out'
+        products.append(d)
+    return jsonify({'ok': True, 'products': products})
+
+@app.route('/api/shop/product/<int:pid>')
+def api_shop_product_detail(pid):
+    """Get single product detail"""
+    db = get_db()
+    r = db.execute('SELECT * FROM products WHERE id=? AND active=1', (pid,)).fetchone()
+    if not r:
+        return jsonify({'error': '商品不存在'}), 404
+    d = dict(r)
+    d.pop('file_url', None)  # hide file_url from public
+    return jsonify({'ok': True, 'product': d})
+
+@app.route('/api/shop/orders', methods=['POST'])
+@auth_required
+def api_shop_create_order():
+    """Create an order: items=[{product_id,qty}]"""
+    uid = g.uid
+    d = request.get_json(force=True) or {}
+    items = d.get('items', [])
+    if not items:
+        return jsonify({'error': '購物車為空'}), 400
+    db = get_db()
+    total = 0
+    order_items = []
+    for it in items:
+        pid = int(it.get('product_id', 0))
+        qty = int(it.get('qty', 1))
+        if qty < 1:
+            qty = 1
+        p = db.execute('SELECT id,name,price,stock,category,file_url FROM products WHERE id=? AND active=1', (pid,)).fetchone()
+        if not p:
+            return jsonify({'error': f'商品{pid}不存在'}), 404
+        if p['stock'] != -1 and p['stock'] < qty:
+            return jsonify({'error': f'{p["name"]} 庫存不足'}), 400
+        sub = round(p['price'] * qty, 2)
+        total += sub
+        order_items.append({
+            'product_id': pid,
+            'qty': qty,
+            'unit_price': p['price'],
+            'sub_total': sub,
+            'name': p['name'],
+            'file_url': p['file_url'],
+            'category': p['category']
+        })
+    cur = db.execute('INSERT INTO orders (user_id,total_price,status) VALUES (?,?,?)',
+                     (uid, total, 'pending'))
+    oid = cur.lastrowid
+    for oi in order_items:
+        db.execute('INSERT INTO order_items (order_id,product_id,qty,unit_price,sub_total) VALUES (?,?,?,?,?)',
+                   (oid, oi['product_id'], oi['qty'], oi['unit_price'], oi['sub_total']))
+        if db.execute('SELECT stock FROM products WHERE id=?', (oi['product_id'],)).fetchone()['stock'] != -1:
+            db.execute('UPDATE products SET stock=stock-?, sold=sold+? WHERE id=?',
+                       (oi['qty'], oi['qty'], oi['product_id']))
+    db.commit()
+    return jsonify({'ok': True, 'order_id': oid, 'total': total})
+
+@app.route('/api/shop/my-orders')
+@auth_required
+def api_shop_my_orders():
+    """List current user's orders"""
+    uid = g.uid
+    db = get_db()
+    rows = db.execute('''SELECT o.id,o.total_price,o.currency,o.status,o.created_at,
+                         GROUP_CONCAT(oi.product_id) AS pids
+                         FROM orders o LEFT JOIN order_items oi ON o.id=oi.order_id
+                         WHERE o.user_id=? GROUP BY o.id ORDER BY o.id DESC''', (uid,)).fetchall()
+    orders = []
+    for r in rows:
+        d = dict(r)
+        pids = (d.pop('pids') or '').split(',')
+        items = db.execute('''SELECT oi.product_id, oi.qty, oi.unit_price, oi.sub_total, p.name
+                              FROM order_items oi JOIN products p ON oi.product_id=p.id
+                              WHERE oi.order_id=?''', (r['id'],)).fetchall()
+        d['items'] = [dict(x) for x in items]
+        orders.append(d)
+    return jsonify({'ok': True, 'orders': orders})
+
+# ═══════════════════ Liquor Scan / Verification ═══════════════════
+
+@app.route('/api/scan/verify', methods=['POST'])
+@auth_required
+def api_scan_verify():
+    """Scan a barcode and verify against liquor_db. body: {barcode}"""
+    uid = g.uid
+    d = request.get_json(force=True) or {}
+    barcode = str(d.get('barcode', '')).strip()
+    if not barcode:
+        return jsonify({'error': '請輸入條碼'}), 400
+    db = get_db()
+    liquor = db.execute('SELECT * FROM liquor_db WHERE barcode=?', (barcode,)).fetchone()
+    result = 'not_found'
+    liquor_data = None
+    if liquor:
+        result = 'verified' if liquor['verified'] else 'unverified'
+        liquor_data = dict(liquor)
+    # Log the scan
+    db.execute('INSERT INTO scan_logs (user_id,barcode,result,liquor_id) VALUES (?,?,?,?)',
+               (uid, barcode, result, liquor['id'] if liquor else 0))
+    db.commit()
+    return jsonify({'ok': True, 'result': result, 'liquor': liquor_data, 'barcode': barcode})
+
+@app.route('/api/scan/history')
+@auth_required
+def api_scan_history():
+    """Get scan history for current user"""
+    uid = g.uid
+    db = get_db()
+    rows = db.execute('''SELECT s.id,s.barcode,s.result,s.created_at,
+                         l.name,l.brand,l.category,l.origin,l.abv,l.volume_ml,l.image_url
+                         FROM scan_logs s LEFT JOIN liquor_db l ON s.liquor_id=l.id
+                         WHERE s.user_id=? ORDER BY s.id DESC LIMIT 50''', (uid,)).fetchall()
+    return jsonify({'ok': True, 'history': [dict(r) for r in rows]})
+
+@app.route('/api/scan/lookup')
+def api_scan_lookup():
+    """Public lookup by barcode (no auth required)"""
+    barcode = request.args.get('barcode', '').strip()
+    if not barcode:
+        return jsonify({'error': '請輸入條碼'}), 400
+    db = get_db()
+    liquor = db.execute('SELECT * FROM liquor_db WHERE barcode=?', (barcode,)).fetchone()
+    if not liquor:
+        return jsonify({'ok': True, 'result': 'not_found', 'liquor': None})
+    return jsonify({'ok': True, 'result': 'verified' if liquor['verified'] else 'unverified',
+                    'liquor': dict(liquor)})
+
+# ═══════════════════ Admin: Shop Management ═══════════════════
+
+@app.route('/api/admin/products', methods=['GET','POST'])
+def api_admin_products():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    if request.method == 'GET':
+        rows = db.execute('SELECT * FROM products ORDER BY sort_order, id DESC').fetchall()
+        return jsonify({'ok': True, 'products': [dict(r) for r in rows]})
+    # POST: create or update
+    d = request.get_json(force=True) or {}
+    if d.get('id'):
+        # update
+        pid = int(d['id'])
+        sets = []
+        vals = []
+        for k in ['name','name_en','category','sub_category','description','price','currency',
+                   'image_url','file_url','stock','active','sort_order','extra_json']:
+            if k in d:
+                sets.append(f'{k}=?')
+                vals.append(d[k])
+        if sets:
+            vals.append(pid)
+            db.execute(f'UPDATE products SET {",".join(sets)} WHERE id=?', vals)
+            db.commit()
+        p = db.execute('SELECT * FROM products WHERE id=?', (pid,)).fetchone()
+        return jsonify({'ok': True, 'product': dict(p)})
+    else:
+        # create
+        cur = db.execute('''INSERT INTO products (name,name_en,category,sub_category,description,
+                           price,currency,image_url,file_url,stock,sort_order,extra_json)
+                           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)''',
+                          (d.get('name',''), d.get('name_en',''), d.get('category','music'),
+                           d.get('sub_category',''), d.get('description',''),
+                           d.get('price',0), d.get('currency','CNY'),
+                           d.get('image_url',''), d.get('file_url',''), d.get('stock',-1),
+                           d.get('sort_order',0), d.get('extra_json','{}')))
+        db.commit()
+        return jsonify({'ok': True, 'id': cur.lastrowid})
+
+@app.route('/api/admin/products/<int:pid>', methods=['DELETE'])
+def api_admin_product_delete(pid):
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    db.execute('DELETE FROM products WHERE id=?', (pid,))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/admin/orders')
+def api_admin_orders():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    status_filter = request.args.get('status','')
+    sql = '''SELECT o.id,o.user_id,o.total_price,o.currency,o.status,o.pay_method,o.pay_ref,o.note,o.created_at,
+             u.username,u.nickname
+             FROM orders o LEFT JOIN users u ON o.user_id=u.id'''
+    params = []
+    if status_filter:
+        sql += ' WHERE o.status=?'
+        params.append(status_filter)
+    sql += ' ORDER BY o.id DESC LIMIT 200'
+    rows = db.execute(sql, params).fetchall()
+    orders = []
+    for r in rows:
+        d = dict(r)
+        items = db.execute('''SELECT oi.*, p.name FROM order_items oi JOIN products p ON oi.product_id=p.id
+                              WHERE oi.order_id=?''', (r['id'],)).fetchall()
+        d['items'] = [dict(x) for x in items]
+        orders.append(d)
+    return jsonify({'ok': True, 'orders': orders})
+
+@app.route('/api/admin/orders/<int:oid>', methods=['POST'])
+def api_admin_order_update(oid):
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    d = request.get_json(force=True) or {}
+    db = get_db()
+    if 'status' in d:
+        db.execute('UPDATE orders SET status=? WHERE id=?', (d['status'], oid))
+    if 'pay_ref' in d:
+        db.execute('UPDATE orders SET pay_ref=? WHERE id=?', (d['pay_ref'], oid))
+    if 'note' in d:
+        db.execute('UPDATE orders SET note=? WHERE id=?', (d['note'], oid))
+    db.commit()
+    return jsonify({'ok': True})
+
+# ── Admin: Liquor DB ──
+@app.route('/api/admin/liquor', methods=['GET','POST'])
+def api_admin_liquor():
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    if request.method == 'GET':
+        q = request.args.get('q','').strip()
+        sql = 'SELECT * FROM liquor_db'
+        params = []
+        if q:
+            sql += ' WHERE barcode LIKE ? OR name LIKE ? OR brand LIKE ?'
+            params = [f'%{q}%', f'%{q}%', f'%{q}%']
+        sql += ' ORDER BY id DESC LIMIT 200'
+        rows = db.execute(sql, params).fetchall()
+        return jsonify({'ok': True, 'liquors': [dict(r) for r in rows]})
+    # POST: create or update
+    d = request.get_json(force=True) or {}
+    if d.get('id'):
+        lid = int(d['id'])
+        sets = []
+        vals = []
+        for k in ['barcode','name','name_en','brand','category','origin','abv','volume_ml',
+                   'vintage','image_url','description','taste_notes','verified','extra_json']:
+            if k in d:
+                sets.append(f'{k}=?')
+                vals.append(d[k])
+        if sets:
+            vals.append(lid)
+            db.execute(f'UPDATE liquor_db SET {",".join(sets)} WHERE id=?', vals)
+            db.commit()
+        return jsonify({'ok': True})
+    else:
+        try:
+            cur = db.execute('''INSERT INTO liquor_db (barcode,name,name_en,brand,category,origin,
+                               abv,volume_ml,vintage,image_url,description,taste_notes,verified,extra_json)
+                               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                              (d.get('barcode',''), d.get('name',''), d.get('name_en',''),
+                               d.get('brand',''), d.get('category',''), d.get('origin',''),
+                               d.get('abv',0), d.get('volume_ml',0), d.get('vintage',''),
+                               d.get('image_url',''), d.get('description',''), d.get('taste_notes',''),
+                               d.get('verified',1), d.get('extra_json','{}')))
+            db.commit()
+            return jsonify({'ok': True, 'id': cur.lastrowid})
+        except Exception as e:
+            return jsonify({'error': str(e)}), 400
+
+@app.route('/api/admin/liquor/<int:lid>', methods=['DELETE'])
+def api_admin_liquor_delete(lid):
+    if not _check_admin(): return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    db.execute('DELETE FROM liquor_db WHERE id=?', (lid,))
+    db.commit()
+    return jsonify({'ok': True})
 
 
 # ═══════════════════ Main ═══════════════════════════════
