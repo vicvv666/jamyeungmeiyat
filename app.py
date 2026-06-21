@@ -1773,6 +1773,15 @@ def api_admin_update_profile():
         db.execute('UPDATE users SET age=? WHERE id=?', (int(d['age']) or 0, uid))
     if 'drink_age' in d:
         db.execute('UPDATE users SET drink_age=? WHERE id=?', (int(d['drink_age']) or 0, uid))
+    if 'bio' in d:
+        db.execute('UPDATE users SET bio=? WHERE id=?', (d['bio'] or '', uid))
+    if 'avatar' in d:
+        db.execute('UPDATE users SET avatar=? WHERE id=?', (d['avatar'] or '', uid))
+    if 'username' in d and d['username']:
+        existing = db.execute('SELECT id FROM users WHERE username=? AND id!=?', (d['username'], uid)).fetchone()
+        if existing:
+            return jsonify({'error':'用戶名已被佔用'}), 409
+        db.execute('UPDATE users SET username=? WHERE id=?', (d['username'], uid))
     db.commit()
     u = db.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
     if not u: return jsonify({'error':'用戶不存在'}), 404

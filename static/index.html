@@ -912,6 +912,17 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  </div>
 </div>
 
+<!-- Admin Edit User Modal -->
+<div class="modal-overlay" id="adm-edit-mod" style="display:none" onclick="if(event.target===this)closeAdmEdit()">
+ <div class="modal" style="max-width:420px;max-height:85vh;overflow-y:auto">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)">
+   <div style="font-size:16px;font-weight:700;color:var(--text)">✏️ 編輯用戶</div>
+   <button onclick="closeAdmEdit()" style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:4px">✕</button>
+  </div>
+  <div id="adm-edit-body" style="padding:16px 20px"></div>
+ </div>
+</div>
+
 <!-- LEGAL (Terms / Disclaimer / Contact) -->
 <div class="modal-overlay" id="legal-mod" style="display:none" onclick="if(event.target===this)closeLegal()">
   <div class="modal" style="max-width:460px">
@@ -2851,6 +2862,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   }).catch(()=>{});
   api('/api/friends').then(d=>{
    var frs=d.friends||[];
+   window._memFriends=frs;
    var fc=document.getElementById('mem-frd-count');if(fc)fc.textContent=frs.length;
    // Render friends list in member page
    var fl=document.getElementById('mem-frd-list');
@@ -2939,52 +2951,50 @@ function toggleMemSection(id){
 function showMemFriend(uid){
  var mod=document.getElementById('friend-profile-mod'),body=document.getElementById('friend-profile-body');
  if(!mod||!body)return;
- // Admin user (id=0) — show local me data instead of API call
-  if(uid===0 && me && me.admin){
-   var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};
-   var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};
-   var tags=[];
-   if(me.region)tags.push('<span style="font-size:11px;background:rgba(245,158,11,0.1);padding:2px 8px;border-radius:8px">'+(rgnMap[me.region]||me.region)+'</span>');
-   if(me.gender)tags.push('<span style="font-size:11px;background:rgba(236,72,153,0.1);padding:2px 8px;border-radius:8px">'+(gdrMap[me.gender]||me.gender)+'</span>');
-   if(me.age)tags.push('<span style="font-size:11px;background:rgba(139,92,246,0.1);padding:2px 8px;border-radius:8px">🎂 '+me.age+'歲</span>');
-   if(me.drink_age)tags.push('<span style="font-size:11px;background:rgba(34,197,94,0.1);padding:2px 8px;border-radius:8px">🍺 酒齡'+me.drink_age+'年</span>');
-   var tagHtml=tags.length?'<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:8px">'+tags.join('')+'</div>':'';
-   body.innerHTML='<div style="font-size:36px;margin-bottom:8px">👑</div>'+
-    '<div style="font-size:18px;font-weight:700;color:var(--text)">'+(me.nickname||me.username)+'</div>'+
-    '<div style="font-size:12px;color:var(--sub);margin-bottom:6px">@'+me.username+'</div>'+
-    '<div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600">🥇管理員</div>'+
-    tagHtml;
-   mod.style.display='flex';return;
-  }
-  body.innerHTML='<div style="padding:20px;color:var(--sub)">載入中...</div>';
-  mod.style.display='flex';
-  api('/api/user/'+uid).then(d=>{
-  var u=d.user||d;
+ var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};
+ var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};
+ function renderProfile(u,isAdmin){
   var av=u.avatar&&u.avatar.startsWith('emoji:')?u.avatar.replace('emoji:',''):'👤';
   var avSrc=u.avatar&&u.avatar.startsWith('/api/')?API_BASE+u.avatar:'';
-  var avHtml=avSrc?'<img src="'+avSrc+'" style="width:64px;height:64px;border-radius:50%;object-fit:cover" onerror="this.outerHTML=\'👤\'">':'<span style="font-size:48px">'+av+'</span>';
-  var rgnMap={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};
-  var gdrMap={'M':'👨 男','F':'👩 女','O':'🧑 其他'};
+  var avHtml=avSrc?'<div style="width:64px;height:64px;border-radius:50%;border:3px solid var(--amber);overflow:hidden;margin:0 auto"><img src="'+avSrc+'" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML=\'<span style=\'font-size:40px\'>👤</span>\'"></div>':'<div style="font-size:48px;margin-bottom:4px">'+(isAdmin?'👑':av)+'</div>';
   var tags=[];
-  if(u.region)tags.push('<span style="font-size:11px;background:rgba(245,158,11,0.1);padding:2px 8px;border-radius:8px">'+(rgnMap[u.region]||u.region)+'</span>');
-  if(u.gender)tags.push('<span style="font-size:11px;background:rgba(236,72,153,0.1);padding:2px 8px;border-radius:8px">'+(gdrMap[u.gender]||u.gender)+'</span>');
-  if(u.age)tags.push('<span style="font-size:11px;background:rgba(139,92,246,0.1);padding:2px 8px;border-radius:8px">🎂 '+u.age+'歲</span>');
-  if(u.drink_age)tags.push('<span style="font-size:11px;background:rgba(34,197,94,0.1);padding:2px 8px;border-radius:8px">🍺 酒齡'+u.drink_age+'年</span>');
-  var tagHtml=tags.length?'<div style="display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-bottom:8px">'+tags.join('')+'</div>':'';
-  body.innerHTML='<div style="margin-bottom:12px">'+avHtml+'</div>'+
-   '<div style="font-size:18px;font-weight:700;color:var(--text)">'+esc(u.nickname||u.username||'?')+'</div>'+
+  if(u.region)tags.push('<span style="font-size:11px;background:rgba(245,158,11,0.12);padding:3px 10px;border-radius:10px;color:#f59e0b">'+(rgnMap[u.region]||u.region)+'</span>');
+  if(u.gender)tags.push('<span style="font-size:11px;background:rgba(236,72,153,0.12);padding:3px 10px;border-radius:10px;color:#ec4899">'+(gdrMap[u.gender]||u.gender)+'</span>');
+  if(u.age)tags.push('<span style="font-size:11px;background:rgba(139,92,246,0.12);padding:3px 10px;border-radius:10px;color:#8b5cf6">🎂 '+u.age+'歲</span>');
+  if(u.drink_age)tags.push('<span style="font-size:11px;background:rgba(34,197,94,0.12);padding:3px 10px;border-radius:10px;color:#22c55e">🍺 酒齡'+u.drink_age+'年</span>');
+  var tagHtml=tags.length?'<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0">'+tags.join('')+'</div>':'';
+  var mlvl=u.membership_level||0;
+  var memBadge=mlvl>0?'<div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:4px 12px;border-radius:14px;font-size:11px;font-weight:700;margin-bottom:4px">'+['','🥉酒友','🥈酒鬼','🥇酒神'][mlvl]+'</div>':'';
+  var adminBadge=isAdmin?'<div style="display:inline-block;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;padding:4px 12px;border-radius:14px;font-size:11px;font-weight:700;margin-bottom:4px">🥇管理員</div>':'';
+  body.innerHTML='<div style="padding:20px;text-align:center">'+
+   '<div style="margin-bottom:10px">'+avHtml+'</div>'+
+   '<div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:2px">'+esc(u.nickname||u.username||'?')+'</div>'+
    '<div style="font-size:12px;color:var(--sub);margin-bottom:8px">@'+esc(u.username||'-')+'</div>'+
-   tagHtml+
-   '<div style="display:flex;justify-content:center;gap:20px;margin-bottom:12px">'+
-    '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.checkin_count||0)+'</div><div style="font-size:10px;color:var(--sub)" data-i18n="checkins">報到</div></div>'+
-    '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.friend_count||0)+'</div><div style="font-size:10px;color:var(--sub)" data-i18n="friends">酒友</div></div>'+
-    '<div style="text-align:center"><div style="font-size:20px;font-weight:700;color:var(--amber)">'+(u.post_count||0)+'</div><div style="font-size:10px;color:var(--sub)">帖子</div></div>'+
+   adminBadge+memBadge+tagHtml+
+   '<div style="display:flex;justify-content:center;gap:24px;margin:14px 0">'+
+    '<div style="text-align:center"><div style="font-size:24px;font-weight:800;color:var(--amber)">'+(u.checkin_count||0)+'</div><div style="font-size:10px;color:var(--sub)">報到</div></div>'+
+    '<div style="text-align:center"><div style="font-size:24px;font-weight:800;color:var(--amber)">'+(u.friend_count||0)+'</div><div style="font-size:10px;color:var(--sub)">酒友</div></div>'+
+    '<div style="text-align:center"><div style="font-size:24px;font-weight:800;color:var(--amber)">'+(u.post_count||0)+'</div><div style="font-size:10px;color:var(--sub)">帖子</div></div>'+
    '</div>'+
-   (u.bio?'<div style="font-size:13px;color:var(--text);margin-bottom:12px;text-align:left;background:var(--card);padding:8px 12px;border-radius:8px">'+esc(u.bio)+'</div>':'')+
-   (u.membership_level&&u.membership_level>0?'<div style="display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600">'+(['','🥉酒友','🥈酒鬼','🥇酒神'][u.membership_level]||'⭐VIP')+'</div>':'')+
-   '<div style="margin-top:12px"><button class="btn btn-primary" style="font-size:13px;padding:6px 16px" onclick="addFriendThenClose('+uid+')" data-i18n="add_friend">加酒友</button></div>';
+   (u.bio?'<div style="font-size:13px;color:var(--text);text-align:left;background:var(--card);padding:10px 14px;border-radius:10px;margin-bottom:12px;line-height:1.6">💬 '+esc(u.bio)+'</div>':'')+
+   (!isAdmin?'<button class="btn btn-primary" style="font-size:13px;padding:8px 20px;border-radius:20px" onclick="addFriendThenClose('+uid+')">🤝 加酒友</button>':'')+
+  '</div>';
+  mod.style.display='flex';
+ }
+ // Admin user (id=0)
+ if(uid===0 && me && me.admin){
+  renderProfile(me,true);return;
+ }
+ // 从缓存朋友列表直接读取（不再掉远程API）
+ var cached=(window._memFriends||[]).find(f=>f.id===uid);
+ if(cached){renderProfile(cached,false);return;}
+ // fallback: 调远程API
+ body.innerHTML='<div style="padding:20px;color:var(--sub)">載入中...</div>';
+ mod.style.display='flex';
+ api('/api/user/'+uid).then(d=>{
+  renderProfile(d.user||d,false);
  }).catch(()=>{
-  body.innerHTML='<div style="padding:20px;color:var(--red)">載入失敗</div>';
+  body.innerHTML='<div style="padding:20px;color:var(--red);text-align:center">❌ 載入失敗<br><button class="btn" style="margin-top:10px;font-size:12px" onclick="closeFriendProfile()">關閉</button></div>';
  });
 }
 function closeFriendProfile(){var el=document.getElementById('friend-profile-mod');if(el)el.style.display='none'}
@@ -3291,36 +3301,74 @@ async function admShowChangePw(){
 
 // ── Admin: Edit user profile ──
 async function admEditUser(uid, username){
- const nick = prompt('花名 ('+username+')：');
- if(nick===null) return;
- const phone = prompt('電話：');
- if(phone===null) return;
- const email = prompt('電郵：');
- if(email===null) return;
- const region = prompt('地區（HK/MO/TW/CN-GD/CN-BJ/CN-SH/CN-GX/CN-FJ/CN-ZJ/CN-OTHER/MY/SG/JP/KR/US/UK/AU/OTHER）：');
- if(region===null) return;
- const gender = prompt('性別（M/F/O）：');
- if(gender===null) return;
- const age = prompt('年齡：');
- if(age===null) return;
- const drink_age = prompt('酒齡（年）：');
- if(drink_age===null) return;
  try{
   await _admCheck();
   const h = _admHeaders();
-  const body = {user_id:uid};
-  if(nick!=='') body.nickname = nick;
-  body.phone = phone||'';
-  body.email = email||'';
-  if(region!=='') body.region = region;
-  if(gender!=='') body.gender = gender;
-  if(age!=='') body.age = parseInt(age)||0;
-  if(drink_age!=='') body.drink_age = parseInt(drink_age)||0;
+  const r = await fetch(API_BASE+'/api/admin/members',{headers:h});
+  const data = await r.json();
+  const users = data.users||[];
+  const u = users.find(x=>x.id===uid);
+  if(!u){toast('❌ 搵唔到用戶',1);return;}
+  var rgnOpts=['HK','MO','TW','CN-GD','CN-BJ','CN-SH','CN-GX','CN-FJ','CN-ZJ','CN-OTHER','MY','SG','JP','KR','US','UK','AU','OTHER'];
+  var rgnLabels={'HK':'🇭🇰 香港','MO':'🇲🇴 澳門','TW':'🇹🇼 台灣','CN-GD':'🇨🇳 廣東','CN-BJ':'🇨🇳 北京','CN-SH':'🇨🇳 上海','CN-GX':'🇨🇳 廣西','CN-FJ':'🇨🇳 福建','CN-ZJ':'🇨🇳 浙江','CN-OTHER':'🇨🇳 其他','MY':'🇲🇾 馬來西亞','SG':'🇸🇬 新加坡','JP':'🇯🇵 日本','KR':'🇰🇷 韓國','US':'🇺🇸 美國','UK':'🇬🇧 英國','AU':'🇦🇺 澳洲','OTHER':'🌍 其他'};
+  var gdrOpts=[{v:'M',l:'👨 男'},{v:'F',l:'👩 女'},{v:'O',l:'🧑 其他'},{v:'',l:'— 不設 —'}];
+  var body=document.getElementById('adm-edit-body');
+  body.innerHTML=
+   '<div style="text-align:center;margin-bottom:16px">'+
+    '<div style="font-size:28px;margin-bottom:4px">'+(u.avatar&&u.avatar.startsWith('emoji:')?u.avatar.replace('emoji:',''):'👤')+'</div>'+
+    '<div style="font-size:16px;font-weight:700;color:var(--text)">'+esc(u.nickname||u.username)+'</div>'+
+    '<div style="font-size:11px;color:var(--sub)">@'+esc(u.username)+' · ID:'+u.id+'</div>'+
+   '</div>'+
+   '<div style="display:grid;gap:12px">'+
+    _editField('ae-username','用戶名','text',u.username||'','🔑')+
+    _editField('ae-nick','花名','text',u.nickname||'','🏷️')+
+    _editField('ae-phone','電話','tel',u.phone||'','📞')+
+    _editField('ae-email','電郵','email',u.email||'','📧')+
+    _editSelect('ae-region','地區',rgnOpts.map(r=>({v:r,l:rgnLabels[r]||r})),u.region||'','🌍',true)+
+    _editSelect('ae-gender','性別',gdrOpts,u.gender||'','👤',true)+
+    _editField('ae-age','年齡','number',u.age||'','🎂')+
+    _editField('ae-drink-age','酒齡(年)','number',u.drink_age||'','🍺')+
+    _editField('ae-bio','個人簡介','text',u.bio||'','💬')+
+    _editField('ae-avatar','頭像','text',u.avatar||'','🖼️')+
+   '</div>'+
+   '<div style="display:flex;gap:8px;margin-top:16px">'+
+    '<button class="btn btn-primary" style="flex:1;padding:10px;border-radius:12px;font-weight:700" onclick="admSaveUser('+uid+')">💾 保存</button>'+
+    '<button class="btn" style="flex:1;padding:10px;border-radius:12px" onclick="closeAdmEdit()">取消</button>'+
+   '</div>';
+  document.getElementById('adm-edit-mod').style.display='flex';
+ }catch(e){toast('❌ '+e.message,1)}
+}
+function _editField(id,label,type,val,icon){
+ return '<div><label style="font-size:11px;color:var(--sub);display:block;margin-bottom:3px;font-weight:600">'+icon+' '+label+'</label><input class="input" id="'+id+'" type="'+type+'" value="'+esc(String(val))+'" style="width:100%;padding:8px 10px;border-radius:8px;font-size:13px"></div>';
+}
+function _editSelect(id,label,opts,val,icon,allowEmpty){
+ var h='<div><label style="font-size:11px;color:var(--sub);display:block;margin-bottom:3px;font-weight:600">'+icon+' '+label+'</label><select class="input" id="'+id+'" style="width:100%;padding:8px 10px;border-radius:8px;font-size:13px">';
+ if(allowEmpty)h+='<option value="">— 不設 —</option>';
+ opts.forEach(o=>{h+='<option value="'+o.v+'"'+(val===o.v?' selected':'')+'>'+o.l+'</option>';});
+ h+='</select></div>';
+ return h;
+}
+function closeAdmEdit(){document.getElementById('adm-edit-mod').style.display='none'}
+async function admSaveUser(uid){
+ try{
+  await _admCheck();
+  const h=_admHeaders();
+  const body={user_id:uid};
+  var v;
+  v=document.getElementById('ae-username').value.trim();if(v)body.username=v;
+  v=document.getElementById('ae-nick').value.trim();if(v)body.nickname=v;
+  body.phone=(document.getElementById('ae-phone').value||'').trim();
+  body.email=(document.getElementById('ae-email').value||'').trim();
+  v=document.getElementById('ae-region').value;if(v)body.region=v;
+  v=document.getElementById('ae-gender').value;if(v)body.gender=v;
+  v=document.getElementById('ae-age').value;if(v)body.age=parseInt(v)||0;
+  v=document.getElementById('ae-drink-age').value;if(v)body.drink_age=parseInt(v)||0;
+  body.bio=(document.getElementById('ae-bio').value||'').trim();
+  body.avatar=(document.getElementById('ae-avatar').value||'').trim();
   const r=await fetch(API_BASE+'/api/admin/update-profile',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify(body)});
   const d=await r.json();
-  if(d.ok) toast('✅ 已更新');
+  if(d.ok){toast('✅ 已更新');closeAdmEdit();admLoadMembers();}
   else toast('❌ '+(d.error||'失敗'),1);
-  admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -3737,7 +3785,7 @@ function renderDice3D(n){
  var coverDie=document.createElement('div');
  coverDie.id='dice-cover';
  coverDie.style.cssText='width:88px;height:88px;margin:0 auto;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(245,158,11,0.35),0 0 0 2px rgba(245,158,11,0.2),0 0 50px rgba(139,92,246,0.12);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;cursor:pointer;position:relative;background:#1a1a2e;border:2px solid rgba(245,158,11,0.3)';
- coverDie.innerHTML='<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(139,92,246,0.08));z-index:1;border-radius:14px"></div><img src="'+(ASSET_BASE||API_BASE)+'/dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:14px;position:relative;z-index:0" onerror="if(this.src.indexOf(API_BASE)<0){this.src=API_BASE+\'/dice-cover.webp\'}else{this.style.display=\'none\'}"><div style="position:absolute;bottom:6px;left:0;right:0;text-align:center;font-size:10px;color:rgba(255,255,255,0.85);text-shadow:0 1px 4px rgba(0,0,0,0.9);font-weight:800;letter-spacing:1px;z-index:2">今晚飲咗未</div>';
+ coverDie.innerHTML='<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(139,92,246,0.08));z-index:1;border-radius:14px"></div><img src="'+(ASSET_BASE||API_BASE)+'/dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:14px;position:relative;z-index:0" onerror="if(this.src.indexOf(API_BASE)<0){this.src=API_BASE+\'/dice-cover.webp\'}else{this.style.display=\'none\'}">';
  coverDie.onmouseenter=function(){this.style.transform='scale(1.06) rotate(2deg)'};
  coverDie.onmouseleave=function(){this.style.transform='scale(1)'};
  // Subtle breathing animation
