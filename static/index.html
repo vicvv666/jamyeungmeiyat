@@ -5347,5 +5347,6 @@ function admDelLiquor(lid){
   fetch(API_BASE+'/api/admin/liquor/'+lid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast('已刪除','success');admLoadLiquorDB()}else toast(r.error||'刪除失敗','error')}).catch(()=>toast('網絡錯誤','error'));
 }
 
+</script>
 </body>
 </html>
