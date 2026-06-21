@@ -514,6 +514,27 @@ CREATE TABLE IF NOT EXISTS users (
         created_at  TEXT DEFAULT (datetime('now','localtime'))
     )''')
     except: pass
+    # ── Groups (酒友圈群组) ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS groups (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        name        TEXT NOT NULL,
+        description TEXT DEFAULT '',
+        avatar_url  TEXT DEFAULT '',
+        creator_id  INTEGER NOT NULL,
+        is_public   INTEGER DEFAULT 1,
+        max_members INTEGER DEFAULT 10,
+        created_at  TEXT DEFAULT (datetime('now','localtime'))
+    )''')
+    except: pass
+    try: db.execute('''CREATE TABLE IF NOT EXISTS group_members (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        group_id    INTEGER NOT NULL,
+        user_id     INTEGER NOT NULL,
+        role        TEXT DEFAULT 'member',
+        joined_at   TEXT DEFAULT (datetime('now','localtime')),
+        UNIQUE(group_id, user_id)
+    )''')
+    except: pass
     db.commit()
     db.close()
 
@@ -3328,6 +3349,189 @@ def api_admin_liquor_delete(lid):
     if not _check_admin(): return jsonify({'error':'未授權'}), 403
     db = get_db()
     db.execute('DELETE FROM liquor_db WHERE id=?', (lid,))
+    db.commit()
+    return jsonify({'ok': True})
+
+
+# ═══════════════════ 建群功能 ═══════════════════════════════
+def _group_limits(level):
+    """建群数/群人数按会员等级限制"""
+    limits = {0: (1, 10), 1: (3, 30), 2: (10, 100), 3: (999, 500)}
+    return limits.get(level, limits[0])
+
+@app.route('/api/groups', methods=['GET', 'POST'])
+@auth_required
+def api_groups(uid):
+    db = get_db()
+    if request.method == 'GET':
+        rows = db.execute('''SELECT g.*, gm.role as my_role,
+                            (SELECT COUNT(*) FROM group_members WHERE group_id=g.id) as member_count
+                            FROM groups g JOIN group_members gm ON g.id=gm.group_id
+                            WHERE gm.user_id=? ORDER BY g.created_at DESC''', (uid,)).fetchall()
+        return jsonify({'ok': True, 'groups': [dict(r) for r in rows]})
+    # POST: create group
+    d = request.get_json(force=True) or {}
+    name = d.get('name', '').strip()
+    if not name:
+        return jsonify({'ok': False, 'error': '請輸入群組名稱'}), 400
+    user = db.execute('SELECT membership_level FROM users WHERE id=?', (uid,)).fetchone()
+    level = user['membership_level'] if user else 0
+    max_create, max_members = _group_limits(level)
+    my_groups = db.execute('SELECT COUNT(*) as c FROM groups WHERE creator_id=?', (uid,)).fetchone()
+    if my_groups['c'] >= max_create:
+        return jsonify({'ok': False, 'error': f'會員等級僅可創建{max_create}個群組，升級解鎖更多', 'required_level': level + 1}), 403
+    cur = db.execute('INSERT INTO groups (name,description,avatar_url,creator_id,is_public,max_members) VALUES (?,?,?,?,?,?)',
+                     (name, d.get('description', ''), d.get('avatar_url', ''), uid,
+                      1 if d.get('is_public', True) else 0, max_members))
+    gid = cur.lastrowid
+    db.execute('INSERT INTO group_members (group_id,user_id,role) VALUES (?,?,?)', (gid, uid, 'creator'))
+    db.commit()
+    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    return jsonify({'ok': True, 'group': dict(g)})
+
+@app.route('/api/groups/explore')
+@auth_required
+def api_groups_explore(uid):
+    db = get_db()
+    q = request.args.get('q', '')
+    sql = '''SELECT g.*, (SELECT COUNT(*) FROM group_members WHERE group_id=g.id) as member_count
+             FROM groups g WHERE g.is_public=1'''
+    params = []
+    if q:
+        sql += ' AND (g.name LIKE ? OR g.description LIKE ?)'
+        params += [f'%{q}%', f'%{q}%']
+    sql += ' ORDER BY member_count DESC LIMIT 50'
+    rows = db.execute(sql, params).fetchall()
+    # mark if already joined
+    my_gids = set(r[0] for r in db.execute('SELECT group_id FROM group_members WHERE user_id=?', (uid,)).fetchall())
+    result = []
+    for r in rows:
+        g = dict(r)
+        g['joined'] = g['id'] in my_gids
+        result.append(g)
+    return jsonify({'ok': True, 'groups': result})
+
+@app.route('/api/groups/<int:gid>')
+@auth_required
+def api_group_detail(uid, gid):
+    db = get_db()
+    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    if not g:
+        return jsonify({'ok': False, 'error': '群組不存在'}), 404
+    members = db.execute('''SELECT u.id,u.username,u.nickname,u.avatar_url,gm.role,gm.joined_at
+                            FROM group_members gm JOIN users u ON gm.user_id=u.id
+                            WHERE gm.group_id=? ORDER BY CASE gm.role WHEN 'creator' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, gm.joined_at''', (gid,)).fetchall()
+    my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
+    return jsonify({'ok': True, 'group': dict(g), 'members': [dict(m) for m in members], 'my_role': my['role'] if my else None})
+
+@app.route('/api/groups/<int:gid>/join', methods=['POST'])
+@auth_required
+def api_group_join(uid, gid):
+    db = get_db()
+    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    if not g:
+        return jsonify({'ok': False, 'error': '群組不存在'}), 404
+    existing = db.execute('SELECT id FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
+    if existing:
+        return jsonify({'ok': False, 'error': '已經是群成員'}), 400
+    cnt = db.execute('SELECT COUNT(*) as c FROM group_members WHERE group_id=?', (gid,)).fetchone()
+    if cnt['c'] >= g['max_members']:
+        return jsonify({'ok': False, 'error': '群組人數已滿'}), 403
+    # check user join limit
+    user = db.execute('SELECT membership_level FROM users WHERE id=?', (uid,)).fetchone()
+    level = user['membership_level'] if user else 0
+    _, max_members = _group_limits(level)
+    my_joins = db.execute('SELECT COUNT(*) as c FROM group_members WHERE user_id=?', (uid,)).fetchone()
+    # same limit as create: use max_create for join
+    max_create, _ = _group_limits(level)
+    if my_joins['c'] >= max_create * 3:  # can join 3x the create limit
+        return jsonify({'ok': False, 'error': '已達加群上限，升級解鎖更多', 'required_level': level + 1}), 403
+    db.execute('INSERT INTO group_members (group_id,user_id,role) VALUES (?,?,?)', (gid, uid, 'member'))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/groups/<int:gid>/leave', methods=['POST'])
+@auth_required
+def api_group_leave(uid, gid):
+    db = get_db()
+    my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
+    if not my:
+        return jsonify({'ok': False, 'error': '你不是群成員'}), 400
+    if my['role'] == 'creator':
+        return jsonify({'ok': False, 'error': '群主不能退出，請先轉讓或解散群組'}), 400
+    db.execute('DELETE FROM group_members WHERE group_id=? AND user_id=?', (gid, uid))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/groups/<int:gid>/kick', methods=['POST'])
+@auth_required
+def api_group_kick(uid, gid):
+    db = get_db()
+    my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
+    if not my or my['role'] not in ('creator', 'admin'):
+        return jsonify({'ok': False, 'error': '無權操作'}), 403
+    d = request.get_json(force=True) or {}
+    target = d.get('user_id')
+    if not target:
+        return jsonify({'ok': False, 'error': '缺少user_id'}), 400
+    target_role = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, target)).fetchone()
+    if not target_role:
+        return jsonify({'ok': False, 'error': '該用戶不是群成員'}), 400
+    if target_role['role'] == 'creator':
+        return jsonify({'ok': False, 'error': '不能踢群主'}), 403
+    db.execute('DELETE FROM group_members WHERE group_id=? AND user_id=?', (gid, target))
+    db.commit()
+    return jsonify({'ok': True})
+
+@app.route('/api/groups/<int:gid>', methods=['PUT', 'DELETE'])
+@auth_required
+def api_group_manage(uid, gid):
+    db = get_db()
+    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    if not g:
+        return jsonify({'ok': False, 'error': '群組不存在'}), 404
+    my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
+    if request.method == 'DELETE':
+        if not my or my['role'] != 'creator':
+            return jsonify({'ok': False, 'error': '僅群主可解散'}), 403
+        db.execute('DELETE FROM group_members WHERE group_id=?', (gid,))
+        db.execute('DELETE FROM groups WHERE id=?', (gid,))
+        db.commit()
+        return jsonify({'ok': True})
+    # PUT: update
+    if not my or my['role'] != 'creator':
+        return jsonify({'ok': False, 'error': '僅群主可修改'}), 403
+    d = request.get_json(force=True) or {}
+    for k in ['name', 'description', 'avatar_url', 'is_public', 'max_members']:
+        if k in d:
+            db.execute(f'UPDATE groups SET {k}=? WHERE id=?', (d[k], gid))
+    db.commit()
+    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    return jsonify({'ok': True, 'group': dict(g)})
+
+# ── Admin: Groups ──
+@app.route('/api/admin/groups')
+def api_admin_groups():
+    if not _check_admin(): return jsonify({'error': '未授權'}), 403
+    db = get_db()
+    q = request.args.get('q', '')
+    sql = '''SELECT g.*, u.username as creator_name, u.nickname as creator_nick,
+             (SELECT COUNT(*) FROM group_members WHERE group_id=g.id) as member_count
+             FROM groups g LEFT JOIN users u ON g.creator_id=u.id'''
+    params = []
+    if q:
+        sql += ' WHERE g.name LIKE ?'
+        params.append(f'%{q}%')
+    sql += ' ORDER BY g.id DESC LIMIT 200'
+    rows = db.execute(sql, params).fetchall()
+    return jsonify({'ok': True, 'groups': [dict(r) for r in rows]})
+
+@app.route('/api/admin/groups/<int:gid>', methods=['DELETE'])
+def api_admin_group_delete(gid):
+    if not _check_admin(): return jsonify({'error': '未授權'}), 403
+    db = get_db()
+    db.execute('DELETE FROM group_members WHERE group_id=?', (gid,))
+    db.execute('DELETE FROM groups WHERE id=?', (gid,))
     db.commit()
     return jsonify({'ok': True})
 

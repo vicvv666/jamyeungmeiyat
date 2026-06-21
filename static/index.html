@@ -732,7 +732,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <div id="shop-products" style="display:grid;gap:10px"></div>
   <!-- 商品详情弹窗 -->
   <div id="shop-detail-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
-    <div class="modal" style="max-width:420px;max-height:85vh;overflow-y:auto">
+    <div class="modal" style="max-width:min(90vw,560px);max-height:85vh;overflow-y:auto">
       <div id="shop-detail-body" style="padding:16px"></div>
     </div>
   </div>
@@ -780,10 +780,27 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <!-- 朋友管理区 -->
   <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
     <div class="card-header" data-i18n="friends_circle">👫 酒友圈</div>
+    <!-- 好友/群组 tab切换 -->
+    <div style="display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border)">
+      <button id="fr-tab-friends" onclick="frShowTab('friends')" style="flex:1;padding:8px;background:none;border:none;border-bottom:2px solid var(--pink);color:var(--pink);font-weight:700;font-size:13px;cursor:pointer">🤝 好友</button>
+      <button id="fr-tab-groups" onclick="frShowTab('groups')" style="flex:1;padding:8px;background:none;border:none;border-bottom:2px solid transparent;color:var(--sub);font-size:13px;cursor:pointer">👥 群組</button>
+    </div>
+    <!-- 好友区 -->
+    <div id="fr-section-friends">
     <div id="friends-section">
      <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--pink);margin-bottom:6px" data-i18n="pending_requests">📨 待處理請求</div><div id="friend-pending" style="font-size:12px;color:var(--sub)">載入中...</div></div>
      <div style="margin-bottom:8px"><div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:4px" onclick="toggleFriendList()" id="my-friends-header" data-i18n="my_friends">🤝 我嘅酒友 <span id="my-friends-arrow" style="font-size:10px">▼</span><span id="my-friends-count" style="font-size:10px;color:var(--sub);margin-left:4px"></span></div><div id="friend-list" style="font-size:12px;color:var(--sub)">載入中...</div></div>
      <div><div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:6px" data-i18n="suggest_friends">🔍 推薦酒友</div><div id="friend-suggest" style="font-size:12px;color:var(--sub)">載入中...</div></div>
+    </div>
+    </div><!-- /fr-section-friends -->
+    <!-- 群组区 -->
+    <div id="fr-section-groups" style="display:none">
+     <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+      <button class="btn btn-pink btn-sm" onclick="grpShowCreate()" style="font-size:12px">＋ 創建群組</button>
+      <button class="btn btn-outline btn-sm" onclick="grpShowExplore()" style="font-size:12px">🔍 發現群組</button>
+     </div>
+     <div style="font-size:12px;color:var(--sub);margin-bottom:6px" id="grp-limit-hint"></div>
+     <div id="grp-my-list"></div>
     </div>
   </div>
   <!-- 朋友圈发帖区 -->
@@ -852,18 +869,18 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </div>
 <!-- Admin Panel (独立弹窗) -->
 <div class="modal-overlay" id="admin-mod" onclick="if(event.target===this)admClose()">
- <div class="modal" style="max-width:520px;max-height:90dvh;overflow-y:auto">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-   <h3 style="color:var(--pink);margin:0" data-i18n="admin_panel">🔧 管理員面板</h3>
-   <div style="display:flex;align-items:center;gap:8px">
+ <div class="modal" style="max-width:min(95vw,720px);width:100%;max-height:92dvh;overflow-y:auto">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 style="color:var(--pink);margin:0" data-i18n="admin_panel">🔧 管理員面板</h3>
+    <div style="display:flex;align-items:center;gap:8px">
     <span style="font-size:11px;color:var(--sub)" id="adm-admin-name" data-i18n="admin_label">管理員</span>
     <button class="btn btn-outline btn-sm" onclick="admShowChangePw()" style="font-size:10px;padding:4px 8px" data-i18n="adm_change_pwd">🔑 改密</button>
     <button class="btn btn-outline btn-sm" onclick="admClose()" style="font-size:10px;padding:4px 8px">✕</button>
+    </div>
    </div>
-  </div>
   <!-- Admin Tabs -->
   <div id="adm-content">
-   <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border);flex-wrap:wrap">
+   <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);flex-wrap:wrap;padding-bottom:2px">
     <button class="adm-tab active" data-adm="stats" data-i18n="stats" onclick="admShowTab('stats')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📊 概覽</button>
     <button class="adm-tab" data-adm="members" data-i18n="adm_members" onclick="admShowTab('members');admLoadMembers()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 會員</button>
     <button class="adm-tab" data-adm="payments" data-i18n="adm_payments" onclick="admShowTab('payments');admLoadPayments()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">💳 付款</button>
@@ -876,6 +893,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <button class="adm-tab" data-adm="shop" onclick="admShowTab('shop');admLoadShopProducts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🛒 商鋪</button>
     <button class="adm-tab" data-adm="orders" onclick="admShowTab('orders');admLoadShopOrders()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📦 訂單</button>
     <button class="adm-tab" data-adm="liquor" onclick="admShowTab('liquor');admLoadLiquorDB()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🍾 酒品</button>
+    <button class="adm-tab" data-adm="groups" onclick="admShowTab('groups');admLoadGroups()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 群組</button>
    </div>
    <!-- Stats page -->
    <div class="adm-page active" id="adm-stats">
@@ -971,6 +989,17 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     </div>
     <div id="adm-liquor-list" style="font-size:12px"></div>
    </div>
+   <!-- Groups page -->
+   <div class="adm-page" id="adm-groups">
+    <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-weight:700;font-size:14px">👥 群組管理</span>
+      <div style="display:flex;gap:4px">
+        <input class="input" id="adm-groups-search" placeholder="搜索群名..." style="margin-bottom:0;padding:4px 8px;font-size:11px;max-width:150px" onkeydown="if(event.key==='Enter')admLoadGroups(this.value)">
+        <button class="btn btn-primary btn-sm" onclick="admLoadGroups()">🔄 刷新</button>
+      </div>
+    </div>
+    <div id="adm-groups-list" style="font-size:12px"></div>
+   </div>
   </div>
  </div>
 </div>
@@ -1017,9 +1046,51 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  </div>
 </div>
 
+<!-- Group Detail Modal -->
+<div class="modal-overlay" id="grp-detail-mod" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+ <div class="modal" style="max-width:min(90vw,520px);max-height:85vh;overflow-y:auto">
+  <div style="padding:16px">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 style="color:var(--pink);margin:0" id="grp-detail-title">👥 群組</h3>
+    <button onclick="document.getElementById('grp-detail-mod').style.display='none'" style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer">✕</button>
+   </div>
+   <div id="grp-detail-body"></div>
+  </div>
+ </div>
+</div>
+<!-- Group Create Modal -->
+<div class="modal-overlay" id="grp-create-mod" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+ <div class="modal" style="max-width:min(90vw,420px);max-height:85vh;overflow-y:auto">
+  <div style="padding:16px">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 style="color:var(--pink);margin:0">＋ 創建群組</h3>
+    <button onclick="document.getElementById('grp-create-mod').style.display='none'" style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer">✕</button>
+   </div>
+   <div style="margin-bottom:8px"><label style="font-size:12px;color:var(--sub)">群組名稱</label><input id="grp-c-name" class="input" style="width:100%" placeholder="例: 啤酒狂熱者"></div>
+   <div style="margin-bottom:8px"><label style="font-size:12px;color:var(--sub)">群組描述</label><textarea id="grp-c-desc" class="textarea" style="width:100%;min-height:50px" placeholder="介紹下呢個群..."></textarea></div>
+   <div style="margin-bottom:8px"><label style="font-size:12px;color:var(--sub)">頭像URL (選填)</label><input id="grp-c-avatar" class="input" style="width:100%" placeholder="https://..."></div>
+   <div style="margin-bottom:12px;display:flex;align-items:center;gap:8px"><input type="checkbox" id="grp-c-public" checked><label for="grp-c-public" style="font-size:12px">公開群組（他人可搜尋加入）</label></div>
+   <button class="btn btn-pink" onclick="grpDoCreate()" style="width:100%">確認創建</button>
+  </div>
+ </div>
+</div>
+<!-- Group Explore Modal -->
+<div class="modal-overlay" id="grp-explore-mod" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+ <div class="modal" style="max-width:min(90vw,520px);max-height:85vh;overflow-y:auto">
+  <div style="padding:16px">
+   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h3 style="color:var(--pink);margin:0">🔍 發現群組</h3>
+    <button onclick="document.getElementById('grp-explore-mod').style.display='none'" style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer">✕</button>
+   </div>
+   <div style="display:flex;gap:8px;margin-bottom:12px"><input id="grp-explore-q" class="input" style="flex:1" placeholder="搜尋群組..."><button class="btn btn-pink btn-sm" onclick="grpDoExplore()">搜尋</button></div>
+   <div id="grp-explore-list"></div>
+  </div>
+ </div>
+</div>
+
 <!-- Admin Edit User Modal -->
 <div class="modal-overlay" id="adm-edit-mod" style="display:none" onclick="if(event.target===this)closeAdmEdit()">
- <div class="modal" style="max-width:420px;max-height:85vh;overflow-y:auto">
+ <div class="modal" style="max-width:min(90vw,560px);max-height:85vh;overflow-y:auto">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)">
    <div style="font-size:16px;font-weight:700;color:var(--text)">✏️ 編輯用戶</div>
    <button onclick="closeAdmEdit()" style="background:none;border:none;color:var(--sub);font-size:20px;cursor:pointer;padding:4px">✕</button>
@@ -4931,6 +5002,12 @@ function shopLoadProducts(cat){
 
 const CAT_ICONS = {music:'🎵', liquor:'🍾', voucher:'🎫'};
 const CAT_LABELS = {music:'舞曲', liquor:'酒品', voucher:'消費券'};
+const CAT_COLORS = {music:'linear-gradient(135deg,#8b5cf6,#6366f1)', liquor:'linear-gradient(135deg,#f59e0b,#d97706)', voucher:'linear-gradient(135deg,#22c55e,#16a34a)'};
+
+function _catTag(cat){
+  const icon=CAT_ICONS[cat]||'📦', label=CAT_LABELS[cat]||cat, bg=CAT_COLORS[cat]||'var(--sub)';
+  return `<span style="display:inline-block;padding:2px 10px;border-radius:12px;color:#fff;font-size:11px;font-weight:600;background:${bg}">${icon} ${label}</span>`;
+}
 
 function renderShopProducts(products){
   const el = document.getElementById('shop-products');
@@ -4948,7 +5025,7 @@ function renderShopProducts(products){
         </div>
         <div style="flex:1;min-width:0">
           <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name||p.name_en||'商品'}</div>
-          <div style="font-size:11px;color:var(--sub);margin:2px 0">${catIcon} ${catLabel}${p.sub_category?' · '+p.sub_category:''}</div>
+          <div style="font-size:11px;margin:2px 0">${_catTag(p.category)}${p.sub_category?' <span style="color:var(--sub)">· '+p.sub_category+'</span>':''}</div>
           <div style="font-size:12px;color:var(--sub);margin:2px 0;max-height:32px;overflow:hidden">${p.description||''}</div>
           <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
             <span style="font-size:16px;font-weight:700;color:var(--amber)">¥${Number(p.price).toFixed(2)}</span>
@@ -4976,7 +5053,7 @@ function shopShowDetail(pid){
         ${p.image_url?`<img src="${p.image_url}" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:12px" onerror="this.style.display='none'">`:`<div style="text-align:center;font-size:48px;padding:24px">${catIcon}</div>`}
       </div>
       <div style="font-size:18px;font-weight:700;margin-bottom:4px">${p.name||p.name_en}</div>
-      <div style="font-size:12px;color:var(--sub);margin-bottom:8px">${catIcon} ${catLabel}${p.sub_category?' · '+p.sub_category:''}</div>
+      <div style="font-size:12px;margin-bottom:8px">${_catTag(p.category)}${p.sub_category?' <span style="color:var(--sub)">· '+p.sub_category+'</span>':''}</div>
       ${p.description?`<div style="font-size:13px;color:var(--text);margin-bottom:12px;line-height:1.5">${p.description}</div>`:''}
       <div style="font-size:24px;font-weight:700;color:var(--amber);margin-bottom:4px">¥${Number(p.price).toFixed(2)} <span style="font-size:12px;color:var(--sub)">${p.currency||'CNY'}</span></div>
       ${_shopDiscountHtml(Number(p.price))}
@@ -5345,6 +5422,139 @@ function admSaveLiquor(lid){
 function admDelLiquor(lid){
   if(!confirm('確定刪除此酒品記錄？'))return;
   fetch(API_BASE+'/api/admin/liquor/'+lid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast('已刪除','success');admLoadLiquorDB()}else toast(r.error||'刪除失敗','error')}).catch(()=>toast('網絡錯誤','error'));
+}
+
+// ══════════ 群组功能 ══════════
+const GRP_LIMITS={0:{create:1,members:10,label:'免費用戶'},1:{create:3,members:30,label:'🥉酒友'},2:{create:10,members:100,label:'🥈酒鬼'},3:{create:999,members:500,label:'🥇酒神'}};
+
+function frShowTab(tab){
+  document.getElementById('fr-section-friends').style.display=tab==='friends'?'':'none';
+  document.getElementById('fr-section-groups').style.display=tab==='groups'?'':'none';
+  const bf=document.getElementById('fr-tab-friends'),bg=document.getElementById('fr-tab-groups');
+  if(tab==='friends'){bf.style.borderBottom='2px solid var(--pink)';bf.style.color='var(--pink)';bf.style.fontWeight='700';bg.style.borderBottom='2px solid transparent';bg.style.color='var(--sub)';bg.style.fontWeight='400'}
+  else{bg.style.borderBottom='2px solid var(--pink)';bg.style.color='var(--pink)';bg.style.fontWeight='700';bf.style.borderBottom='2px solid transparent';bf.style.color='var(--sub)';bf.style.fontWeight='400';grpLoadMy()}
+}
+function grpGetLimits(){
+  const lv=typeof memLevel==='function'?memLevel():0;
+  return GRP_LIMITS[lv]||GRP_LIMITS[0];
+}
+function grpLoadMy(){
+  const lim=grpGetLimits();
+  document.getElementById('grp-limit-hint').textContent=`💡 ${lim.label}：可建${lim.create<999?lim.create:'∞'}個群 · 每群${lim.members}人`;
+  api('/api/groups').then(r=>{
+    const el=document.getElementById('grp-my-list');
+    if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">載入失敗</div>';return}
+    if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">仲未加入任何群組，創建或探索一個啦！🎉</div>';return}
+    el.innerHTML=r.groups.map(g=>{
+      const pub=g.is_public?'🌐':'🔒';
+      const role=g.my_role==='creator'?'👑':g.my_role==='admin'?'⭐':'';
+      return `<div onclick="grpShowDetail(${g.id})" style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:var(--card);border-radius:12px;cursor:pointer">
+        <div style="width:40px;height:40px;border-radius:50%;background:var(--pink);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${g.avatar_url?`<img src="${g.avatar_url}" style="width:100%;height:100%;border-radius:50%">`:'👥'}</div>
+        <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${role} ${g.name} ${pub}</div><div style="font-size:11px;color:var(--sub)">${g.member_count||0}人 · ${g.my_role==='creator'?'群主':g.my_role==='admin'?'管理':'成員'}</div></div>
+      </div>`
+    }).join('')
+  }).catch(()=>{})
+}
+function grpShowCreate(){
+  document.getElementById('grp-create-mod').style.display='flex';
+}
+function grpDoCreate(){
+  const name=document.getElementById('grp-c-name').value.trim();
+  if(!name){toast('請輸入群組名稱','error');return}
+  const lim=grpGetLimits();
+  api('/api/groups',{method:'POST',body:JSON.stringify({name,description:document.getElementById('grp-c-desc').value,avatar_url:document.getElementById('grp-c-avatar').value,is_public:document.getElementById('grp-c-public').checked})}).then(r=>{
+    if(r.ok){toast('群組創建成功！','success');document.getElementById('grp-create-mod').style.display='none';document.getElementById('grp-c-name').value='';document.getElementById('grp-c-desc').value='';document.getElementById('grp-c-avatar').value='';grpLoadMy()}
+    else{if(r.required_level){toast(r.error,'error');memLocked(r.required_level)}else toast(r.error||'創建失敗','error')}
+  }).catch(()=>toast('網絡錯誤','error'))
+}
+function grpShowExplore(){
+  document.getElementById('grp-explore-mod').style.display='flex';
+  document.getElementById('grp-explore-q').value='';
+  grpDoExplore();
+}
+function grpDoExplore(){
+  const q=document.getElementById('grp-explore-q').value;
+  api('/api/groups/explore'+(q?'?q='+encodeURIComponent(q):'')).then(r=>{
+    const el=document.getElementById('grp-explore-list');
+    if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">搜尋失敗</div>';return}
+    if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">搵唔到群組</div>';return}
+    el.innerHTML=r.groups.map(g=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:6px;background:var(--card);border-radius:12px">
+      <div style="width:36px;height:36px;border-radius:50%;background:var(--amber);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">👥</div>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text)">${g.name} ${g.is_public?'🌐':'🔒'}</div><div style="font-size:11px;color:var(--sub)">${g.member_count||0}人 · ${g.description||''}</div></div>
+      ${g.joined?'<span style="font-size:11px;color:var(--green)">✓ 已加入</span>':`<button class="btn btn-pink btn-sm" onclick="grpDoJoin(${g.id},this)" style="font-size:11px">加入</button>`}
+    </div>`).join('')
+  }).catch(()=>{})
+}
+function grpDoJoin(gid,btn){
+  api('/api/groups/'+gid+'/join',{method:'POST'}).then(r=>{
+    if(r.ok){toast('已加入群組！','success');if(btn){btn.outerHTML='<span style="font-size:11px;color:var(--green)">✓ 已加入</span>'}grpLoadMy()}
+    else{if(r.required_level){toast(r.error,'error');memLocked(r.required_level)}else toast(r.error||'加入失敗','error')}
+  }).catch(()=>toast('網絡錯誤','error'))
+}
+function grpShowDetail(gid){
+  api('/api/groups/'+gid).then(r=>{
+    if(!r.ok){toast(r.error||'載入失敗','error');return}
+    const g=r.group,ms=r.members,my=r.my_role;
+    const pub=g.is_public?'🌐 公開':'🔒 私密';
+    const roleBtns=my==='creator'?`<button class="btn btn-outline btn-sm" onclick="grpDoEdit(${g.id})" style="font-size:11px;margin-right:4px">✏️ 編輯</button><button class="btn btn-outline btn-sm" onclick="grpDoDissolve(${g.id})" style="font-size:11px;color:var(--red)">🗑️ 解散</button>`:my?`<button class="btn btn-outline btn-sm" onclick="grpDoLeave(${g.id})" style="font-size:11px;color:var(--red)">退出群組</button>`:`<button class="btn btn-pink btn-sm" onclick="grpDoJoin(${g.id})" style="font-size:11px">加入群組</button>`;
+    const memberHtml=ms.map(m=>{
+      const rr=m.role==='creator'?'👑':m.role==='admin'?'⭐':'';
+      const kickBtn=(my==='creator'||my==='admin')&&m.role!=='creator'&&m.id!==_uid()?`<button class="btn btn-outline btn-sm" onclick="grpDoKick(${g.id},${m.id})" style="font-size:10px;padding:2px 6px">踢</button>`:'';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+        <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0">${m.avatar_url?`<img src="${m.avatar_url}" style="width:100%;height:100%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||m.username||'?')[0]}</div>`}</div>
+        <div style="flex:1"><span style="font-size:12px;color:var(--text)">${rr}${m.nickname||m.username}</span> <span style="font-size:10px;color:var(--sub)">${m.role==='creator'?'群主':m.role==='admin'?'管理':'成員'}</span></div>
+        ${kickBtn}
+      </div>`
+    }).join('');
+    document.getElementById('grp-detail-title').textContent='👥 '+g.name;
+    document.getElementById('grp-detail-body').innerHTML=`
+      <div style="text-align:center;margin-bottom:12px">
+        <div style="width:60px;height:60px;border-radius:50%;margin:0 auto 8px;background:var(--pink);display:flex;align-items:center;justify-content:center;font-size:28px">${g.avatar_url?`<img src="${g.avatar_url}" style="width:100%;height:100%;border-radius:50%">`:'👥'}</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text)">${g.name}</div>
+        <div style="font-size:12px;color:var(--sub)">${pub} · ${g.member_count||ms.length}人 · 上限${g.max_members}人</div>
+        <div style="font-size:12px;color:var(--sub);margin-top:4px">${g.description||''}</div>
+      </div>
+      <div style="margin-bottom:10px;text-align:center">${roleBtns}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">📋 成員 (${ms.length})</div>
+      ${memberHtml}`;
+    document.getElementById('grp-detail-mod').style.display='flex';
+  }).catch(()=>toast('網絡錯誤','error'))
+}
+function _uid(){try{return JSON.parse(atob(localStorage.getItem('jym_token')?.split('.')[1]||''))?.uid||0}catch{return 0}}
+function grpDoLeave(gid){
+  if(!confirm('確定退出此群組？'))return;
+  api('/api/groups/'+gid+'/leave',{method:'POST'}).then(r=>{if(r.ok){toast('已退出','success');document.getElementById('grp-detail-mod').style.display='none';grpLoadMy()}else toast(r.error||'操作失敗','error')}).catch(()=>{})
+}
+function grpDoKick(gid,userId){
+  if(!confirm('確定踢出此成員？'))return;
+  api('/api/groups/'+gid+'/kick',{method:'POST',body:JSON.stringify({user_id:userId})}).then(r=>{if(r.ok){toast('已踢出','success');grpShowDetail(gid)}else toast(r.error||'操作失敗','error')}).catch(()=>{})
+}
+function grpDoDissolve(gid){
+  if(!confirm('⚠️ 確定解散此群組？此操作不可撤銷！'))return;
+  api('/api/groups/'+gid,{method:'DELETE'}).then(r=>{if(r.ok){toast('群組已解散','success');document.getElementById('grp-detail-mod').style.display='none';grpLoadMy()}else toast(r.error||'操作失敗','error')}).catch(()=>{})
+}
+function grpDoEdit(gid){
+  const name=prompt('群組名稱:',document.getElementById('grp-detail-title').textContent.replace('👥 ',''));
+  if(!name)return;
+  api('/api/groups/'+gid,{method:'PUT',body:JSON.stringify({name})}).then(r=>{if(r.ok){grpShowDetail(gid);toast('已更新','success')}else toast(r.error||'更新失敗','error')}).catch(()=>{})
+}
+
+// ── Admin: Groups ──
+function admLoadGroups(q){
+  const url='/api/admin/groups'+(q?'?q='+encodeURIComponent(q):'');
+  fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
+    const el=document.getElementById('adm-groups-list');
+    if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">載入失敗</div>';return}
+    if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">暫無群組</div>';return}
+    el.innerHTML=r.groups.map(g=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">${g.name} ${g.is_public?'🌐':'🔒'}</div><div style="font-size:11px;color:var(--sub)">ID:${g.id} · 創建者:${g.creator_nick||g.creator_name||'-'} · ${g.member_count}人</div></div>
+      <button class="btn btn-outline btn-sm" onclick="admDelGroup(${g.id})" style="font-size:10px;color:var(--red)">解散</button>
+    </div>`).join('')
+  }).catch(()=>{})
+}
+function admDelGroup(gid){
+  if(!confirm('⚠️ 確定強制解散此群組？'))return;
+  fetch(API_BASE+'/api/admin/groups/'+gid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast('已解散','success');admLoadGroups()}else toast(r.error||'操作失敗','error')}).catch(()=>toast('網絡錯誤','error'))
 }
 
 </script>
