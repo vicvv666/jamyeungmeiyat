@@ -318,10 +318,12 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
 .lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
 .tab{flex:1 1 0%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0 3px;color:var(--sub);font-size:11px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;white-space:nowrap;overflow:visible;letter-spacing:-0.2px;line-height:1.3}
-.tab .tab-icon{font-size:20px;margin-bottom:1px;transition:transform .3s cubic-bezier(.34,1.56,.64,1);display:inline-block;line-height:1}
+.tab .tab-icon{font-size:20px;margin-bottom:1px;transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s ease;display:inline-block;line-height:1}
+.tab .tab-icon svg{transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s ease}
 .tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(18,18,26,0.92);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .tabs::-webkit-scrollbar{display:none}
 .tab.active{color:var(--amber)}
+.tab.active .tab-icon svg{filter:drop-shadow(0 2px 4px rgba(245,158,11,0.6));transform:translateY(-2px)}
 .tab span{display:inline-block;min-width:fit-content;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 @media(max-width:360px){.tab{font-size:10px;padding:3px 0 2px}.tab .tab-icon{font-size:17px}}
 @media(min-width:414px){.tab{font-size:12px;padding:5px 0 3px}.tab .tab-icon{font-size:22px}}
@@ -473,7 +475,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
    <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
    <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
-  <button class="tab" data-page="shop" onclick="showPage('shop')"><span class="tab-icon">🛒</span><span id="tab-shop">商鋪</span></button>
+  <button class="tab" data-page="shop" onclick="showPage('shop')"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 2px 3px rgba(245,158,11,0.5))"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><circle cx="17" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><path d="M6.5 12h11l1.5-6H7.2" stroke="url(#cartGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="cartGrad" x1="6" y1="9" x2="20" y2="9"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient></defs></svg></span><span id="tab-shop" data-i18n="shop">商鋪</span></button>
 </div>
 
 <div class="content">
@@ -711,9 +713,10 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <!-- 商鋪 Page -->
 <div class="page" id="page-shop">
   <!-- 商铺头部 -->
-  <div class="card" style="border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(139,92,246,0.06));text-align:center;padding:20px 16px">
-    <div style="font-size:24px;margin-bottom:6px">🛒</div>
-    <div style="font-size:18px;font-weight:700;color:var(--text)">今晚飲咗未 · 商鋪</div>
+  <div class="card" style="border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(139,92,246,0.08));text-align:center;padding:24px 16px;position:relative;overflow:hidden">
+    <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(245,158,11,0.15),transparent);border-radius:50%"></div>
+    <div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 3px 6px rgba(245,158,11,0.4))"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><circle cx="17" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><path d="M6.5 12h11l1.5-6H7.2" stroke="url(#cartGrad2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="cartGrad2" x1="6" y1="9" x2="20" y2="9"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#D97706"/></linearGradient></defs></svg></div>
+    <div style="font-size:18px;font-weight:700;color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,0.1)">今晚飲咗未 · 商鋪</div>
     <div style="font-size:12px;color:var(--sub);margin-top:4px">舞曲 · 酒品 · 消費券</div>
   </div>
   <!-- 分类切换 -->
@@ -956,7 +959,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
    <!-- Admin: Shop Products -->
    <div class="adm-page" id="adm-shop">
     <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;font-size:14px">🛒 商品管理</span>
+      <span style="font-weight:700;font-size:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;filter:drop-shadow(0 1px 2px rgba(245,158,11,0.4))"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.6" fill="#F59E0B"/><circle cx="17" cy="20" r="1.6" fill="#F59E0B"/></svg> 商品管理</span>
       <button class="btn btn-primary btn-sm" onclick="admProductForm()">➕ 新增商品</button>
     </div>
     <div id="adm-product-list" style="font-size:12px"></div>
@@ -1410,7 +1413,7 @@ const API_BASE = (()=>{
 async function api(url,opts={}){
   const h={};if(token)h['Authorization']='Bearer '+token;
   if(adminToken)h['X-Admin-Token']=adminToken;
-  if(opts.body&&typeof opts.body==='object'){h['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
+  if(opts.body){h['Content-Type']='application/json';if(typeof opts.body==='object')opts.body=JSON.stringify(opts.body)}
   const furl = API_BASE + url;
   console.log('API:', furl, opts.method||'GET');
   const ctrl=new AbortController();
@@ -5257,7 +5260,7 @@ function _shopDiscountHtml(price){
 
 function shopBuy(pid){
   if(!token){toast('請先登入','error');return}
-  api('/api/shop/orders',{method:'POST',body:JSON.stringify({items:[{product_id:pid,qty:1}]})})
+  api('/api/shop/orders',{method:'POST',body:{items:[{product_id:pid,qty:1}]}})
   .then(r=>{
     if(r.ok){
       let msg='下單成功！訂單#'+r.order_id+'，合計¥'+r.total.toFixed(2);
@@ -5305,7 +5308,7 @@ function _scanRemainHtml(remain){
 function scanBarcode(code){
   const barcode = code || document.getElementById('scan-barcode-input')?.value?.trim() || '';
   if(!barcode){toast(T('toast_enter_barcode'),'error');return}
-  api('/api/scan/verify',{method:'POST',body:JSON.stringify({barcode})}).then(r=>{
+  api('/api/scan/verify',{method:'POST',body:{barcode}}).then(r=>{
     const el = document.getElementById('scan-result');
     el.style.display='block';
     const l = r.liquor;
@@ -5635,7 +5638,7 @@ function grpDoCreate(){
   const name=document.getElementById('grp-c-name').value.trim();
   if(!name){toast('請輸入群組名稱','error');return}
   const lim=grpGetLimits();
-  api('/api/groups',{method:'POST',body:JSON.stringify({name,description:document.getElementById('grp-c-desc').value,avatar_url:document.getElementById('grp-c-avatar').value,is_public:document.getElementById('grp-c-public').checked})}).then(r=>{
+  api('/api/groups',{method:'POST',body:{name,description:document.getElementById('grp-c-desc').value,avatar_url:document.getElementById('grp-c-avatar').value,is_public:document.getElementById('grp-c-public').checked}}).then(r=>{
     if(r.ok){toast('群組創建成功！','success');document.getElementById('grp-create-mod').style.display='none';document.getElementById('grp-c-name').value='';document.getElementById('grp-c-desc').value='';document.getElementById('grp-c-avatar').value='';grpLoadMy()}
     else{if(r.required_level){toast(r.error,'error');memLocked(r.required_level)}else toast(r.error||'創建失敗','error')}
   }).catch(()=>toast('網絡錯誤','error'))
@@ -5701,7 +5704,7 @@ function grpDoLeave(gid){
 }
 function grpDoKick(gid,userId){
   if(!confirm('確定踢出此成員？'))return;
-  api('/api/groups/'+gid+'/kick',{method:'POST',body:JSON.stringify({user_id:userId})}).then(r=>{if(r.ok){toast('已踢出','success');grpShowDetail(gid)}else toast(r.error||'操作失敗','error')}).catch(()=>{})
+  api('/api/groups/'+gid+'/kick',{method:'POST',body:{user_id:userId}}).then(r=>{if(r.ok){toast('已踢出','success');grpShowDetail(gid)}else toast(r.error||'操作失敗','error')}).catch(()=>{})
 }
 function grpDoDissolve(gid){
   if(!confirm('⚠️ 確定解散此群組？此操作不可撤銷！'))return;
@@ -5710,7 +5713,7 @@ function grpDoDissolve(gid){
 function grpDoEdit(gid){
   const name=prompt('群組名稱:',document.getElementById('grp-detail-title').textContent.replace('👥 ',''));
   if(!name)return;
-  api('/api/groups/'+gid,{method:'PUT',body:JSON.stringify({name})}).then(r=>{if(r.ok){grpShowDetail(gid);toast('已更新','success')}else toast(r.error||'更新失敗','error')}).catch(()=>{})
+  api('/api/groups/'+gid,{method:'PUT',body:{name}}).then(r=>{if(r.ok){grpShowDetail(gid);toast('已更新','success')}else toast(r.error||'更新失敗','error')}).catch(()=>{})
 }
 
 // ── Admin: Groups ──
