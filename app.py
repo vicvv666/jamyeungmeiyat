@@ -142,15 +142,18 @@ def gzip_response(response):
     response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
 
     # ── GZIP for JSON ──
-    if response.content_type == 'application/json' and \
-       request.headers.get('Accept-Encoding', '').find('gzip') != -1 and \
-       len(response.get_data()) > 500:
-        gzip_buffer = BytesIO()
-        with gzip.GzipFile(mode='wb', fileobj=gzip_buffer) as f:
-            f.write(response.get_data())
-        response.set_data(gzip_buffer.getvalue())
-        response.headers['Content-Encoding'] = 'gzip'
-        response.headers['Content-Length'] = str(len(response.get_data()))
+    try:
+        if response.content_type and 'application/json' in response.content_type and \
+           request.headers.get('Accept-Encoding', '').find('gzip') != -1 and \
+           len(response.get_data()) > 500:
+            gzip_buffer = BytesIO()
+            with gzip.GzipFile(mode='wb', fileobj=gzip_buffer) as f:
+                f.write(response.get_data())
+            response.set_data(gzip_buffer.getvalue())
+            response.headers['Content-Encoding'] = 'gzip'
+            response.headers['Content-Length'] = str(len(response.get_data()))
+    except Exception:
+        pass  # skip gzip if response data unavailable (e.g. streaming)
     return response
 
 # ─── Request Timing Decorator ────────────────────────
@@ -3374,9 +3377,9 @@ def api_groups(uid):
     name = d.get('name', '').strip()
     if not name:
         return jsonify({'ok': False, 'error': '請輸入群組名稱'}), 400
-    user = db.execute('SELECT membership_level, is_admin FROM users WHERE id=?', (uid,)).fetchone()
-    level = user['membership_level'] if user else 0
-    if level < 1 and user and user.get('is_admin'): level = 3
+    user = db.execute('SELECT membership, admin FROM users WHERE id=?', (uid,)).fetchone()
+    level = {'jausan':3,'jaugwai':2,'jiuyau':1}.get(user['membership'] if user else '', 0)
+    if level < 1 and user and user['admin']: level = 3
     max_create, max_members = _group_limits(level)
     my_groups = db.execute('SELECT COUNT(*) as c FROM groups WHERE creator_id=?', (uid,)).fetchone()
     if my_groups['c'] >= max_create:
@@ -3439,9 +3442,9 @@ def api_group_join(uid, gid):
     if cnt['c'] >= g['max_members']:
         return jsonify({'ok': False, 'error': '群組人數已滿'}), 403
     # check user join limit — free users cannot join groups
-    user = db.execute('SELECT membership_level, is_admin FROM users WHERE id=?', (uid,)).fetchone()
-    level = user['membership_level'] if user else 0
-    if level < 1 and user and user.get('is_admin'): level = 3
+    user = db.execute('SELECT membership, admin FROM users WHERE id=?', (uid,)).fetchone()
+    level = {'jausan':3,'jaugwai':2,'jiuyau':1}.get(user['membership'] if user else '', 0)
+    if level < 1 and user and user['admin']: level = 3
     if level < 1:
         return jsonify({'ok': False, 'error': '免費用戶不能加群，請升級會員', 'required_level': 1}), 403
     _, max_members = _group_limits(level)
