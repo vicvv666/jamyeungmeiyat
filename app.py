@@ -467,6 +467,18 @@ CREATE TABLE IF NOT EXISTS users (
     # Products table delivery_type (for existing DBs)
     try: db.execute('ALTER TABLE products ADD COLUMN delivery_type TEXT DEFAULT "physical"')
     except: pass
+    # ── Group chat messages table ──
+    try:
+        db.execute('''CREATE TABLE IF NOT EXISTS group_chat (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            group_id   INTEGER NOT NULL,
+            user_id    INTEGER NOT NULL,
+            content    TEXT DEFAULT '',
+            msg_type   TEXT DEFAULT 'text',
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        )''')
+        db.execute('CREATE INDEX IF NOT EXISTS idx_group_chat_gid ON group_chat(group_id, id)')
+    except: pass
     # Private messages table
     try: db.execute('''CREATE TABLE IF NOT EXISTS private_messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -956,17 +968,30 @@ def api_login():
 
 @app.route('/api/plans')
 def api_plans():
-    """Public: return membership plan pricing."""
+    """Public: return membership plan pricing with full feature comparison."""
     return jsonify({'plans': {
         'jiuyau':  {'monthly':9.9,  'annual':69,  'name_zh':'🥉酒友', 'level':1},
         'jaugwai': {'monthly':19.9, 'annual':149, 'name_zh':'🥈酒鬼', 'level':2},
         'jausan':  {'monthly':39.9, 'annual':299, 'name_zh':'🥇酒神', 'level':3},
     }, 'limits': {
-        0: {'dice':2,'photos':1,'note':200,'friends':80,'daily_posts':5,'parties_month':1,'post_imgs':1,'post_chars':500},
-        1: {'dice':3,'photos':5,'note':500,'friends':300,'daily_posts':15,'parties_month':3,'post_imgs':4,'post_chars':1000},
-        2: {'dice':4,'photos':9,'note':1000,'friends':500,'daily_posts':999,'parties_month':5,'post_imgs':9,'post_chars':2000},
-        3: {'dice':5,'photos':9,'note':3000,'friends':9999,'daily_posts':999,'parties_month':999,'post_imgs':9,'post_chars':5000},
-    }})
+        0: {'dice':2,'photos':1,'note':200,'friends':80,'daily_posts':5,'parties_month':1,'post_imgs':1,'post_chars':500,'grp_create':0,'grp_members':10,'grp_chat_send':10,'grp_chat_history':20},
+        1: {'dice':3,'photos':5,'note':500,'friends':300,'daily_posts':15,'parties_month':3,'post_imgs':4,'post_chars':1000,'grp_create':3,'grp_members':30,'grp_chat_send':999,'grp_chat_history':999},
+        2: {'dice':4,'photos':9,'note':1000,'friends':500,'daily_posts':999,'parties_month':5,'post_imgs':9,'post_chars':2000,'grp_create':10,'grp_members':100,'grp_chat_send':999,'grp_chat_history':999},
+        3: {'dice':5,'photos':9,'note':3000,'friends':9999,'daily_posts':999,'parties_month':999,'post_imgs':9,'post_chars':5000,'grp_create':999,'grp_members':500,'grp_chat_send':999,'grp_chat_history':999},
+    }, 'features': [
+        {'key':'dice','label':'骰子數量','icon':'🎲'},
+        {'key':'photos','label':'打卡照片數','icon':'📷'},
+        {'key':'note','label':'筆記字數','icon':'📝'},
+        {'key':'friends','label':'好友上限','icon':'👥'},
+        {'key':'daily_posts','label':'每日發帖','icon':'📢'},
+        {'key':'parties_month','label':'每月派對','icon':'🎉'},
+        {'key':'post_imgs','label':'帖圖上限','icon':'🖼️'},
+        {'key':'post_chars','label':'帖字上限','icon':'✍️'},
+        {'key':'grp_create','label':'建群數量','icon':'🏗️'},
+        {'key':'grp_members','label':'群人數上限','icon':'👨‍👩‍👧‍👦'},
+        {'key':'grp_chat_send','label':'每小時聊天數','icon':'💬'},
+        {'key':'grp_chat_history','label':'聊天記錄','icon':'📜'},
+    ]})
 
 @app.route('/api/me')
 @auth_required
@@ -3684,10 +3709,105 @@ def api_admin_groups():
 def api_admin_group_delete(gid):
     if not _check_admin(): return jsonify({'error': '未授權'}), 403
     db = get_db()
+    db.execute('DELETE FROM group_chat WHERE group_id=?', (gid,))
     db.execute('DELETE FROM group_members WHERE group_id=?', (gid,))
     db.execute('DELETE FROM groups WHERE id=?', (gid,))
     db.commit()
     return jsonify({'ok': True})
+
+# ══════════ Group Chat API ══════════
+
+@app.route('/api/groups/<int:gid>/messages', methods=['GET', 'POST'])
+@auth_required
+def api_group_chat(gid):
+    uid = g.uid
+    db = get_db()
+    # Must be a member to send/read
+    my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
+    if not my:
+        return jsonify({'ok': False, 'error': '你不是群成員，無法聊天'}), 403
+    if request.method == 'GET':
+        # Pagination: after_id for polling new messages, before_id for history
+        after_id = request.args.get('after_id', '0', type=int)
+        before_id = request.args.get('before_id', '0', type=int)
+        limit = min(request.args.get('limit', 50, type=int), 200)
+        if after_id > 0:
+            rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
+                                CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
+                                gc.content, gc.msg_type, gc.created_at
+                                FROM group_chat gc JOIN users u ON gc.user_id=u.id
+                                WHERE gc.group_id=? AND gc.id>? ORDER BY gc.id ASC LIMIT ?''',
+                              (gid, after_id, limit)).fetchall()
+        elif before_id > 0:
+            rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
+                                CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
+                                gc.content, gc.msg_type, gc.created_at
+                                FROM group_chat gc JOIN users u ON gc.user_id=u.id
+                                WHERE gc.group_id=? AND gc.id<? ORDER BY gc.id DESC LIMIT ?''',
+                              (gid, before_id, limit)).fetchall()
+            rows = list(reversed(rows))
+        else:
+            rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
+                                CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
+                                gc.content, gc.msg_type, gc.created_at
+                                FROM group_chat gc JOIN users u ON gc.user_id=u.id
+                                WHERE gc.group_id=? ORDER BY gc.id DESC LIMIT ?''',
+                              (gid, limit)).fetchall()
+            rows = list(reversed(rows))
+        # Free user message limit: can see last 20, paid see all
+        plan, mem_level, _ = _get_membership(uid)
+        if mem_level < 1 and len(rows) > 20:
+            rows = rows[-20:]
+        return jsonify({'ok': True, 'messages': [dict(r) for r in rows]})
+    # POST: send message
+    d = request.get_json(force=True) or {}
+    content = d.get('content', '').strip()
+    if not content:
+        return jsonify({'ok': False, 'error': '請輸入消息'}), 400
+    if len(content) > 500:
+        return jsonify({'ok': False, 'error': '消息太長，最多500字'}), 400
+    # Free users: 10 messages per hour
+    plan, mem_level, _ = _get_membership(uid)
+    if mem_level < 1:
+        from datetime import datetime, timedelta
+        one_hour_ago = (datetime.utcnow() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+        cnt = db.execute('SELECT COUNT(*) FROM group_chat WHERE user_id=? AND created_at>?', (uid, one_hour_ago)).fetchone()[0]
+        if cnt >= 10:
+            return jsonify({'ok': False, 'error': '免費用戶每小時限發10條消息，升級解鎖💎', 'upgrade_required': True, 'required_level': 1}), 429
+    msg_type = d.get('msg_type', 'text')
+    cur = db.execute('INSERT INTO group_chat (group_id, user_id, content, msg_type) VALUES (?,?,?,?)',
+                     (gid, uid, content, msg_type))
+    db.commit()
+    msg = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
+                        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
+                        gc.content, gc.msg_type, gc.created_at
+                        FROM group_chat gc JOIN users u ON gc.user_id=u.id
+                        WHERE gc.id=?''', (cur.lastrowid,)).fetchone()
+    return jsonify({'ok': True, 'message': dict(msg)})
+
+
+@app.route('/api/admin/self-update', methods=['POST'])
+def admin_self_update():
+    """Pull latest code from GitHub and restart service (no SSH needed)."""
+    tok = request.headers.get('X-Admin-Token','')
+    if tok != _admin_key():
+        return jsonify({'ok':False,'error':'unauthorized'}), 403
+    import subprocess
+    BASE = '/opt/jamyeungmeiyat'
+    BRANCH = 'master'
+    REPO = 'vicvv666/jamyeungmeiyat'
+    files_to_pull = ['app.py', 'static/index.html']
+    results = []
+    for f in files_to_pull:
+        url = f'https://raw.githubusercontent.com/{REPO}/{BRANCH}/{f}'
+        p = subprocess.run(['curl','-s','-H','Cache-Control: no-cache','-o',f'{BASE}/{f}',url], capture_output=True, text=True, timeout=30)
+        results.append(f'{f}: exit={p.returncode}')
+    # Schedule restart after response is sent
+    from threading import Timer
+    def do_restart():
+        subprocess.run(['sudo','systemctl','restart','jamyeungmeiyat'], timeout=10)
+    Timer(1.0, do_restart).start()
+    return jsonify({'ok':True,'pulled':results,'restart':'scheduled'})
 
 
 # ═══════════════════ Main ═══════════════════════════════
