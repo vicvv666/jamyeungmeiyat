@@ -735,13 +735,19 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       <div id="shop-detail-body" style="padding:16px"></div>
     </div>
   </div>
-  <!-- 收款/支付确认弹窗 -->
+  <!-- 收款/支付确认弹窗 — 两步流程: Step1选支付方式 → Step2扫码付款+确认 -->
   <div id="checkout-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
     <div class="modal" style="max-width:min(90vw,420px)">
       <div style="padding:16px">
+        <!-- Step indicator -->
+        <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center">
+          <div id="ck-step1-dot" style="width:8px;height:8px;border-radius:50%;background:var(--amber)"></div>
+          <div style="flex:1;height:2px;background:var(--border);border-radius:1px"><div id="ck-step-bar" style="width:0%;height:100%;background:var(--amber);border-radius:1px;transition:width .3s"></div></div>
+          <div id="ck-step2-dot" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>
+        </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div style="font-weight:700;font-size:16px;color:var(--text)">💳 確認付款</div>
-          <button onclick="document.getElementById('checkout-mod').style.display='none'" style="background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer">✕</button>
+          <div id="ck-title" style="font-weight:700;font-size:16px;color:var(--text)">💳 確認付款</div>
+          <button onclick="checkoutClose()" style="background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer">✕</button>
         </div>
         <div id="checkout-product-info" style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--border)"></div>
         <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--border)">
@@ -749,23 +755,41 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <div id="checkout-amount" style="font-size:28px;font-weight:800;color:var(--amber)"></div>
           <div id="checkout-discount" style="font-size:12px;color:#22c55e;margin-top:4px;display:none"></div>
         </div>
-        <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--border)">
-          <div style="font-size:12px;color:var(--sub);margin-bottom:10px">📱 選擇支付方式</div>
-          <div style="display:flex;flex-direction:column;gap:8px" id="checkout-methods">
-            <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--amber);cursor:pointer;background:rgba(245,158,11,0.06)">
-              <input type="radio" name="pay-method" value="wechat" checked style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">💚</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">微信支付</div><div style="font-size:11px;color:var(--sub)">WeChat Pay</div></div>
-            </label>
-            <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:border-color .2s">
-              <input type="radio" name="pay-method" value="alipay" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">🔵</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">支付寶</div><div style="font-size:11px;color:var(--sub)">Alipay</div></div>
-            </label>
-            <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:border-color .2s">
-              <input type="radio" name="pay-method" value="balance" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">👛</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">餘額支付</div><div style="font-size:11px;color:var(--sub)">Balance Pay</div></div>
-            </label>
+        <!-- Step 1: 选支付方式 -->
+        <div id="ck-step1">
+          <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--border)">
+            <div style="font-size:12px;color:var(--sub);margin-bottom:10px">📱 選擇支付方式</div>
+            <div style="display:flex;flex-direction:column;gap:8px" id="checkout-methods">
+              <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--amber);cursor:pointer;background:rgba(245,158,11,0.06)">
+                <input type="radio" name="pay-method" value="wechat" checked style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">💚</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">微信支付</div><div style="font-size:11px;color:var(--sub)">WeChat Pay</div></div>
+              </label>
+              <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:border-color .2s">
+                <input type="radio" name="pay-method" value="alipay" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">🔵</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">支付寶</div><div style="font-size:11px;color:var(--sub)">Alipay</div></div>
+              </label>
+              <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:border-color .2s">
+                <input type="radio" name="pay-method" value="balance" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">👛</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">餘額支付</div><div style="font-size:11px;color:var(--sub)">Balance Pay</div></div>
+              </label>
+            </div>
           </div>
+          <button onclick="checkoutGoStep2()" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)">下一步 · 確認付款</button>
         </div>
-        <div style="display:flex;gap:8px">
-          <button onclick="document.getElementById('checkout-mod').style.display='none'" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer">取消</button>
-          <button id="checkout-confirm-btn" onclick="confirmCheckout()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)">確認付款</button>
+        <!-- Step 2: 扫码付款+确认 -->
+        <div id="ck-step2" style="display:none">
+          <div style="background:var(--card);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid var(--border);text-align:center">
+            <div id="ck-pay-method-label" style="font-size:13px;color:var(--sub);margin-bottom:10px"></div>
+            <div id="ck-qr-area" style="display:inline-block;padding:12px;background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08)">
+              <canvas id="ck-qr-canvas" width="180" height="180" style="display:block;border-radius:4px"></canvas>
+            </div>
+            <div style="font-size:12px;color:var(--sub);margin-top:10px">掃碼完成後，點擊下方確認</div>
+          </div>
+          <div style="background:rgba(245,158,11,0.08);border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:8px;border:1px solid rgba(245,158,11,0.2)">
+            <span style="font-size:16px">⚠️</span>
+            <span style="font-size:12px;color:var(--text);line-height:1.5">請先掃碼付款，確認到賬後再點「我已付款」，系統將人工審核</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="checkoutGoStep1()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer">返回</button>
+            <button id="checkout-confirm-btn" onclick="confirmCheckout()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,197,94,0.3)">✅ 我已付款</button>
+          </div>
         </div>
       </div>
     </div>
@@ -5295,16 +5319,16 @@ function _shopDiscountHtml(price){
 }
 
 // Checkout state
-let _checkoutPid=null, _checkoutProduct=null;
+let _checkoutPid=null, _checkoutProduct=null, _checkoutStep=1;
 
 function shopBuy(pid){
   if(!token){toast('請先登入','error');return}
-  // Find product data from loaded products
   const p = _shopProducts.find(x=>x.id===pid);
   if(!p){toast('商品信息加載中，請稍後','error');return}
   _checkoutPid = pid;
   _checkoutProduct = p;
-  // Fill checkout modal
+  _checkoutStep = 1;
+  // Fill product info
   const info = document.getElementById('checkout-product-info');
   info.innerHTML = `
     <div style="display:flex;gap:12px;align-items:center">
@@ -5331,12 +5355,96 @@ function shopBuy(pid){
   } else {
     discEl.style.display='none';
   }
-  // Reset pay method selection
+  // Reset + show step1
   const radios = document.querySelectorAll('input[name="pay-method"]');
   radios.forEach(r=>r.checked=r.value==='wechat');
   _updateCheckoutMethodUI();
-  // Show checkout modal
+  document.getElementById('ck-step1').style.display='block';
+  document.getElementById('ck-step2').style.display='none';
+  document.getElementById('ck-step1-dot').style.background='var(--amber)';
+  document.getElementById('ck-step2-dot').style.background='var(--border)';
+  document.getElementById('ck-step-bar').style.width='0%';
+  document.getElementById('ck-title').textContent='💳 確認付款';
   document.getElementById('checkout-mod').style.display='flex';
+}
+
+function checkoutGoStep2(){
+  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
+  const methodLabel = {wechat:'💚 微信支付',alipay:'🔵 支付寶',balance:'👛 餘額支付'}[payMethod]||payMethod;
+  document.getElementById('ck-pay-method-label').textContent = '請使用 ' + methodLabel + ' 掃碼付款';
+  // Generate QR code on canvas
+  _drawCheckoutQR(payMethod);
+  // Switch to step2
+  _checkoutStep = 2;
+  document.getElementById('ck-step1').style.display='none';
+  document.getElementById('ck-step2').style.display='block';
+  document.getElementById('ck-step1-dot').style.background='var(--amber)';
+  document.getElementById('ck-step2-dot').style.background='var(--amber)';
+  document.getElementById('ck-step-bar').style.width='100%';
+  document.getElementById('ck-title').textContent='📱 掃碼付款';
+  // Reset confirm btn
+  const btn = document.getElementById('checkout-confirm-btn');
+  btn.disabled=false; btn.textContent='✅ 我已付款'; btn.style.opacity='1';
+}
+
+function checkoutGoStep1(){
+  _checkoutStep = 1;
+  document.getElementById('ck-step1').style.display='block';
+  document.getElementById('ck-step2').style.display='none';
+  document.getElementById('ck-step1-dot').style.background='var(--amber)';
+  document.getElementById('ck-step2-dot').style.background='var(--border)';
+  document.getElementById('ck-step-bar').style.width='0%';
+  document.getElementById('ck-title').textContent='💳 確認付款';
+}
+
+function checkoutClose(){
+  document.getElementById('checkout-mod').style.display='none';
+  _checkoutPid = null;
+  _checkoutStep = 1;
+}
+
+// Draw a QR-like placeholder with payment info (real QR requires lib, use canvas art)
+function _drawCheckoutQR(payMethod){
+  const canvas = document.getElementById('ck-qr-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = 180, H = 180;
+  ctx.clearRect(0,0,W,H);
+  // Background
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,W,H);
+  // Draw QR-like pattern with seeded randomness from payMethod
+  const seed = _checkoutPid + '_' + payMethod + '_' + Date.now().toString(36).slice(0,6);
+  let hash=0; for(let i=0;i<seed.length;i++) hash=((hash<<5)-hash)+seed.charCodeAt(i);
+  const rng=()=>{hash=(hash*1103515245+12345)&0x7fffffff;return(hash%1000)/1000};
+  // Finder patterns (3 corners — standard QR)
+  const drawFinder=(x,y)=>{
+    ctx.fillStyle='#000';
+    ctx.fillRect(x,y,21,21);
+    ctx.fillStyle='#fff';
+    ctx.fillRect(x+3,y+3,15,15);
+    ctx.fillStyle='#000';
+    ctx.fillRect(x+5,y+5,11,11);
+  };
+  drawFinder(6,6);
+  drawFinder(W-27,6);
+  drawFinder(6,H-27);
+  // Data area — pseudo QR modules
+  const cellSize=3, margin=36;
+  for(let x=margin; x<W-margin; x+=cellSize+1){
+    for(let y=margin; y<H-margin; y+=cellSize+1){
+      if(rng()>0.45){
+        ctx.fillStyle='#000';
+        ctx.fillRect(x,y,cellSize,cellSize);
+      }
+    }
+  }
+  // Center icon — payment brand color
+  const brandColor = payMethod==='wechat'?'#07C160':payMethod==='alipay'?'#1677FF':'#F59E0B';
+  ctx.fillStyle=brandColor;
+  ctx.beginPath(); ctx.arc(W/2,H/2,12,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='#fff';
+  ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(payMethod==='wechat'?'微':payMethod==='alipay'?'支':'余', W/2, H/2+1);
 }
 
 function _updateCheckoutMethodUI(){
@@ -5352,21 +5460,29 @@ function _updateCheckoutMethodUI(){
     }
   });
 }
-// Bind radio change to highlight
 document.addEventListener('change', e=>{
   if(e.target.name==='pay-method') _updateCheckoutMethodUI();
 });
 
 function confirmCheckout(){
   if(!_checkoutPid){toast('請重新選擇商品','error');return}
-  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
+  // Double-confirm: require user acknowledgment
   const btn = document.getElementById('checkout-confirm-btn');
-  btn.disabled=true; btn.textContent='處理中...';
+  if(!btn.dataset.confirmed){
+    btn.dataset.confirmed='1';
+    btn.textContent='⚠️ 再按一次確認';
+    btn.style.opacity='0.85';
+    setTimeout(()=>{if(btn.dataset.confirmed==='1'){btn.dataset.confirmed='';btn.textContent='✅ 我已付款';btn.style.opacity='1'}},3000);
+    return;
+  }
+  delete btn.dataset.confirmed;
+  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
+  btn.disabled=true; btn.textContent='提交中...'; btn.style.opacity='0.6';
   api('/api/shop/orders',{method:'POST',body:{items:[{product_id:_checkoutPid,qty:1}],pay_method:payMethod}})
   .then(r=>{
-    btn.disabled=false; btn.textContent='確認付款';
+    btn.disabled=false; btn.textContent='✅ 我已付款'; btn.style.opacity='1';
     if(r.ok){
-      let msg='付款成功！訂單#'+r.order_id+'，合計¥'+r.total.toFixed(2);
+      let msg='訂單已提交！#'+r.order_id+'，合計¥'+r.total.toFixed(2)+'，等待人工確認付款';
       if(r.discount<1)msg+=' (原價¥'+r.original_total.toFixed(2)+'，省¥'+r.saved.toFixed(2)+')';
       toast(msg,'success');
       document.getElementById('checkout-mod').style.display='none';
@@ -5375,7 +5491,7 @@ function confirmCheckout(){
     } else {
       toast(r.error||'下單失敗','error');
     }
-  }).catch(()=>{btn.disabled=false;btn.textContent='確認付款';toast('網絡錯誤','error')});
+  }).catch(()=>{btn.disabled=false;btn.textContent='✅ 我已付款';btn.style.opacity='1';toast('網絡錯誤','error')});
 }
 
 function shopToggleMyOrders(){

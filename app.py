@@ -3364,7 +3364,8 @@ def _group_limits(level):
 
 @app.route('/api/groups', methods=['GET', 'POST'])
 @auth_required
-def api_groups(uid):
+def api_groups():
+    uid = g.uid
     db = get_db()
     if request.method == 'GET':
         rows = db.execute('''SELECT g.*, gm.role as my_role,
@@ -3395,7 +3396,8 @@ def api_groups(uid):
 
 @app.route('/api/groups/explore')
 @auth_required
-def api_groups_explore(uid):
+def api_groups_explore():
+    uid = g.uid
     db = get_db()
     q = request.args.get('q', '')
     sql = '''SELECT g.*, (SELECT COUNT(*) FROM group_members WHERE group_id=g.id) as member_count
