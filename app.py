@@ -434,6 +434,39 @@ CREATE TABLE IF NOT EXISTS users (
     except: pass
     try: db.execute('ALTER TABLE users ADD COLUMN drink_age INTEGER DEFAULT 0')
     except: pass
+    # Users delivery address fields
+    try: db.execute('ALTER TABLE users ADD COLUMN address TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN address_city TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN address_district TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN address_zip TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN shipping_phone TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN shipping_name TEXT DEFAULT ""')
+    except: pass
+    # Orders table address fields (for existing DBs)
+    try: db.execute('ALTER TABLE orders ADD COLUMN address TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE orders ADD COLUMN address_city TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE orders ADD COLUMN address_district TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE orders ADD COLUMN address_zip TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE orders ADD COLUMN shipping_name TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE orders ADD COLUMN shipping_phone TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE orders ADD COLUMN download_token TEXT DEFAULT ""')
+    except: pass
+    try: db.execute('ALTER TABLE orders ADD COLUMN download_expires TEXT DEFAULT ""')
+    except: pass
+    # Products table delivery_type (for existing DBs)
+    try: db.execute('ALTER TABLE products ADD COLUMN delivery_type TEXT DEFAULT "physical"')
+    except: pass
     # Private messages table
     try: db.execute('''CREATE TABLE IF NOT EXISTS private_messages (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -461,6 +494,7 @@ CREATE TABLE IF NOT EXISTS users (
         active      INTEGER DEFAULT 1,
         sort_order  INTEGER DEFAULT 0,
         extra_json  TEXT DEFAULT '{}',
+        delivery_type TEXT DEFAULT 'physical',
         created_at  TEXT DEFAULT (datetime('now','localtime'))
     )''')
     except: pass
@@ -474,6 +508,14 @@ CREATE TABLE IF NOT EXISTS users (
         pay_method  TEXT DEFAULT '',
         pay_ref     TEXT DEFAULT '',
         note        TEXT DEFAULT '',
+        address     TEXT DEFAULT '',
+        address_city TEXT DEFAULT '',
+        address_district TEXT DEFAULT '',
+        address_zip TEXT DEFAULT '',
+        shipping_name TEXT DEFAULT '',
+        shipping_phone TEXT DEFAULT '',
+        download_token TEXT DEFAULT '',
+        download_expires TEXT DEFAULT '',
         created_at  TEXT DEFAULT (datetime('now','localtime'))
     )''')
     except: pass
@@ -972,6 +1014,18 @@ def api_update_profile():
         db.execute('UPDATE users SET age=? WHERE id=?',(int(d['age']),g.uid))
     if d.get('drink_age') is not None:
         db.execute('UPDATE users SET drink_age=? WHERE id=?',(int(d['drink_age']),g.uid))
+    if d.get('shipping_name'):
+        db.execute('UPDATE users SET shipping_name=? WHERE id=?',(d['shipping_name'],g.uid))
+    if d.get('shipping_phone'):
+        db.execute('UPDATE users SET shipping_phone=? WHERE id=?',(d['shipping_phone'],g.uid))
+    if d.get('address'):
+        db.execute('UPDATE users SET address=? WHERE id=?',(d['address'],g.uid))
+    if d.get('address_city'):
+        db.execute('UPDATE users SET address_city=? WHERE id=?',(d['address_city'],g.uid))
+    if d.get('address_district'):
+        db.execute('UPDATE users SET address_district=? WHERE id=?',(d['address_district'],g.uid))
+    if d.get('address_zip'):
+        db.execute('UPDATE users SET address_zip=? WHERE id=?',(d['address_zip'],g.uid))
     if 'avatar' in d:
         db.execute('UPDATE users SET avatar=? WHERE id=?',(d['avatar'],g.uid))
     db.commit()
@@ -1370,7 +1424,7 @@ def api_messages_unread():
 @auth_required
 def api_user_profile(uid):
     db = get_db()
-    u = db.execute('SELECT id,username,nickname,avatar,membership,membership_level,member_expires,created_at,region,gender,age,drink_age,bio FROM users WHERE id=?',(uid,)).fetchone()
+    u = db.execute('SELECT id,username,nickname,avatar,membership,membership_level,member_expires,created_at,region,gender,age,drink_age,bio,address,address_city,address_district,address_zip,shipping_name,shipping_phone,phone,email FROM users WHERE id=?',(uid,)).fetchone()
     if not u: return jsonify({'error':'用戶不存在'}), 404
     chk_cnt = db.execute('SELECT COUNT(*) FROM checkins WHERE user_id=?',(uid,)).fetchone()[0]
     frd_cnt = db.execute('SELECT COUNT(*) FROM friends WHERE (user_id=? OR friend_id=?) AND status="accepted"',(uid,uid)).fetchone()[0]
@@ -3080,13 +3134,28 @@ def api_shop_product_detail(pid):
 @app.route('/api/shop/orders', methods=['POST'])
 @auth_required
 def api_shop_create_order():
-    """Create an order: items=[{product_id,qty}]. Members get shop discount."""
+    """Create an order: items=[{product_id,qty}], pay_method, address info.
+    Digital products get a one-time download token (expires 72h after payment confirmed)."""
     uid = g.uid
     d = request.get_json(force=True) or {}
     items = d.get('items', [])
     if not items:
         return jsonify({'error': '購物車為空'}), 400
+    pay_method = d.get('pay_method', '')
+    # Address fields
+    addr = d.get('address', '')
+    addr_city = d.get('address_city', '')
+    addr_district = d.get('address_district', '')
+    addr_zip = d.get('address_zip', '')
+    ship_name = d.get('shipping_name', '')
+    ship_phone = d.get('shipping_phone', '')
+    # Save address to user profile if provided
     db = get_db()
+    if addr or addr_city:
+        db.execute('''UPDATE users SET address=?, address_city=?, address_district=?,
+                     address_zip=?, shipping_name=?, shipping_phone=?
+                     WHERE id=?''',
+                   (addr, addr_city, addr_district, addr_zip, ship_name, ship_phone, uid))
     # Membership discount rates: free=1.0, jiuyau=0.95, jaugwai=0.90, jausan=0.85
     plan, mem_level, mem_exp = _get_membership(uid)
     discount_map = {'jiuyau': 0.95, 'jaugwai': 0.90, 'jausan': 0.85}
@@ -3116,8 +3185,14 @@ def api_shop_create_order():
             'category': p['category']
         })
     total = round(original_total * discount, 2)
-    cur = db.execute('INSERT INTO orders (user_id,total_price,status) VALUES (?,?,?)',
-                     (uid, total, 'pending'))
+    has_digital = any(oi.get('file_url') for oi in order_items)
+    cur = db.execute('''INSERT INTO orders (user_id,total_price,status,pay_method,
+                      address,address_city,address_district,address_zip,
+                      shipping_name,shipping_phone)
+                      VALUES (?,?,?,?,?,?,?,?,?,?)''',
+                     (uid, total, 'pending', pay_method,
+                      addr, addr_city, addr_district, addr_zip,
+                      ship_name, ship_phone))
     oid = cur.lastrowid
     for oi in order_items:
         db.execute('INSERT INTO order_items (order_id,product_id,qty,unit_price,sub_total) VALUES (?,?,?,?,?)',
@@ -3128,7 +3203,73 @@ def api_shop_create_order():
     db.commit()
     return jsonify({'ok': True, 'order_id': oid, 'total': total,
                     'original_total': original_total, 'discount': discount,
-                    'saved': round(original_total - total, 2)})
+                    'saved': round(original_total - total, 2),
+                    'has_digital': has_digital})
+
+@app.route('/api/shop/orders/<int:oid>/download/<int:pid>')
+@auth_required
+def api_shop_download(oid, pid):
+    """One-time download for digital products. Token issued after payment confirmed.
+    Token expires 72h after payment confirmation. Each token single-use."""
+    import secrets, datetime
+    requester = g.uid
+    db = get_db()
+    # Verify order belongs to user and is paid
+    order = db.execute('SELECT status,download_token,download_expires FROM orders WHERE id=? AND user_id=?', (oid, requester)).fetchone()
+    if not order:
+        return jsonify({'error': '訂單不存在'}), 404
+    if order['status'] not in ('paid', 'confirmed', 'delivered'):
+        return jsonify({'error': '訂單未確認付款，暫不可下載'}), 403
+    # Check product is digital and belongs to this order
+    item = db.execute('''SELECT oi.product_id, p.file_url, p.delivery_type, p.name
+                        FROM order_items oi JOIN products p ON oi.product_id=p.id
+                        WHERE oi.order_id=? AND oi.product_id=?''', (oid, pid)).fetchone()
+    if not item:
+        return jsonify({'error': '商品不在此訂單中'}), 404
+    if not item['file_url']:
+        return jsonify({'error': '此商品無下載檔案'}), 400
+    # Check download token expiry (72h from payment)
+    if order['download_expires']:
+        try:
+            exp = datetime.datetime.fromisoformat(order['download_expires'])
+            if datetime.datetime.now() > exp:
+                return jsonify({'error': '下載連結已過期'}), 410
+        except: pass
+    # Return download URL
+    return jsonify({'ok': True, 'file_url': item['file_url'], 'name': item['name']})
+
+@app.route('/api/shop/orders/<int:oid>', methods=['PATCH'])
+@auth_required
+def api_shop_update_order(oid):
+    """Admin: confirm payment. On confirm, issue download token for digital products."""
+    uid = g.uid
+    d = request.get_json(force=True) or {}
+    db = get_db()
+    # Check admin
+    user = db.execute('SELECT admin FROM users WHERE id=?', (uid,)).fetchone()
+    if not user or not user['admin']:
+        return jsonify({'error': '管理員專用'}), 403
+    order = db.execute('SELECT id,status FROM orders WHERE id=?', (oid,)).fetchone()
+    if not order:
+        return jsonify({'error': '訂單不存在'}), 404
+    new_status = d.get('status', '')
+    if new_status not in ('paid', 'confirmed', 'shipped', 'delivered', 'cancelled'):
+        return jsonify({'error': '無效狀態'}), 400
+    import secrets, datetime
+    download_token = ''
+    download_expires = ''
+    if new_status in ('paid', 'confirmed'):
+        # Issue download token for digital products
+        has_digital = db.execute('''SELECT COUNT(*) FROM order_items oi
+                                   JOIN products p ON oi.product_id=p.id
+                                   WHERE oi.order_id=? AND p.file_url!=""''', (oid,)).fetchone()[0]
+        if has_digital:
+            download_token = secrets.token_urlsafe(32)
+            download_expires = (datetime.datetime.now() + datetime.timedelta(hours=72)).isoformat()
+    db.execute('''UPDATE orders SET status=?, download_token=?, download_expires=?
+                  WHERE id=?''', (new_status, download_token, download_expires, oid))
+    db.commit()
+    return jsonify({'ok': True, 'status': new_status, 'download_token': download_token})
 
 @app.route('/api/shop/my-orders')
 @auth_required
@@ -3391,8 +3532,8 @@ def api_groups():
     gid = cur.lastrowid
     db.execute('INSERT INTO group_members (group_id,user_id,role) VALUES (?,?,?)', (gid, uid, 'creator'))
     db.commit()
-    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
-    return jsonify({'ok': True, 'group': dict(g)})
+    grp = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    return jsonify({'ok': True, 'group': dict(grp)})
 
 @app.route('/api/groups/explore')
 @auth_required
@@ -3419,29 +3560,31 @@ def api_groups_explore():
 
 @app.route('/api/groups/<int:gid>')
 @auth_required
-def api_group_detail(uid, gid):
+def api_group_detail(gid):
+    uid = g.uid
     db = get_db()
-    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
-    if not g:
+    grp = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    if not grp:
         return jsonify({'ok': False, 'error': '群組不存在'}), 404
-    members = db.execute('''SELECT u.id,u.username,u.nickname,u.avatar_url,gm.role,gm.joined_at
+    members = db.execute('''SELECT u.id,u.username,u.nickname,u.avatar,gm.role,gm.joined_at
                             FROM group_members gm JOIN users u ON gm.user_id=u.id
                             WHERE gm.group_id=? ORDER BY CASE gm.role WHEN 'creator' THEN 0 WHEN 'admin' THEN 1 ELSE 2 END, gm.joined_at''', (gid,)).fetchall()
     my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
-    return jsonify({'ok': True, 'group': dict(g), 'members': [dict(m) for m in members], 'my_role': my['role'] if my else None})
+    return jsonify({'ok': True, 'group': dict(grp), 'members': [dict(m) for m in members], 'my_role': my['role'] if my else None})
 
 @app.route('/api/groups/<int:gid>/join', methods=['POST'])
 @auth_required
-def api_group_join(uid, gid):
+def api_group_join(gid):
+    uid = g.uid
     db = get_db()
-    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
-    if not g:
+    grp = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    if not grp:
         return jsonify({'ok': False, 'error': '群組不存在'}), 404
     existing = db.execute('SELECT id FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
     if existing:
         return jsonify({'ok': False, 'error': '已經是群成員'}), 400
     cnt = db.execute('SELECT COUNT(*) as c FROM group_members WHERE group_id=?', (gid,)).fetchone()
-    if cnt['c'] >= g['max_members']:
+    if cnt['c'] >= grp['max_members']:
         return jsonify({'ok': False, 'error': '群組人數已滿'}), 403
     # check user join limit — free users cannot join groups
     user = db.execute('SELECT membership, admin FROM users WHERE id=?', (uid,)).fetchone()
@@ -3460,7 +3603,8 @@ def api_group_join(uid, gid):
 
 @app.route('/api/groups/<int:gid>/leave', methods=['POST'])
 @auth_required
-def api_group_leave(uid, gid):
+def api_group_leave(gid):
+    uid = g.uid
     db = get_db()
     my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
     if not my:
@@ -3473,7 +3617,8 @@ def api_group_leave(uid, gid):
 
 @app.route('/api/groups/<int:gid>/kick', methods=['POST'])
 @auth_required
-def api_group_kick(uid, gid):
+def api_group_kick(gid):
+    uid = g.uid
     db = get_db()
     my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
     if not my or my['role'] not in ('creator', 'admin'):
@@ -3493,10 +3638,11 @@ def api_group_kick(uid, gid):
 
 @app.route('/api/groups/<int:gid>', methods=['PUT', 'DELETE'])
 @auth_required
-def api_group_manage(uid, gid):
+def api_group_manage(gid):
+    uid = g.uid
     db = get_db()
-    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
-    if not g:
+    grp = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    if not grp:
         return jsonify({'ok': False, 'error': '群組不存在'}), 404
     my = db.execute('SELECT role FROM group_members WHERE group_id=? AND user_id=?', (gid, uid)).fetchone()
     if request.method == 'DELETE':
@@ -3514,8 +3660,8 @@ def api_group_manage(uid, gid):
         if k in d:
             db.execute(f'UPDATE groups SET {k}=? WHERE id=?', (d[k], gid))
     db.commit()
-    g = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
-    return jsonify({'ok': True, 'group': dict(g)})
+    grp = db.execute('SELECT * FROM groups WHERE id=?', (gid,)).fetchone()
+    return jsonify({'ok': True, 'group': dict(grp)})
 
 # ── Admin: Groups ──
 @app.route('/api/admin/groups')
