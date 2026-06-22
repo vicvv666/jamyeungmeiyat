@@ -735,22 +735,24 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       <div id="shop-detail-body" style="padding:16px"></div>
     </div>
   </div>
-  <!-- 收款/支付确认弹窗 — 两步流程: Step1选支付方式 → Step2扫码付款+确认 -->
+  <!-- 收款/支付确认弹窗 — 三步流程: Step1选支付方式 → Step2收货地址 → Step3扫码付款+确认 -->
   <div id="checkout-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
-    <div class="modal" style="max-width:min(90vw,420px)">
+    <div class="modal" style="max-width:min(90vw,420px);max-height:88vh;overflow-y:auto">
       <div style="padding:16px">
         <!-- Step indicator -->
-        <div style="display:flex;gap:6px;margin-bottom:16px;align-items:center">
+        <div style="display:flex;gap:4px;margin-bottom:16px;align-items:center">
           <div id="ck-step1-dot" style="width:8px;height:8px;border-radius:50%;background:var(--amber)"></div>
           <div style="flex:1;height:2px;background:var(--border);border-radius:1px"><div id="ck-step-bar" style="width:0%;height:100%;background:var(--amber);border-radius:1px;transition:width .3s"></div></div>
           <div id="ck-step2-dot" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>
+          <div style="flex:1;height:2px;background:var(--border);border-radius:1px"><div id="ck-step-bar2" style="width:0%;height:100%;background:var(--amber);border-radius:1px;transition:width .3s"></div></div>
+          <div id="ck-step3-dot" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
           <div id="ck-title" style="font-weight:700;font-size:16px;color:var(--text)">💳 確認付款</div>
           <button onclick="checkoutClose()" style="background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer">✕</button>
         </div>
-        <div id="checkout-product-info" style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--border)"></div>
-        <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--border)">
+        <div id="checkout-product-info" style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--border)"></div>
+        <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
           <div style="font-size:12px;color:var(--sub);margin-bottom:8px">💰 付款金額</div>
           <div id="checkout-amount" style="font-size:28px;font-weight:800;color:var(--amber)"></div>
           <div id="checkout-discount" style="font-size:12px;color:#22c55e;margin-top:4px;display:none"></div>
@@ -767,27 +769,54 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
                 <input type="radio" name="pay-method" value="alipay" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">🔵</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">支付寶</div><div style="font-size:11px;color:var(--sub)">Alipay</div></div>
               </label>
               <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:border-color .2s">
-                <input type="radio" name="pay-method" value="balance" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">👛</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">餘額支付</div><div style="font-size:11px;color:var(--sub)">Balance Pay</div></div>
+                <input type="radio" name="pay-method" value="paypal" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">🟡</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">PayPal</div><div style="font-size:11px;color:var(--sub)">海外付款</div></div>
               </label>
             </div>
           </div>
-          <button onclick="checkoutGoStep2()" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)">下一步 · 確認付款</button>
+          <button onclick="checkoutGoStep2()" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)">下一步</button>
         </div>
-        <!-- Step 2: 扫码付款+确认 -->
+        <!-- Step 2: 收货地址 -->
         <div id="ck-step2" style="display:none">
-          <div style="background:var(--card);border-radius:12px;padding:16px;margin-bottom:16px;border:1px solid var(--border);text-align:center">
+          <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
+            <div style="font-size:12px;color:var(--sub);margin-bottom:10px">📦 收貨信息</div>
+            <div id="ck-delivery-hint" style="font-size:13px;color:var(--amber);margin-bottom:10px;display:none">📥 數碼商品：確認付款後發送一次性下載連結（72小時有效）</div>
+            <div id="ck-address-form">
+              <div style="display:flex;gap:8px;margin-bottom:8px">
+                <input class="input" id="ck-ship-name" placeholder="收貨人姓名" style="flex:1;margin-bottom:0;font-size:13px">
+                <input class="input" id="ck-ship-phone" placeholder="手機號碼" style="flex:1;margin-bottom:0;font-size:13px">
+              </div>
+              <div id="ck-physical-addr" style="display:block">
+                <div style="display:flex;gap:8px;margin-bottom:8px">
+                  <input class="input" id="ck-addr-city" placeholder="城市" style="flex:1;margin-bottom:0;font-size:13px">
+                  <input class="input" id="ck-addr-district" placeholder="區/縣" style="flex:1;margin-bottom:0;font-size:13px">
+                </div>
+                <input class="input" id="ck-addr-detail" placeholder="詳細地址（街道、門牌號）" style="width:100%;margin-bottom:8px;font-size:13px">
+                <input class="input" id="ck-addr-zip" placeholder="郵政編碼（選填）" style="width:100%;font-size:13px">
+              </div>
+            </div>
+            <div id="ck-saved-addr-hint" style="font-size:11px;color:var(--sub);margin-top:6px;display:none">📌 地址將保存到你嘅會員資料，下次自動填入</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button onclick="checkoutGoStep1()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer">返回</button>
+            <button onclick="checkoutGoStep3()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)">下一步 · 掃碼付款</button>
+          </div>
+        </div>
+        <!-- Step 3: 扫码付款+确认 -->
+        <div id="ck-step3" style="display:none">
+          <div style="background:var(--card);border-radius:12px;padding:16px;margin-bottom:12px;border:1px solid var(--border);text-align:center">
             <div id="ck-pay-method-label" style="font-size:13px;color:var(--sub);margin-bottom:10px"></div>
             <div id="ck-qr-area" style="display:inline-block;padding:12px;background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.08)">
-              <canvas id="ck-qr-canvas" width="180" height="180" style="display:block;border-radius:4px"></canvas>
+              <img id="ck-qr-img" src="" alt="收款碼" style="width:180px;height:180px;display:block;border-radius:8px;object-fit:contain">
             </div>
-            <div style="font-size:12px;color:var(--sub);margin-top:10px">掃碼完成後，點擊下方確認</div>
+            <div id="ck-qr-brand" style="display:inline-flex;align-items:center;gap:4px;margin-top:10px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700"></div>
+            <div style="font-size:12px;color:var(--sub);margin-top:8px">長按保存收款碼 → 打開支付App掃碼</div>
           </div>
           <div style="background:rgba(245,158,11,0.08);border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:8px;border:1px solid rgba(245,158,11,0.2)">
             <span style="font-size:16px">⚠️</span>
             <span style="font-size:12px;color:var(--text);line-height:1.5">請先掃碼付款，確認到賬後再點「我已付款」，系統將人工審核</span>
           </div>
           <div style="display:flex;gap:8px">
-            <button onclick="checkoutGoStep1()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer">返回</button>
+            <button onclick="checkoutGoStep2From3()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer">返回</button>
             <button id="checkout-confirm-btn" onclick="confirmCheckout()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,197,94,0.3)">✅ 我已付款</button>
           </div>
         </div>
@@ -1256,6 +1285,19 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
         <label style="font-size:12px;color:#22c55e;display:block;margin-bottom:4px;font-weight:600" data-i18n="drinkage_label">🍺 酒齡(年)</label>
         <input class="input" id="p-drinkage" type="number" min="0" max="80" placeholder="0-80" data-i18n-placeholder="drinkage_placeholder">
       </div>
+    </div>
+    <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+      <label style="font-size:12px;color:var(--amber);display:block;margin-bottom:6px;font-weight:600">📦 收貨地址（商店下單用）</label>
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input class="input" id="p-ship-name" placeholder="收貨人姓名" style="flex:1;margin-bottom:0;font-size:13px">
+        <input class="input" id="p-ship-phone" placeholder="手機號碼" style="flex:1;margin-bottom:0;font-size:13px">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input class="input" id="p-addr-city" placeholder="城市" style="flex:1;margin-bottom:0;font-size:13px">
+        <input class="input" id="p-addr-district" placeholder="區/縣" style="flex:1;margin-bottom:0;font-size:13px">
+      </div>
+      <input class="input" id="p-addr-detail" placeholder="詳細地址（街道、門牌號）" style="width:100%;margin-bottom:6px;font-size:13px">
+      <input class="input" id="p-addr-zip" placeholder="郵政編碼（選填）" style="width:100%;font-size:13px">
     </div>
     <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
       <label style="font-size:12px;color:var(--sub);display:block;margin-bottom:4px" data-i18n="password_change">🔑 更改密碼（留空即不改）</label>
@@ -3449,6 +3491,12 @@ function openProfile(){
   document.getElementById('p-gender').value=me?.gender||'';
   document.getElementById('p-age').value=me?.age||'';
   document.getElementById('p-drinkage').value=me?.drink_age||'';
+  document.getElementById('p-ship-name').value=me?.shipping_name||'';
+  document.getElementById('p-ship-phone').value=me?.shipping_phone||'';
+  document.getElementById('p-addr-city').value=me?.address_city||'';
+  document.getElementById('p-addr-district').value=me?.address_district||'';
+  document.getElementById('p-addr-detail').value=me?.address||'';
+  document.getElementById('p-addr-zip').value=me?.address_zip||'';
   document.getElementById('p-oldpw').value='';document.getElementById('p-newpw').value='';
   _selectedEmojiAv='';_highlightEmojiAv();
   if(me?.avatar && me.avatar.startsWith('/api/avatar/')){
@@ -3521,7 +3569,20 @@ async function _doSaveProf(){
    if(gender) profileData.gender=gender;
    if(age) profileData.age=parseInt(age);
    if(drinkAge) profileData.drink_age=parseInt(drinkAge);
-   if(nick||phone||email||region||gender||age||drinkAge){
+   // Address fields
+   const shipName=document.getElementById('p-ship-name')?.value?.trim()||'';
+   const shipPhone=document.getElementById('p-ship-phone')?.value?.trim()||'';
+   const addrCity=document.getElementById('p-addr-city')?.value?.trim()||'';
+   const addrDistrict=document.getElementById('p-addr-district')?.value?.trim()||'';
+   const addrDetail=document.getElementById('p-addr-detail')?.value?.trim()||'';
+   const addrZip=document.getElementById('p-addr-zip')?.value?.trim()||'';
+   if(shipName) profileData.shipping_name=shipName;
+   if(shipPhone) profileData.shipping_phone=shipPhone;
+   if(addrCity) profileData.address_city=addrCity;
+   if(addrDistrict) profileData.address_district=addrDistrict;
+   if(addrDetail) profileData.address=addrDetail;
+   if(addrZip) profileData.address_zip=addrZip;
+   if(nick||phone||email||region||gender||age||drinkAge||shipName||addrDetail){
     const r=await api('/api/update-profile',{method:'POST',body:profileData});
     if(r.user){Object.assign(me,r.user);me.avatar=me.avatar||'';}
    }
@@ -5319,7 +5380,19 @@ function _shopDiscountHtml(price){
 }
 
 // Checkout state
-let _checkoutPid=null, _checkoutProduct=null, _checkoutStep=1;
+let _checkoutPid=null, _checkoutProduct=null, _checkoutStep=1, _userAddr=null;
+
+// QR code image paths (real payment QR codes from E:\Hermes\QR)
+const _qrImages = {
+  wechat: '/static/uploads/qr-wechat.png',
+  alipay: '/static/uploads/qr-alipay.jpg',
+  paypal: '/static/uploads/qr-paypal.jpg'
+};
+const _qrLabels = {
+  wechat: {name:'微信支付', emoji:'💚', color:'#07C160', bg:'rgba(7,193,96,0.1)'},
+  alipay: {name:'支付寶', emoji:'🔵', color:'#1677FF', bg:'rgba(22,119,255,0.1)'},
+  paypal: {name:'PayPal', emoji:'🟡', color:'#003087', bg:'rgba(0,48,135,0.1)'}
+};
 
 function shopBuy(pid){
   if(!token){toast('請先登入','error');return}
@@ -5330,12 +5403,14 @@ function shopBuy(pid){
   _checkoutStep = 1;
   // Fill product info
   const info = document.getElementById('checkout-product-info');
+  const isDigital = p.delivery_type==='digital' || (p.category==='music' || p.category==='digital');
   info.innerHTML = `
     <div style="display:flex;gap:12px;align-items:center">
-      ${p.image_url?`<img src="${p.image_url}" style="width:56px;height:56px;border-radius:10px;object-fit:cover">`:`<div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(139,92,246,0.1));display:flex;align-items:center;justify-content:center;font-size:24px">🍶</div>`}
+      ${p.image_url?`<img src="${p.image_url}" style="width:56px;height:56px;border-radius:10px;object-fit:cover">`:`<div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(139,92,246,0.1));display:flex;align-items:center;justify-content:center;font-size:24px">${isDigital?'💿':'🍶'}</div>`}
       <div style="flex:1">
         <div style="font-weight:700;font-size:15px;color:var(--text)">${p.name||''}</div>
         ${p.description?`<div style="font-size:12px;color:var(--sub);margin-top:2px;line-height:1.4;max-height:40px;overflow:hidden">${p.description}</div>`:''}
+        ${isDigital?`<div style="font-size:11px;color:var(--purple);margin-top:2px">📥 數碼商品 · 確認付款後72h內下載</div>`:''}
       </div>
     </div>
   `;
@@ -5361,90 +5436,136 @@ function shopBuy(pid){
   _updateCheckoutMethodUI();
   document.getElementById('ck-step1').style.display='block';
   document.getElementById('ck-step2').style.display='none';
+  document.getElementById('ck-step3').style.display='none';
   document.getElementById('ck-step1-dot').style.background='var(--amber)';
   document.getElementById('ck-step2-dot').style.background='var(--border)';
+  document.getElementById('ck-step3-dot').style.background='var(--border)';
   document.getElementById('ck-step-bar').style.width='0%';
+  document.getElementById('ck-step-bar2').style.width='0%';
   document.getElementById('ck-title').textContent='💳 確認付款';
   document.getElementById('checkout-mod').style.display='flex';
+  // Pre-fill address from user profile
+  _prefillAddress();
+}
+
+async function _prefillAddress(){
+  if(!token) return;
+  try{
+    const r = await api('/api/user/profile','GET');
+    if(r.ok && r.id){
+      _userAddr = r;
+      const f = (id, val) => { const el=document.getElementById(id); if(el && !el.value && val) el.value = val; };
+      f('ck-ship-name', r.shipping_name || r.nickname || '');
+      f('ck-ship-phone', r.shipping_phone || r.phone || '');
+      f('ck-addr-city', r.address_city || '');
+      f('ck-addr-district', r.address_district || '');
+      f('ck-addr-detail', r.address || '');
+      f('ck-addr-zip', r.address_zip || '');
+      // If has saved address, show hint
+      if(r.address || r.address_city){
+        document.getElementById('ck-saved-addr-hint').style.display='block';
+      }
+    }
+  }catch(e){}
 }
 
 function checkoutGoStep2(){
-  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
-  const methodLabel = {wechat:'💚 微信支付',alipay:'🔵 支付寶',balance:'👛 餘額支付'}[payMethod]||payMethod;
-  document.getElementById('ck-pay-method-label').textContent = '請使用 ' + methodLabel + ' 掃碼付款';
-  // Generate QR code on canvas
-  _drawCheckoutQR(payMethod);
-  // Switch to step2
   _checkoutStep = 2;
+  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
+  // Show/hide delivery type
+  const deliveryHint = document.getElementById('ck-delivery-hint');
+  const physicalAddr = document.getElementById('ck-physical-addr');
+  if(isDigital){
+    deliveryHint.style.display='block';
+    physicalAddr.style.display='none';
+  } else {
+    deliveryHint.style.display='none';
+    physicalAddr.style.display='block';
+  }
+  // Switch UI
   document.getElementById('ck-step1').style.display='none';
   document.getElementById('ck-step2').style.display='block';
+  document.getElementById('ck-step3').style.display='none';
   document.getElementById('ck-step1-dot').style.background='var(--amber)';
   document.getElementById('ck-step2-dot').style.background='var(--amber)';
+  document.getElementById('ck-step3-dot').style.background='var(--border)';
+  document.getElementById('ck-step-bar').style.width='50%';
+  document.getElementById('ck-step-bar2').style.width='0%';
+  document.getElementById('ck-title').textContent='📦 收貨信息';
+}
+
+function checkoutGoStep3(){
+  // Validate address for physical products
+  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
+  if(!isDigital){
+    const name = document.getElementById('ck-ship-name').value.trim();
+    const phone = document.getElementById('ck-ship-phone').value.trim();
+    const city = document.getElementById('ck-addr-city').value.trim();
+    const addr = document.getElementById('ck-addr-detail').value.trim();
+    if(!name){toast('請填寫收貨人姓名','error');return}
+    if(!phone){toast('請填寫手機號碼','error');return}
+    if(!city){toast('請填寫城市','error');return}
+    if(!addr){toast('請填寫詳細地址','error');return}
+  } else {
+    // Digital still needs name & phone
+    const name = document.getElementById('ck-ship-name').value.trim();
+    if(!name){toast('請填寫收貨人姓名','error');return}
+  }
+  _checkoutStep = 3;
+  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
+  const qrInfo = _qrLabels[payMethod] || _qrLabels.wechat;
+  // Set QR image
+  document.getElementById('ck-qr-img').src = _qrImages[payMethod] || _qrImages.wechat;
+  document.getElementById('ck-pay-method-label').textContent = '請使用 ' + qrInfo.emoji + ' ' + qrInfo.name + ' 掃碼付款';
+  // Brand badge
+  const brandEl = document.getElementById('ck-qr-brand');
+  brandEl.style.background = qrInfo.bg;
+  brandEl.style.color = qrInfo.color;
+  brandEl.innerHTML = qrInfo.emoji + ' ' + qrInfo.name;
+  // Switch UI
+  document.getElementById('ck-step1').style.display='none';
+  document.getElementById('ck-step2').style.display='none';
+  document.getElementById('ck-step3').style.display='block';
+  document.getElementById('ck-step1-dot').style.background='var(--amber)';
+  document.getElementById('ck-step2-dot').style.background='var(--amber)';
+  document.getElementById('ck-step3-dot').style.background='var(--amber)';
   document.getElementById('ck-step-bar').style.width='100%';
+  document.getElementById('ck-step-bar2').style.width='100%';
   document.getElementById('ck-title').textContent='📱 掃碼付款';
   // Reset confirm btn
   const btn = document.getElementById('checkout-confirm-btn');
   btn.disabled=false; btn.textContent='✅ 我已付款'; btn.style.opacity='1';
+  delete btn.dataset.confirmed;
 }
 
 function checkoutGoStep1(){
   _checkoutStep = 1;
   document.getElementById('ck-step1').style.display='block';
   document.getElementById('ck-step2').style.display='none';
+  document.getElementById('ck-step3').style.display='none';
   document.getElementById('ck-step1-dot').style.background='var(--amber)';
   document.getElementById('ck-step2-dot').style.background='var(--border)';
+  document.getElementById('ck-step3-dot').style.background='var(--border)';
   document.getElementById('ck-step-bar').style.width='0%';
+  document.getElementById('ck-step-bar2').style.width='0%';
   document.getElementById('ck-title').textContent='💳 確認付款';
+}
+
+function checkoutGoStep2From3(){
+  _checkoutStep = 2;
+  document.getElementById('ck-step1').style.display='none';
+  document.getElementById('ck-step2').style.display='block';
+  document.getElementById('ck-step3').style.display='none';
+  document.getElementById('ck-step2-dot').style.background='var(--amber)';
+  document.getElementById('ck-step3-dot').style.background='var(--border)';
+  document.getElementById('ck-step-bar2').style.width='0%';
+  document.getElementById('ck-title').textContent='📦 收貨信息';
 }
 
 function checkoutClose(){
   document.getElementById('checkout-mod').style.display='none';
   _checkoutPid = null;
   _checkoutStep = 1;
-}
-
-// Draw a QR-like placeholder with payment info (real QR requires lib, use canvas art)
-function _drawCheckoutQR(payMethod){
-  const canvas = document.getElementById('ck-qr-canvas');
-  const ctx = canvas.getContext('2d');
-  const W = 180, H = 180;
-  ctx.clearRect(0,0,W,H);
-  // Background
-  ctx.fillStyle='#ffffff';
-  ctx.fillRect(0,0,W,H);
-  // Draw QR-like pattern with seeded randomness from payMethod
-  const seed = _checkoutPid + '_' + payMethod + '_' + Date.now().toString(36).slice(0,6);
-  let hash=0; for(let i=0;i<seed.length;i++) hash=((hash<<5)-hash)+seed.charCodeAt(i);
-  const rng=()=>{hash=(hash*1103515245+12345)&0x7fffffff;return(hash%1000)/1000};
-  // Finder patterns (3 corners — standard QR)
-  const drawFinder=(x,y)=>{
-    ctx.fillStyle='#000';
-    ctx.fillRect(x,y,21,21);
-    ctx.fillStyle='#fff';
-    ctx.fillRect(x+3,y+3,15,15);
-    ctx.fillStyle='#000';
-    ctx.fillRect(x+5,y+5,11,11);
-  };
-  drawFinder(6,6);
-  drawFinder(W-27,6);
-  drawFinder(6,H-27);
-  // Data area — pseudo QR modules
-  const cellSize=3, margin=36;
-  for(let x=margin; x<W-margin; x+=cellSize+1){
-    for(let y=margin; y<H-margin; y+=cellSize+1){
-      if(rng()>0.45){
-        ctx.fillStyle='#000';
-        ctx.fillRect(x,y,cellSize,cellSize);
-      }
-    }
-  }
-  // Center icon — payment brand color
-  const brandColor = payMethod==='wechat'?'#07C160':payMethod==='alipay'?'#1677FF':'#F59E0B';
-  ctx.fillStyle=brandColor;
-  ctx.beginPath(); ctx.arc(W/2,H/2,12,0,Math.PI*2); ctx.fill();
-  ctx.fillStyle='#fff';
-  ctx.font='bold 12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(payMethod==='wechat'?'微':payMethod==='alipay'?'支':'余', W/2, H/2+1);
 }
 
 function _updateCheckoutMethodUI(){
@@ -5477,13 +5598,25 @@ function confirmCheckout(){
   }
   delete btn.dataset.confirmed;
   const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
+  // Collect address data
+  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
+  const addrData = {
+    shipping_name: document.getElementById('ck-ship-name').value.trim(),
+    shipping_phone: document.getElementById('ck-ship-phone').value.trim(),
+    address: document.getElementById('ck-addr-detail').value.trim(),
+    address_city: document.getElementById('ck-addr-city').value.trim(),
+    address_district: document.getElementById('ck-addr-district').value.trim(),
+    address_zip: document.getElementById('ck-addr-zip').value.trim(),
+    is_digital: isDigital ? 1 : 0
+  };
   btn.disabled=true; btn.textContent='提交中...'; btn.style.opacity='0.6';
-  api('/api/shop/orders',{method:'POST',body:{items:[{product_id:_checkoutPid,qty:1}],pay_method:payMethod}})
+  api('/api/shop/orders',{method:'POST',body:{items:[{product_id:_checkoutPid,qty:1}],pay_method:payMethod,...addrData}})
   .then(r=>{
     btn.disabled=false; btn.textContent='✅ 我已付款'; btn.style.opacity='1';
     if(r.ok){
       let msg='訂單已提交！#'+r.order_id+'，合計¥'+r.total.toFixed(2)+'，等待人工確認付款';
       if(r.discount<1)msg+=' (原價¥'+r.original_total.toFixed(2)+'，省¥'+r.saved.toFixed(2)+')';
+      if(r.has_digital)msg+='\n📥 數碼商品：確認付款後可下載（72h有效）';
       toast(msg,'success');
       document.getElementById('checkout-mod').style.display='none';
       document.getElementById('shop-detail-mod').style.display='none';
@@ -5503,20 +5636,39 @@ function shopToggleMyOrders(){
       if(!r.orders.length){el.innerHTML='<div style="padding:8px;color:var(--sub);text-align:center">暫無訂單</div>';return}
       const statusMap = {pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
       const statusColor = {pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
-      el.innerHTML = r.orders.map(o=>`<div style="padding:8px;border-bottom:1px solid var(--border)">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-weight:600;font-size:13px">#${o.id}</span>
-          <span style="font-size:11px;color:${statusColor[o.status]||'var(--sub)'};background:${statusColor[o.status]||'var(--sub)'}20;padding:2px 8px;border-radius:10px">${statusMap[o.status]||o.status}</span>
-        </div>
-        <div style="font-size:12px;color:var(--sub);margin:4px 0">${(o.items||[]).map(i=>i.name+'×'+i.qty).join('、')}</div>
-        <div style="display:flex;justify-content:space-between;font-size:12px">
-          <span style="color:var(--sub)">${o.created_at||''}</span>
-          <span style="font-weight:700;color:var(--amber)">¥${Number(o.total_price).toFixed(2)}</span>
-        </div>
-      </div>`).join('');
+      el.innerHTML = r.orders.map(o=>{
+        const statusText = statusMap[o.status]||o.status;
+        const statusClr = statusColor[o.status]||'var(--sub)';
+        const isPaid = o.status==='paid'||o.status==='delivered';
+        const digitalItems = (o.items||[]).filter(i=>i.delivery_type==='digital'||i.category==='music'||i.category==='digital');
+        let downloadBtn = '';
+        if(isPaid && digitalItems.length>0 && o.download_token){
+          downloadBtn = `<button onclick="downloadDigital('${o.download_token}','${o.id}')" style="margin-top:4px;padding:4px 10px;border-radius:8px;border:1px solid #8b5cf6;background:rgba(139,92,246,0.08);color:#8b5cf6;font-size:11px;font-weight:600;cursor:pointer">📥 下載數碼商品</button>`;
+        }
+        return `<div style="padding:8px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:600;font-size:13px">#${o.id}</span>
+            <span style="font-size:11px;color:${statusClr};background:${statusClr}20;padding:2px 8px;border-radius:8px">${statusText}</span>
+          </div>
+          <div style="font-size:12px;color:var(--sub);margin:4px 0">${(o.items||[]).map(i=>i.name+'×'+i.qty).join('、')}</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px">
+            <span style="color:var(--sub)">${o.created_at||''}</span>
+            <span style="font-weight:700;color:var(--amber)">¥${Number(o.total_price).toFixed(2)}</span>
+          </div>
+          ${downloadBtn}
+        </div>`;
+      }).join('');
       document.getElementById('shop-order-count').textContent = '('+r.orders.length+')';
     }).catch(()=>{el.innerHTML='<div style="padding:8px;color:var(--sub)">加載失敗</div>'});
   } else el.style.display='none';
+}
+
+function downloadDigital(token, oid){
+  if(!token){toast('下載連結無效','error');return}
+  // Open download URL in new tab
+  const url = API_BASE + '/api/shop/download/' + oid + '/' + (oid*7+13) + '?token=' + encodeURIComponent(token);
+  window.open(url, '_blank');
+  toast('正在下載...','success');
 }
 
 // ═══════════════════ LIQUOR SCAN / VERIFY ═══════════════════
@@ -5902,7 +6054,7 @@ function grpShowDetail(gid){
       const rr=m.role==='creator'?'👑':m.role==='admin'?'⭐':'';
       const kickBtn=(my==='creator'||my==='admin')&&m.role!=='creator'&&m.id!==_uid()?`<button class="btn btn-outline btn-sm" onclick="grpDoKick(${g.id},${m.id})" style="font-size:10px;padding:2px 6px">踢</button>`:'';
       return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
-        <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0">${m.avatar_url?`<img src="${m.avatar_url}" style="width:100%;height:100%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||m.username||'?')[0]}</div>`}</div>
+        <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0">${m.avatar?`<img src="${m.avatar}" style="width:100%;height:100%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||m.username||'?')[0]}</div>`}</div>
         <div style="flex:1"><span style="font-size:12px;color:var(--text)">${rr}${m.nickname||m.username}</span> <span style="font-size:10px;color:var(--sub)">${m.role==='creator'?'群主':m.role==='admin'?'管理':'成員'}</span></div>
         ${kickBtn}
       </div>`
