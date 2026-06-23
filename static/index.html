@@ -431,6 +431,21 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .mem-card-glow-2{box-shadow:0 0 12px rgba(99,102,241,.2)!important;border-color:#6366f1!important}
 .mem-card-glow-3{box-shadow:0 0 16px rgba(245,158,11,.25)!important;border-color:var(--amber)!important;animation:card-pulse 3s ease-in-out infinite}
 @keyframes card-pulse{0%,100%{box-shadow:0 0 16px rgba(245,158,11,.25)}50%{box-shadow:0 0 24px rgba(245,158,11,.4)}}
+/* ─── Membership Avatar Frame ─── */
+.tl-avatar{position:relative;border:2px solid var(--border);transition:border-color .3s,box-shadow .3s}
+.tl-avatar.lv-1{border-color:#CD7F32;box-shadow:0 0 6px rgba(205,127,50,.25)}
+.tl-avatar.lv-2{border-color:#8b5cf6;box-shadow:0 0 8px rgba(139,92,246,.3);animation:av-glow-2 2.5s ease-in-out infinite}
+.tl-avatar.lv-3{border:2px solid transparent;background-clip:padding-box;box-shadow:0 0 10px rgba(245,158,11,.35),inset 0 0 0 0 transparent;animation:av-glow-3 2s ease-in-out infinite}
+.tl-avatar.lv-3::before{content:'';position:absolute;inset:-3px;border-radius:50%;background:conic-gradient(#f59e0b,#ef4444,#ec4899,#8b5cf6,#3b82f6,#10b981,#f59e0b);z-index:-1;animation:av-ring-spin 4s linear infinite}
+@keyframes av-glow-2{0%,100%{box-shadow:0 0 8px rgba(139,92,246,.3)}50%{box-shadow:0 0 14px rgba(139,92,246,.45)}}
+@keyframes av-glow-3{0%,100%{box-shadow:0 0 10px rgba(245,158,11,.35)}50%{box-shadow:0 0 18px rgba(245,158,11,.5)}}
+@keyframes av-ring-spin{to{transform:rotate(360deg)}}
+/* ─── 会员专属称号 ─── */
+.mem-title{font-size:10px;display:inline-block;margin-left:4px;padding:0 4px;border-radius:3px;vertical-align:middle;letter-spacing:.5px}
+.mem-title-1{background:rgba(205,127,50,.15);color:#CD7F32;border:1px solid rgba(205,127,50,.3)}
+.mem-title-2{background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)}
+.mem-title-3{background:linear-gradient(90deg,rgba(245,158,11,.12),rgba(239,68,68,.12));color:#f59e0b;border:1px solid rgba(245,158,11,.25);animation:title-shimmer 3s ease-in-out infinite}
+@keyframes title-shimmer{0%,100%{opacity:1}50%{opacity:.85}}
 .attendee-list{max-height:0;overflow:hidden;transition:max-height .3s}.attendee-list.open{max-height:300px;overflow-y:auto}
 .attendee-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
 .clickable{cursor:pointer;color:var(--purple);font-weight:600}
@@ -664,8 +679,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <div id="mem-profile-card" class="card" style="text-align:center;border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(236,72,153,0.04));padding:20px 16px">
     <div id="exp-warn" style="display:none;background:rgba(245,158,11,0.12);border:1px solid var(--amber);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--amber)"></div>
     <div class="card-header" style="border:none;padding:0;margin-bottom:12px">👤 個人資料</div>
-    <div id="mem-avatar-wrap" style="margin:0 auto 10px;width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid var(--amber);display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--card);box-shadow:0 2px 12px rgba(245,158,11,0.2)" onclick="openProfile()">👤</div>
+    <div id="mem-avatar-wrap" style="margin:0 auto 10px;width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--card);position:relative;cursor:pointer" onclick="openProfile()">👤</div>
     <div style="font-weight:700;font-size:17px;color:var(--text)" id="mem-nick">-</div>
+    <div id="mem-title-display" style="margin-top:2px"></div>
     <div style="font-size:12px;color:var(--sub);margin-top:2px" id="mem-username">@-</div>
     <div style="font-size:12px;color:var(--sub);margin-top:4px" id="mem-contact"></div>
     <div style="display:flex;gap:12px;justify-content:center;margin-top:6px;flex-wrap:wrap">
@@ -1696,6 +1712,8 @@ function fireConfetti(){
 function memLevel(){if(!me||!me.membership||me.membership==='free')return 0;if(me.membership==='admin')return 3;return{jiuyau:1,jaugwai:2,jausan:3}[me.membership]||0}
 function memBadge(lv){if(!lv)lv=memLevel();if(!lv)return'';const n={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'}[lv]||'';return '<span class="mem-badge mem-badge-'+lv+'">'+n+'</span>'}
 function memNickClass(lv){if(!lv)lv=memLevel();return lv?'nick-'+lv:''}
+function memAvClass(lv){if(!lv)lv=memLevel();return lv?'lv-'+lv:''}
+function memTitle(lv){if(!lv)lv=memLevel();if(!lv)return'';const t={1:'酒道新手',2:'品酒達人',3:'酒界傳說'}[lv]||'';return t?'<span class="mem-title mem-title-'+lv+'">'+t+'</span>':''}
 function memCardClass(lv){if(!lv)lv=memLevel();if(lv>=2)return'mem-card-glow-'+lv;return''}
 function memLocked(requiredLv,action){const lv=memLevel();if(lv>=requiredLv)return false;const names={1:'酒友',2:'酒鬼',3:'酒神'};toast('🔒 '+action+' 需要升級至'+(names[requiredLv]||'VIP')+' 💎',1);showUpgradeModal(requiredLv);return true}
 
@@ -3581,7 +3599,7 @@ async function loadTL(){
  const st=STATUSES[item.status]||STATUSES[0];
   const av=item.avatar&&item.avatar.startsWith('/')?API_BASE+item.avatar:(item.avatar&&item.avatar.startsWith('emoji:')?item.avatar.replace('emoji:',''):'');
   const avH=item.avatar&&item.avatar.startsWith('emoji:')?'<span style="font-size:24px">'+av+'</span>':(av?'<img src="'+av+'">':'🍺');
-  h+='<div class="tl-item"><div class="tl-avatar">'+avH+'</div><div class="tl-body"><div class="tl-name '+memNickClass(item.membership_level||0)+'">'+esc(item.nickname)+' '+memBadge(item.membership_level||0)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
+  h+='<div class="tl-item"><div class="tl-avatar '+memAvClass(item.membership_level||0)+'">'+avH+'</div><div class="tl-body"><div class="tl-name '+memNickClass(item.membership_level||0)+'">'+esc(item.nickname)+' '+memBadge(item.membership_level||0)+' '+memTitle(item.membership_level||0)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
  h+='<button class="btn btn-outline btn-sm" onclick="doLike('+item.id+')">❤️ <span id="lk-'+item.id+'">'+(item.likes||0)+'</span></button>';
  h+='<button class="btn btn-outline btn-sm" onclick="openCmt('+item.id+')">💬 <span id="ct-'+item.id+'">'+(item.comments||0)+'</span></button>';
  h+='<div style="display:flex;gap:2px;flex-wrap:wrap">';
@@ -3615,7 +3633,7 @@ async function loadCmt(cid){
  try{
  let comments=[];
   const d=await api('/api/checkin/'+cid+'/comments');comments=d.comments||[];
- let h='';comments.forEach(c=>{h+='<div class="comment-item"><b class="'+memNickClass(c.membership_level||0)+'">'+esc(c.nickname)+'</b>'+memBadge(c.membership_level||0)+': '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
+ let h='';comments.forEach(c=>{h+='<div class="comment-item"><b class="'+memNickClass(c.membership_level||0)+'">'+esc(c.nickname)+'</b>'+memBadge(c.membership_level||0)+' '+memTitle(c.membership_level||0)+': '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
  if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">'+T('no_comments')+'</div>';
  h+='<div class="emoji-picker">';CM_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="insEm(\''+e+'\')" style="font-size:22px">'+e+'</button>'});h+='</div>';
  document.getElementById('cmt-list').innerHTML=h;
@@ -3667,7 +3685,7 @@ function openJnl(pid){curPid=pid;const el=document.getElementById('jnl-mod');if(
 function closeJnl(){const el=document.getElementById('jnl-mod');if(!el)return;el.style.display='none';el.classList.remove('show');curPid=null}
 async function loadJnl(pid){
   try{const d=await api('/api/party/'+pid+'/journal');let h='';
-    (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b class="'+memNickClass(j.membership_level||0)+'">'+esc(j.nickname)+'</b>'+memBadge(j.membership_level||0)+': '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
+    (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b class="'+memNickClass(j.membership_level||0)+'">'+esc(j.nickname)+'</b>'+memBadge(j.membership_level||0)+' '+memTitle(j.membership_level||0)+': '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
     if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">'+T('no_records2')+'</div>';
     document.getElementById('jnl-list').innerHTML=h;
   }catch(e){}}
@@ -3693,10 +3711,15 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
    aw.innerHTML='<img src="'+API_BASE+me.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
   }else if(me.avatar&&me.avatar.startsWith('emoji:')){aw.textContent=me.avatar.replace('emoji:','')}
   else{aw.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
-  // Membership glow on avatar
-  if(lv>=2)aw.style.boxShadow='0 0 20px rgba(245,158,11,'+(0.2+lv*0.1)+')';
+  // Membership frame on avatar
+  aw.style.borderColor=lv>=3?'#f59e0b':lv>=2?'#8b5cf6':lv>=1?'#CD7F32':'var(--border)';
+  aw.style.boxShadow=lv>=3?'0 0 18px rgba(245,158,11,0.4),0 0 6px rgba(236,72,153,0.2)':lv>=2?'0 0 14px rgba(139,92,246,0.3)':lv>=1?'0 0 8px rgba(205,127,50,0.2)':'none';
+  if(lv>=3){aw.style.animation='av-glow-3 2s ease-in-out infinite'}
+  else if(lv>=2){aw.style.animation='av-glow-2 2.5s ease-in-out infinite'}
+  else{aw.style.animation=''}
  }
  var nk=document.getElementById('mem-nick');if(nk){nk.textContent=me.nickname||me.username||'-';nk.className=memNickClass(lv);}
+ var td=document.getElementById('mem-title-display');if(td)td.innerHTML=memTitle(lv);
  var un=document.getElementById('mem-username');if(un)un.textContent='@'+(me.username||'-');
  // Expiry warning banner
  var expWarn=document.getElementById('exp-warn');
