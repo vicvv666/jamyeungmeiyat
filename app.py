@@ -3756,6 +3756,7 @@ def api_group_chat(gid):
             rows = list(reversed(rows))
         # Free user message limit: can see last 20, paid see all
         plan, mem_level, _ = _get_membership(uid)
+        mem_level = int(mem_level) if mem_level else 0
         if mem_level < 1 and len(rows) > 20:
             rows = rows[-20:]
         return jsonify({'ok': True, 'messages': [dict(r) for r in rows]})
@@ -3768,6 +3769,7 @@ def api_group_chat(gid):
         return jsonify({'ok': False, 'error': '消息太長，最多500字'}), 400
     # Free users: 10 messages per hour
     plan, mem_level, _ = _get_membership(uid)
+    mem_level = int(mem_level) if mem_level else 0
     if mem_level < 1:
         from datetime import datetime, timedelta
         one_hour_ago = (datetime.utcnow() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
