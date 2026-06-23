@@ -3727,39 +3727,42 @@ def api_group_chat(gid):
     if not my:
         return jsonify({'ok': False, 'error': '你不是群成員，無法聊天'}), 403
     if request.method == 'GET':
-        # Pagination: after_id for polling new messages, before_id for history
-        after_id = request.args.get('after_id', '0', type=int)
-        before_id = request.args.get('before_id', '0', type=int)
-        limit = min(request.args.get('limit', 50, type=int), 200)
-        if after_id > 0:
-            rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
-                                CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
-                                gc.content, gc.msg_type, gc.created_at
-                                FROM group_chat gc JOIN users u ON gc.user_id=u.id
-                                WHERE gc.group_id=? AND gc.id>? ORDER BY gc.id ASC LIMIT ?''',
-                              (gid, after_id, limit)).fetchall()
-        elif before_id > 0:
-            rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
-                                CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
-                                gc.content, gc.msg_type, gc.created_at
-                                FROM group_chat gc JOIN users u ON gc.user_id=u.id
-                                WHERE gc.group_id=? AND gc.id<? ORDER BY gc.id DESC LIMIT ?''',
-                              (gid, before_id, limit)).fetchall()
-            rows = list(reversed(rows))
-        else:
-            rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
-                                CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
-                                gc.content, gc.msg_type, gc.created_at
-                                FROM group_chat gc JOIN users u ON gc.user_id=u.id
-                                WHERE gc.group_id=? ORDER BY gc.id DESC LIMIT ?''',
-                              (gid, limit)).fetchall()
-            rows = list(reversed(rows))
-        # Free user message limit: can see last 20, paid see all
-        plan, mem_level, _ = _get_membership(uid)
-        mem_level = int(mem_level) if mem_level else 0
-        if mem_level < 1 and len(rows) > 20:
-            rows = rows[-20:]
-        return jsonify({'ok': True, 'messages': [dict(r) for r in rows]})
+        try:
+            # Pagination: after_id for polling new messages, before_id for history
+            after_id = request.args.get('after_id', 0, type=int)
+            before_id = request.args.get('before_id', 0, type=int)
+            limit = min(request.args.get('limit', 50, type=int), 200)
+            if after_id > 0:
+                rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
+                                    CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
+                                    gc.content, gc.msg_type, gc.created_at
+                                    FROM group_chat gc JOIN users u ON gc.user_id=u.id
+                                    WHERE gc.group_id=? AND gc.id>? ORDER BY gc.id ASC LIMIT ?''',
+                                  (gid, after_id, limit)).fetchall()
+            elif before_id > 0:
+                rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
+                                    CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
+                                    gc.content, gc.msg_type, gc.created_at
+                                    FROM group_chat gc JOIN users u ON gc.user_id=u.id
+                                    WHERE gc.group_id=? AND gc.id<? ORDER BY gc.id DESC LIMIT ?''',
+                                  (gid, before_id, limit)).fetchall()
+                rows = list(reversed(rows))
+            else:
+                rows = db.execute('''SELECT gc.id, gc.user_id, u.nickname, u.avatar, u.membership,
+                                    CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as membership_level,
+                                    gc.content, gc.msg_type, gc.created_at
+                                    FROM group_chat gc JOIN users u ON gc.user_id=u.id
+                                    WHERE gc.group_id=? ORDER BY gc.id DESC LIMIT ?''',
+                                  (gid, limit)).fetchall()
+                rows = list(reversed(rows))
+            # Free user message limit: can see last 20, paid see all
+            plan, mem_level, _ = _get_membership(uid)
+            mem_level = int(mem_level) if mem_level else 0
+            if mem_level < 1 and len(rows) > 20:
+                rows = rows[-20:]
+            return jsonify({'ok': True, 'messages': [dict(r) for r in rows]})
+        except Exception as e:
+            return jsonify({'ok': False, 'error': str(e), 'type': type(e).__name__}), 500
     # POST: send message
     d = request.get_json(force=True) or {}
     content = d.get('content', '').strip()
