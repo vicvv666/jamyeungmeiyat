@@ -6118,7 +6118,7 @@ function grpShowDetail(gid){
       const rr=m.role==='creator'?'👑':m.role==='admin'?'⭐':'';
       const kickBtn=(my==='creator'||my==='admin')&&m.role!=='creator'&&m.id!==_uid()?`<button class="btn btn-outline btn-sm" onclick="grpDoKick(${g.id},${m.id})" style="font-size:10px;padding:2px 6px">踢</button>`:'';
       return `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
-        <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0">${m.avatar?`<img src="${m.avatar}" style="width:100%;height:100%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||m.username||'?')[0]}</div>`}</div>
+        <div style="width:28px;height:28px;border-radius:50%;overflow:hidden;flex-shrink:0">${m.avatar&&!m.avatar.startsWith("emoji:")?`<img src="${m.avatar}" onerror="_avatarErr(this,(m.nickname||m.username||'?')[0])" style="width:100%;height:100%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||m.username||'?')[0]}</div>`}</div>
         <div style="flex:1"><span style="font-size:12px;color:var(--text)">${rr}${m.nickname||m.username}</span> <span style="font-size:10px;color:var(--sub)">${m.role==='creator'?'群主':m.role==='admin'?'管理':'成員'}</span></div>
         ${kickBtn}
       </div>`
@@ -6173,7 +6173,7 @@ function grpChatRender(msgs,append){
   let html=msgs.map(m=>{
     const isMe=m.user_id===_uid();
     const badge=m.membership_level>=3?'🥇':m.membership_level>=2?'🥈':m.membership_level>=1?'🥉':'';
-    const av=m.avatar?`<img src="${m.avatar}" onerror="_avatarErr(this,'${(m.nickname||'?')[0]}')" style="width:100%;height:100%;border-radius:50%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||'?')[0]}</div>`;
+    const av=m.avatar&&!m.avatar.startsWith("emoji:")?`<img src="${m.avatar}" onerror="_avatarErr(this,'${(m.nickname||'?')[0]}')" style="width:100%;height:100%;border-radius:50%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||'?')[0]}</div>`;
     const time=(m.created_at||'').slice(11,16);
     if(isMe){
       return `<div style="display:flex;justify-content:flex-end;margin-bottom:6px;gap:6px"><div style="max-width:75%"><div style="background:var(--pink);color:#fff;padding:6px 12px;border-radius:14px 14px 2px 14px;font-size:13px;word-break:break-word;display:inline-block">${m.content}</div><div style="font-size:10px;color:var(--sub);text-align:right;margin-top:2px">${time}</div></div></div>`
