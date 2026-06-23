@@ -486,6 +486,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <button class="tab" data-page="friends" onclick="showPage('friends')"><span class="tab-icon">👫</span><span id="tab-friends">酒友</span></button>
   <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party">酒局</span></button>
   <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
+  <button class="tab" data-page="map" onclick="showPage('map')"><span class="tab-icon">🗺️</span><span id="tab-map">地圖</span></button>
    <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
    <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
   <button class="tab" data-page="shop" onclick="showPage('shop')"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 2px 3px rgba(245,158,11,0.5))"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><circle cx="17" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><path d="M6.5 12h11l1.5-6H7.2" stroke="url(#cartGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="cartGrad" x1="6" y1="9" x2="20" y2="9"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient></defs></svg></span><span id="tab-shop" data-i18n="shop">商鋪</span></button>
@@ -546,6 +547,36 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div><div class="stat-num" id="st-week">0</div><div class="stat-label" data-i18n="stats_weekly">本週</div></div>
     <div><div class="stat-num" id="st-today">0</div><div class="stat-label" data-i18n="stats_today">今日</div></div></div>
   </div><div id="st-dist"></div>
+</div>
+
+<div class="page" id="page-map">
+  <div class="card" style="padding:0;overflow:hidden;border:none">
+    <div class="card-header" style="margin-bottom:0">🗺️ <span data-i18n="map_title">飲酒地圖</span></div>
+    <div id="map-lock-overlay" class="mem-lock-overlay" style="display:none;position:absolute;z-index:10;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;color:#fff">
+      <div>
+        <div style="font-size:48px;filter:grayscale(1);opacity:0.7">🗺️</div>
+        <div style="font-size:15px;margin-top:8px;font-weight:700">🔒 打卡地圖 · 酒友專屬</div>
+        <div style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.7)">睇到全城飲友打卡熱點</div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="showPay()">🥉 升級酒友解鎖</button>
+      </div>
+    </div>
+    <div id="amap-container" style="width:100%;height:55vh;min-height:300px;background:#1a1a2e"></div>
+  </div>
+  <div class="card" style="margin-top:8px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="mapLocateMe()" id="btn-map-locate">📍 我嘅位置</button>
+      <button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="mapLoadCheckins()" id="btn-map-checkins">🍺 打卡點</button>
+      <button class="btn btn-outline btn-sm" style="border-color:#22c55e;color:#22c55e" onclick="mapLoadVenues()" id="btn-map-venues">🏙️ 酒吧VIP</button>
+      <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red)" onclick="mapLoadHeatmap()" id="btn-map-heatmap">🔥 热力足迹</button>
+      <select id="map-days" style="padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px">
+        <option value="7">近7日</option>
+        <option value="30" selected>近30日</option>
+        <option value="90">近90日</option>
+        <option value="365">近一年</option>
+      </select>
+    </div>
+    <div id="map-info" style="margin-top:8px;font-size:12px;color:var(--sub)"></div>
+  </div>
 </div>
 
 <div class="page" id="page-dice" style="padding-bottom:120px">
@@ -682,6 +713,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🧧 <span>每月優惠券</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">1張</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3張</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">5張</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏙️ <span>酒吧VIP</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>年度報告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span>打卡地圖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">瀏覽</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏠 <span data-i18n="cmp_room">開房約戰</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🚫 <span data-i18n="cmp_noad">去廣告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">⭐ <span data-i18n="cmp_badge">專屬徽章</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
@@ -1964,7 +1996,7 @@ function showPage(name){
   if(_pgHist.length > 10) _pgHist.shift();
 
   // Determine slide direction based on tab index
-  const tabs = ['checkin','timeline','friends','party','stats','dice','member','shop'];
+  const tabs = ['checkin','timeline','friends','party','stats','map','dice','member','shop'];
   const idx = tabs.indexOf(name);
   const prevIdx = tabs.indexOf(curName);
   let slideCls = '';
@@ -1988,7 +2020,7 @@ function showPage(name){
     var bar=document.querySelector('.tabs');
     if(!bar)return;
     // Re-set tab text content explicitly
-    ['checkin','timeline','party','stats','member','shop'].forEach(function(k){
+    ['checkin','timeline','party','stats','map','member','shop'].forEach(function(k){
       var el=document.getElementById('tab-'+k);
       if(el){el.textContent=T('tab_'+k)}
     });
@@ -2003,7 +2035,7 @@ function showPage(name){
   window.scrollTo({top:0,behavior:'smooth'});
   // Close any open modal overlays when switching pages
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
-  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop')shopLoadProducts(shopCurrentCat||'');
+  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='map')initMap();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop')shopLoadProducts(shopCurrentCat||'');
 }
 
 // ═══════ SWIPE GESTURE SUPPORT ═══════
@@ -2039,7 +2071,7 @@ document.addEventListener('touchend', function(e){
   if(Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
   if(e.target.closest('.tabs') || e.target.closest('.nav') || e.target.closest('.modal-overlay') || e.target.closest('.pay-modal')) return;
 
-  const tabs = ['checkin','timeline','friends','party','stats','dice','member','shop'];
+  const tabs = ['checkin','timeline','friends','party','stats','map','dice','member','shop'];
   const cur = document.querySelector('.page.active');
   if(!cur) return;
   const curName = cur.id.replace('page-','');
@@ -2095,7 +2127,7 @@ const L={
   member:'會員',
   login:'登入',
   logout:'登出',
-  tab_checkin:'報到',tab_timeline:'動態',tab_party:'酒局',tab_stats:'統計',tab_member:'會員',tab_dice:'骰盅',tab_shop:'商鋪',
+  tab_checkin:'報到',tab_timeline:'動態',tab_party:'酒局',tab_stats:'統計',tab_map:'地圖',tab_member:'會員',tab_dice:'骰盅',tab_shop:'商鋪',
   terms:'使用條款',
   disclaimer:'免責聲明',
   contact:'聯絡我們',
@@ -2476,7 +2508,7 @@ const L={
   member:'会员',
   login:'登录',
   logout:'退出',
-  tab_checkin:'报到',tab_timeline:'动态',tab_party:'酒局',tab_stats:'统计',tab_member:'会员',tab_dice:'骰盅',tab_shop:'商铺',
+  tab_checkin:'报到',tab_timeline:'动态',tab_party:'酒局',tab_stats:'统计',tab_map:'地图',tab_member:'会员',tab_dice:'骰盅',tab_shop:'商铺',
   terms:'使用条款',
   disclaimer:'免责声明',
   contact:'联系我们',
@@ -2857,7 +2889,7 @@ const L={
   member:'Member',
   login:'Login',
   logout:'Logout',
-  tab_checkin:'Check-in',tab_timeline:'Feed',tab_party:'Party',tab_stats:'Stats',tab_member:'VIP',tab_dice:'Dice',tab_shop:'Shop',
+  tab_checkin:'Check-in',tab_timeline:'Feed',tab_party:'Party',tab_stats:'Stats',tab_map:'Map',tab_member:'VIP',tab_dice:'Dice',tab_shop:'Shop',
   terms:'Terms',
   disclaimer:'Disclaimer',
   contact:'Contact Us',
@@ -3338,14 +3370,199 @@ async function doLogout(){
 }
 
 // ═══════ CHECKIN ═══════
+ let _myLat=0,_myLng=0;
+ function getMyLocation(){
+  return new Promise(resolve=>{
+   if(!navigator.geolocation){resolve(false);return}
+   navigator.geolocation.getCurrentPosition(pos=>{
+    _myLat=pos.coords.latitude;_myLng=pos.coords.longitude;resolve(true);
+   },()=>resolve(false),{enableHighAccuracy:true,timeout:8000,maximumAge:60000});
+  });
+ }
+ // Auto-detect location on load
+ getMyLocation();
 async function doCheckin(){
  if(!me)return toast(T('please_login'),1);if(selStatus<0)return toast(T("no_status"),1);
  try{
-  await api('/api/checkin',{method:'POST',body:{status:selStatus,note:document.getElementById('chk-note').value,lat:0,lng:0}});
+  await getMyLocation();
+  await api('/api/checkin',{method:'POST',body:{status:selStatus,note:document.getElementById('chk-note').value,lat:_myLat,lng:_myLng}});
  selStatus=-1;document.getElementById('chk-note').value='';buildGrid();
  toast(T("checkin_ok"));fireConfetti();document.getElementById('chk-remaining').textContent='';
  loadTL();
  }catch(e){toast('❌ '+e.message,1)}
+}
+
+// ═══════ MAP ═══════
+let _amap=null,_mapMarkers=[],_heatMap=null,_mapInited=false,_amapLoading=false;
+let AMAP_KEY=''; // 从/api/config动态获取
+
+async function _getAMapKey(){
+  if(AMAP_KEY)return AMAP_KEY;
+  try{
+    const r=await(await fetch('/api/config')).json();
+    AMAP_KEY=r.amap_key||'';
+  }catch(e){}
+  return AMAP_KEY;
+}
+
+function _loadAMapSDK(){
+  return new Promise(async(resolve,reject)=>{
+    if(window.AMap)return resolve();
+    if(_amapLoading){let t=setInterval(()=>{if(window.AMap){clearInterval(t);resolve()}},200);return}
+    _amapLoading=true;
+    const key=await _getAMapKey();
+    if(!key){reject(new Error('未配置高德key，請管理員設置AMAP_KEY環境變量'));return}
+    const s=document.createElement('script');
+    s.src='https://webapi.amap.com/maps?v=2.0&key='+key+'&plugin=AMap.HeatMap,AMap.MarkerCluster,AMap.Geolocation';
+    s.onload=()=>{resolve()};
+    s.onerror=()=>{reject(new Error('高德SDK載入失敗'))};
+    document.head.appendChild(s);
+  });
+}
+
+async function initMap(){
+  if(_mapInited)return;
+  const ml=me&&me.membership?{jausan:3,jaugwai:2,jiuyau:1}[me.membership]||0:0;
+  const lockOv=document.getElementById('map-lock-overlay');
+  if(ml<1){
+    lockOv.style.display='flex';
+    document.getElementById('btn-map-checkins').disabled=true;
+    document.getElementById('btn-map-venues').disabled=true;
+    document.getElementById('btn-map-heatmap').disabled=true;
+  }else{
+    lockOv.style.display='none';
+    if(ml<2)document.getElementById('btn-map-venues').disabled=true;
+    if(ml<3)document.getElementById('btn-map-heatmap').disabled=true;
+  }
+  _setMapInfo('🗺️ 載入地圖SDK...');
+  try{
+    await _loadAMapSDK();
+    _amap=new AMap.Map('amap-container',{
+      zoom:12,center:[113.26,23.13],
+      mapStyle:'amap://styles/dark',viewMode:'2D'
+    });
+    if(_myLat&&_myLng)_amap.setCenter([_myLng,_myLat]);
+    _amap.addControl(new AMap.Scale());
+    _amap.addControl(new AMap.ToolBar({position:'RB'}));
+    _mapInited=true;
+    _setMapInfo('🗺️ 地圖已載入，點擊下方按鈕查看打卡點');
+  }catch(e){_setMapInfo('❌ 地圖載入失敗: '+e.message)}
+}
+
+function _clearMapLayers(){
+ _mapMarkers.forEach(m=>{try{_amap.remove(m)}catch(e){}});
+ _mapMarkers=[];
+ if(_heatMap){try{_amap.remove(_heatMap)}catch(e){}_heatMap=null;}
+}
+
+function _setMapInfo(msg){
+ const el=document.getElementById('map-info');
+ if(el)el.textContent=msg;
+}
+
+function _statusEmoji(s){
+ return ['🥤','🍷','🍻','🥃','🍺'][Math.min(s,4)];
+}
+function _mlBadge(ml){
+ return ml>=3?'🥇':ml>=2?'🥈':ml>=1?'🥉':'🆓';
+}
+
+async function mapLocateMe(){
+ if(!_amap)return initMap();
+ _setMapInfo('📍 定位中...');
+ const ok=await getMyLocation();
+ if(ok&&_myLat&&_myLng){
+   _amap.setCenter([_myLng,_myLat]);
+   _amap.setZoom(14);
+   _setMapInfo('📍 已定位: '+_myLat.toFixed(4)+', '+_myLng.toFixed(4));
+ }else{
+   _setMapInfo('❌ 定位失敗，請確認瀏覽器已授權位置');
+ }
+}
+
+async function mapLoadCheckins(){
+ if(!_amap)return initMap();
+ const ml=me&&me.membership?{jausan:3,jaugwai:2,jiuyau:1}[me.membership]||0:0;
+ if(ml<1)return showPay();
+ _clearMapLayers();
+ _setMapInfo('🍺 載入打卡點...');
+ const days=document.getElementById('map-days').value;
+ try{
+   const bounds=_amap.getBounds();
+   let url='/api/map/checkins?limit=300&days='+days;
+   if(bounds){
+     const sw=bounds.southwest,ne=bounds.northeast;
+     url+='&sw_lat='+sw.lat+'&sw_lng='+sw.lng+'&ne_lat='+ne.lat+'&ne_lng='+ne.lng;
+   }
+   const res=await api(url);
+   _clearMapLayers();
+   const items=res.checkins||[];
+   items.forEach(c=>{
+     const emoji=_statusEmoji(c.status);
+     const badge=_mlBadge(c.ml);
+     const m=new AMap.Marker({
+       position:[c.lng,c.lat],
+       title:c.nick,
+       content:'<div style="width:32px;height:32px;font-size:20px;text-align:center;line-height:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">'+emoji+'</div>',
+       offset:new AMap.Pixel(-16,-16)
+     });
+     const info='<div style="min-width:160px"><b>'+badge+' '+c.nick+'</b><br>'+emoji+' '+c.note+'<br><small style="color:#888">'+c.time+'</small></div>';
+     m.on('click',()=>{new AMap.InfoWindow({content:info,offset:new AMap.Pixel(0,-20)}).open(_amap,m.getPosition())});
+     _mapMarkers.push(m);
+     _amap.add(m);
+   });
+   _setMapInfo('✅ 載入 '+items.length+' 個打卡點 (近'+days+'日)');
+   if(items.length>0)_amap.setFitView(_mapMarkers);
+ }catch(e){_setMapInfo('❌ '+e.message)}
+}
+
+async function mapLoadVenues(){
+ if(!_amap)return initMap();
+ const ml=me&&me.membership?{jausan:3,jaugwai:2,jiuyau:1}[me.membership]||0:0;
+ if(ml<2)return showPay();
+ _clearMapLayers();
+ _setMapInfo('🏙️ 載入酒吧...');
+ try{
+   const res=await api('/api/map/nearby-venues?lat='+_myLat+'&lng='+_myLng);
+   const venues=res.venues||[];
+   venues.forEach(v=>{
+     const m=new AMap.Marker({
+       position:[v.lng||0,v.lat||0],
+       content:'<div style="width:28px;height:28px;font-size:18px;text-align:center;line-height:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">🏙️</div>',
+       offset:new AMap.Pixel(-14,-14)
+     });
+     const dist=v.dist_km?' ('+v.dist_km+'km)':'';
+     const info='<div style="min-width:180px"><b>🏙️ '+v.name+'</b>'+dist+'<br>'+(v.address||'')+'<br>'+(v.discount?'🎁 會員折扣: '+v.discount:'')+'</div>';
+     m.on('click',()=>{new AMap.InfoWindow({content:info,offset:new AMap.Pixel(0,-20)}).open(_amap,m.getPosition())});
+     _mapMarkers.push(m);
+     _amap.add(m);
+   });
+   _setMapInfo('✅ 找到 '+venues.length+' 間合作酒吧');
+ }catch(e){_setMapInfo('❌ '+e.message)}
+}
+
+async function mapLoadHeatmap(){
+ if(!_amap)return initMap();
+ const ml=me&&me.membership?{jausan:3,jaugwai:2,jiuyau:1}[me.membership]||0:0;
+ if(ml<3)return showPay();
+ _clearMapLayers();
+ _setMapInfo('🔥 載入热力足跡...');
+ try{
+   const res=await api('/api/map/my-heatmap');
+   const pts=res.points||[];
+   if(pts.length<2){_setMapInfo('📊 打卡數據不足，多啲帶定位打卡啦！');return}
+   const heatData=pts.map(p=>({lng:p.lng,lat:p.lat,count:p.count}));
+   _heatMap=new AMap.HeatMap(_amap,{
+     radius:30,opacity:[0,0.8],gradient:{0.3:'#4a9eff',0.6:'#f59e0b',1.0:'#ef4444'}
+   });
+   _heatMap.setDataSet({data:heatData,max:Math.max(...pts.map(p=>p.count),1)});
+   _setMapInfo('✅ 你的足跡热力圖 — '+res.total_loc_checkins+' 次定位打卡，'+pts.length+' 個熱點');
+   // 自动缩放到热力范围
+   if(pts.length>0){
+     const lats=pts.map(p=>p.lat),lngs=pts.map(p=>p.lng);
+     _amap.setBounds(new AMap.Bounds([Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]));
+   }
+ }catch(e){_setMapInfo('❌ '+e.message)}
 }
 
 // ═══════ TIMELINE ═══════

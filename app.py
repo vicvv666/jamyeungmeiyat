@@ -4290,6 +4290,96 @@ def api_annual_report():
                     'friends_count':friends,'parties_count':parties,
                     'title':title,'level':mem_level})
 
+# ═══════════════════ Map / Location ═══════════════════════
+@app.route('/api/map/checkins')
+@auth_required
+def api_map_checkins():
+    """返回所有带坐标的打卡记录（酒友+可查看，免费用户需升级）"""
+    db = get_db()
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 1:
+        return jsonify({'error':'🗺️ 打卡地圖係酒友專屬功能！升級🥉酒友即可解鎖', 'min_level':1}), 403
+    # 可选参数: bounds (sw_lat,sw_lng,ne_lat,ne_lng), limit, days
+    limit = min(int(request.args.get('limit',200)), 500)
+    days = int(request.args.get('days',30))
+    sw_lat = request.args.get('sw_lat')
+    sw_lng = request.args.get('sw_lng')
+    ne_lat = request.args.get('ne_lat')
+    ne_lng = request.args.get('ne_lng')
+    q = """SELECT c.id, c.user_id, c.status, c.note, c.lat, c.lng, c.created_at,
+           u.nickname, u.avatar,
+           CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as ml
+           FROM checkins c JOIN users u ON c.user_id=u.id
+           WHERE c.lat!=0 AND c.lng!=0 AND c.created_at >= datetime('now','localtime','-%d days')
+           """ % days
+    params = []
+    if sw_lat and ne_lat:
+        q += " AND c.lat BETWEEN ? AND ? AND c.lng BETWEEN ? AND ?"
+        params += [float(sw_lat), float(ne_lat), float(sw_lng), float(ne_lng)]
+    q += " ORDER BY c.created_at DESC LIMIT ?"
+    params.append(limit)
+    rows = db.execute(q, params).fetchall()
+    items = []
+    for r in rows:
+        items.append({
+            'id':r['id'], 'uid':r['user_id'], 'status':r['status'],
+            'note':r['note'][:60], 'lat':r['lat'], 'lng':r['lng'],
+            'time':r['created_at'], 'nick':r['nickname'],
+            'avatar':r['avatar'] if r['avatar'] and not r['avatar'].startswith('emoji:') else '',
+            'ml':r['ml']
+        })
+    return jsonify({'checkins':items, 'count':len(items)})
+
+@app.route('/api/map/my-heatmap')
+@auth_required
+def api_map_my_heatmap():
+    """酒神专属: 个人打卡热力图数据"""
+    db = get_db()
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 3:
+        return jsonify({'error':'🔥 热力足迹係酒神專屬！升級🥇酒神解鎖', 'min_level':3}), 403
+    rows = db.execute("""SELECT lat, lng, COUNT(*) as cnt, MIN(created_at) as first_date
+        FROM checkins WHERE user_id=? AND lat!=0 AND lng!=0
+        GROUP BY ROUND(lat,3), ROUND(lng,3) ORDER BY cnt DESC LIMIT 500""",
+        (g.uid,)).fetchall()
+    points = [{'lat':r['lat'],'lng':r['lng'],'count':r['cnt'],'first':r['first_date']} for r in rows]
+    total_loc = db.execute("SELECT COUNT(*) FROM checkins WHERE user_id=? AND lat!=0",(g.uid,)).fetchone()[0]
+    return jsonify({'points':points, 'total_loc_checkins':total_loc})
+
+@app.route('/api/map/nearby-venues')
+@auth_required
+def api_map_nearby_venues():
+    """附近合作酒吧（partner_venues表）"""
+    db = get_db()
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 2:
+        return jsonify({'error':'🏙️ 酒吧VIP係酒鬼專屬！升級🥈酒鬼解鎖', 'min_level':2}), 403
+    lat = float(request.args.get('lat',0) or 0)
+    lng = float(request.args.get('lng',0) or 0)
+    radius_km = float(request.args.get('radius',5))  # default 5km
+    if not lat or not lng:
+        rows = db.execute("SELECT * FROM partner_venues WHERE status='active' ORDER BY name LIMIT 50").fetchall()
+    else:
+        rows = db.execute("""SELECT v.*,
+            (6371 * acos(cos(radians(?))*cos(radians(v.lat))*cos(radians(v.lng)-radians(?))+sin(radians(?))*sin(radians(v.lat)))) AS dist
+            FROM partner_venues v WHERE v.status='active'
+            ORDER BY dist LIMIT 50""",(lat,lng,lat)).fetchall()
+    items = []
+    for r in rows:
+        d = dict(r)
+        if 'dist' in d and d['dist'] is not None:
+            d['dist_km'] = round(d['dist'],1)
+        items.append(d)
+    return jsonify({'venues':items})
+
+@app.route('/api/config')
+def api_config():
+    """公开配置（无需登录）"""
+    return jsonify({
+        'amap_key': os.environ.get('AMAP_KEY',''),
+        'app_name': '今晚飲咗未',
+        'version': '2.1'
+    })
 
 
 if __name__ == '__main__':
