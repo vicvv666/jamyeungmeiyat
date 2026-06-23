@@ -437,6 +437,18 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .comment-input-row{display:flex;gap:8px;margin-top:8px}.comment-input-row input{flex:1}
 .journal-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
 .emoji-picker{display:flex;gap:4px;flex-wrap:wrap;padding:6px 0}
+/* Upgrade modal animations */
+@keyframes ugParticle{0%,100%{opacity:.3;transform:translateY(0) scale(.8)}50%{opacity:.9;transform:translateY(-18px) scale(1.2)}}
+@keyframes ugGlow{0%,100%{box-shadow:0 0 30px rgba(245,158,11,.15),0 0 60px rgba(139,92,246,.1)}50%{box-shadow:0 0 50px rgba(245,158,11,.35),0 0 80px rgba(139,92,246,.25)}}
+@keyframes diamondPulse{0%,100%{transform:scale(1);filter:drop-shadow(0 0 8px rgba(245,158,11,.5))}50%{transform:scale(1.15);filter:drop-shadow(0 0 16px rgba(245,158,11,.8))}}
+@keyframes flashBanner{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes ugBtnPulse{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,.5)}50%{box-shadow:0 0 0 8px rgba(245,158,11,0)}}
+@keyframes ctaBounce{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes warnBlink{0%,100%{opacity:1}50%{opacity:.4}}
+/* Usage bar */
+.ug-bar-wrap{margin:4px 0;padding:2px 0}.ug-bar-label{font-size:11px;color:var(--sub);margin-bottom:2px;display:flex;justify-content:space-between;align-items:center}.ug-bar-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;position:relative}.ug-bar-fill{height:100%;border-radius:3px;transition:width .5s ease}.ug-bar-fill.green{background:var(--green)}.ug-bar-fill.orange{background:#f59e0b}.ug-bar-fill.red{background:var(--red)}.ug-bar-upg{font-size:10px;color:var(--pink);cursor:pointer;margin-left:4px;font-weight:600;white-space:nowrap}
+/* Inline upgrade hint */
+.inline-ug-hint{display:flex;align-items:center;gap:6px;padding:8px 12px;margin:8px 0;border-radius:10px;background:linear-gradient(90deg,rgba(239,68,68,.08),rgba(245,158,11,.12));border:1px solid rgba(245,158,11,.25);font-size:12px;color:var(--amber);font-weight:600;cursor:pointer;animation:ctaBounce 2s ease-in-out infinite}.inline-ug-hint:active{opacity:.8}
 /* Admin tabs */
 .adm-tab.active{color:var(--amber)!important;border-bottom-color:var(--amber)!important}
 .adm-page{display:none}.adm-page.active{display:block}
@@ -481,6 +493,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <div class="content">
 
 <div class="page active" id="page-checkin">
+ <div id="checkin-ug-hint"></div>
  <div class="card" style="padding:0;overflow:hidden;border:none">
   <img id="cover-img" src="cover.png" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.png'}else{this.style.display='none'}">
   <div style="padding:16px">
@@ -511,6 +524,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </div>
 
 <div class="page" id="page-party">
+  <div id="party-ug-hint"></div>
   <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
     <div class="card-header" data-i18n="party_title">🎯 發起酒局</div>
     <input class="input" id="pa-title" data-i18n-placeholder="party_name_ph">
@@ -534,6 +548,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </div>
 
 <div class="page" id="page-dice" style="padding-bottom:120px">
+ <div id="dice-ug-hint"></div>
  <div class="card">
   <div class="card-header" data-i18n="dice_title">🎲 骰盅大挑戰</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:10px;text-align:center" id="dice-mem-hint" data-i18n="dice_count">選擇骰數</div>
@@ -635,9 +650,12 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_friends" data-i18n="stats_friends">酒友</div><div style="font-weight:700;font-size:18px;color:var(--pink)" id="mem-frd-count">0</div></div>
     <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_posts" data-i18n="stats_posts">帖子</div><div style="font-weight:700;font-size:18px;color:var(--purple)" id="mem-post-count">0</div></div>
   </div>
-  <div class="card" style="text-align:center"><div style="font-size:40px;margin-bottom:8px">💎</div>
+  <div class="card" id="mem-status-card" style="text-align:center;transition:all .3s">
+    <div id="mem-cta-area"></div>
+    <div style="font-size:40px;margin-bottom:8px" id="mem-icon-wrap">💎</div>
     <div style="font-weight:700;font-size:16px" id="mem-status" data-i18n="free_member">免費會員</div>
     <div style="font-size:12px;color:var(--sub)" id="mem-exp"></div>
+    <div id="mem-usage-bars"></div>
   </div>
   <!-- 功能對比表 -->
   <div class="card" style="padding:0;overflow:hidden;margin-top:8px">
@@ -864,6 +882,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 
 <!-- 酒友圈 Page -->
 <div class="page" id="page-friends">
+  <div id="friends-ug-hint"></div>
   <!-- 朋友管理区 -->
   <div class="card" style="border:2px solid var(--pink);background:rgba(236,72,153,0.05)">
     <div class="card-header" data-i18n="friends_circle">👫 酒友圈</div>
@@ -1580,7 +1599,54 @@ function memNickClass(lv){if(!lv)lv=memLevel();return lv?'nick-'+lv:''}
 function memCardClass(lv){if(!lv)lv=memLevel();if(lv>=2)return'mem-card-glow-'+lv;return''}
 function memLocked(requiredLv,action){const lv=memLevel();if(lv>=requiredLv)return false;const names={1:'酒友',2:'酒鬼',3:'酒神'};toast('🔒 '+action+' 需要升級至'+(names[requiredLv]||'VIP')+' 💎',1);showUpgradeModal(requiredLv);return true}
 
-// ─── Ad Banner for free users ───
+// ─── Usage Progress Bars ───
+function showUsageBars(){
+  var c=document.getElementById('mem-usage-bars');if(!c)return;
+  var lv=memLevel();if(lv>=3){c.innerHTML='';return}
+  var limits={0:{friends:80,daily_posts:5,photos:1,note:200,dice:2,parties:1},1:{friends:300,daily_posts:15,photos:5,note:500,dice:3,parties:3},2:{friends:500,daily_posts:9999,photos:9,note:1000,dice:4,parties:5}}[lv]||{friends:80,daily_posts:5,photos:1,note:200,dice:2,parties:1};
+  var frds=window._memFriends?window._memFriends.length:0;
+  var items=[
+    {label:'👫 酒友',cur:frds,max:limits.friends,upg:lv<1?'300':lv<2?'500':'∞'},
+    {label:'📝 筆記字數',cur:0,max:limits.note,upg:lv<1?'500':lv<2?'1K':'3K',noteMax:true},
+    {label:'📸 打卡相',cur:0,max:limits.photos,upg:lv<1?'5':lv<2?'9':'9',photoMax:true},
+    {label:'🎲 骰子',cur:limits.dice,max:limits.dice,upg:''+(limits.dice+1),isStatic:true},
+    {label:'🎉 月酒局',cur:0,max:limits.parties,upg:lv<1?'3':lv<2?'5':'∞',partyMax:true}
+  ];
+  var h='';
+  items.forEach(function(it){
+    if(it.isStatic){
+      h+='<div class="ug-bar-wrap"><div class="ug-bar-label"><span>'+it.label+'</span><span>'+it.cur+'/'+it.max+' <span class="ug-bar-upg" onclick="showUpgradeModal('+(lv+1)+')">↗升級'+it.upg+'</span></span></div></div>';
+      return;
+    }
+    var pct=it.max>0?Math.min(100,Math.round(it.cur/it.max*100)):0;
+    var cls=pct>=100?'red':pct>=80?'orange':'green';
+    h+='<div class="ug-bar-wrap"><div class="ug-bar-label"><span>'+it.label+'</span><span>'+it.cur+'/'+it.max+(pct>=80?' <span class="ug-bar-upg" onclick="showUpgradeModal('+(lv+1)+')">↗升級'+it.upg+'</span>':'')+'</span></div><div class="ug-bar-track"><div class="ug-bar-fill '+cls+'" style="width:'+pct+'%"></div></div></div>';
+  });
+  c.innerHTML=h;
+}
+
+// ─── Inline Upgrade Hints on Feature Pages ───
+function renderInlineHints(){
+  var lv=memLevel();if(lv>=3)return;
+  var frds=window._memFriends?window._memFriends.length:0;
+  var limits={0:{friends:80,daily_posts:5,parties:1},1:{friends:300,daily_posts:15,parties:3},2:{friends:500,daily_posts:9999,parties:5}}[lv]||{};
+  var hints=[];
+  if(frds>=limits.friends*0.8)hints.push({id:'checkin-ug-hint',msg:'👫 酒友快滿啦！升級解锁更多位 ↗',lv:lv<1?1:2});
+  if(limits.daily_posts<=5)hints.push({id:'dice-ug-hint',msg:'🎲 想玩多粒骰？升級解锁 ↗',lv:1});
+  if(limits.parties<=1)hints.push({id:'party-ug-hint',msg:'🎯 每月只能發1個酒局？升級解锁更多 ↗',lv:1});
+  hints.forEach(function(hint){
+    var el=document.getElementById(hint.id);if(!el)return;
+    el.innerHTML='<div class="inline-ug-hint" onclick="showUpgradeModal('+hint.lv+')">'+hint.msg+'</div>';
+  });
+  // Also update CTA in member page
+  var cta=document.getElementById('mem-cta-area');
+  if(!cta)return;
+  if(lv===0){
+    cta.innerHTML='<div onclick="showUpgradeModal(1)" style="background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff;border-radius:12px;padding:12px;font-weight:800;font-size:15px;text-align:center;cursor:pointer;margin-bottom:8px;animation:ctaBounce 2s ease-in-out infinite">🚀 升級解鎖全部功能</div>';
+  }else if(lv>0&&lv<3){
+    cta.innerHTML='<div onclick="showUpgradeModal('+(lv+1)+')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:12px;padding:10px;font-weight:700;font-size:13px;text-align:center;cursor:pointer;margin-bottom:8px">💎 升級至'+{1:'🥈酒鬼',2:'🥇酒神'}[lv+1]+' 解锁更多</div>';
+  }else{cta.innerHTML=''}
+}
 async function loadAdBanner(container){
   try{
     const r=await fetch(API+'/api/ads',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}});
@@ -1594,22 +1660,31 @@ async function loadAdBanner(container){
   }catch(e){}
 }
 
-// ─── Upgrade Modal ───
+// ─── Upgrade Modal (Enhanced Visual) ───
 function showUpgradeModal(requiredLv){
   const names={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
   const pricesM={1:'¥9.9/月',2:'¥19.9/月',3:'¥39.9/月'};
   const pricesA={1:'¥69/年',2:'¥149/年',3:'¥299/年'};
-  const saveTxt={1:'省42%',2:'省38%',3:'省38%'};
-  let ugBilling='monthly';
-  const perksList={
-    1:['🎲 3粒骰子','📸 打卡5張相','📝 500字筆記','👫 300個酒友','🍺 每日15帖','🏗️ 可建3個群','💬 群聊無限發','🏠 骰盅開房','🚫 去廣告','⭐ 專屬徽章'],
-    2:['🎲 4粒骰子','📸 打卡9張相','📝 1000字筆記','👫 500個酒友','🍺 每日無限帖','🏗️ 可建10個群','👨‍👩‍👧‍👦 群上限100人','💬 群聊無限發','🏠 開房+約戰','🎯 每月5酒局','🚫 去廣告','⭐ 專屬徽章'],
-    3:['🎲 5粒骰子','📸 打卡9張相','📝 3000字筆記','👫 無限酒友','🍺 每日無限帖','🏗️ 建群不限','👨‍👩‍👧‍👦 群上限500人','💬 群聊無限發','🏠 開房+約戰','🎯 無限酒局','🚫 去廣告','⭐ 專屬徽章','🌈 炫彩暱稱','⚡ 優先匹配','🔥 酒神專屬特效']
-  };
-  let h='<div id="upgrade-overlay" onclick="if(event.target===this)this.remove()" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center">';
-  h+='<div style="background:var(--card);border-radius:16px;padding:20px;max-width:420px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-height:88vh;overflow-y:auto">';
-  h+='<div style="font-size:32px;text-align:center;margin-bottom:4px">💎</div>';
-  h+='<div style="font-size:18px;font-weight:700;text-align:center;color:var(--amber);margin-bottom:8px">升級解鎖更多精彩</div>';
+  const freeVs={1:['3粒骰 ← 免費僅2粒','5張打卡相 ← 免費僅1張','500字筆記 ← 免費僅200字','300酒友 ← 免費僅80','每日15帖 ← 免費僅5','可建3群 ← 免費0','開房約戰','去廣告','專屬徽章'],2:['4粒骰 ← 免費僅2粒','9張打卡相 ← 免費僅1張','1000字筆記 ← 免費僅200字','500酒友 ← 免費僅80','每日無限帖 ← 免費僅5','可建10群 ← 免費0','每月5酒局 ← 免費僅1','開房+約戰','去廣告','專屬徽章'],3:['5粒骰 ← 免費僅2粒','9張打卡相 ← 免費僅1張','3000字筆記 ← 免費僅200字','無限酒友 ← 免費僅80','每日無限帖 ← 免費僅5','建群不限 ← 免費0','無限酒局 ← 免費僅1','開房+約戰','去廣告','專屬徽章','🌈 炫彩暱稱','⚡ 優先匹配','🔥 酒神專屬特效']};
+  // 限时倒计时
+  var cdKey='jymy_ug_cd_start',cdStart=localStorage.getItem(cdKey);
+  if(!cdStart){localStorage.setItem(cdKey,Date.now());cdStart=Date.now()}
+  var cdLeft=Math.max(0,72*3600000-(Date.now()-parseInt(cdStart)));
+  var cdH=Math.floor(cdLeft/3600000),cdM=Math.floor((cdLeft%3600000)/60000),cdS=Math.floor((cdLeft%60000)/1000);
+  var cdShow=cdLeft>0;
+  let h='<div id="upgrade-overlay" onclick="if(event.target===this){this.remove();clearInterval(window._ugCdTimer)}" style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center">';
+  h+='<div style="position:relative;background:var(--card);border-radius:20px;padding:0;max-width:420px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.3);max-height:88vh;overflow-y:auto;animation:ugGlow 3s ease-in-out infinite">';
+  // 粒子背景
+  h+='<div style="position:absolute;inset:0;overflow:hidden;border-radius:20px;pointer-events:none">';
+  for(var pi=0;pi<12;pi++){var px=Math.random()*100,py=Math.random()*100,ps=2+Math.random()*3,pa=1+Math.floor(Math.random()*5);h+='<div style="position:absolute;left:'+px+'%;top:'+py+'%;width:'+ps+'px;height:'+ps+'px;border-radius:50%;background:'+(pi%2?'var(--amber)':'var(--purple)')+';animation:ugParticle '+(2+pi%3)+'s ease-in-out '+(pi*.3)+'s infinite"></div>'}
+  h+='</div>';
+  // 限时5折横幅
+  if(cdShow)h+='<div style="background:linear-gradient(90deg,#dc2626,#ef4444);color:#fff;text-align:center;padding:8px 12px;border-radius:20px 20px 0 0;font-size:13px;font-weight:800;animation:flashBanner 1.5s ease-in-out infinite">🔥 限時優惠：首月5折！<span id="ug-cd" style="margin-left:8px;font-variant-numeric:tabular-nums">'+cdH+'時'+String(cdM).padStart(2,'0')+'分'+String(cdS).padStart(2,'0')+'秒</span></div>';
+  else h+='<div style="height:8px;border-radius:20px 20px 0 0"></div>';
+  h+='<div style="position:relative;padding:20px">';
+  // 大钻石动画
+  h+='<div style="font-size:48px;text-align:center;margin-bottom:8px;animation:diamondPulse 2s ease-in-out infinite">💎</div>';
+  h+='<div style="font-size:20px;font-weight:800;text-align:center;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px">升級解鎖更多精彩</div>';
   // Tab: quick / compare
   h+='<div style="display:flex;gap:4px;margin-bottom:12px">';
   h+='<button id="ug-tab-quick" onclick="ugTab(\'quick\')" style="flex:1;padding:6px;font-size:12px;font-weight:700;border:none;border-radius:8px 8px 0 0;background:var(--amber);color:#fff;cursor:pointer">🚀 快速升級</button>';
@@ -1618,7 +1693,10 @@ function showUpgradeModal(requiredLv){
   // Quick panel
   h+='<div id="ug-panel-quick">';
   h+='<div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:12px">';
-  perksList[requiredLv].forEach(p=>{h+='<div style="padding:3px 0;font-size:12px;color:var(--text)">✅ '+p+'</div>'});
+  (freeVs[requiredLv]||freeVs[1]).forEach(p=>{
+    var parts=p.split(' ← ');
+    h+='<div style="padding:4px 0;font-size:12px;color:var(--text)">✅ <span style="color:var(--green)">'+parts[0]+'</span>'+(parts[1]?' <span style="color:var(--sub);font-size:11px">'+parts[1]+'</span>':'')+'</div>'
+  });
   h+='</div>';
   // billing toggle
   h+='<div style="text-align:center;margin:6px 0 10px;font-size:12px">';
@@ -1637,15 +1715,25 @@ function showUpgradeModal(requiredLv){
   });
   h+='<input type="hidden" id="ug-lv" value="'+requiredLv+'">';
   h+='<input type="hidden" id="ug-billing" value="monthly">';
-  h+='<button class="btn btn-primary" style="width:100%;margin-top:12px;font-size:16px;font-weight:700;padding:12px" onclick="doUpgrade()">🚀 立即升級</button>';
+  // Gradient + pulse button
+  h+='<button class="btn btn-primary" style="width:100%;margin-top:12px;font-size:18px;font-weight:800;padding:14px;background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);box-shadow:0 4px 20px rgba(245,158,11,.4);animation:ugBtnPulse 2s ease-in-out infinite" onclick="doUpgrade()">🚀 立即升級</button>';
   h+='</div>';
   // Compare panel (hidden by default)
   h+='<div id="ug-panel-compare" style="display:none">';
   h+=_ugCompareTable();
   h+='</div>';
-  h+='<div style="text-align:center;margin-top:8px"><a href="#" onclick="event.preventDefault();document.getElementById(\'upgrade-overlay\').remove()" style="font-size:12px;color:var(--sub)">下次再講</a></div>';
-  h+='</div></div>';
+  h+='<div style="text-align:center;margin-top:8px"><a href="#" onclick="event.preventDefault();document.getElementById(\'upgrade-overlay\').remove();clearInterval(window._ugCdTimer)" style="font-size:12px;color:var(--sub)">下次再講</a></div>';
+  h+='</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',h);
+  // 倒计时更新
+  if(cdShow){window._ugCdTimer=setInterval(function(){
+    var cs=localStorage.getItem('jymy_ug_cd_start');if(!cs){clearInterval(window._ugCdTimer);return}
+    var left=Math.max(0,72*3600000-(Date.now()-parseInt(cs)));
+    var e=document.getElementById('ug-cd');
+    if(!e||left<=0){if(e)e.textContent='已過期';clearInterval(window._ugCdTimer);return}
+    var hh=Math.floor(left/3600000),mm=Math.floor((left%3600000)/60000),ss=Math.floor((left%60000)/1000);
+    e.textContent=hh+'時'+String(mm).padStart(2,'0')+'分'+String(ss).padStart(2,'0')+'秒';
+  },1000)}
 }
 function ugTab(t){
   document.getElementById('ug-panel-quick').style.display=t==='quick'?'':'none';
@@ -3672,7 +3760,7 @@ async function _doSaveProf(){
  }catch(e){toast('❌ '+e.message,1)}
 }
 
-function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin()}
+function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin();showUsageBars();renderInlineHints()}
 
 // Admin entry: long-press brand name 3s or tap 5x opens login dialog (type 'admin' to enter admin mode)
 let adminToken = localStorage.getItem('jymy_admin_token') || '';
