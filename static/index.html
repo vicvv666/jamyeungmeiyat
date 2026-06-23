@@ -6167,12 +6167,13 @@ function grpDoEdit(gid){
 
 // ══════════ Group Chat ══════════
 var _grpChatGid=0,_grpChatLastId=0,_grpChatTimer=null;
+function _avatarErr(el,nick){el.outerHTML='<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">'+(nick||'?')[0]+'</div>'}
 function grpChatRender(msgs,append){
   const el=document.getElementById('grp-chat-msgs');
   let html=msgs.map(m=>{
     const isMe=m.user_id===_uid();
     const badge=m.membership_level>=3?'🥇':m.membership_level>=2?'🥈':m.membership_level>=1?'🥉':'';
-    const av=m.avatar?`<img src="${m.avatar}" style="width:100%;height:100%;border-radius:50%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||'?')[0]}</div>`;
+    const av=m.avatar?`<img src="${m.avatar}" onerror="_avatarErr(this,'${(m.nickname||'?')[0]}')" style="width:100%;height:100%;border-radius:50%">`:`<div style="width:100%;height:100%;background:var(--sub);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${(m.nickname||'?')[0]}</div>`;
     const time=(m.created_at||'').slice(11,16);
     if(isMe){
       return `<div style="display:flex;justify-content:flex-end;margin-bottom:6px;gap:6px"><div style="max-width:75%"><div style="background:var(--pink);color:#fff;padding:6px 12px;border-radius:14px 14px 2px 14px;font-size:13px;word-break:break-word;display:inline-block">${m.content}</div><div style="font-size:10px;color:var(--sub);text-align:right;margin-top:2px">${time}</div></div></div>`
