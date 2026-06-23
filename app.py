@@ -571,6 +571,65 @@ CREATE TABLE IF NOT EXISTS users (
         created_at  TEXT DEFAULT (datetime('now','localtime'))
     )''')
     except: pass
+    # ── Seed liquor_db with popular liquors ──
+    try:
+        cnt = db.execute('SELECT COUNT(*) FROM liquor_db').fetchone()[0]
+        if cnt == 0:
+            seed_liquors = [
+                ('6920436890148','茅台飛天53度','Moutai Feitian 53%','茅台','醬香型白酒','中國貴州',53,500,'','',
+                 '中國國酒，醬香突出、幽雅細膩、酒體醇厚、回味悠長',
+                 '醬香突出 幽雅細膩 酒體醇厚 回味悠長 空杯留香持久',1,'{"price":1499,"release_date":"2024-01","rating":4.8}'),
+                ('6920436890223','茅台王子酒','Moutai Prince','茅台','醬香型白酒','中國貴州',53,500,'','',
+                 '茅台系列酒，醬香正宗', '醬香明顯 醇厚協調 回味較長',1,'{"price":298,"release_date":"2024-03","rating":4.2}'),
+                ('6943699420165','五糧液普五52度','Wuliangye Classic 52%','五糧液','濃香型白酒','中國四川',52,500,'','',
+                 '中國名酒，香氣悠久、味醇厚、入口甘美', '香氣悠久 味醇厚 入口甘美 入喉淨爽 各味協調',1,'{"price":1099,"release_date":"2024-01","rating":4.7}'),
+                ('6920288420207','瀘州老窖特曲52度','Luzhou Laojiao Tequ 52%','瀘州老窖','濃香型白酒','中國四川',52,500,'','',
+                 '濃香型鼻祖，老窖池發酵', '窖香濃郁 飲後尤香 清冽甘爽 回味悠長',1,'{"price":198,"release_date":"2024-02","rating":4.4}'),
+                ('6925303720886','洋河夢之藍M3','Yanghe Dream Blue M3','洋河','綿柔型白酒','中國江蘇',52,500,'','',
+                 '綿柔型白酒代表', '綿柔淡雅 甜淨爽口 餘味悠長',1,'{"price":499,"release_date":"2024-01","rating":4.3}'),
+                ('6920226980118','劍南春52度','Jiannanchun 52%','劍南春','濃香型白酒','中國四川',52,500,'','',
+                 '唐代宮廷御酒', '芳香濃郁 純正典雅 醇厚豐滿 甘冽淨爽',1,'{"price":378,"release_date":"2024-02","rating":4.3}'),
+                ('6921185900012','汾酒老白汾53度','Fenjiu Laobaifen 53%','汾酒','清香型白酒','中國山西',53,475,'','',
+                 '清香型白酒典型代表', '清香純正 醇甜柔和 餘味爽淨',1,'{"price":158,"release_date":"2024-01","rating":4.2}'),
+                ('6920202888889','古井貢酒年份原漿16','Gujing Gongju 16yr','古井貢酒','濃香型白酒','中國安徽',50,500,'','',
+                 '明代古井釀造', '色清如水晶 香純似幽蘭 入口甘美醇和 回味經久不息',1,'{"price":298,"release_date":"2024-03","rating":4.3}'),
+                ('8808684150015','真露燒酒 Chamisul','Jinro Chamisul Soju','真露/Jinro','燒酒','韓國',16.9,360,'','',
+                 '韓國最暢銷燒酒', '清爽順滑 淡雅米香 口感淨爽',1,'{"price":25,"release_date":"2024-01","rating":4.0}'),
+                ('4902778061107','三得利角瓶威士忌','Suntory Kakubin Whisky','三得利/Suntory','日本威士忌','日本',40,700,'','',
+                 '日本國民威士忌', '輕快甘甜 淡雅果香 柔和煙熏 餘韻清爽',1,'{"price":168,"release_date":"2023-11","rating":4.5}'),
+                ('5010327024105','尊尼獲加紅牌','Johnnie Walker Red Label','Johnnie Walker','調和威士忌','蘇格蘭',40,700,'','',
+                 '世界最暢銷調和威士忌', '煙熏泥煤 溫暖香料 麥芽甜蜜 餘韻悠長',1,'{"price":148,"release_date":"2024-01","rating":4.1}'),
+                ('5000299115180','尊尼獲加黑牌12年','Johnnie Walker Black Label 12yr','Johnnie Walker','調和威士忌','蘇格蘭',40,700,'','',
+                 '12年陳釀經典調和', '濃郁煙熏 乾果甜蜜 香料溫暖 木質悠長',1,'{"price":268,"release_date":"2024-01","rating":4.5}'),
+                ('5000299113032','百齡壇12年','Ballantine\'s 12yr','Ballantine\'s','調和威士忌','蘇格蘭',40,700,'','',
+                 '蘇格蘭銷量前列威士忌', '蜂蜜甜蜜 果香馥郁 橡木香草 溫暖餘韻',1,'{"price":188,"release_date":"2024-01","rating":4.2}'),
+                ('3120580060326','軒尼詩VSOP','Hennessy VSOP','Hennessy','干邑白蘭地','法國干邑',40,700,'','',
+                 '全球最暢銷VSOP干邑', '香草橡木 果香馥郁 辛香微妙 柔和悠長',1,'{"price":498,"release_date":"2024-01","rating":4.6}'),
+                ('3120580060210','軒尼詩XO','Hennessy XO','Hennessy','干邑白蘭地','法國干邑',40,700,'','',
+                 '干邑極致之作', '黑巧克力 無花果 香料橡木 陳年木質 極致餘韻',1,'{"price":1580,"release_date":"2024-01","rating":4.9}'),
+                ('3120580060463','馬爹利藍帶','Martell Cordon Bleu','Martell','干邑白蘭地','法國干邑',40,700,'','',
+                 '馬爹利旗艦干邑', '花香果香 焦糖甜蜜 木質精緻 圓潤豐滿',1,'{"price":1380,"release_date":"2024-01","rating":4.8}'),
+                ('0811420006439','灰雁伏特加','Grey Goose Vodka','Grey Goose','伏特加','法國',40,750,'','',
+                 '法國高端伏特加', '柔滑細膩 清冽純淨 淡雅穀物 餘韻溫润',1,'{"price":298,"release_date":"2024-01","rating":4.3}'),
+                ('0881101205119','百加得白朗姆','Bacardi Superior White Rum','Bacardi','白朗姆酒','波多黎各',40,750,'','',
+                 '世界最暢銷朗姆酒', '輕快甘甜 淡雅蔗糖 清新花香 餘韻乾淨',1,'{"price":68,"release_date":"2024-01","rating":3.9}'),
+                ('7312040200205','絕對伏特加','Absolut Vodka','Absolut','伏特加','瑞典',40,750,'','',
+                 '瑞典經典伏特加', '純淨柔滑 穀物香氣 圓潤飽滿 餘韻乾淨',1,'{"price":128,"release_date":"2024-01","rating":4.1}'),
+                ('0010110100500','傑克丹尼爾田納西威士忌','Jack Daniel\'s Tennessee Whiskey','Jack Daniel\'s','田納西威士忌','美國田納西',40,750,'','',
+                 '美國最暢銷威士忌', '香草焦糖 甜美菸草 木炭煙熏 溫暖順滑',1,'{"price":178,"release_date":"2024-01","rating":4.4}'),
+            ]
+            for s in seed_liquors:
+                try:
+                    db.execute('''INSERT OR IGNORE INTO liquor_db
+                        (barcode,name,name_en,brand,category,origin,abv,volume_ml,vintage,image_url,
+                         description,taste_notes,verified,extra_json)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)''', s)
+                except: pass
+            db.commit()
+            print(f'[init] Seeded {len(seed_liquors)} liquors into liquor_db')
+    except Exception as e:
+        print(f'[init] liquor seed error: {e}')
+
     # ── Groups (酒友圈群组) ──
     try: db.execute('''CREATE TABLE IF NOT EXISTS groups (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
