@@ -651,6 +651,70 @@ CREATE TABLE IF NOT EXISTS users (
         UNIQUE(group_id, user_id)
     )''')
     except: pass
+    # ── Liquor Favorites ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS liquor_favorites (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id     INTEGER NOT NULL,
+        liquor_id   INTEGER NOT NULL,
+        memo        TEXT DEFAULT '',
+        rating      INTEGER DEFAULT 0,
+        cellar_tag  TEXT DEFAULT '',
+        created_at  TEXT DEFAULT (datetime('now','localtime')),
+        UNIQUE(user_id, liquor_id)
+    )''')
+    except: pass
+    # ── Coupons ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS coupons (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        code        TEXT NOT NULL UNIQUE,
+        category    TEXT DEFAULT 'general',
+        discount    REAL DEFAULT 0,
+        amount_off  REAL DEFAULT 0,
+        min_spend   REAL DEFAULT 0,
+        valid_from  TEXT DEFAULT '',
+        valid_until TEXT DEFAULT '',
+        max_uses    INTEGER DEFAULT 0,
+        used_count  INTEGER DEFAULT 0,
+        min_level   INTEGER DEFAULT 1,
+        created_at  TEXT DEFAULT (datetime('now','localtime'))
+    )''')
+    except: pass
+    try: db.execute('''CREATE TABLE IF NOT EXISTS user_coupons (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id     INTEGER NOT NULL,
+        coupon_id   INTEGER NOT NULL,
+        status      TEXT DEFAULT 'active',
+        claimed_at  TEXT DEFAULT (datetime('now','localtime')),
+        used_at     TEXT DEFAULT ''
+    )''')
+    except: pass
+    # ── Partner Venues (bar VIP) ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS partner_venues (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        name        TEXT NOT NULL,
+        address     TEXT DEFAULT '',
+        city        TEXT DEFAULT '',
+        lat         REAL DEFAULT 0,
+        lng         REAL DEFAULT 0,
+        perks       TEXT DEFAULT '{}',
+        min_level   INTEGER DEFAULT 2,
+        contact     TEXT DEFAULT '',
+        active      INTEGER DEFAULT 1,
+        created_at  TEXT DEFAULT (datetime('now','localtime'))
+    )''')
+    except: pass
+    # ── Invitations ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS invitations (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        inviter_id  INTEGER NOT NULL,
+        invitee_id  INTEGER DEFAULT 0,
+        code        TEXT NOT NULL UNIQUE,
+        status      TEXT DEFAULT 'pending',
+        reward_days INTEGER DEFAULT 7,
+        claimed_at  TEXT DEFAULT '',
+        created_at  TEXT DEFAULT (datetime('now','localtime'))
+    )''')
+    except: pass
     db.commit()
     db.close()
 
@@ -843,15 +907,15 @@ def _mem_dice_max(level):
 
 def _mem_note_max(level):
     """Max note length per membership level"""
-    return {0:200, 1:500, 2:1000, 3:3000}.get(level, 200)
+    return {0:150, 1:500, 2:1000, 3:3000}.get(level, 150)
 
 def _mem_photo_max(level):
     """Max photo count per membership level"""
-    return {0:1, 1:5, 2:9, 3:9}.get(level, 1)
+    return {0:1, 1:4, 2:9, 3:20}.get(level, 1)
 
 def _mem_friends_max(level):
     """Max friends per membership level"""
-    return {0:80, 1:300, 2:500, 3:9999}.get(level, 80)
+    return {0:50, 1:200, 2:999, 3:9999}.get(level, 50)
 
 def _mem_daily_posts(level):
     """Max posts per day per membership level"""
@@ -859,7 +923,7 @@ def _mem_daily_posts(level):
 
 def _mem_post_images_max(level):
     """Max images per post per membership level"""
-    return {0:1, 1:4, 2:9, 3:9}.get(level, 1)
+    return {0:1, 1:4, 2:9, 3:20}.get(level, 1)
 
 def _mem_post_chars_max(level):
     """Max characters per post per membership level"""
@@ -868,6 +932,76 @@ def _mem_post_chars_max(level):
 def _mem_parties_max(level):
     """Max parties user can create per month per membership level"""
     return {0:1, 1:3, 2:5, 3:999}.get(level, 1)
+
+def _mem_scan_daily(level):
+    """Max barcode scans per day per membership level"""
+    return {0:2, 1:30, 2:200, 3:-1}.get(level, 2)
+
+def _mem_favorites_max(level):
+    """Max liquor favorites per membership level"""
+    return {0:0, 1:50, 2:500, 3:-1}.get(level, 0)
+
+def _mem_checkin_map(level):
+    """Checkin map access per membership: none/self/friends/global"""
+    return {0:'none', 1:'self', 2:'friends', 3:'global'}.get(level, 'none')
+
+def _mem_coupons_month(level):
+    """Monthly coupons per membership level"""
+    return {0:0, 1:1, 2:3, 3:5}.get(level, 0)
+
+# ═══════════════════ Barcode Verification (辨真助手) ═══════════════════
+_EAN13_COUNTRY = {
+    '690':'中國','691':'中國','692':'中國','693':'中國','694':'中國','695':'中國',
+    '302':'法國','303':'法國','304':'法國','312':'法國','376':'法國',
+    '500':'英國','501':'英國',
+    '490':'日本','491':'日本',
+    '880':'韓國','881':'韓國',
+    '076':'美國','080':'美國','081':'美國',
+    '731':'瑞典','871':'荷蘭',
+    '931':'澳洲',
+}
+
+_FAKE_BARCODE_BLACKLIST = {
+    '6902952880999','6901382000999','6901234567890',
+}
+
+def _verify_ean13(barcode):
+    """Validate EAN-13 checksum."""
+    if len(barcode) != 13 or not barcode.isdigit():
+        return False
+    total = sum(int(barcode[i]) * (1 if i % 2 == 0 else 3) for i in range(12))
+    check = (10 - total % 10) % 10
+    return check == int(barcode[-1])
+
+def _barcode_country(barcode):
+    """Extract country from barcode prefix."""
+    for prefix in sorted(_EAN13_COUNTRY.keys(), key=len, reverse=True):
+        if barcode.startswith(prefix):
+            return _EAN13_COUNTRY[prefix]
+    return '未知'
+
+def _liquor_authenticity_score(barcode, liquor_data=None):
+    """Score barcode authenticity 0-100. Returns (verdict, score, details)."""
+    score = 100
+    details = []
+    if not _verify_ean13(barcode):
+        score -= 30
+        details.append('條碼校驗碼不正確')
+    if barcode in _FAKE_BARCODE_BLACKLIST:
+        score -= 50
+        details.append('條碼在假酒黑名單中')
+    bc_country = _barcode_country(barcode)
+    if liquor_data:
+        origin = liquor_data.get('origin','') or ''
+        if bc_country not in ('未知','') and bc_country not in origin and origin not in ('','未知'):
+            score -= 20
+            details.append(f'條碼國家({bc_country})與產地({origin})不匹配')
+    if not details:
+        details.append('檢查通過，未發現異常')
+    if score >= 80: verdict = 'likely_authentic'
+    elif score >= 50: verdict = 'needs_verification'
+    else: verdict = 'suspicious'
+    return verdict, score, details
 
 def _mem_check_expired(uid, db):
     """Check and downgrade a specific user if membership expired. Returns True if downgraded."""
@@ -1031,12 +1165,12 @@ def api_plans():
     return jsonify({'plans': {
         'jiuyau':  {'monthly':9.9,  'annual':69,  'name_zh':'🥉酒友', 'level':1},
         'jaugwai': {'monthly':19.9, 'annual':149, 'name_zh':'🥈酒鬼', 'level':2},
-        'jausan':  {'monthly':39.9, 'annual':299, 'name_zh':'🥇酒神', 'level':3},
+        'jausan':  {'monthly':49.9, 'annual':349, 'name_zh':'🥇酒神', 'level':3},
     }, 'limits': {
-        0: {'dice':2,'photos':1,'note':200,'friends':80,'daily_posts':5,'parties_month':1,'post_imgs':1,'post_chars':500,'grp_create':0,'grp_members':10,'grp_chat_send':10,'grp_chat_history':20},
-        1: {'dice':3,'photos':5,'note':500,'friends':300,'daily_posts':15,'parties_month':3,'post_imgs':4,'post_chars':1000,'grp_create':3,'grp_members':30,'grp_chat_send':999,'grp_chat_history':999},
-        2: {'dice':4,'photos':9,'note':1000,'friends':500,'daily_posts':999,'parties_month':5,'post_imgs':9,'post_chars':2000,'grp_create':10,'grp_members':100,'grp_chat_send':999,'grp_chat_history':999},
-        3: {'dice':5,'photos':9,'note':3000,'friends':9999,'daily_posts':999,'parties_month':999,'post_imgs':9,'post_chars':5000,'grp_create':999,'grp_members':500,'grp_chat_send':999,'grp_chat_history':999},
+        0: {'dice':2,'photos':1,'note':150,'friends':50,'daily_posts':5,'parties_month':1,'post_imgs':1,'post_chars':500,'grp_create':0,'grp_members':10,'grp_chat_send':10,'grp_chat_history':20,'scan_daily':2,'favorites':0,'coupons_month':0},
+        1: {'dice':3,'photos':4,'note':500,'friends':200,'daily_posts':15,'parties_month':3,'post_imgs':4,'post_chars':1000,'grp_create':3,'grp_members':30,'grp_chat_send':999,'grp_chat_history':999,'scan_daily':30,'favorites':50,'coupons_month':1},
+        2: {'dice':4,'photos':9,'note':1000,'friends':999,'daily_posts':999,'parties_month':5,'post_imgs':9,'post_chars':2000,'grp_create':10,'grp_members':100,'grp_chat_send':999,'grp_chat_history':999,'scan_daily':200,'favorites':500,'coupons_month':3},
+        3: {'dice':5,'photos':20,'note':3000,'friends':9999,'daily_posts':999,'parties_month':999,'post_imgs':20,'post_chars':5000,'grp_create':999,'grp_members':500,'grp_chat_send':999,'grp_chat_history':999,'scan_daily':-1,'favorites':-1,'coupons_month':5},
     }, 'features': [
         {'key':'dice','label':'骰子數量','icon':'🎲'},
         {'key':'photos','label':'打卡照片數','icon':'📷'},
@@ -1050,7 +1184,15 @@ def api_plans():
         {'key':'grp_members','label':'群人數上限','icon':'👨‍👩‍👧‍👦'},
         {'key':'grp_chat_send','label':'每小時聊天數','icon':'💬'},
         {'key':'grp_chat_history','label':'聊天記錄','icon':'📜'},
-    ]})
+        {'key':'scan_daily','label':'每日掃碼','icon':'🔍'},
+        {'key':'favorites','label':'酒品收藏','icon':'🔖'},
+        {'key':'coupons_month','label':'每月優惠券','icon':'🧧'},
+    ], 'unlocks': {
+        0: {'checkin_map':'❌','verify_auth':'❌','badge':'❌','annual_report':'❌','bar_vip':'❌'},
+        1: {'checkin_map':'自己足跡','verify_auth':'基礎比價','badge':'🥉銅框','annual_report':'❌','bar_vip':'❌'},
+        2: {'checkin_map':'朋友足跡','verify_auth':'辨真提示','badge':'🥈紫框','annual_report':'❌','bar_vip':'❌'},
+        3: {'checkin_map':'全域熱點','verify_auth':'完整報告','badge':'🥇金框','annual_report':'✔PDF','bar_vip':'✔'},
+    }})
 
 @app.route('/api/me')
 @auth_required
@@ -1222,7 +1364,7 @@ def api_checkin():
     # 免費用戶只接受1張相（之後前端可傳photos陣列）
     photos_extra = d.get('photos', [])
     if isinstance(photos_extra, list) and len(photos_extra) > _mem_photo_max(mem_level):
-        return jsonify({'error':f'免費用戶只可上傳{_mem_photo_max(mem_level)}張相，升級解鎖更多 💎', 'max_photos': _mem_photo_max(mem_level)}), 403
+        return jsonify({'error':f'再配多1張圖📸 升級🥉酒友得4張+掃碼比價 → 僅¥9.9/月 💎', 'max_photos': _mem_photo_max(mem_level)}), 403
     lat = float(d.get('lat',0) or 0)
     lng = float(d.get('lng',0) or 0)
     party_id = int(d.get('party_id',0) or 0)
@@ -1401,7 +1543,7 @@ def api_add_friend():
         (g.uid,g.uid)).fetchone()[0]
     if friend_count >= _mem_friends_max(mem_level):
         max_f = _mem_friends_max(mem_level)
-        return jsonify({'error':f'酒友數量已達上限({max_f}人)，升級酒友可加300人 💎'}), 403
+        return jsonify({'error':f'好友已滿👋 升級🥉酒友加到200人+打卡地圖 → ¥9.9/月 💎'}), 403
     db.execute('INSERT OR REPLACE INTO friends (user_id,friend_id,status) VALUES (?,?,?)',
                (g.uid, fu['id'], 'pending'))
     db.commit()
@@ -1625,7 +1767,7 @@ def api_create_post():
     today = date.today().isoformat()
     post_today = db.execute("SELECT COUNT(*) FROM posts WHERE user_id=? AND date(created_at)=?", (g.uid, today)).fetchone()[0]
     if post_today >= _mem_daily_posts(mem_level):
-        return jsonify({'error':f'今日發帖次數已達上限({_mem_daily_posts(mem_level)})，升級酒友可發15帖 💎'}), 429
+        return jsonify({'error':f'今日帖子已滿📢 升級🥉酒友發15帖+地圖足跡 → ¥9.9/月 💎'}), 429
     d = request.get_json(force=True) or {}
     content = sanitize_html(d.get('content',''))[:_mem_post_chars_max(mem_level)]
     images = d.get('images','')  # JSON array of image URLs
@@ -1634,7 +1776,7 @@ def api_create_post():
         try:
             img_list = json.loads(images) if isinstance(images, str) else images
             if len(img_list) > _mem_post_images_max(mem_level):
-                return jsonify({'error':f'你嘅會員等級最多上傳{_mem_post_images_max(mem_level)}張圖，升級解鎖更多 💎'}), 403
+                return jsonify({'error':f'圖片已滿🖼️ 升級🥉酒友加到4張+酒品收藏 → ¥9.9/月 💎'}), 403
         except:
             pass
     video_url = d.get('video_url','')  # video URL
@@ -2314,8 +2456,8 @@ def api_submit_payment():
     method = d.get('method', 'alipay')
     receipt = d.get('receipt', '')[:500]
     amount = float(d.get('amount', 0) or 0)
-    plan_amounts = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 39.9}
-    plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 299}
+    plan_amounts = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 49.9}
+    plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 349}
     billing = d.get('billing', 'monthly')  # monthly or annual
     if plan not in plan_amounts:
         return jsonify({'error':'無效方案'}), 400
@@ -2358,8 +2500,8 @@ def api_admin_confirm_payment():
         db.execute('UPDATE payments SET confirmed=1 WHERE id=?', (pid,))
         # Upgrade user membership — auto-detect annual vs monthly by amount
         plan = pmt['plan']
-        plan_amounts_monthly = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 39.9}
-        plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 299}
+        plan_amounts_monthly = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 49.9}
+        plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 349}
         paid = pmt['amount'] or 0
         # If amount >= annual price * 0.9, treat as annual
         is_annual = paid >= plan_amounts_annual.get(plan, 999) * 0.9
@@ -2616,7 +2758,7 @@ def dice_room_start():
     plan, mem_level, mem_exp = _get_membership(g.uid)
     max_dice = _mem_dice_max(mem_level)
     if dice_n > max_dice:
-        return jsonify({'error': f'你嘅會員等級最多用{max_dice}粒骰，升級可解鎖更多 💎', 'max_dice': max_dice, 'upgrade_required': True}), 403
+        return jsonify({'error': f'骰子唔夠🎲 升級🥉酒友得3粒+掃碼30次/日 → ¥9.9/月 💎', 'max_dice': max_dice, 'upgrade_required': True}), 403
     db = get_db()
     room = db.execute('SELECT * FROM dice_rooms WHERE id=?', (code,)).fetchone()
     if not room or room['creator_id'] != g.uid:
@@ -2815,7 +2957,7 @@ def dice_challenge():
     wager = int(d.get('wager') or 0)
     max_dice = _mem_dice_max(mem_level)
     if dice_n > max_dice:
-        return jsonify({'error': f'你嘅會員等級最多用{max_dice}粒骰，升級可解鎖更多 💎', 'max_dice': max_dice}), 403
+        return jsonify({'error': f'骰子唔夠🎲 升級🥈酒鬼得4粒+開骰盅房 → ¥19.9/月 💎', 'max_dice': max_dice}), 403
     if not challenged_id or challenged_id == g.uid:
         return jsonify({'error': '無效嘅挑戰對象'}), 400
     db = get_db()
@@ -3391,17 +3533,18 @@ def api_scan_verify():
     db = get_db()
     # Check daily scan limit by membership
     plan, mem_level, mem_exp = _get_membership(uid)
-    scan_limits = {'jiuyau': 20, 'jaugwai': 100, 'jausan': -1}  # -1 = unlimited
-    limit = scan_limits.get(plan, 3)
+    limit = _mem_scan_daily(mem_level)
     if limit > 0:
         today = datetime.datetime.utcnow().strftime('%Y-%m-%d')
         used = db.execute('SELECT COUNT(*) FROM scan_logs WHERE user_id=? AND DATE(created_at)=?',
                           (uid, today)).fetchone()[0]
         if used >= limit:
-            names = {'1': '酒友(20次/日)', '2': '酒鬼(100次/日)'}
-            hint = names.get(str(mem_level), 'VIP')
-            return jsonify({'error': f'今日掃碼已達上限({limit}次)，升級{hint}解鎖更多',
-                            'limit': limit, 'used': used, 'required_level': 1 if limit == 3 else 2}), 429
+            nlevel = mem_level + 1
+            nname = {1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'}.get(nlevel, 'VIP')
+            nlimit = _mem_scan_daily(nlevel)
+            nlimit_str = '無限' if nlimit < 0 else f'{nlimit}次/日'
+            return jsonify({'error': f'今日已掃{used}次🔒 升級{nname}解鎖{ nlimit_str}+比價辨真 → 僅¥{9.9 if nlevel==1 else 19.9 if nlevel==2 else 49.9}/月 💎',
+                            'limit': limit, 'used': used, 'required_level': nlevel}), 429
     liquor = db.execute('SELECT * FROM liquor_db WHERE barcode=?', (barcode,)).fetchone()
     result = 'not_found'
     liquor_data = None
@@ -3413,8 +3556,21 @@ def api_scan_verify():
                (uid, barcode, result, liquor['id'] if liquor else 0))
     db.commit()
     remaining = -1 if limit < 0 else max(0, limit - (used + 1 if limit > 0 else 1))
+    # ── Barcode verification (辨真) ──
+    verify_info = None
+    if mem_level >= 2 and liquor_data:
+        verdict, score, details = _liquor_authenticity_score(barcode, liquor_data)
+        verify_info = {'verdict': verdict, 'score': score, 'details': details}
+    # ── Price comparison (比價) ──
+    price_info = None
+    if liquor_data:
+        try:
+            ej = json.loads(liquor_data.get('extra_json', '{}') or '{}')
+            if ej.get('price'):
+                price_info = {'retail': ej['price'], 'source': '參考價'}
+        except: pass
     return jsonify({'ok': True, 'result': result, 'liquor': liquor_data, 'barcode': barcode,
-                    'scan_remaining': remaining})
+                    'scan_remaining': remaining, 'verify': verify_info, 'price': price_info})
 
 @app.route('/api/scan/history')
 @auth_required
@@ -3609,7 +3765,7 @@ def api_groups():
     max_create, max_members = _group_limits(level)
     my_groups = db.execute('SELECT COUNT(*) as c FROM groups WHERE creator_id=?', (uid,)).fetchone()
     if my_groups['c'] >= max_create:
-        return jsonify({'ok': False, 'error': f'會員等級僅可創建{max_create}個群組，升級解鎖更多', 'required_level': level + 1}), 403
+        return jsonify({'ok': False, 'error': f'建群已滿🏗️ 升級🥉酒友建3個群+酒品收藏50款 → ¥9.9/月 💎', 'required_level': level + 1}), 403
     cur = db.execute('INSERT INTO groups (name,description,avatar_url,creator_id,is_public,max_members) VALUES (?,?,?,?,?,?)',
                      (name, d.get('description', ''), d.get('avatar_url', ''), uid,
                       1 if d.get('is_public', True) else 0, max_members))
@@ -3680,7 +3836,7 @@ def api_group_join(gid):
     my_joins = db.execute('SELECT COUNT(*) as c FROM group_members WHERE user_id=?', (uid,)).fetchone()
     max_create, _ = _group_limits(level)
     if my_joins['c'] >= max_create * 3:  # can join 3x the create limit
-        return jsonify({'ok': False, 'error': '已達加群上限，升級解鎖更多', 'required_level': level + 1}), 403
+        return jsonify({'ok': False, 'error': '加群已滿👥 升級🥉酒友解鎖更多群+地圖 → ¥9.9/月 💎', 'required_level': level + 1}), 403
     db.execute('INSERT INTO group_members (group_id,user_id,role) VALUES (?,?,?)', (gid, uid, 'member'))
     db.commit()
     return jsonify({'ok': True})
@@ -3837,7 +3993,7 @@ def api_group_chat(gid):
         one_hour_ago = (datetime.utcnow() - timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
         cnt = db.execute('SELECT COUNT(*) FROM group_chat WHERE user_id=? AND created_at>?', (uid, one_hour_ago)).fetchone()[0]
         if cnt >= 10:
-            return jsonify({'ok': False, 'error': '免費用戶每小時限發10條消息，升級解鎖💎', 'upgrade_required': True, 'required_level': 1}), 429
+            return jsonify({'ok': False, 'error': '消息太密💬 升級🥉酒友暢聊無限+掃碼比價 → ¥9.9/月 💎', 'upgrade_required': True, 'required_level': 1}), 429
     msg_type = d.get('msg_type', 'text')
     cur = db.execute('INSERT INTO group_chat (group_id, user_id, content, msg_type) VALUES (?,?,?,?)',
                      (gid, uid, content, msg_type))
@@ -3874,7 +4030,268 @@ def admin_self_update():
     return jsonify({'ok':True,'pulled':results,'restart':'scheduled'})
 
 
-# ═══════════════════ Main ═══════════════════════════════
+# ═══════════════════ Favorites API (酒品收藏) ═══════════════════
+
+@app.route('/api/favorites', methods=['GET','POST'])
+@app.route('/api/favorites/<int:fav_id>', methods=['DELETE'])
+@auth_required
+def api_favorites(fav_id=None):
+    uid = g.uid
+    db = get_db()
+    plan, mem_level, mem_exp = _get_membership(uid)
+    if request.method == 'GET':
+        tag = request.args.get('tag','')
+        q = 'SELECT f.*, l.name,l.name_en,l.brand,l.category,l.origin,l.abv,l.volume_ml,l.image_url,l.taste_notes,l.extra_json FROM liquor_favorites f JOIN liquor_db l ON f.liquor_id=l.id WHERE f.user_id=?'
+        params = [uid]
+        if tag:
+            q += ' AND f.cellar_tag=?'
+            params.append(tag)
+        q += ' ORDER BY f.id DESC'
+        rows = db.execute(q, params).fetchall()
+        return jsonify({'ok':True,'favorites':[dict(r) for r in rows],'max':_mem_favorites_max(mem_level)})
+    elif request.method == 'POST':
+        if mem_level < 1:
+            return jsonify({'error':'🔖 收藏係會員功能！升級🥉酒友收藏50款+掃碼比價 → ¥9.9/月 💎','required_level':1}), 403
+        d = request.get_json(force=True) or {}
+        lid = int(d.get('liquor_id',0) or 0)
+        if not lid:
+            return jsonify({'error':'缺少liquor_id'}), 400
+        max_f = _mem_favorites_max(mem_level)
+        if max_f > 0:
+            cur = db.execute('SELECT COUNT(*) FROM liquor_favorites WHERE user_id=?',(uid,)).fetchone()[0]
+            if cur >= max_f:
+                nlvl = mem_level+1
+                nn = {2:'🥈酒鬼(500款)',3:'🥇酒神(無限)'}.get(nlvl,'VIP')
+                return jsonify({'error':f'酒櫃已滿🔖 升級{nn} → 僅¥{19.9 if nlvl==2 else 49.9}/月 💎','max':max_f}), 403
+        db.execute('INSERT OR IGNORE INTO liquor_favorites (user_id,liquor_id,memo,rating,cellar_tag) VALUES (?,?,?,?,?)',
+                   (uid, lid, d.get('memo','')[:200], int(d.get('rating',0) or 0), d.get('cellar_tag','')[:50]))
+        db.commit()
+        return jsonify({'ok':True})
+    elif request.method == 'DELETE' and fav_id:
+        db.execute('DELETE FROM liquor_favorites WHERE id=? AND user_id=?',(fav_id,uid))
+        db.commit()
+        return jsonify({'ok':True})
+
+@app.route('/api/favorites/count')
+@auth_required
+def api_favorites_count():
+    uid = g.uid
+    db = get_db()
+    plan, mem_level, mem_exp = _get_membership(uid)
+    cnt = db.execute('SELECT COUNT(*) FROM liquor_favorites WHERE user_id=?',(uid,)).fetchone()[0]
+    return jsonify({'ok':True,'count':cnt,'max':_mem_favorites_max(mem_level)})
+
+
+# ═══════════════════ Coupons API (優惠券) ═══════════════════
+
+@app.route('/api/coupons')
+@auth_required
+def api_coupons_list():
+    uid = g.uid
+    db = get_db()
+    rows = db.execute('''SELECT uc.id,uc.status,uc.claimed_at,uc.used_at,c.code,c.category,c.discount,c.amount_off,c.min_spend,c.valid_until
+                         FROM user_coupons uc JOIN coupons c ON uc.coupon_id=c.id
+                         WHERE uc.user_id=? ORDER BY uc.id DESC''',(uid,)).fetchall()
+    return jsonify({'ok':True,'coupons':[dict(r) for r in rows]})
+
+@app.route('/api/coupons/claim', methods=['POST'])
+@auth_required
+def api_coupons_claim():
+    uid = g.uid
+    d = request.get_json(force=True) or {}
+    cid = int(d.get('coupon_id',0) or 0)
+    db = get_db()
+    plan, mem_level, mem_exp = _get_membership(uid)
+    c = db.execute('SELECT * FROM coupons WHERE id=?',(cid,)).fetchone()
+    if not c:
+        return jsonify({'error':'優惠券不存在'}), 404
+    if mem_level < c['min_level']:
+        return jsonify({'error':'🧧 此券需要更高會員等級','required_level':c['min_level']}), 403
+    if c['max_uses'] > 0 and c['used_count'] >= c['max_uses']:
+        return jsonify({'error':'優惠券已派完'}), 410
+    existing = db.execute('SELECT id FROM user_coupons WHERE user_id=? AND coupon_id=?',(uid,cid)).fetchone()
+    if existing:
+        return jsonify({'error':'你已領取此券'}), 409
+    db.execute('INSERT INTO user_coupons (user_id,coupon_id) VALUES (?,?)',(uid,cid))
+    db.execute('UPDATE coupons SET used_count=used_count+1 WHERE id=?',(cid,))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/coupons/use', methods=['POST'])
+@auth_required
+def api_coupons_use():
+    uid = g.uid
+    d = request.get_json(force=True) or {}
+    ucid = int(d.get('user_coupon_id',0) or 0)
+    db = get_db()
+    uc = db.execute('SELECT * FROM user_coupons WHERE id=? AND user_id=?',(ucid,uid)).fetchone()
+    if not uc:
+        return jsonify({'error':'無效優惠券'}), 404
+    if uc['status'] != 'active':
+        return jsonify({'error':'優惠券已使用'}), 410
+    db.execute("UPDATE user_coupons SET status='used', used_at=datetime('now','localtime') WHERE id=?",(ucid,))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/admin/coupons', methods=['GET','POST'])
+@auth_required
+def api_admin_coupons():
+    u, err = _admin_guard()
+    if err: return err[0], err[1]
+    db = get_db()
+    if request.method == 'GET':
+        rows = db.execute('SELECT * FROM coupons ORDER BY id DESC').fetchall()
+        return jsonify({'ok':True,'coupons':[dict(r) for r in rows]})
+    else:
+        d = request.get_json(force=True) or {}
+        code = d.get('code','').strip()[:32]
+        if not code:
+            return jsonify({'error':'Missing code'}), 400
+        db.execute('''INSERT INTO coupons (code,category,discount,amount_off,min_spend,valid_from,valid_until,max_uses,min_level)
+                      VALUES (?,?,?,?,?,?,?,?,?)''',
+                   (code, d.get('category','general'), float(d.get('discount',0) or 0),
+                    float(d.get('amount_off',0) or 0), float(d.get('min_spend',0) or 0),
+                    d.get('valid_from',''), d.get('valid_until',''),
+                    int(d.get('max_uses',0) or 0), int(d.get('min_level',1) or 1)))
+        db.commit()
+        return jsonify({'ok':True})
+
+
+# ═══════════════════ Invitations API (邀請碼) ═══════════════════
+
+@app.route('/api/invite/code')
+@auth_required
+def api_invite_code():
+    uid = g.uid
+    db = get_db()
+    inv = db.execute('SELECT * FROM invitations WHERE inviter_id=? ORDER BY id DESC LIMIT 1',(uid,)).fetchone()
+    if not inv:
+        import secrets
+        code = secrets.token_urlsafe(6)[:8].upper()
+        db.execute('INSERT INTO invitations (inviter_id,code) VALUES (?,?)',(uid,code))
+        db.commit()
+        inv = db.execute('SELECT * FROM invitations WHERE inviter_id=? ORDER BY id DESC LIMIT 1',(uid,)).fetchone()
+    stats = db.execute('SELECT COUNT(*) FROM invitations WHERE inviter_id=? AND status=?',(uid,'claimed')).fetchone()[0]
+    return jsonify({'ok':True,'code':inv['code'],'invited_count':stats,'next_reward':3-stats%3 if stats<3 else 0})
+
+@app.route('/api/invite/claim', methods=['POST'])
+@auth_required
+def api_invite_claim():
+    uid = g.uid
+    d = request.get_json(force=True) or {}
+    code = d.get('code','').strip()[:8].upper()
+    if not code:
+        return jsonify({'error':'請輸入邀請碼'}), 400
+    db = get_db()
+    inv = db.execute('SELECT * FROM invitations WHERE code=?',(code,)).fetchone()
+    if not inv:
+        return jsonify({'error':'無效邀請碼'}), 404
+    if inv['inviter_id'] == uid:
+        return jsonify({'error':'不能用自己嘅邀請碼'}), 400
+    if inv['status'] == 'claimed':
+        return jsonify({'error':'邀請碼已被使用'}), 410
+    # Reward inviter: count total claimed, every 3 = 7 days free jiuyau
+    claimed_n = db.execute('SELECT COUNT(*) FROM invitations WHERE inviter_id=? AND status=?',(inv['inviter_id'],'claimed')).fetchone()[0]
+    db.execute("UPDATE invitations SET invitee_id=?,status='claimed',claimed_at=datetime('now','localtime') WHERE id=?",(uid,inv['id']))
+    if (claimed_n+1) % 3 == 0:
+        # Grant 7 days free jiuyau to inviter
+        iu = db.execute('SELECT membership,member_expires FROM users WHERE id=?',(inv['inviter_id'],)).fetchone()
+        if iu and iu['membership'] in ('free','jiuyau'):
+            from datetime import timedelta
+            base = datetime.utcnow()
+            if iu['member_expires'] and iu['membership'] != 'free':
+                try: base = max(base, datetime.fromisoformat(iu['member_expires']))
+                except: pass
+            new_exp = (base + timedelta(days=7)).strftime('%Y-%m-%d')
+            db.execute("UPDATE users SET membership='jiuyau',member_expires=? WHERE id=?",(new_exp,inv['inviter_id']))
+    db.commit()
+    return jsonify({'ok':True,'reward':'inviter_gets_bonus' if (claimed_n+1)%3==0 else 'counted'})
+
+
+# ═══════════════════ Venues API (合作酒吧) ═══════════════════
+
+@app.route('/api/venues')
+@auth_required
+def api_venues():
+    uid = g.uid
+    plan, mem_level, mem_exp = _get_membership(uid)
+    db = get_db()
+    city = request.args.get('city','')
+    q = 'SELECT * FROM partner_venues WHERE active=1'
+    params = []
+    if city:
+        q += ' AND city=?'
+        params.append(city)
+    q += ' ORDER BY id DESC'
+    rows = db.execute(q, params).fetchall()
+    filtered = []
+    for v in rows:
+        vd = dict(v)
+        if mem_level < v['min_level']:
+            vd['perks'] = '🔒 升級後可見'
+            vd['contact'] = ''
+        filtered.append(vd)
+    return jsonify({'ok':True,'venues':filtered})
+
+@app.route('/api/admin/venues', methods=['POST'])
+@auth_required
+def api_admin_venues_add():
+    u, err = _admin_guard()
+    if err: return err[0], err[1]
+    d = request.get_json(force=True) or {}
+    db = get_db()
+    db.execute('''INSERT INTO partner_venues (name,address,city,lat,lng,perks,min_level,contact)
+                  VALUES (?,?,?,?,?,?,?,?)''',
+               (d.get('name',''), d.get('address',''), d.get('city',''),
+                float(d.get('lat',0) or 0), float(d.get('lng',0) or 0),
+                d.get('perks','{}'), int(d.get('min_level',2) or 2), d.get('contact','')))
+    db.commit()
+    return jsonify({'ok':True})
+
+
+# ═══════════════════ Annual Report API (年度報告·酒神限定) ═══════════════════
+
+@app.route('/api/annual-report')
+@auth_required
+def api_annual_report():
+    uid = g.uid
+    plan, mem_level, mem_exp = _get_membership(uid)
+    if mem_level < 3:
+        return jsonify({'error':'📊 年度報告係🥇酒神專屬！升級解鎖+酒吧VIP → ¥49.9/月 💎','required_level':3}), 403
+    db = get_db()
+    year = request.args.get('year', str(datetime.now().year))
+    # Total checkins
+    total = db.execute("SELECT COUNT(*) FROM checkins WHERE user_id=? AND strftime('%Y',created_at)=?",(uid,year)).fetchone()[0]
+    # Category breakdown
+    cats = db.execute("""SELECT l.category, COUNT(*) as cnt FROM checkins c
+                         JOIN scan_logs s ON c.user_id=s.user_id
+                         JOIN liquor_db l ON s.liquor_id=l.id
+                         WHERE c.user_id=? AND strftime('%Y',c.created_at)=?
+                         GROUP BY l.category ORDER BY cnt DESC LIMIT 5""",(uid,year)).fetchall()
+    # Top brands
+    brands = db.execute("""SELECT l.brand, COUNT(*) as cnt FROM checkins c
+                           JOIN scan_logs s ON c.user_id=s.user_id
+                           JOIN liquor_db l ON s.liquor_id=l.id
+                           WHERE c.user_id=? AND strftime('%Y',c.created_at)=?
+                           GROUP BY l.brand ORDER BY cnt DESC LIMIT 5""",(uid,year)).fetchall()
+    # Friends count
+    friends = db.execute("SELECT COUNT(*) FROM friends WHERE user_id=? AND status='accepted'",(uid,)).fetchone()[0]
+    # Party count
+    parties = db.execute("SELECT COUNT(*) FROM party_rsvp WHERE user_id=? AND status='going'",(uid,)).fetchone()[0]
+    # Title based on total
+    if total >= 100: title = '🏆 酒神降臨'
+    elif total >= 50: title = '🥃 品酒達人'
+    elif total >= 20: title = '🍻 飲酒老手'
+    elif total >= 5: title = '🍷 初入酒途'
+    else: title = '🥤 乾杯新手'
+    return jsonify({'ok':True,'year':year,'total_checkins':total,
+                    'top_categories':[dict(r) for r in cats],
+                    'top_brands':[dict(r) for r in brands],
+                    'friends_count':friends,'parties_count':parties,
+                    'title':title,'level':mem_level})
+
+
+
 if __name__ == '__main__':
     # ─── Startup: clean old temp uploads ────────────────
     if UPLOAD_DIR.exists():
