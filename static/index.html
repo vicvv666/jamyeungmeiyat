@@ -3701,7 +3701,7 @@ function _loadAMapSDK(){
 
 async function initMap(){
   if(_mapInited)return;
-  const ml=me&&me.membership?{jausan:3,jaugwai:2,jiuyau:1}[me.membership]||0:0;
+  const ml=memLevel();
   const lockOv=document.getElementById('map-lock-overlay');
   if(ml<1){
     lockOv.style.display='flex';
@@ -3761,7 +3761,7 @@ async function mapLocateMe(){
 
 async function mapLoadCheckins(){
  if(!_amap)return initMap();
- const ml=me&&me.membership?{jausan:3,jaugwai:2,jiuyau:1}[me.membership]||0:0;
+ const ml=memLevel();
  if(ml<1)return showPay();
  _clearMapLayers();
  _setMapInfo('🍺 載入打卡點...');
@@ -3797,7 +3797,7 @@ async function mapLoadCheckins(){
 
 async function mapLoadVenues(){
  if(!_amap)return initMap();
- const ml=me&&me.membership?{jausan:3,jaugwai:2,jiuyau:1}[me.membership]||0:0;
+ const ml=memLevel();
  if(ml<2)return showPay();
  _clearMapLayers();
  _setMapInfo('🏙️ 載入酒吧...');
@@ -3822,7 +3822,7 @@ async function mapLoadVenues(){
 
 async function mapLoadHeatmap(){
  if(!_amap)return initMap();
- const ml=me&&me.membership?{jausan:3,jaugwai:2,jiuyau:1}[me.membership]||0:0;
+ const ml=memLevel();
  if(ml<3)return showPay();
  _clearMapLayers();
  _setMapInfo('🔥 載入热力足跡...');
