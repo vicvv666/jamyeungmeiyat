@@ -568,7 +568,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <button class="tab" data-page="map" onclick="showPage('map')"><span class="tab-icon">🗺️</span><span id="tab-map">地圖</span></button>
    <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
    <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
-  <button class="tab" data-page="shop" onclick="showPage('shop')"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 2px 3px rgba(245,158,11,0.5))"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><circle cx="17" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><path d="M6.5 12h11l1.5-6H7.2" stroke="url(#cartGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="cartGrad" x1="6" y1="9" x2="20" y2="9"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient></defs></svg></span><span id="tab-shop" data-i18n="shop">商鋪</span></button>
+  <button class="tab" data-page="shop" onclick="showPage('shop')"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 2px 3px rgba(245,158,11,0.5))"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><circle cx="17" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><path d="M6.5 12h11l1.5-6H7.2" stroke="url(#cartGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="cartGrad" x1="6" y1="9" x2="20" y2="9"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient></defs></svg></span><span id="tab-shop" data-i18n="tab_shop">商鋪</span></button>
 </div>
 
 <div class="content">
@@ -617,6 +617,46 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="font-size:12px;color:var(--purple);margin-bottom:8px;text-align:center;font-weight:600" data-i18n="party_date_hint">⬆ 點擊紫色框選擇 ⬆</div>
     <button class="btn btn-primary" onclick="createParty()" data-i18n="party_create_btn">📅 發起酒局</button>
   </div>
+
+  <!-- ══ 投票 (固定section, 非弹窗) ══ -->
+  <div class="card" style="border:2px solid var(--amber);background:rgba(245,158,11,0.05);margin-top:8px">
+    <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+      <span>📊 <span data-i18n="poll_title">投票</span></span>
+      <select id="poll-party-select" style="padding:4px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:11px" onchange="pollPartyChanged()">
+        <option value="">-- 選擇酒局 --</option>
+      </select>
+    </div>
+    <div id="poll-section-create" style="margin-bottom:8px">
+      <input class="input" id="poll-q" placeholder="❓ 投票問題" style="font-size:12px;padding:8px 10px;margin-bottom:6px">
+      <div id="poll-opts-wrap">
+        <input class="input poll-opt-input" placeholder="A. 選項1" style="font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%">
+        <input class="input poll-opt-input" placeholder="B. 選項2" style="font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%">
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="addPollOption()" style="font-size:11px;padding:3px 10px;margin-bottom:6px">+ 選項</button>
+      <button class="btn btn-primary btn-sm" onclick="createPollInSection()" data-i18n="poll_create" style="width:100%;font-size:12px;padding:6px 0">➕ 發起投票</button>
+    </div>
+    <div id="poll-section-list" style="max-height:300px;overflow-y:auto"></div>
+  </div>
+
+  <!-- ══ 接龙 (固定section, 非弹窗) ══ -->
+  <div class="card" style="border:2px solid #22c55e;background:rgba(34,197,94,0.05);margin-top:8px">
+    <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
+      <span>🔗 <span data-i18n="chain_title">接龍報名</span></span>
+      <select id="chain-party-select" style="padding:4px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:11px" onchange="chainPartyChanged()">
+        <option value="">-- 選擇酒局 --</option>
+      </select>
+    </div>
+    <div id="chain-section-create" style="margin-bottom:8px">
+      <input class="input" id="chain-title" placeholder="📋 接龍標題" style="font-size:12px;padding:8px 10px;margin-bottom:4px">
+      <div style="display:flex;gap:6px;margin-bottom:6px">
+        <input class="input" id="chain-max-slot" type="number" placeholder="人數上限" style="flex:1;font-size:12px;padding:8px 10px">
+        <input class="input" id="chain-note-ipt" placeholder="備註(可選)" style="flex:2;font-size:12px;padding:8px 10px">
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="createChainInSection()" data-i18n="chain_submit" style="width:100%;font-size:12px;padding:6px 0">🔗 發起</button>
+    </div>
+    <div id="chain-section-list" style="max-height:300px;overflow-y:auto"></div>
+  </div>
+
   <div id="party-list"></div>
 </div>
 
@@ -1646,48 +1686,6 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 </div>
 
 <!-- POLL VOTE Modal -->
-<div class="modal-overlay" id="poll-mod" onclick="if(event.target===this)closePollMod()">
-  <div class="modal" style="max-width:420px;max-height:85vh;overflow-y:auto">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <h3 style="color:var(--purple);margin:0;flex:1">📊 <span data-i18n="poll_title">投票</span></h3>
-      <button class="btn btn-sm btn-outline" onclick="closePollMod()">✕</button>
-    </div>
-    <div style="margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">
-      <button class="btn btn-sm btn-outline" style="border-color:var(--purple);color:var(--purple)" onclick="showCreatePoll()" data-i18n="poll_create">➕ 發起投票</button>
-    </div>
-    <!-- Create Poll Form (hidden) -->
-    <div id="poll-create-form" style="display:none;margin-bottom:12px;padding:10px;border:1px solid var(--purple);border-radius:10px;background:rgba(139,92,246,0.04)">
-      <input class="input" id="poll-question" placeholder="❓ 問題" style="margin-bottom:6px">
-      <div id="poll-options-input">
-        <input class="input poll-opt-input" placeholder="選項1" style="margin-bottom:4px">
-        <input class="input poll-opt-input" placeholder="選項2" style="margin-bottom:4px">
-      </div>
-      <button class="btn btn-sm" onclick="addPollOption()" style="font-size:11px;margin-bottom:6px">➕ 加選項</button>
-      <label style="font-size:11px;display:flex;align-items:center;gap:4px;margin-bottom:8px"><input type="checkbox" id="poll-multi"> 多選</label>
-      <button class="btn btn-primary btn-sm" onclick="submitPoll()" data-i18n="poll_submit">📊 提交投票</button>
-    </div>
-    <div id="poll-list" style="max-height:50vh;overflow-y:auto"></div>
-  </div>
-</div>
-
-<!-- CHAIN Modal -->
-<div class="modal-overlay" id="chain-mod" onclick="if(event.target===this)closeChainMod()">
-  <div class="modal" style="max-width:420px;max-height:85vh;overflow-y:auto">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-      <h3 style="color:var(--amber);margin:0;flex:1">🔗 <span data-i18n="chain_title">接龍報名</span></h3>
-      <button class="btn btn-sm btn-outline" onclick="closeChainMod()">✕</button>
-    </div>
-    <button class="btn btn-sm btn-outline" style="border-color:var(--amber);color:var(--amber);margin-bottom:10px" onclick="showCreateChain()" data-i18n="chain_create">➕ 發起接龍</button>
-    <!-- Create Chain Form -->
-    <div id="chain-create-form" style="display:none;margin-bottom:12px;padding:10px;border:1px solid var(--amber);border-radius:10px;background:rgba(245,158,11,0.04)">
-      <input class="input" id="chain-title" placeholder="📝 接龍標題（如：帶酒報名）" style="margin-bottom:6px">
-      <input class="input" id="chain-max" type="number" placeholder="人數上限(0=不限)" style="margin-bottom:8px">
-      <button class="btn btn-primary btn-sm" onclick="submitChain()" data-i18n="chain_submit">🔗 發起</button>
-    </div>
-    <div id="chain-list" style="max-height:55vh;overflow-y:auto"></div>
-  </div>
-</div>
-
 <!-- PAY -->
 <div class="pay-modal" id="pay-mod" style="display:none" onclick="if(event.target===this)closePay()">
   <div class="pay-card"><h3 style="color:var(--amber)" data-i18n="pay_title">💳 掃碼支付</h3>
@@ -1927,12 +1925,12 @@ function fireConfetti(){
 
 // ═══════ MEMBERSHIP HELPERS ═══════
 function memLevel(){if(!me||!me.membership||me.membership==='free')return 0;if(me.membership==='admin')return 3;return{jiuyau:1,jaugwai:2,jausan:3}[me.membership]||0}
-function memBadge(lv){if(!lv)lv=memLevel();if(!lv)return'';const n={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'}[lv]||'';return '<span class="mem-badge mem-badge-'+lv+'">'+n+'</span>'}
+function memBadge(lv){if(!lv)lv=memLevel();if(!lv)return'';const n={1:T('mem_jiuyau'),2:T('mem_jaugwai'),3:T('mem_jausan')}[lv]||'';return '<span class="mem-badge mem-badge-'+lv+'">'+n+'</span>'}
 function memNickClass(lv){if(!lv)lv=memLevel();return lv?'nick-'+lv:''}
 function memAvClass(lv){if(!lv)lv=memLevel();return lv?'lv-'+lv:''}
-function memTitle(lv){if(!lv)lv=memLevel();if(!lv)return'';const t={1:'酒道新手',2:'品酒達人',3:'酒界傳說'}[lv]||'';return t?'<span class="mem-title mem-title-'+lv+'">'+t+'</span>':''}
+function memTitle(lv){if(!lv)lv=memLevel();if(!lv)return'';const t={1:T('mem_title_1'),2:T('mem_title_2'),3:T('mem_title_3')}[lv]||'';return t?'<span class="mem-title mem-title-'+lv+'">'+t+'</span>':''}
 function memCardClass(lv){if(!lv)lv=memLevel();if(lv>=2)return'mem-card-glow-'+lv;return''}
-function memLocked(requiredLv,action){const lv=memLevel();if(lv>=requiredLv)return false;const names={1:'酒友',2:'酒鬼',3:'酒神'};toast('🔒 '+action+' 需要升級至'+(names[requiredLv]||'VIP')+' 💎',1);showUpgradeModal(requiredLv);return true}
+function memLocked(requiredLv,action){const lv=memLevel();if(lv>=requiredLv)return false;const names={1:T('mem_jiuyau_label'),2:T('mem_jaugwai_label'),3:T('mem_jausan_label')};toast('🔒 '+action+' '+T('mem_upgrade_to')+' '+(names[requiredLv]||'VIP')+' 💎',1);showUpgradeModal(requiredLv);return true}
 
 // ─── Usage Progress Bars ───
 function showUsageBars(){
@@ -2065,9 +2063,9 @@ function showUpgradeModal(requiredLv){
     var cs=localStorage.getItem('jymy_ug_cd_start');if(!cs){clearInterval(window._ugCdTimer);return}
     var left=Math.max(0,72*3600000-(Date.now()-parseInt(cs)));
     var e=document.getElementById('ug-cd');
-    if(!e||left<=0){if(e)e.textContent='已過期';clearInterval(window._ugCdTimer);return}
+    if(!e||left<=0){if(e)e.textContent=T('expired');clearInterval(window._ugCdTimer);return}
     var hh=Math.floor(left/3600000),mm=Math.floor((left%3600000)/60000),ss=Math.floor((left%60000)/1000);
-    e.textContent=hh+'時'+String(mm).padStart(2,'0')+'分'+String(ss).padStart(2,'0')+'秒';
+    e.textContent=hh+'h '+String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
   },1000)}
 }
 function ugTab(t){
@@ -2270,7 +2268,7 @@ function showPage(name){
   window.scrollTo({top:0,behavior:'smooth'});
   // Close any open modal overlays when switching pages
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
-  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='map')initMap();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
+  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='map')initMap();if(name==='party'){loadParties();populatePartySelects();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
 }
 
 // ═══════ SWIPE GESTURE SUPPORT ═══════
@@ -2363,6 +2361,7 @@ const L={
   login:'登入',
   logout:'登出',
   tab_checkin:'報到',tab_timeline:'動態',tab_party:'酒局',tab_stats:'統計',tab_map:'地圖',tab_member:'會員',tab_dice:'骰盅',tab_shop:'商鋪',
+  map_title:'飲酒地圖',parties:'酒局',cmp_shop_discount:'商鋪折扣',cmp_scan_limit:'掃碼驗真',
   terms:'使用條款',
   disclaimer:'免責聲明',
   contact:'聯絡我們',
@@ -2547,7 +2546,7 @@ const L={
   vip:'VIP',
   or:'或',
   close:'關閉',
-  loading:'載入中...',
+  loading:T('loading'),
   success:'成功',
   error:'錯誤',
   confirm:'確認',
@@ -2676,7 +2675,7 @@ const L={
   cellar_title:'我的酒柜',cellar_sub:'收藏、評分、品飲記錄',cellar_empty:'酒柜空空如也',cellar_empty_hint:'掃碼辨酒後可收藏到酒柜',
   rv_tab:'📝 酒評',rv_create:'✏️ 寫酒評',rv_proven_list:'🏅 認證酒評',rv_need_brand:'請填寫品牌',rv_published:'酒評已發布！',rv_empty:'暫無酒評',rv_proven:'認證通過',rv_just_proven:'🎉 酒評剛獲認證！',
   toast_password_mismatch:'密碼不一致',toast_select_date:'選擇日期',
-  toast_no_friends:'仲未有酒友 🥲',toast_loading:'載入中...',toast_user_not_found:'搵唔到用戶',
+  toast_no_friends:''+T('no_friends')+'',toast_loading:'載入中...',toast_user_not_found:'搵唔到用戶',
   toast_updated:'已更新',toast_password_min:'密碼至少4位',toast_password_reset:'密碼已重設',
   toast_no_audit:'暫無操作紀錄',toast_server_saved:'伺服器已儲存',toast_product_not_found:'商品不存在',
   toast_login_first:'請先登入',toast_network_error:'網絡錯誤',toast_no_scan_hist:'暫無掃碼記錄',
@@ -2711,7 +2710,7 @@ const L={
   prod_img_url:'圖片URL',prod_file_url:'檔案URL(舞曲下載)',prod_active:'上架',
   save:'保存',cancel:'取消',load_failed:'載入失敗',
   grp_free_no_create:'免費用戶不能建群，請升級會員',grp_free_no_join:'免費用戶不能加群，請升級會員'
-},
+,mem_jiuyau:'🥉酒友',mem_jaugwai:'🥈酒鬼',mem_jausan:'🥇酒神',mem_title_1:'酒道新手',mem_title_2:'品酒達人',mem_title_3:'酒界傳說',mem_upgrade_to:'需要升級至',expired:'已過期',countdown_hm:'{h}時{m}分{s}秒',mem_free:'🆓 免費會員',mem_upgrade_cta:'升級享受完整功能',mem_jiuyau_label:'酒友',mem_jaugwai_label:'酒鬼',mem_jausan_label:'酒神',confirm_del_fav:'確定刪除此收藏？',fav_deleted:'已刪除',fav_added:'已收藏入酒櫃🔖',net_err:'網絡錯誤',fav_del_fail:'刪除失敗',fav_add_fail:'收藏失敗',load_fail:'載入失敗',inv_copied:'邀請碼已複製📤',inv_copied_alt:'已複製📤',inv_input:'請輸入邀請碼',inv_friend_free:'🎉 好友獲得7日免費酒友！',inv_used:'✅ 邀請碼已使用',inv_fail:'使用失敗',coupon_none:'暫無優惠券～升級會員每月自動派券！',coupon_count:'張',bar_none:'暫無合作酒吧～持續拓展中！',no_friends:'仲未有酒友 🥲',no_posts:'仲未發過帖 📝',no_checkins:'仲未報到過 🍺',cellar_empty_hint:'🔖 酒櫃空空如也～掃碼後收藏心水酒品！',admin_name:'管理員',admin_saved:'已更新',admin_fail:'失敗',admin_set_fail:'設置失敗',admin_set_done:'已設置',admin_confirm_admin:'確定將「{u}」設定為管理員？',admin_remove_admin:'確定取消「{u}」的管理員權限？',admin_cancel_fail:'取消失敗',admin_removed:'已取消管理員',admin_del_user:'⚠️ 確定刪除用戶「{u}」？\n此操作將刪除該用戶及其所有報到記錄，不可撤銷！',admin_renew_all:'確定將所有到期會員續期30日？',admin_downgrade_all:'確定將所有到期會員降為免費？',dice_select_hint:'選擇骰數',dice_max:'最多',dice_rolling:'搖緊...',dice_result:'擲出',dice_pts:'點 🎉',dice_again:'🍻 再搖！',dice_round:'第',dice_round_suffix:'輪',btn_edit:'編輯',btn_delete:'刪除',btn_save:'儲存',btn_cancel:'取消',confirm_del_checkin:'確認刪除呢條動態？',confirm_del_party:'確認刪除呢個酒局？',confirm_del_post:'確認刪除呢條帖子？',confirm_remove_friend:'確認移除呢位酒友？',shop_submit_fail:'提交失敗',cellar_saved:'✅ 已更新',cellar_save_fail:'❌ 更新失敗',confirm_del_cellar:'刪除此收藏？',cellar_del_done:'🗑️ 已刪除',cellar_del_fail:'❌ 刪除失敗',shop_load_err:'加載失敗',shop_need_login:'請先登入',shop_loading:'商品信息加載中，請稍後',pay_title:'💳 確認付款',ship_title:'📦 收貨信息',ship_need_name:'請填寫收貨人姓名',ship_need_phone:'請填寫手機號碼',ship_need_city:'請填寫城市',opt_select:'-- 請選擇 --',mem_jiuyau_yearly:'🥉酒友 ¥69/年',mem_jaugwai_yearly:'🥈酒鬼 ¥149/年',mem_jausan_yearly:'🥇酒神 ¥299/年',mem_jiuyau_monthly:'🥉酒友 ¥9.9/月',mem_jaugwai_monthly:'🥈酒鬼 ¥19.9/月',mem_jausan_monthly:'🥇酒神 ¥39.9/月',expires_on:'到期：',mem_free_label:'免費',mem_limit_today:'今日剩餘掃碼',mem_jiuyau:'🥉酒友',mem_jaugwai:'🥈酒鬼',mem_jausan:'🥇酒神',mem_title_1:'酒道新手',mem_title_2:'品酒达人',mem_title_3:'酒界传说',mem_upgrade_to:'需要升级至',expired:'已过期',countdown_hm:'{h}时{m}分{s}秒',mem_free:'🆓 免费会员',mem_upgrade_cta:'升级享受完整功能',mem_jiuyau_label:'酒友',mem_jaugwai_label:'酒鬼',mem_jausan_label:'酒神',confirm_del_fav:'确定删除此收藏？',fav_deleted:'已删除',fav_added:'已收藏入酒柜🔖',net_err:'网络错误',fav_del_fail:'删除失败',fav_add_fail:'收藏失败',load_fail:'加载失败',inv_copied:'邀请码已复制📤',inv_copied_alt:'已复制📤',inv_input:'请输入邀请码',inv_friend_free:'🎉 好友获得7日免费酒友！',inv_used:'✅ 邀请码已使用',inv_fail:'使用失败',coupon_none:'🧧 暂无优惠券～升级会员每月自动派券！',coupon_count:'张',bar_none:'🏙️ 暂无合作酒吧～持续拓展中！',no_friends:'还没有酒友 🥲',no_posts:'还没发过帖 📝',no_checkins:'还没报到过 🍺',cellar_empty_hint:'🔖 酒柜空空如也～扫码后收藏心水酒品！',admin_name:'管理员',admin_saved:'已更新',admin_fail:'失败',admin_set_fail:'设置失败',admin_set_done:'已设置',admin_confirm_admin:'确定将「{u}」设为管理员？',admin_remove_admin:'确定取消「{u}」的管理员权限？',admin_cancel_fail:'取消失败',admin_removed:'已取消管理员',admin_del_user:'⚠️ 确定删除用户「{u}」？\n此操作将删除该用户及其所有报到记录，不可撤销！',admin_renew_all:'确定将所有到期会员续期30日？',admin_downgrade_all:'确定将所有到期会员降为免费？',dice_select_hint:'选择骰数',dice_max:'最多',dice_rolling:'摇紧...',dice_result:'掷出',dice_pts:'点 🎉',dice_again:'🍻 再摇！',dice_round:'第',dice_round_suffix:'轮',btn_edit:'编辑',btn_delete:'删除',btn_save:'储存',btn_cancel:'取消',confirm_del_checkin:'确认删除此动态？',confirm_del_party:'确认删除此酒局？',confirm_del_post:'确认删除此帖子？',confirm_remove_friend:'确认移除这位酒友？',shop_submit_fail:'提交失败',cellar_saved:'✅ 已更新',cellar_save_fail:'❌ 更新失败',confirm_del_cellar:'删除此收藏？',cellar_del_done:'🗑️ 已删除',cellar_del_fail:'❌ 删除失败',shop_load_err:'加载失败',shop_need_login:'请先登入',shop_loading:'商品信息加载中，请稍后',pay_title:'💳 确认付款',ship_title:'📦 收货信息',ship_need_name:'请填写收货人姓名',ship_need_phone:'请填写手机号码',ship_need_city:'请填写城市',opt_select:'-- 请选择 --',mem_jiuyau_yearly:'🥉酒友 ¥69/年',mem_jaugwai_yearly:'🥈酒鬼 ¥149/年',mem_jausan_yearly:'🥇酒神 ¥299/年',mem_jiuyau_monthly:'🥉酒友 ¥9.9/月',mem_jaugwai_monthly:'🥈酒鬼 ¥19.9/月',mem_jausan_monthly:'🥇酒神 ¥39.9/月',expires_on:'到期：',mem_free_label:'免费',mem_limit_today:'今日剩余扫码',ship_need_addr:'請填寫詳細地址',shop_reselect:'請重新選擇商品',pay_scan_title:'📱 掃碼付款',pay_done_btn:'✅ 我已付款',pay_confirm_again:'⚠️ 再按一次確認',submitting:'提交中...',please_use:'請使用 ',dl_link_invalid:'下載連結無效',downloading:'正在下載...',load_fail_short:'加載失敗',adm_confirm_del_product:'確定刪除此商品？',adm_product_deleted:'已刪除',adm_order_updated:'訂單狀態已更新',adm_confirm_del_liquor:'確定刪除此酒品記錄？',grp_need_name:'請輸入群組名稱',grp_created:'群組創建成功！',grp_joined:'已加入群組！',grp_confirm_leave:'確定退出此群組？',grp_left:'已退出',grp_confirm_kick:'確定踢出此成員？',grp_kicked:'已踢出',grp_confirm_disband:'⚠️ 確定解散此群組？此操作不可撤銷！',grp_disbanded:'群組已解散',grp_updated:'已更新',grp_confirm_force_disband:'⚠️ 確定強制解散此群組？',grp_force_disbanded:'已解散',empty_no_friends2:'仲未有酒友，去推薦區添加啦！',empty_no_recommend:'暫無推薦',empty_no_group:'仲未加入任何群組，創建或探索一個啦！',empty_no_posts_short:'仲未發過帖 📝',empty_cellar_full:'🥲 酒櫃空空如也～掃碼後收藏心水酒品！',empty_no_product:'暫無商品',empty_no_order:'暫無訂單',empty_no_audit:'暫無審計日誌',empty_no_checkins:'暫無報到',empty_no_parties:'暫無酒局',empty_no_posts_admin:'暫無帖子',loading_dots:'載入中...',loading_gift:'載入中...🎁',mem_upgrade_cta2:'升級享受完整功能',ship_need_name2:'請填寫收貨人姓名',grp_name_updated:'已更新',grp_no_msg:'仲未有對話，講聲嗨啦！',cellar_scan_to_save:'掃碼辨酒後可收藏到酒柜',trial_14days_left:'🎉 14天免費體驗 · 剩餘{dl}天',permanent:'永久'},
 'zh-CN':{
   st_mai_yum:'没喝',
   st_seung_yum:'想喝',
@@ -2751,6 +2750,7 @@ const L={
   login:'登录',
   logout:'退出',
   tab_checkin:'报到',tab_timeline:'动态',tab_party:'酒局',tab_stats:'统计',tab_map:'地图',tab_member:'会员',tab_dice:'骰盅',tab_shop:'商铺',
+  map_title:'饮酒地图',parties:'酒局',cmp_shop_discount:'商铺折扣',cmp_scan_limit:'扫码验真',
   terms:'使用条款',
   disclaimer:'免责声明',
   contact:'联系我们',
@@ -3099,7 +3099,7 @@ const L={
   prod_img_url:'图片URL',prod_file_url:'档案URL(舞曲下载)',prod_active:'上架',
   save:'保存',cancel:'取消',load_failed:'加载失败',
   grp_free_no_create:'免费用户不能建群，请升级会员',grp_free_no_join:'免费用户不能加群，请升级会员'
-},
+,mem_jiuyau:'🥉Jiuyau',mem_jaugwai:'🥈Jaugwai',mem_jausan:'🥇Jausan',mem_title_1:'Novice',mem_title_2:'Connoisseur',mem_title_3:'Legend',mem_upgrade_to:'Upgrade to',expired:'Expired',countdown_hm:'{h}h {m}m {s}s',mem_free:'🆓 Free',mem_upgrade_cta:'Upgrade for full features',mem_jiuyau_label:'Jiuyau',mem_jaugwai_label:'Jaugwai',mem_jausan_label:'Jausan',confirm_del_fav:'Delete this favorite?',fav_deleted:'Deleted',fav_added:'Added to cellar 🔖',net_err:'Network error',fav_del_fail:'Delete failed',fav_add_fail:'Add failed',load_fail:'Load failed',inv_copied:'Invite code copied📤',inv_copied_alt:'Copied📤',inv_input:'Enter invite code',inv_friend_free:'🎉 Friend gets 7 days free Jiuyau!',inv_used:'✅ Invite code used',inv_fail:'Redeem failed',coupon_none:'🧧 No coupons yet~ Upgrade for monthly coupons!',coupon_count:'',bar_none:'🏙️ No partner bars yet~',no_friends:'No friends yet 🥲',no_posts:'No posts yet 📝',no_checkins:'No check-ins yet 🍺',cellar_empty_hint:'🔖 Cellar empty~ Scan to add favorites!',admin_name:'Admin',admin_saved:'Updated',admin_fail:'Failed',admin_set_fail:'Setting failed',admin_set_done:'Set',admin_confirm_admin:'Make {u} admin?',admin_remove_admin:'Remove admin from {u}?',admin_cancel_fail:'Cancel failed',admin_removed:'Admin removed',admin_del_user:'⚠️ Delete user {u}?\nThis action is irreversible!',admin_renew_all:'Renew all expired members for 30 days?',admin_downgrade_all:'Downgrade all expired members to free?',dice_select_hint:'Select dice count',dice_max:'max',dice_rolling:'Rolling...',dice_result:'Rolled',dice_pts:' pts 🎉',dice_again:'🍻 Roll again!',dice_round:'Round',dice_round_suffix:'',btn_edit:'Edit',btn_delete:'Delete',btn_save:'Save',btn_cancel:'Cancel',confirm_del_checkin:'Delete this check-in?',confirm_del_party:'Delete this party?',confirm_del_post:'Delete this post?',confirm_remove_friend:'Remove this friend?',shop_submit_fail:'Submit failed',cellar_saved:'✅ Saved',cellar_save_fail:'❌ Save failed',confirm_del_cellar:'Delete from cellar?',cellar_del_done:'🗑️ Deleted',cellar_del_fail:'❌ Delete failed',shop_load_err:'Load failed',shop_need_login:'Please login',shop_loading:'Loading product info...',pay_title:'💳 Confirm Payment',ship_title:'📦 Shipping Info',ship_need_name:'Fill in recipient name',ship_need_phone:'Fill in phone number',ship_need_city:'Fill in city',opt_select:'-- Select --',mem_jiuyau_yearly:'🥉Jiuyau ¥69/yr',mem_jaugwai_yearly:'🥈Jaugwai ¥149/yr',mem_jausan_yearly:'🥇Jausan ¥299/yr',mem_jiuyau_monthly:'🥉Jiuyau ¥9.9/mo',mem_jaugwai_monthly:'🥈Jaugwai ¥19.9/mo',mem_jausan_monthly:'🥇Jausan ¥39.9/mo',expires_on:'Expires: ',mem_free_label:'Free',mem_limit_today:'Today scans left',ship_need_addr:'请填写详细地址',shop_reselect:'请重新选择商品',pay_scan_title:'📱 扫码付款',pay_done_btn:'✅ 我已付款',pay_confirm_again:'⚠️ 再按一次确认',submitting:'提交中...',please_use:'请使用 ',dl_link_invalid:'下载链接无效',downloading:'正在下载...',load_fail_short:'加载失败',adm_confirm_del_product:'确定删除此商品？',adm_product_deleted:'已删除',adm_order_updated:'订单状态已更新',adm_confirm_del_liquor:'确定删除此酒品记录？',grp_need_name:'请输入群组名称',grp_created:'群组创建成功！',grp_joined:'已加入群组！',grp_confirm_leave:'确定退出此群组？',grp_left:'已退出',grp_confirm_kick:'确定踢出此成员？',grp_kicked:'已踢出',grp_confirm_disband:'⚠️ 确定解散此群组？此操作不可撤销！',grp_disbanded:'群组已解散',grp_updated:'已更新',grp_confirm_force_disband:'⚠️ 确定强制解散此群组？',grp_force_disbanded:'已解散',empty_no_friends2:'还没有酒友，去推荐区添加啦！',empty_no_recommend:'暂无推荐',empty_no_group:'还未加入任何群组，创建或探索一个啦！',empty_no_posts_short:'还没发过帖 📝',empty_cellar_full:'🥲 酒柜空空如也～扫码后收藏心水酒品！',empty_no_product:'暂无商品',empty_no_order:'暂无订单',empty_no_audit:'暂无审计日志',empty_no_checkins:'暂无报到',empty_no_parties:'暂无酒局',empty_no_posts_admin:'暂无帖子',loading_dots:'加载中...',loading_gift:'加载中...🎁',mem_upgrade_cta2:'升级享受完整功能',ship_need_name2:'请填写收货人姓名',grp_name_updated:'已更新',grp_no_msg:'还没有对话，说声嗨吧！',cellar_scan_to_save:'扫码辨酒后可收藏到酒柜',trial_14days_left:'🎉 14天免费体验 · 剩余{dl}天',permanent:'永久'},
 'en':{
   st_mai_yum:'Sober',
   st_seung_yum:'Thirsty',
@@ -3139,6 +3139,7 @@ const L={
   login:'Login',
   logout:'Logout',
   tab_checkin:'Check-in',tab_timeline:'Feed',tab_party:'Party',tab_stats:'Stats',tab_map:'Map',tab_member:'VIP',tab_dice:'Dice',tab_shop:'Shop',
+  map_title:'Drinking Map',parties:'Parties',cmp_shop_discount:'Shop Discount',cmp_scan_limit:'Scan Limit',
   terms:'Terms',
   disclaimer:'Disclaimer',
   contact:'Contact Us',
@@ -3487,7 +3488,7 @@ const L={
   prod_img_url:'Image URL',prod_file_url:'File URL(music download)',prod_active:'Active',
   save:'Save',cancel:'Cancel',load_failed:'Load failed',
   grp_free_no_create:'Free users cannot create groups, please upgrade',grp_free_no_join:'Free users cannot join groups, please upgrade'
-}
+,ship_need_addr:'Fill in detailed address',shop_reselect:'Please reselect product',pay_scan_title:'📱 Scan to Pay',pay_done_btn:'✅ I have paid',pay_confirm_again:'⚠️ Press again to confirm',submitting:'Submitting...',please_use:'Please use ',dl_link_invalid:'Download link invalid',downloading:'Downloading...',load_fail_short:'Load failed',adm_confirm_del_product:'Delete this product?',adm_product_deleted:'Deleted',adm_order_updated:'Order status updated',adm_confirm_del_liquor:'Delete this liquor record?',grp_need_name:'Enter group name',grp_created:'Group created!',grp_joined:'Joined group!',grp_confirm_leave:'Leave this group?',grp_left:'Left group',grp_confirm_kick:'Kick this member?',grp_kicked:'Kicked',grp_confirm_disband:'⚠️ Disband this group? This cannot be undone!',grp_disbanded:'Group disbanded',grp_updated:'Updated',grp_confirm_force_disband:'⚠️ Force disband this group?',grp_force_disbanded:'Disbanded',empty_no_friends2:'No friends yet, add from suggestions!',empty_no_recommend:'No suggestions',empty_no_group:'No groups yet, create or explore one!',empty_no_posts_short:'No posts yet 📝',empty_cellar_full:'🥲 Cellar empty~ Scan to add favorites!',empty_no_product:'No products yet',empty_no_order:'No orders yet',empty_no_audit:'No audit logs',empty_no_checkins:'No check-ins',empty_no_parties:'No parties',empty_no_posts_admin:'No posts',loading_dots:'Loading...',loading_gift:'Loading...🎁',mem_upgrade_cta2:'Upgrade for full features',ship_need_name2:'Fill in recipient name',grp_name_updated:'Updated',grp_no_msg:'No messages yet, say hi!',cellar_scan_to_save:'Scan to identify & save to cellar',trial_14days_left:'🎉 14-day free trial · {dl} days left',permanent:'Permanent'}
 };
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
@@ -3894,7 +3895,7 @@ async function createParty(){
  if(!title)return toast(T("enter_name"),1);if(!d)return toast(T('toast_select_date'),1);
  try{
  await api('/api/party',{method:'POST',body:{title,location:loc,event_date:d+(tm?'T'+tm:'')}})
- document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();toast(T("party_created"));
+ document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();populatePartySelects();toast(T("party_created"));
  }catch(e){toast('❌ '+e.message,1)}
 }
 async function loadParties(){
@@ -3907,7 +3908,7 @@ async function loadParties(){
  h+='<div class="card"><div style="font-weight:700;font-size:15px">'+esc(p.title)+'</div><div style="font-size:12px;color:var(--sub);margin:6px 0">📍 '+(esc(p.location)||T('party_loc_tbd'))+' · 🕐 '+(p.meet_time||T('party_loc_tbd'))+'</div><div style="font-size:11px;color:var(--amber)">👑 '+esc(p.creator_nickname)+'</div>';
  h+='<div style="margin:8px 0"><span class="clickable" onclick="this.nextElementSibling.classList.toggle(\'open\')">👥 '+p.going_count+T('ppl_join')+'</span><div class="attendee-list">';
  atts.forEach(a=>{h+='<div class="attendee-row">'+(a.response==='going'?'✅':a.response==='maybe'?'🤔':'❌')+' <b>'+esc(a.nickname)+'</b></div>'});
- h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">'+T('rsvp_yes')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">'+T('rsvp_maybe')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">'+T('rsvp_no')+'</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">'+T('attend_log')+' ('+(p.journal_count||0)+')</button><button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="openPollMod('+p.id+')">📊 '+T('poll_title')+'</button><button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="openChainMod('+p.id+')">🔗 '+T('chain_title')+'</button></div></div>';
+ h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">'+T('rsvp_yes')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">'+T('rsvp_maybe')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">'+T('rsvp_no')+'</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">'+T('attend_log')+' ('+(p.journal_count||0)+')</button><button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="selectPollParty('+p.id+')">📊 '+T('poll_title')+'</button><button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="selectChainParty('+p.id+')">🔗 '+T('chain_title')+'</button></div></div>';
  });
  if(!parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>'+T('party_no')+'</div>';
  document.getElementById('party-list').innerHTML=h;
@@ -3932,43 +3933,52 @@ async function doJnl(){const t=document.getElementById('jnl-inp').value.trim();i
 // ═══════════════════ 投票 & 接龍 ═══════════════════
 let _pollPartyId=null,_chainPartyId=null;
 
-function openPollMod(pid){
-  _pollPartyId=pid;
-  const el=document.getElementById('poll-mod');
-  el.style.display='flex';el.style.position='fixed';
-  el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
-  document.getElementById('poll-create-form').style.display='none';
-  loadPolls(pid);
-}
-function closePollMod(){document.getElementById('poll-mod').style.display='none';_pollPartyId=null}
+// ─── 投票 (inline section in 酒局 tab) ───
 
-function showCreatePoll(){
-  const f=document.getElementById('poll-create-form');
-  f.style.display=f.style.display==='none'?'block':'none';
-  if(f.style.display==='block'){
-    document.getElementById('poll-question').value='';
-    document.getElementById('poll-options-input').innerHTML='<input class="input poll-opt-input" placeholder="'+T('poll_opt')+'1" style="margin-bottom:4px"><input class="input poll-opt-input" placeholder="'+T('poll_opt')+'2" style="margin-bottom:4px">';
-    document.getElementById('poll-multi').checked=false;
-  }
+function populatePartySelects(){
+  var sel1=document.getElementById('poll-party-select');
+  var sel2=document.getElementById('chain-party-select');
+  [sel1,sel2].forEach(sel=>{
+    if(!sel)return;
+    var cur=sel.value; sel.innerHTML='<option value="">-- '+T('party_title')+' --</option>';
+    (_parties||[]).forEach(p=>{
+      sel.innerHTML+='<option value="'+p.id+'">'+esc(p.title||p.location||('#'+p.id))+'</option>';
+    });
+    sel.value=cur;
+  });
+}
+
+function pollPartyChanged(){
+  var pid=document.getElementById('poll-party-select').value;
+  _pollPartyId=pid||null;
+  if(pid)loadPolls(pid); else document.getElementById('poll-section-list').innerHTML='';
+}
+
+function chainPartyChanged(){
+  var pid=document.getElementById('chain-party-select').value;
+  _chainPartyId=pid||null;
+  if(pid)loadChains(pid); else document.getElementById('chain-section-list').innerHTML='';
 }
 
 function addPollOption(){
-  const box=document.getElementById('poll-options-input');
-  const n=box.querySelectorAll('.poll-opt-input').length+1;
-  const inp=document.createElement('input');
-  inp.className='input poll-opt-input';inp.placeholder=T('poll_opt')+n;inp.style.marginBottom='4px';
+  var box=document.getElementById('poll-opts-wrap');
+  var n=box.querySelectorAll('.poll-opt-input').length+1;
+  var inp=document.createElement('input');
+  inp.className='input poll-opt-input';inp.placeholder=T('poll_opt')+n;inp.style.cssText='font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%';
   box.appendChild(inp);
 }
 
-async function submitPoll(){
-  if(!_pollPartyId)return;
-  const q=document.getElementById('poll-question').value.trim();
-  const inputs=document.querySelectorAll('.poll-opt-input');
-  const opts=[];inputs.forEach(i=>{const v=i.value.trim();if(v)opts.push(v)});
+async function createPollInSection(){
+  if(!_pollPartyId){toast(T('party_title')+'!',1);return}
+  var q=document.getElementById('poll-q').value.trim();
+  var inputs=document.querySelectorAll('#poll-section-create .poll-opt-input');
+  var opts=[];inputs.forEach(function(i){var v=i.value.trim();if(v)opts.push(v)});
   if(!q||opts.length<2){toast(T('poll_need_2'),1);return}
   try{
-    await api('/api/party/'+_pollPartyId+'/polls',{method:'POST',body:{question:q,options:opts,multi:document.getElementById('poll-multi').checked}});
-    document.getElementById('poll-create-form').style.display='none';
+    await api('/api/party/'+_pollPartyId+'/polls',{method:'POST',body:{question:q,options:opts}});
+    document.getElementById('poll-q').value='';
+    var box=document.getElementById('poll-opts-wrap');
+    box.innerHTML='<input class="input poll-opt-input" placeholder="A. 選項1" style="font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%"><input class="input poll-opt-input" placeholder="B. 選項2" style="font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%">';
     loadPolls(_pollPartyId);
     toast('📊 '+T('poll_created'));
   }catch(e){toast('❌ '+e.message,1)}
@@ -3976,75 +3986,53 @@ async function submitPoll(){
 
 async function loadPolls(pid){
   try{
-    const d=await api('/api/party/'+pid+'/polls');
-    const polls=d.polls||[];
-    let h='';
-    polls.forEach(poll=>{
-      const total=Object.values(poll.votes||{}).reduce((a,b)=>a+b,0)||1;
+    var d=await api('/api/party/'+pid+'/polls');
+    var polls=d.polls||[];var h='';
+    polls.forEach(function(poll){
+      var total=Object.values(poll.votes||{}).reduce(function(a,b){return a+b},0)||1;
       h+='<div class="poll-card"><div class="poll-q">'+esc(poll.question)+(poll.closed?'<span class="poll-closed-badge">已結束</span>':'')+'<span style="color:var(--sub);font-size:10px;margin-left:6px">👤 '+esc(poll.nick)+'</span></div>';
-      (poll.options||[]).forEach((opt,i)=>{
-        const cnt=(poll.votes&&poll.votes[i])||0;
-        const pct=Math.round(cnt/total*100);
-        const myVote=(poll.my_votes||[]).includes(i);
+      (poll.options||[]).forEach(function(opt,i){
+        var cnt=(poll.votes&&poll.votes[i])||0;
+        var pct=Math.round(cnt/total*100);
+        var myVote=(poll.my_votes||[]).includes(i);
         h+='<div class="poll-opt'+(myVote?' voted':'')+'" onclick="'+(poll.closed?'':('votePoll('+poll.id+','+i+')'))+'">';
         h+='<span style="flex:1">'+esc(opt)+'</span>';
         h+='<div style="flex:2"><div class="bar" style="width:'+pct+'%"></div></div>';
-        h+='<span class="cnt">'+cnt+'('+pct+'%)</span>';
-        h+='</div>';
+        h+='<span class="cnt">'+cnt+'('+pct+'%)</span></div>';
       });
-      if(!poll.closed){
-        h+='<div style="margin-top:4px"><button class="btn btn-sm btn-outline" style="font-size:10px;border-color:var(--red);color:var(--red)" onclick="closePoll('+poll.id+')">結束投票</button></div>';
-      }
+      if(!poll.closed)h+='<div style="margin-top:4px"><button class="btn btn-sm btn-outline" style="font-size:10px;border-color:var(--red);color:var(--red)" onclick="closePoll('+poll.id+')">結束投票</button></div>';
       h+='</div>';
     });
     if(!polls.length)h='<div style="color:var(--sub);text-align:center;padding:16px;font-size:12px">'+T('poll_empty')+'</div>';
-    document.getElementById('poll-list').innerHTML=h;
+    document.getElementById('poll-section-list').innerHTML=h;
   }catch(e){}
 }
 
 async function votePoll(pollId,idx){
-  try{
-    await api('/api/poll/'+pollId+'/vote',{method:'POST',body:{options:[idx]}});
-    loadPolls(_pollPartyId);
-  }catch(e){toast('❌ '+e.message,1)}
+  if(!_pollPartyId)return;
+  try{await api('/api/poll/'+pollId+'/vote',{method:'POST',body:{options:[idx]}});loadPolls(_pollPartyId);}
+  catch(e){toast('❌ '+e.message,1)}
 }
 
 async function closePoll(pollId){
-  try{
-    await api('/api/poll/'+pollId+'/close',{method:'POST'});
-    loadPolls(_pollPartyId);
-  }catch(e){toast('❌ '+e.message,1)}
+  if(!_pollPartyId)return;
+  try{await api('/api/poll/'+pollId+'/close',{method:'POST'});loadPolls(_pollPartyId);}
+  catch(e){toast('❌ '+e.message,1)}
 }
 
-// ─── 接龍 ───
+// ─── 接龍 (inline section in 酒局 tab) ───
 
-function openChainMod(pid){
-  _chainPartyId=pid;
-  const el=document.getElementById('chain-mod');
-  el.style.display='flex';el.style.position='fixed';
-  el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
-  document.getElementById('chain-create-form').style.display='none';
-  loadChains(pid);
-}
-function closeChainMod(){document.getElementById('chain-mod').style.display='none';_chainPartyId=null}
-
-function showCreateChain(){
-  const f=document.getElementById('chain-create-form');
-  f.style.display=f.style.display==='none'?'block':'none';
-  if(f.style.display==='block'){
-    document.getElementById('chain-title').value='';
-    document.getElementById('chain-max').value='20';
-  }
-}
-
-async function submitChain(){
-  if(!_chainPartyId)return;
-  const title=document.getElementById('chain-title').value.trim();
-  const max=parseInt(document.getElementById('chain-max').value)||0;
+async function createChainInSection(){
+  if(!_chainPartyId){toast(T('party_title')+'!',1);return}
+  var title=document.getElementById('chain-title').value.trim();
+  var max=parseInt(document.getElementById('chain-max-slot').value)||0;
+  var note=document.getElementById('chain-note-ipt').value.trim();
   if(!title){toast(T('chain_need_title'),1);return}
   try{
-    await api('/api/party/'+_chainPartyId+'/chains',{method:'POST',body:{title:title,max_slots:max}});
-    document.getElementById('chain-create-form').style.display='none';
+    await api('/api/party/'+_chainPartyId+'/chains',{method:'POST',body:{title:title,max_slots:max,note:note}});
+    document.getElementById('chain-title').value='';
+    document.getElementById('chain-max-slot').value='';
+    document.getElementById('chain-note-ipt').value='';
     loadChains(_chainPartyId);
     toast('🔗 '+T('chain_created'));
   }catch(e){toast('❌ '+e.message,1)}
@@ -4052,43 +4040,49 @@ async function submitChain(){
 
 async function loadChains(pid){
   try{
-    const d=await api('/api/party/'+pid+'/chains');
-    const chains=d.chains||[];
-    let h='';
-    chains.forEach(ch=>{
+    var d=await api('/api/party/'+pid+'/chains');
+    var chains=d.chains||[];var h='';
+    chains.forEach(function(ch){
       h+='<div class="chain-card"><div class="chain-title">🔗 '+esc(ch.title)+' <span style="color:var(--sub);font-size:11px">('+ch.taken+'/'+(ch.max_slots||'∞')+')</span> <span style="color:var(--sub);font-size:10px">👤 '+esc(ch.nick)+'</span></div>';
-      (ch.slots||[]).forEach(s=>{
+      (ch.slots||[]).forEach(function(s){
         h+='<div class="chain-slot"><span class="sn">'+s.slot_no+'.</span> <b>'+esc(s.nick)+'</b>'+(s.note?' <span style="color:var(--sub)">('+esc(s.note)+')</span>':'')+'</div>';
       });
-      const mySlot=(ch.slots||[]).find(s=>s.user_id===(me&&me.id));
+      var mySlot=(ch.slots||[]).find(function(s){return s.user_id===(me&&me.id)});
       h+='<div class="chain-join-btn">';
-      if(mySlot){
-        h+='<button class="btn btn-sm btn-outline" style="border-color:var(--red);color:var(--red)" onclick="leaveChain('+ch.id+')">'+T('chain_leave')+' (#'+mySlot.slot_no+')</button>';
-      }else if(ch.max_slots>0&&ch.taken>=ch.max_slots){
-        h+='<span style="color:var(--red);font-size:12px">🚫 '+T('chain_full')+'</span>';
-      }else{
-        h+='<button class="btn btn-sm btn-primary" onclick="joinChain('+ch.id+')">✋ '+T('chain_join')+'</button>';
-      }
+      if(mySlot)h+='<button class="btn btn-sm btn-outline" style="border-color:var(--red);color:var(--red)" onclick="leaveChain('+ch.id+')">'+T('chain_leave')+' (#'+mySlot.slot_no+')</button>';
+      else if(ch.max_slots>0&&ch.taken>=ch.max_slots)h+='<span style="color:var(--red);font-size:12px">🚫 '+T('chain_full')+'</span>';
+      else h+='<button class="btn btn-sm btn-primary" onclick="joinChain('+ch.id+')">✋ '+T('chain_join')+'</button>';
       h+='</div></div>';
     });
     if(!chains.length)h='<div style="color:var(--sub);text-align:center;padding:16px;font-size:12px">'+T('chain_empty')+'</div>';
-    document.getElementById('chain-list').innerHTML=h;
+    document.getElementById('chain-section-list').innerHTML=h;
   }catch(e){}
 }
 
 async function joinChain(chainId){
   try{
-    const note=prompt(T('chain_note_hint')||'备注(可选)')||'';
+    var note=prompt(T('chain_note_hint')||'备注(可选)')||'';
     await api('/api/chain/'+chainId+'/join',{method:'POST',body:{note:note}});
-    loadChains(_chainPartyId);
+    if(_chainPartyId)loadChains(_chainPartyId);
   }catch(e){toast('❌ '+e.message,1)}
 }
 
 async function leaveChain(chainId){
   try{
     await api('/api/chain/'+chainId+'/leave',{method:'POST'});
-    loadChains(_chainPartyId);
+    if(_chainPartyId)loadChains(_chainPartyId);
   }catch(e){toast('❌ '+e.message,1)}
+}
+
+function selectPollParty(pid){
+  var sel=document.getElementById('poll-party-select');
+  if(sel){sel.value=pid;pollPartyChanged();}
+  document.getElementById('poll-section').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function selectChainParty(pid){
+  var sel=document.getElementById('chain-party-select');
+  if(sel){sel.value=pid;chainPartyChanged();}
+  document.getElementById('chain-section').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 // ═══════ STATS ═══════
@@ -4169,7 +4163,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
    // Render friends list in member page
    var fl=document.getElementById('mem-frd-list');
    if(fl){
-    if(!frs.length)fl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">仲未有酒友 🥲</div>';
+    if(!frs.length)fl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">'+T('no_friends')+'</div>';
     else fl.innerHTML=frs.map(f=>{
      var av=f.avatar&&f.avatar.startsWith('emoji:')?f.avatar.replace('emoji:',''):'👤';
      var avSrc=f.avatar&&f.avatar.startsWith('/api/')?API_BASE+f.avatar:'';
@@ -4184,7 +4178,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
    // Render my posts list in member page
    var pl=document.getElementById('mem-post-list');
    if(pl){
-    if(!myPosts.length)pl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">仲未發過帖 📝</div>';
+    if(!myPosts.length)pl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">'+T('empty_no_posts_short')+'</div>';
     else pl.innerHTML=myPosts.slice(0,20).map(p=>{
      var imgHtml='';
      try{var arr=JSON.parse(p.images||'[]');if(arr.length)imgHtml='<img src="'+API_BASE+arr[0]+'" style="width:48px;height:48px;border-radius:8px;object-fit:cover;margin-left:auto">'}catch(e){}
@@ -4198,7 +4192,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
    var cks=(d.timeline||[]).filter(c=>c.user_id===me.id);
    var cl=document.getElementById('mem-chk-list');
    if(cl){
-    if(!cks.length)cl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">仲未報到過 🍺</div>';
+    if(!cks.length)cl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">'+T('no_checkins')+'</div>';
     else cl.innerHTML=cks.slice(0,20).map(c=>{
      var st=_statusMap[c.status]||'其他';
      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:16px">🍺</span><div style="flex:1"><div style="font-weight:600;color:var(--text);font-size:13px">'+st+'</div><div style="font-size:10px;color:var(--sub)">'+(c.created_at||'')+(c.note?' · '+c.note:'')+'</div></div></div>';
@@ -4207,7 +4201,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   }).catch(()=>{});
  }
  // Membership
-  if(me.membership&&me.membership!=='free'){s.textContent='💰 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');let expTxt='到期：'+(me.member_expires||'永久');if(me.membership==='jiuyau'&&me.member_expires){var expD=new Date(me.member_expires);var dl=Math.ceil((expD-new Date())/(86400000));if(dl>0&&dl<=14)expTxt='🎉 14天免費體驗 · 剩餘'+dl+'天'}e.textContent=expTxt}else{s.textContent='🆓 免費會員';e.textContent='升級享受完整功能'}
+  if(me.membership&&me.membership!=='free'){s.textContent='💰 '+({jiuyau:T('mem_jiuyau_label'),jaugwai:T('mem_jaugwai_label'),jausan:T('mem_jausan_label')}[me.membership]||'VIP');let expTxt=T('expires_on')+(me.member_expires||T('permanent'));if(me.membership==='jiuyau'&&me.member_expires){var expD=new Date(me.member_expires);var dl=Math.ceil((expD-new Date())/(86400000));if(dl>0&&dl<=14)expTxt=T('trial_14days_left',{dl:dl})}e.textContent=expTxt}else{s.textContent=T('mem_free');e.textContent=T('mem_upgrade_cta')}
   // Feature card lock/unlock by level
   document.querySelectorAll('.mem-feat-card').forEach(function(card){
    var minLv=parseInt(card.getAttribute('data-min-lv')||'0');
@@ -4246,10 +4240,10 @@ function toggleBilling(){
 }
 function showPay(){if(!me)return toast(T('please_login'),1);var pn=document.getElementById('pay-plan-name'),pu=document.getElementById('pay-usd'),pm=document.getElementById('pay-mod');
   if(selBilling==='annual'){
-    if(pn)pn.textContent={jiuyau:'🥉酒友 ¥69/年',jaugwai:'🥈酒鬼 ¥149/年',jausan:'🥇酒神 ¥299/年'}[selPlan]||'';
+    if(pn)pn.textContent={jiuyau:T('mem_jiuyau_yearly'),jaugwai:T('mem_jaugwai_yearly'),jausan:T('mem_jausan_yearly')}[selPlan]||'';
     if(pu)pu.textContent='≈ $'+PAY_U_ANNUAL[selPlan]+' USD';
   }else{
-    if(pn)pn.textContent={jiuyau:'🥉酒友 ¥9.9/月',jaugwai:'🥈酒鬼 ¥19.9/月',jausan:'🥇酒神 ¥39.9/月'}[selPlan]||'';
+    if(pn)pn.textContent={jiuyau:T('mem_jiuyau_monthly'),jaugwai:T('mem_jaugwai_monthly'),jausan:T('mem_jausan_monthly')}[selPlan]||'';
     if(pu)pu.textContent='≈ $'+PAY_U[selPlan]+' USD';
   }
   swQR('alipay');if(pm)pm.style.display='flex'}
@@ -4277,11 +4271,11 @@ async function loadMyFavorites(){
  var list=document.getElementById('mem-fav-list');
  var cnt=document.getElementById('mem-fav-count');
  if(!list)return;
- list.innerHTML='載入中...';
+ list.innerHTML=T('loading_dots');
  try{
   var d=await api('/api/favorites');
   cnt.textContent=(d.favorites||[]).length+'/'+d.max;
-  if(!d.favorites||!d.favorites.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">🔖 酒櫃空空如也～掃碼後收藏心水酒品！</div>';return}
+  if(!d.favorites||!d.favorites.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('cellar_empty_hint')+'</div>';return}
   list.innerHTML=d.favorites.map(function(f){
    var name=f.name||f.name_en||'未知酒品';
    var brand=f.brand||'';
@@ -4298,11 +4292,11 @@ async function loadMyFavorites(){
  }catch(e){list.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||'載入失敗')+'</div>'}
 }
 async function removeFav(fid){
- if(!confirm('確定刪除此收藏？'))return;
- try{await api('/api/favorites/'+fid,{method:'DELETE'});loadMyFavorites();toast('已刪除')}catch(e){toast(e.message||'刪除失敗',1)}
+ if(!confirm(T('confirm_del_fav')))return;
+ try{await api('/api/favorites/'+fid,{method:'DELETE'});loadMyFavorites();toast(T('fav_deleted'))}catch(e){toast(e.message||T('fav_del_fail'),1)}
 }
 async function addFavFromScan(lid){
- try{var d=await api('/api/favorites',{method:'POST',body:JSON.stringify({liquor_id:lid})});toast('已收藏入酒櫃🔖');return d}catch(e){toast(e.message||'收藏失敗',1);throw e}
+ try{var d=await api('/api/favorites',{method:'POST',body:JSON.stringify({liquor_id:lid})});toast(T('fav_added'));return d}catch(e){toast(e.message||T('fav_add_fail'),1);throw e}
 }
 
 // ═══════ COUPONS (優惠券) ═══════
@@ -4310,12 +4304,12 @@ async function loadMyCoupons(){
  var list=document.getElementById('mem-cpn-list');
  var cnt=document.getElementById('mem-cpn-count');
  if(!list)return;
- list.innerHTML='載入中...';
+ list.innerHTML=T('loading_dots');
  try{
   var d=await api('/api/coupons');
   var cpns=d.coupons||[];
-  cnt.textContent=cpns.filter(function(c){return c.status==='active'}).length+'張';
-  if(!cpns.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">🧧 暫無優惠券～升級會員每月自動派券！</div>';return}
+  cnt.textContent=cpns.filter(function(c){return c.status==='active'}).length+T('coupon_count');
+  if(!cpns.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">🧧 '+T('coupon_none')+'</div>';return}
   list.innerHTML=cpns.map(function(c){
    var statusColor=c.status==='active'?'#22c55e':'#999';
    var statusText=c.status==='active'?'可用':c.status==='used'?'已用':'過期';
@@ -4343,28 +4337,28 @@ async function loadMyInviteCode(){
 function copyInviteCode(){
  var code=document.getElementById('my-invite-code').textContent;
  if(!code||code==='—')return;
- navigator.clipboard.writeText(code).then(function(){toast('邀請碼已複製📤')}).catch(function(){
-  var inp=document.createElement('input');inp.value=code;document.body.appendChild(inp);inp.select();document.execCommand('copy');document.body.removeChild(inp);toast('已複製📤');
+ navigator.clipboard.writeText(code).then(function(){toast(T('inv_copied'))}).catch(function(){
+  var inp=document.createElement('input');inp.value=code;document.body.appendChild(inp);inp.select();document.execCommand('copy');document.body.removeChild(inp);toast(T('inv_copied_alt'));
  });
 }
 async function claimInviteCode(){
  var code=document.getElementById('claim-invite-input').value.trim()||'';
- if(!code){toast('請輸入邀請碼',1);return}
+ if(!code){toast(T('inv_input'),1);return}
  try{var d=await api('/api/invite/claim',{method:'POST',body:JSON.stringify({code:code})});
-  toast(d.reward==='inviter_gets_bonus'?'🎉 好友獲得7日免費酒友！':'✅ 邀請碼已使用');
+  toast(d.reward==='inviter_gets_bonus'?T('inv_friend_free'):T('inv_used'));
   document.getElementById('claim-invite-input').value='';
- }catch(e){toast(e.message||'使用失敗',1)}
+ }catch(e){toast(e.message||T('inv_fail'),1)}
 }
 
 // ═══════ VENUES (合作酒吧) ═══════
 async function loadVenues(){
  var list=document.getElementById('mem-venue-list');
  if(!list)return;
- list.innerHTML='載入中...';
+ list.innerHTML=T('loading_dots');
  try{
   var d=await api('/api/venues');
   var vs=d.venues||[];
-  if(!vs.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">🏙️ 暫無合作酒吧～持續拓展中！</div>';return}
+  if(!vs.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">🏙️ '+T('bar_none')+'</div>';return}
   list.innerHTML=vs.map(function(v){
    return '<div style="padding:10px 6px;border-bottom:1px solid var(--border)">'
     +'<div style="font-weight:600;color:var(--text)">🏠 '+esc(v.name||v.address||'酒吧')+'</div>'
@@ -4382,7 +4376,7 @@ async function loadAnnualReport(){
  if(!body)return;
  if(body.style.display!=='none'){body.style.display='none';return}
  body.style.display='block';
- body.innerHTML='載入中...🎁';
+ body.innerHTML=T('loading_gift');
  try{
   var d=await api('/api/annual-report');
   var cats=(d.top_categories||[]).map(function(c){return c.category+':'+c.cnt}).join(' · ')||'無';
@@ -4447,7 +4441,7 @@ function showMemFriend(uid){
  var cached=(window._memFriends||[]).find(f=>f.id===uid);
  if(cached){renderProfile(cached,false);return;}
  // fallback: 调远程API
- body.innerHTML='<div style="padding:20px;color:var(--sub)">載入中...</div>';
+ body.innerHTML='<div style="padding:20px;color:var(--sub)">'+T('loading_dots')+'</div>';
  mod.style.display='flex';
  api('/api/user/'+uid).then(d=>{
   renderProfile(d.user||d,false);
@@ -4629,7 +4623,7 @@ async function _doSaveProf(){
  }catch(e){toast('❌ '+e.message,1)}
 }
 
-function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin();showUsageBars();renderInlineHints()}
+function refreshAll(){loadTL();loadStats();loadParties();populatePartySelects();updMem();loadAdmin();showUsageBars();renderInlineHints()}
 
 // Admin entry: long-press brand name 3s or tap 5x opens login dialog (type 'admin' to enter admin mode)
 let adminToken = localStorage.getItem('jymy_admin_token') || '';
@@ -4710,7 +4704,7 @@ function admOpen(){
  const el=document.getElementById('admin-mod');
  el.style.display='flex';el.style.position='fixed';el.classList.add('show');
  el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
- document.getElementById('adm-admin-name').textContent='管理員';
+ document.getElementById('adm-admin-name').textContent=T('admin_name');
  admShowTab('stats');
  loadAdmStats();
 }
@@ -4772,7 +4766,7 @@ async function admShowChangePw(){
   const r=await fetch(API_BASE+'/api/admin/change-own-key',{method:'POST',headers:_admHeaders(),body:JSON.stringify({new_key:pw})});
   const d=await r.json();
   if(d.ok) toast(T("admin_pwd_changed"));
-  else toast('❌ '+(d.error||'失敗'),1);
+  else toast('❌ '+(d.error||T('admin_fail')),1);
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -4845,7 +4839,7 @@ async function admSaveUser(uid){
   const r=await fetch(API_BASE+'/api/admin/update-profile',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify(body)});
   const d=await r.json();
   if(d.ok){toast(T('toast_updated'));closeAdmEdit();admLoadMembers();}
-  else toast('❌ '+(d.error||'失敗'),1);
+  else toast('❌ '+(d.error||T('admin_fail')),1);
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -4859,7 +4853,7 @@ async function admResetPw(uid, username){
   const r=await fetch(API_BASE+'/api/admin/change-password',{method:'POST',headers:{'Content-Type':'application/json',...h},body:JSON.stringify({user_id:uid,new_password:pw})});
   const d=await r.json();
   if(d.ok) toast(T('toast_password_reset'));
-  else toast('❌ '+(d.error||'失敗'),1);
+  else toast('❌ '+(d.error||T('admin_fail')),1);
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -4945,8 +4939,8 @@ async function admSetPlan(uid, plan){
   const h = _admHeaders();
   const r = await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:30})});
   const d = await r.json();
-  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
-  toast('✅ '+(d.msg||'已更新')+' → '+(d.membership||plan));
+  if(!r.ok) return toast('❌ '+(d.error||T('admin_set_fail')),1);
+  toast('✅ '+(d.msg||T('admin_saved'))+' → '+(d.membership||plan));
   // If admin changed own membership, refresh me
   if(me && me.id === uid){me.membership=d.membership||plan;me.member_expires=d.expires||'';saveS();updateNav();initDice();}
   admLoadMembers();
@@ -4963,8 +4957,8 @@ async function admVerifyMember(uid){
   const h = _admHeaders();
   const r = await fetch(API_BASE+'/api/admin/member/set',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,plan:plan,days:parseInt(days)||30})});
   const d = await r.json();
-  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
-  toast('✅ '+(d.membership||plan)+' 已設置');
+  if(!r.ok) return toast('❌ '+(d.error||T('admin_set_fail')),1);
+  toast('✅ '+(d.membership||plan)+' '+T('admin_set_done'));
   if(me && me.id === uid){me.membership=d.membership||plan;me.member_expires=d.expires||'';saveS();updateNav();initDice();}
   admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
@@ -4977,32 +4971,32 @@ async function admResetMemberPw(uid){
 
 // ── Admin: Make/Revoke admin ──
 async function admMakeAdmin(uid, username){
- if(!confirm('確定將「'+username+'」設定為管理員？')) return;
+ if(!confirm(T('admin_confirm_admin').replace('{u}',username))) return;
  try{
   await _admCheck();
   const h = _admHeaders();
   const r = await fetch(API_BASE+'/api/admin/become',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,username:username})});
   const d = await r.json();
-  if(!r.ok) return toast('❌ '+(d.error||'設置失敗'),1);
-  toast('✅ '+(d.msg||'已設為管理員'));
+  if(!r.ok) return toast('❌ '+(d.error||T('admin_set_fail')),1);
+  toast('✅ '+(d.msg||T('admin_removed')));
   admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
 }
 async function admRevokeAdmin(uid, username){
- if(!confirm('確定取消「'+username+'」的管理員權限？')) return;
+ if(!confirm(T('admin_remove_admin').replace('{u}',username))) return;
  try{
   await _admCheck();
   const h = _admHeaders();
   const r = await fetch(API_BASE+'/api/admin/revoke',{method:'POST',headers:h,body:JSON.stringify({user_id:uid,username:username})});
   const d = await r.json();
-  if(!r.ok) return toast('❌ '+(d.error||'取消失敗'),1);
-  toast('✅ '+(d.msg||'已取消管理員'));
+  if(!r.ok) return toast('❌ '+(d.error||T('admin_cancel_fail')),1);
+  toast('✅ '+(d.msg||T('admin_removed')));
   admLoadMembers();
  }catch(e){toast('❌ '+e.message,1)}
 }
 
 async function admDeleteUser(uid, username){
- if(!confirm('⚠️ 確定刪除用戶「'+username+'」？\n此操作將刪除該用戶及其所有報到記錄，不可撤銷！')) return;
+ if(!confirm(T('admin_del_user').replace('{u}',username))) return;
  try{
  await _admCheck();
  const h = _admHeaders();
@@ -5097,7 +5091,7 @@ async function admLoadAudit(){
  document.getElementById('adm-audit-list').innerHTML = html;
  }catch(e){
  // audit_log 表可能不存在，显示空
- document.getElementById('adm-audit-list').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>暫無操作紀錄</div>';
+ document.getElementById('adm-audit-list').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>'+T('empty_no_audit')+'</div>';
  }
 }
 
@@ -5122,7 +5116,7 @@ async function admLoadAudit(){
 
 // ═══════ ADMIN EXTRA FUNCTIONS ═══════
 function admBulkRenew(){
- if(!confirm('確定將所有到期會員續期30日？'))return;
+ if(!confirm(T('admin_renew_all')))return;
  _admCheck().then(()=>{
   const h=_admHeaders();
   const today=new Date().toISOString().split('T')[0];
@@ -5151,7 +5145,7 @@ function admExportCSV(){
 }
 
 function admClearExpired(){
- if(!confirm('確定將所有到期會員降為免費？'))return;
+ if(!confirm(T('admin_downgrade_all')))return;
  _admCheck().then(()=>{
   const h=_admHeaders();
   const today=new Date().toISOString().split('T')[0];
@@ -5230,7 +5224,7 @@ function initDice(){
  var hint=document.getElementById('dice-mem-hint');
  if(hint){
   var memNames={0:'免費',1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
-  hint.textContent='選擇骰數（'+(memNames[lv]||'免費')+'最多'+limit+'粒）';
+  hint.textContent=T('dice_select_hint')+' ('+(memNames[lv]||T('mem_free_label'))+T('dice_max')+limit+')';
  }
  var row=document.getElementById('dice-count-row');
  if(!row)return;
@@ -5288,7 +5282,7 @@ function shakeSolo(){
  _diceShaking=true;
  DICE_SND.resume(); // Unlock AudioContext on user gesture
  var btn=document.getElementById('btn-shake');
- if(btn){btn.disabled=true;btn.textContent='搖緊...'}
+ if(btn){btn.disabled=true;btn.textContent=T('dice_rolling')}
  if(navigator.vibrate)navigator.vibrate([100,50,100,50,100,50,200]);
  DICE_SND.shake();
  var area=document.getElementById('dice-area');
@@ -5357,9 +5351,9 @@ function shakeSolo(){
    setTimeout(function(){d.classList.remove('landed')},450);
   });
   var total=res.reduce(function(a,b){return a+b},0);
-  if(sr){sr.textContent='擲出 '+res.join(' + ')+' = '+total+' 點 🎉';sr.scrollIntoView({behavior:'smooth',block:'center'})}
+  if(sr){sr.textContent=T('dice_result')+' '+res.join(' + ')+' = '+total+T('dice_pts');sr.scrollIntoView({behavior:'smooth',block:'center'})}
   _diceShaking=false;
-  if(btn){btn.disabled=false;btn.textContent='🍻 再搖！'}
+  if(btn){btn.disabled=false;btn.textContent=T('dice_again')}
   // Remove cup
   setTimeout(function(){if(cup&&cup.parentNode)cup.parentNode.removeChild(cup)},600);
  },1600);
@@ -5457,7 +5451,7 @@ function revealAll(){
 function renderBattle(){
  var grid=document.getElementById('battle-grid');if(!grid)return;grid.innerHTML='';
  var info=document.getElementById('game-round-info');
- if(info)info.textContent='第 1/'+((_diceRoom.rules||{}).rounds||1)+' 輪';
+ if(info)info.textContent=T('dice_round')+' 1/'+((_diceRoom.rules||{}).rounds||1)+T('dice_round_suffix');
  var myId=''+(me&&me.id);
  var myRes=_diceRoom.results[myId]||[];
  var maxR=((_diceRoom.rules||{}).rounds||1);
@@ -5738,7 +5732,7 @@ function _admCardRow(label,val,color){
 async function admLoadCheckins(){
  try{const d=await api('/api/admin/checkins');const el=document.getElementById('adm-checkin-list');
   _admCheckins=d.checkins||[];
-  if(!_admCheckins.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無動態</div>';return}
+  if(!_admCheckins.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">'+T('empty_no_checkins')+'</div>';return}
   el.innerHTML='';
   _admCheckins.forEach((c,i)=>{
    const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
@@ -5746,8 +5740,8 @@ async function admLoadCheckins(){
    const name=document.createElement('span');name.style.cssText='color:var(--amber);font-weight:700;font-size:13px';name.textContent='@'+(c.username||c.nickname);
    const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+c.id;
    const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
-   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-ci';eb.style.cssText='padding:2px 8px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px';eb.textContent='編輯';
-   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-ci';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent='刪除';
+   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-ci';eb.style.cssText='padding:2px 8px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px';eb.textContent=T('btn_edit');
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-ci';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent=T('btn_delete');
    btns.appendChild(eb);btns.appendChild(db_);
    head.appendChild(name);head.appendChild(id);head.appendChild(btns);
    card.appendChild(head);
@@ -5763,7 +5757,7 @@ async function admLoadCheckins(){
 async function admLoadParties(){
  try{const d=await api('/api/admin/parties');const el=document.getElementById('adm-party-list');
   _admParties=d.parties||[];
-  if(!_admParties.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無酒局</div>';return}
+  if(!_admParties.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">'+T('empty_no_parties')+'</div>';return}
   el.innerHTML='';
   _admParties.forEach((p,i)=>{
    const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
@@ -5771,8 +5765,8 @@ async function admLoadParties(){
    const title=document.createElement('span');title.style.cssText='color:var(--purple);font-weight:700;font-size:13px';title.textContent=(p.title||'無標題');
    const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+p.id;
    const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
-   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-py';eb.style.cssText='padding:2px 8px;border:1px solid var(--purple);border-radius:6px;background:none;color:var(--purple);cursor:pointer;font-size:10px';eb.textContent='編輯';
-   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-py';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent='刪除';
+   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-py';eb.style.cssText='padding:2px 8px;border:1px solid var(--purple);border-radius:6px;background:none;color:var(--purple);cursor:pointer;font-size:10px';eb.textContent=T('btn_edit');
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-py';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent=T('btn_delete');
    btns.appendChild(eb);btns.appendChild(db_);
    head.appendChild(title);head.appendChild(id);head.appendChild(btns);
    card.appendChild(head);
@@ -5790,7 +5784,7 @@ async function admLoadParties(){
 async function admLoadAdmPosts(){
  try{const d=await api('/api/admin/posts');const el=document.getElementById('adm-post-list');
   _admPosts=d.posts||[];
-  if(!_admPosts.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">暫無帖子</div>';return}
+  if(!_admPosts.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">'+T('empty_no_posts_admin')+'</div>';return}
   el.innerHTML='';
   _admPosts.forEach((p,i)=>{
    const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
@@ -5798,8 +5792,8 @@ async function admLoadAdmPosts(){
    const name=document.createElement('span');name.style.cssText='color:var(--pink);font-weight:700;font-size:13px';name.textContent='@'+(p.username||p.nickname);
    const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+p.id;
    const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
-   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-po';eb.style.cssText='padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:none;color:var(--pink);cursor:pointer;font-size:10px';eb.textContent='編輯';
-   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-po';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent='刪除';
+   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-po';eb.style.cssText='padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:none;color:var(--pink);cursor:pointer;font-size:10px';eb.textContent=T('btn_edit');
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-po';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent=T('btn_delete');
    btns.appendChild(eb);btns.appendChild(db_);
    head.appendChild(name);head.appendChild(id);head.appendChild(btns);
    card.appendChild(head);
@@ -5838,15 +5832,15 @@ document.addEventListener('click',function(e){
  }
 });
 async function admDeleteCheckin(cid){
- if(!confirm('確認刪除呢條動態？'))return;
+ if(!confirm(T('confirm_del_checkin')))return;
  try{await api('/api/admin/delete-checkin',{method:'POST',body:{checkin_id:cid}});admLoadCheckins()}catch(e){alert('刪除失敗')}
 }
 async function admDeleteParty(pid){
- if(!confirm('確認刪除呢個酒局？'))return;
+ if(!confirm(T('confirm_del_party')))return;
  try{await api('/api/admin/delete-party',{method:'POST',body:{pid:pid}});admLoadParties()}catch(e){alert('刪除失敗')}
 }
 async function admDeletePost(pid){
- if(!confirm('確認刪除呢條帖子？'))return;
+ if(!confirm(T('confirm_del_post')))return;
  try{await api('/api/admin/delete-post',{method:'POST',body:{pid:pid}});admLoadAdmPosts()}catch(e){alert('刪除失敗')}
 }
 
@@ -5889,10 +5883,10 @@ function _adminModal(title,fields,onSave){
   inputs[f.id]=el;
  });
  let btns=document.createElement('div');btns.style.cssText='display:flex;gap:8px;margin-top:16px';
- let saveBtn=document.createElement('button');saveBtn.textContent='儲存';
+ let saveBtn=document.createElement('button');saveBtn.textContent=T('btn_save');
  saveBtn.style.cssText='flex:1;padding:10px;border:none;border-radius:8px;background:var(--amber);color:#fff;cursor:pointer;font-weight:700';
  saveBtn.onclick=(e)=>{e.stopPropagation();ov.style.display='none';onSave()};
- let cancelBtn=document.createElement('button');cancelBtn.textContent='取消';
+ let cancelBtn=document.createElement('button');cancelBtn.textContent=T('btn_cancel');
  cancelBtn.style.cssText='flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);cursor:pointer';
  cancelBtn.onclick=(e)=>{e.stopPropagation();ov.style.display='none'};
  btns.appendChild(saveBtn);btns.appendChild(cancelBtn);box.appendChild(btns);
@@ -5906,7 +5900,7 @@ function admEditCheckin(id,status,note){
   {id:'ec-status',label:'狀態',type:'select',value:status,options:_statusOpts()},
   {id:'ec-note',label:'備註',type:'text',value:note}
  ],async()=>{
-  try{await api('/api/admin/edit-checkin',{method:'POST',body:{checkin_id:id,status:parseInt(document.getElementById('ec-status').value),note:document.getElementById('ec-note').value}});admLoadCheckins();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
+  try{await api('/api/admin/edit-checkin',{method:'POST',body:{checkin_id:id,status:parseInt(document.getElementById('ec-status').value),note:document.getElementById('ec-note').value}});admLoadCheckins();toast(T('admin_saved'))}catch(e){alert('更新失敗:'+e.message)}
  })
 }
 function admEditParty(id,title,location,meetTime,status,desc,maxMem){
@@ -5918,7 +5912,7 @@ function admEditParty(id,title,location,meetTime,status,desc,maxMem){
   {id:'ep-desc',label:'描述',type:'textarea',value:desc},
   {id:'ep-max',label:'人數上限',type:'text',value:maxMem}
  ],async()=>{
-  try{await api('/api/admin/edit-party',{method:'POST',body:{pid:id,title:document.getElementById('ep-title').value,location:document.getElementById('ep-loc').value,meet_time:document.getElementById('ep-time').value,status:document.getElementById('ep-status').value,description:document.getElementById('ep-desc').value,max_members:parseInt(document.getElementById('ep-max').value)||0}});admLoadParties();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
+  try{await api('/api/admin/edit-party',{method:'POST',body:{pid:id,title:document.getElementById('ep-title').value,location:document.getElementById('ep-loc').value,meet_time:document.getElementById('ep-time').value,status:document.getElementById('ep-status').value,description:document.getElementById('ep-desc').value,max_members:parseInt(document.getElementById('ep-max').value)||0}});admLoadParties();toast(T('admin_saved'))}catch(e){alert('更新失敗:'+e.message)}
  })
 }
 function admEditPost(id,content,imageUrl){
@@ -5926,7 +5920,7 @@ function admEditPost(id,content,imageUrl){
   {id:'epc-content',label:'內容',type:'textarea',value:content},
   {id:'epc-img',label:'圖片URL',type:'text',value:imageUrl}
  ],async()=>{
-  try{await api('/api/admin/edit-post',{method:'POST',body:{pid:id,content:document.getElementById('epc-content').value,image_url:document.getElementById('epc-img').value}});admLoadAdmPosts();toast('已更新')}catch(e){alert('更新失敗:'+e.message)}
+  try{await api('/api/admin/edit-post',{method:'POST',body:{pid:id,content:document.getElementById('epc-content').value,image_url:document.getElementById('epc-img').value}});admLoadAdmPosts();toast(T('admin_saved'))}catch(e){alert('更新失敗:'+e.message)}
  })
 }
 
@@ -5951,7 +5945,7 @@ async function loadFriendsList(){
   const cnt=document.getElementById('my-friends-count');
   const frs=d.friends;  // API now only returns accepted friends
   if(cnt)cnt.textContent='('+frs.length+')';
-  if(!frs.length){el.innerHTML='<span style="color:var(--sub)">仲未有酒友，去推薦區添加啦！</span>';return}
+  if(!frs.length){el.innerHTML='<span style="color:var(--sub)">'+T('empty_no_friends2')+'</span>';return}
   var html='';
   for(var i=0;i<frs.length;i++){
    try{
@@ -6077,7 +6071,7 @@ async function loadChatMsgs(){
    var isMine=m.sender_id===(me?.id||0);
    html+='<div style="display:flex;'+(isMine?'justify-content:flex-end':'')+'"><div style="max-width:75%;padding:10px 14px;border-radius:16px;font-size:14px;line-height:1.5;'+(isMine?'background:linear-gradient(135deg,var(--amber),#e67e22);color:#fff;border-bottom-right-radius:4px;box-shadow:0 2px 8px rgba(245,158,11,0.3)':'background:var(--card);color:var(--text);border-bottom-left-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.15)')+'">'+esc(m.content)+'<div style="font-size:10px;margin-top:3px;opacity:0.6;text-align:right">'+(m.created_at||'')+'</div></div></div>';
   }
-  el.innerHTML=html||'<div style="text-align:center;color:var(--sub);font-size:12px">仲未有對話，講聲嗨啦！</div>';
+  el.innerHTML=html||'<div style="text-align:center;color:var(--sub);font-size:12px">'+T('grp_no_msg')+'</div>';
   if(wasBottom)el.scrollTop=el.scrollHeight;
  }catch(e){console.error('loadChatMsgs err',e)}
 }
@@ -6094,7 +6088,7 @@ function memName(lv){
  return m[lv]||m[0];
 }
 async function removeFriend(uid){
- if(!confirm('確認移除呢位酒友？'))return;
+ if(!confirm(T('confirm_remove_friend')))return;
  try{await api('/api/friends/remove',{method:'POST',body:{user_id:uid}});loadFriendsAll()}catch(e){alert(e.message)}
 }
 
@@ -6322,7 +6316,7 @@ async function loadAIRec(scene){
         box.style.display='none';
         return;
       }
-      box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">暫無推薦數據</div>';
+      box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">'+T('empty_no_recommend')+'數據</div>';
       return;
     }
     const recs=r.recommendations||[];
@@ -6445,7 +6439,7 @@ function submitReview(){
     }else{
       toast(r.error||'error');
     }
-  }).catch(function(){toast('提交失敗');});
+  }).catch(function(){toast(T('shop_submit_fail'));});
 }
 
 function loadReviews(){
@@ -6468,7 +6462,7 @@ function renderReviews(list){
   var box=document.getElementById('review-list');
   if(!box)return;
   if(!list||!list.length){
-    box.innerHTML='<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px">'+(T('rv_empty')||'暫無酒評')+'</div>';
+    box.innerHTML='<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px">'+T('rv_empty')+'</div>';
     return;
   }
   var h='';
@@ -6527,7 +6521,7 @@ function cellarFilterTag(tag){
 }
 async function loadCellar(){
   const list=document.getElementById('cellar-list');
-  list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)"><span class="spinner"></span> 載入中...</div>';
+  list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)"><span class="spinner"></span> '+T('loading_dots')+'</div>';
   try{
     let url=API_BASE+'/api/cellar?tag='+_cellarTag;
     const q=document.getElementById('cellar-search').value.trim();
@@ -6547,7 +6541,7 @@ async function loadCellar(){
     // 列表
     const items=r.items||[];
     if(!items.length){
-      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">🥲 酒柜空空如也<br><span style="font-size:11px">掃碼辨酒後可收藏到酒柜</span></div>';
+      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">🥲 '+T('cellar_empty_hint')+'<br><span style="font-size:11px">'+T('cellar_scan_to_save')+'</span></div>';
       return;
     }
     const catIcons={'醬香型白酒':'🫗','威士忌':'🥃','白葡萄酒':'🥂','紅葡萄酒':'🍷','清酒':'🍶','啤酒':'🍺','龍舌蘭':'🍹','干邑白蘭地':'🥃','白蘭地':'🥃','梅酒':'🫗','果酒':'🫗','氣泡酒':'🥂'};
@@ -6599,19 +6593,19 @@ function cellarEdit(favId){
     headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
     body:JSON.stringify({memo:newMemo,rating:parseInt(newRating)||0,cellar_tag:newTag})
   }).then(r=>r.json()).then(r=>{
-    if(r.ok){toast('✅ 已更新');loadCellar();}
-    else toast('❌ 更新失敗');
+    if(r.ok){toast(T('cellar_saved'));loadCellar();}
+    else toast(T('cellar_save_fail'));
   });
 }
 
 function cellarRemove(favId){
-  if(!confirm('刪除此收藏？')) return;
+  if(!confirm(T('confirm_del_cellar'))) return;
   fetch(API_BASE+'/api/favorites/'+favId,{
     method:'DELETE',
     headers:{'Authorization':'Bearer '+token}
   }).then(r=>r.json()).then(r=>{
-    if(r.ok){toast('🗑️ 已刪除');loadCellar();}
-    else toast('❌ 刪除失敗');
+    if(r.ok){toast(T('cellar_del_done'));loadCellar();}
+    else toast(T('cellar_del_fail'));
   });
 }
 
@@ -6666,7 +6660,7 @@ function _catTag(cat){
 
 function renderShopProducts(products){
   const el = document.getElementById('shop-products');
-  if(!products.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--sub);font-size:14px">🏪 暫無商品</div>';return}
+  if(!products.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--sub);font-size:14px">🏪 '+T('empty_no_product')+'</div>';return}
   el.innerHTML = products.map(p=>{
     const catIcon = CAT_ICONS[p.category]||'📦';
     const catLabel = CAT_LABELS[p.category]||p.category;
@@ -6717,7 +6711,7 @@ function shopShowDetail(pid){
         <button class="btn btn-primary" style="flex:1;${soldout?'opacity:0.5;pointer-events:none':''}" onclick="shopBuy(${p.id})">${soldout?'售罄':'🛒 立即購買'}</button>
       </div>`;
     document.getElementById('shop-detail-mod').style.display='flex';
-  }).catch(()=>toast('加載失敗','error'));
+  }).catch(()=>toast(T('shop_load_err'),'error'));
 }
 
 function _shopDiscountHtml(price){
@@ -6750,9 +6744,9 @@ const _qrLabels = {
 };
 
 function shopBuy(pid){
-  if(!token){toast('請先登入','error');return}
+  if(!token){toast(T('shop_need_login'),'error');return}
   const p = _shopProducts.find(x=>x.id===pid);
-  if(!p){toast('商品信息加載中，請稍後','error');return}
+  if(!p){toast(T('shop_loading'),'error');return}
   _checkoutPid = pid;
   _checkoutProduct = p;
   _checkoutStep = 1;
@@ -6797,7 +6791,7 @@ function shopBuy(pid){
   document.getElementById('ck-step3-dot').style.background='var(--border)';
   document.getElementById('ck-step-bar').style.width='0%';
   document.getElementById('ck-step-bar2').style.width='0%';
-  document.getElementById('ck-title').textContent='💳 確認付款';
+  document.getElementById('ck-title').textContent=T('pay_title');
   document.getElementById('checkout-mod').style.display='flex';
   // Pre-fill address from user profile
   _prefillAddress();
@@ -6846,7 +6840,7 @@ function checkoutGoStep2(){
   document.getElementById('ck-step3-dot').style.background='var(--border)';
   document.getElementById('ck-step-bar').style.width='50%';
   document.getElementById('ck-step-bar2').style.width='0%';
-  document.getElementById('ck-title').textContent='📦 收貨信息';
+  document.getElementById('ck-title').textContent=T('ship_title');
 }
 
 function checkoutGoStep3(){
@@ -6857,21 +6851,21 @@ function checkoutGoStep3(){
     const phone = document.getElementById('ck-ship-phone').value.trim();
     const city = document.getElementById('ck-addr-city').value.trim();
     const addr = document.getElementById('ck-addr-detail').value.trim();
-    if(!name){toast('請填寫收貨人姓名','error');return}
-    if(!phone){toast('請填寫手機號碼','error');return}
-    if(!city){toast('請填寫城市','error');return}
-    if(!addr){toast('請填寫詳細地址','error');return}
+    if(!name){toast(T('ship_need_name'),'error');return}
+    if(!phone){toast(T('ship_need_phone'),'error');return}
+    if(!city){toast(T('ship_need_city'),'error');return}
+    if(!addr){toast(T('ship_need_addr'),'error');return}
   } else {
     // Digital still needs name & phone
     const name = document.getElementById('ck-ship-name').value.trim();
-    if(!name){toast('請填寫收貨人姓名','error');return}
+    if(!name){toast(T('ship_need_name2'),'error');return}
   }
   _checkoutStep = 3;
   const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
   const qrInfo = _qrLabels[payMethod] || _qrLabels.wechat;
   // Set QR image
   document.getElementById('ck-qr-img').src = _qrImages[payMethod] || _qrImages.wechat;
-  document.getElementById('ck-pay-method-label').textContent = '請使用 ' + qrInfo.emoji + ' ' + qrInfo.name + ' 掃碼付款';
+  document.getElementById('ck-pay-method-label').textContent = T('please_use') + qrInfo.emoji + ' ' + qrInfo.name + ' 掃碼付款';
   // Brand badge
   const brandEl = document.getElementById('ck-qr-brand');
   brandEl.style.background = qrInfo.bg;
@@ -6886,10 +6880,10 @@ function checkoutGoStep3(){
   document.getElementById('ck-step3-dot').style.background='var(--amber)';
   document.getElementById('ck-step-bar').style.width='100%';
   document.getElementById('ck-step-bar2').style.width='100%';
-  document.getElementById('ck-title').textContent='📱 掃碼付款';
+  document.getElementById('ck-title').textContent=T('pay_scan_title');
   // Reset confirm btn
   const btn = document.getElementById('checkout-confirm-btn');
-  btn.disabled=false; btn.textContent='✅ 我已付款'; btn.style.opacity='1';
+  btn.disabled=false; btn.textContent=T('pay_done_btn'); btn.style.opacity='1';
   delete btn.dataset.confirmed;
 }
 
@@ -6903,7 +6897,7 @@ function checkoutGoStep1(){
   document.getElementById('ck-step3-dot').style.background='var(--border)';
   document.getElementById('ck-step-bar').style.width='0%';
   document.getElementById('ck-step-bar2').style.width='0%';
-  document.getElementById('ck-title').textContent='💳 確認付款';
+  document.getElementById('ck-title').textContent=T('pay_title');
 }
 
 function checkoutGoStep2From3(){
@@ -6914,7 +6908,7 @@ function checkoutGoStep2From3(){
   document.getElementById('ck-step2-dot').style.background='var(--amber)';
   document.getElementById('ck-step3-dot').style.background='var(--border)';
   document.getElementById('ck-step-bar2').style.width='0%';
-  document.getElementById('ck-title').textContent='📦 收貨信息';
+  document.getElementById('ck-title').textContent=T('ship_title');
 }
 
 function checkoutClose(){
@@ -6941,14 +6935,14 @@ document.addEventListener('change', e=>{
 });
 
 function confirmCheckout(){
-  if(!_checkoutPid){toast('請重新選擇商品','error');return}
+  if(!_checkoutPid){toast(T('shop_reselect'),'error');return}
   // Double-confirm: require user acknowledgment
   const btn = document.getElementById('checkout-confirm-btn');
   if(!btn.dataset.confirmed){
     btn.dataset.confirmed='1';
-    btn.textContent='⚠️ 再按一次確認';
+    btn.textContent=T('pay_confirm_again');
     btn.style.opacity='0.85';
-    setTimeout(()=>{if(btn.dataset.confirmed==='1'){btn.dataset.confirmed='';btn.textContent='✅ 我已付款';btn.style.opacity='1'}},3000);
+    setTimeout(()=>{if(btn.dataset.confirmed==='1'){btn.dataset.confirmed='';btn.textContent=T('pay_done_btn');btn.style.opacity='1'}},3000);
     return;
   }
   delete btn.dataset.confirmed;
@@ -6964,10 +6958,10 @@ function confirmCheckout(){
     address_zip: document.getElementById('ck-addr-zip').value.trim(),
     is_digital: isDigital ? 1 : 0
   };
-  btn.disabled=true; btn.textContent='提交中...'; btn.style.opacity='0.6';
+  btn.disabled=true; btn.textContent=T('submitting'); btn.style.opacity='0.6';
   api('/api/shop/orders',{method:'POST',body:{items:[{product_id:_checkoutPid,qty:1}],pay_method:payMethod,...addrData}})
   .then(r=>{
-    btn.disabled=false; btn.textContent='✅ 我已付款'; btn.style.opacity='1';
+    btn.disabled=false; btn.textContent=T('pay_done_btn'); btn.style.opacity='1';
     if(r.ok){
       let msg='訂單已提交！#'+r.order_id+'，合計¥'+r.total.toFixed(2)+'，等待人工確認付款';
       if(r.discount<1)msg+=' (原價¥'+r.original_total.toFixed(2)+'，省¥'+r.saved.toFixed(2)+')';
@@ -6979,7 +6973,7 @@ function confirmCheckout(){
     } else {
       toast(r.error||'下單失敗','error');
     }
-  }).catch(()=>{btn.disabled=false;btn.textContent='✅ 我已付款';btn.style.opacity='1';toast('網絡錯誤','error')});
+  }).catch(()=>{btn.disabled=false;btn.textContent=T('pay_done_btn');btn.style.opacity='1';toast(T('net_err'),'error')});
 }
 
 function shopToggleMyOrders(){
@@ -6988,7 +6982,7 @@ function shopToggleMyOrders(){
     el.style.display='block';
     api('/api/shop/my-orders').then(r=>{
       if(!r.ok||!r.orders){el.innerHTML='<div style="padding:8px;color:var(--sub)">加載失敗</div>';return}
-      if(!r.orders.length){el.innerHTML='<div style="padding:8px;color:var(--sub);text-align:center">暫無訂單</div>';return}
+      if(!r.orders.length){el.innerHTML='<div style="padding:8px;color:var(--sub);text-align:center">'+T('empty_no_order')+'</div>';return}
       const statusMap = {pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
       const statusColor = {pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
       el.innerHTML = r.orders.map(o=>{
@@ -7019,11 +7013,11 @@ function shopToggleMyOrders(){
 }
 
 function downloadDigital(token, oid){
-  if(!token){toast('下載連結無效','error');return}
+  if(!token){toast(T('dl_link_invalid'),'error');return}
   // Open download URL in new tab
   const url = API_BASE + '/api/shop/download/' + oid + '/' + (oid*7+13) + '?token=' + encodeURIComponent(token);
   window.open(url, '_blank');
-  toast('正在下載...','success');
+  toast(T('downloading'),'success');
 }
 
 // ═══════════════════ LIQUOR SCAN / VERIFY ═══════════════════
@@ -7149,9 +7143,9 @@ function closeScanner(){
 }
 
 function showScanHistory(){
-  if(!token){toast('請先登入','error');return}
+  if(!token){toast(T('shop_need_login'),'error');return}
   api('/api/scan/history').then(r=>{
-    if(!r.ok||!r.history){toast('加載失敗','error');return}
+    if(!r.ok||!r.history){toast(T('shop_load_err'),'error');return}
     if(!r.history.length){toast(T('toast_no_scan_hist'),'info');return}
     const el = document.getElementById('scan-result');
     el.style.display='block';
@@ -7169,7 +7163,7 @@ function showScanHistory(){
       </div>
     </div>`).join('')}
     </div>`;
-  }).catch(()=>toast('加載失敗','error'));
+  }).catch(()=>toast(T('shop_load_err'),'error'));
 }
 
 // ═══════════════════ ADMIN: SHOP MANAGEMENT ═══════════════════
@@ -7179,7 +7173,7 @@ function admLoadShopProducts(){
   fetch(API_BASE+'/api/admin/products',{headers:_admH()}).then(r=>r.json()).then(r=>{
     if(!r.ok){document.getElementById('adm-product-list').innerHTML=T('load_failed');return}
     const products=r.products||[];
-    if(!products.length){document.getElementById('adm-product-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無商品，點擊➕新增</div>';return}
+    if(!products.length){document.getElementById('adm-product-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_product')+'，點擊➕新增</div>';return}
     document.getElementById('adm-product-list').innerHTML=products.map(p=>{
       const catLabel=CAT_LABELS[p.category]||p.category;
       const catIcon=CAT_ICONS[p.category]||'📦';
@@ -7252,12 +7246,12 @@ function admSaveProduct(pid){
   fetch(API_BASE+'/api/admin/products',{method:'POST',headers:_admH(),body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
     if(r.ok){toast(pid?'商品已更新':'商品已新增','success');admLoadShopProducts()}
     else toast(r.error||'保存失敗','error');
-  }).catch(()=>toast('網絡錯誤','error'));
+  }).catch(()=>toast(T('net_err'),'error'));
 }
 
 function admDelProduct(pid){
-  if(!confirm('確定刪除此商品？'))return;
-  fetch(API_BASE+'/api/admin/products/'+pid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast('已刪除','success');admLoadShopProducts()}else toast(r.error||'刪除失敗','error')}).catch(()=>toast('網絡錯誤','error'));
+  if(!confirm(T('adm_confirm_del_product')))return;
+  fetch(API_BASE+'/api/admin/products/'+pid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast(T('adm_product_deleted'),'success');admLoadShopProducts()}else toast(r.error||'刪除失敗','error')}).catch(()=>toast(T('net_err'),'error'));
 }
 
 function admLoadShopOrders(status){
@@ -7267,7 +7261,7 @@ function admLoadShopOrders(status){
   fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
     if(!r.ok){document.getElementById('adm-order-list').innerHTML=T('load_failed');return}
     const orders=r.orders||[];
-    if(!orders.length){document.getElementById('adm-order-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無訂單</div>';return}
+    if(!orders.length){document.getElementById('adm-order-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_order')+'</div>';return}
     const sMap={pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
     const sClr={pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
     document.getElementById('adm-order-list').innerHTML=orders.map(o=>`<div style="padding:8px;border-bottom:1px solid var(--border)">
@@ -7292,7 +7286,7 @@ function admLoadShopOrders(status){
 }
 
 function admUpdateOrder(oid,status){
-  fetch(API_BASE+'/api/admin/orders/'+oid,{method:'POST',headers:_admH(),body:JSON.stringify({status})}).then(r=>r.json()).then(r=>{if(r.ok)toast('訂單狀態已更新','success');else toast(r.error||'更新失敗','error')}).catch(()=>toast('網絡錯誤','error'));
+  fetch(API_BASE+'/api/admin/orders/'+oid,{method:'POST',headers:_admH(),body:JSON.stringify({status})}).then(r=>r.json()).then(r=>{if(r.ok)toast(T('adm_order_updated'),'success');else toast(r.error||'更新失敗','error')}).catch(()=>toast(T('net_err'),'error'));
 }
 
 function admLoadLiquorDB(q){
@@ -7302,7 +7296,7 @@ function admLoadLiquorDB(q){
   fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
     if(!r.ok){document.getElementById('adm-liquor-list').innerHTML=T('load_failed');return}
     const liquors=r.liquors||[];
-    if(!liquors.length){document.getElementById('adm-liquor-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">暫無酒品數據，點擊➕新增</div>';return}
+    if(!liquors.length){document.getElementById('adm-liquor-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_liquor')+'數據，點擊➕新增</div>';return}
     document.getElementById('adm-liquor-list').innerHTML=liquors.map(l=>`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)">
       <div style="width:36px;height:36px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
         ${l.image_url?`<img src="${l.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">🍾</div>'}
@@ -7369,12 +7363,12 @@ function admSaveLiquor(lid){
   fetch(API_BASE+'/api/admin/liquor',{method:'POST',headers:_admH(),body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
     if(r.ok){toast(lid?'酒品已更新':'酒品已新增','success');admLoadLiquorDB()}
     else toast(r.error||'保存失敗','error');
-  }).catch(()=>toast('網絡錯誤','error'));
+  }).catch(()=>toast(T('net_err'),'error'));
 }
 
 function admDelLiquor(lid){
-  if(!confirm('確定刪除此酒品記錄？'))return;
-  fetch(API_BASE+'/api/admin/liquor/'+lid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast('已刪除','success');admLoadLiquorDB()}else toast(r.error||'刪除失敗','error')}).catch(()=>toast('網絡錯誤','error'));
+  if(!confirm(T('adm_confirm_del_liquor')))return;
+  fetch(API_BASE+'/api/admin/liquor/'+lid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast(T('adm_product_deleted'),'success');admLoadLiquorDB()}else toast(r.error||'刪除失敗','error')}).catch(()=>toast(T('net_err'),'error'));
 }
 
 // ══════════ 群组功能 ══════════
@@ -7397,7 +7391,7 @@ function grpLoadMy(){
   api('/api/groups').then(r=>{
     const el=document.getElementById('grp-my-list');
     if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">'+T('load_failed')+'</div>';return}
-    if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">仲未加入任何群組，創建或探索一個啦！🎉</div>';return}
+    if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">'+T('empty_no_group')+'🎉</div>';return}
     el.innerHTML=r.groups.map(g=>{
       const pub=g.is_public?'🌐':'🔒';
       const role=g.my_role==='creator'?'👑':g.my_role==='admin'?'⭐':'';
@@ -7414,12 +7408,12 @@ function grpShowCreate(){
 }
 function grpDoCreate(){
   const name=document.getElementById('grp-c-name').value.trim();
-  if(!name){toast('請輸入群組名稱','error');return}
+  if(!name){toast(T('grp_need_name'),'error');return}
   const lim=grpGetLimits();
   api('/api/groups',{method:'POST',body:{name,description:document.getElementById('grp-c-desc').value,avatar_url:document.getElementById('grp-c-avatar').value,is_public:document.getElementById('grp-c-public').checked}}).then(r=>{
-    if(r.ok){toast('群組創建成功！','success');document.getElementById('grp-create-mod').style.display='none';document.getElementById('grp-c-name').value='';document.getElementById('grp-c-desc').value='';document.getElementById('grp-c-avatar').value='';grpLoadMy()}
+    if(r.ok){toast(T('grp_created'),'success');document.getElementById('grp-create-mod').style.display='none';document.getElementById('grp-c-name').value='';document.getElementById('grp-c-desc').value='';document.getElementById('grp-c-avatar').value='';grpLoadMy()}
     else{if(r.required_level){toast(r.error,'error');memLocked(r.required_level)}else toast(r.error||'創建失敗','error')}
-  }).catch(()=>toast('網絡錯誤','error'))
+  }).catch(()=>toast(T('net_err'),'error'))
 }
 function grpShowExplore(){
   if(memLevel()<1){toast(T('grp_free_no_join'),'error');memLocked(1);return}
@@ -7442,9 +7436,9 @@ function grpDoExplore(){
 }
 function grpDoJoin(gid,btn){
   api('/api/groups/'+gid+'/join',{method:'POST'}).then(r=>{
-    if(r.ok){toast('已加入群組！','success');if(btn){btn.outerHTML='<span style="font-size:11px;color:var(--green)">✓ 已加入</span>'}grpLoadMy()}
+    if(r.ok){toast(T('grp_joined'),'success');if(btn){btn.outerHTML='<span style="font-size:11px;color:var(--green)">✓ 已加入</span>'}grpLoadMy()}
     else{if(r.required_level){toast(r.error,'error');memLocked(r.required_level)}else toast(r.error||'加入失敗','error')}
-  }).catch(()=>toast('網絡錯誤','error'))
+  }).catch(()=>toast(T('net_err'),'error'))
 }
 function grpShowDetail(gid){
   _grpChatGid=gid;_grpChatLastId=0;
@@ -7483,25 +7477,25 @@ function grpShowDetail(gid){
     }else{
       document.getElementById('grp-chat-area').style.display='none';
     }
-  }).catch(()=>toast('網絡錯誤','error'))
+  }).catch(()=>toast(T('net_err'),'error'))
 }
 function _uid(){try{return JSON.parse(atob(localStorage.getItem('jym_token')?.split('.')[1]||''))?.uid||0}catch{return 0}}
 function grpDoLeave(gid){
-  if(!confirm('確定退出此群組？'))return;
-  api('/api/groups/'+gid+'/leave',{method:'POST'}).then(r=>{if(r.ok){toast('已退出','success');document.getElementById('grp-detail-mod').style.display='none';grpLoadMy()}else toast(r.error||'操作失敗','error')}).catch(()=>{})
+  if(!confirm(T('grp_confirm_leave')))return;
+  api('/api/groups/'+gid+'/leave',{method:'POST'}).then(r=>{if(r.ok){toast(T('grp_left'),'success');document.getElementById('grp-detail-mod').style.display='none';grpLoadMy()}else toast(r.error||'操作失敗','error')}).catch(()=>{})
 }
 function grpDoKick(gid,userId){
-  if(!confirm('確定踢出此成員？'))return;
-  api('/api/groups/'+gid+'/kick',{method:'POST',body:{user_id:userId}}).then(r=>{if(r.ok){toast('已踢出','success');grpShowDetail(gid)}else toast(r.error||'操作失敗','error')}).catch(()=>{})
+  if(!confirm(T('grp_confirm_kick')))return;
+  api('/api/groups/'+gid+'/kick',{method:'POST',body:{user_id:userId}}).then(r=>{if(r.ok){toast(T('grp_kicked'),'success');grpShowDetail(gid)}else toast(r.error||'操作失敗','error')}).catch(()=>{})
 }
 function grpDoDissolve(gid){
-  if(!confirm('⚠️ 確定解散此群組？此操作不可撤銷！'))return;
-  api('/api/groups/'+gid,{method:'DELETE'}).then(r=>{if(r.ok){toast('群組已解散','success');document.getElementById('grp-detail-mod').style.display='none';grpLoadMy()}else toast(r.error||'操作失敗','error')}).catch(()=>{})
+  if(!confirm(T('grp_confirm_disband')))return;
+  api('/api/groups/'+gid,{method:'DELETE'}).then(r=>{if(r.ok){toast(T('grp_disbanded'),'success');document.getElementById('grp-detail-mod').style.display='none';grpLoadMy()}else toast(r.error||'操作失敗','error')}).catch(()=>{})
 }
 function grpDoEdit(gid){
   const name=prompt('群組名稱:',document.getElementById('grp-detail-title').textContent.replace('👥 ',''));
   if(!name)return;
-  api('/api/groups/'+gid,{method:'PUT',body:{name}}).then(r=>{if(r.ok){grpShowDetail(gid);toast('已更新','success')}else toast(r.error||'更新失敗','error')}).catch(()=>{})
+  api('/api/groups/'+gid,{method:'PUT',body:{name}}).then(r=>{if(r.ok){grpShowDetail(gid);toast(T('grp_updated'),'success')}else toast(r.error||'更新失敗','error')}).catch(()=>{})
 }
 
 // ══════════ Group Chat ══════════
@@ -7558,7 +7552,7 @@ function grpChatSend(){
       if(r.upgrade_required){memLocked(r.required_level||1)}else toast(r.error||'發送失敗','error');
       inp.value=c;
     }
-  }).catch(()=>{toast('網絡錯誤','error');inp.value=c});
+  }).catch(()=>{toast(T('net_err'),'error');inp.value=c});
 }
 
 // ── Admin: Groups ──
@@ -7567,7 +7561,7 @@ function admLoadGroups(q){
   fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
     const el=document.getElementById('adm-groups-list');
     if(!r.ok){el.innerHTML='<div style="color:var(--sub);font-size:12px">'+T('load_failed')+'</div>';return}
-    if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">暫無群組</div>';return}
+    if(!r.groups.length){el.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:20px">'+T('empty_no_group')+'</div>';return}
     el.innerHTML=r.groups.map(g=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
       <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--text)">${g.name} ${g.is_public?'🌐':'🔒'}</div><div style="font-size:11px;color:var(--sub)">ID:${g.id} · 創建者:${g.creator_nick||g.creator_name||'-'} · ${g.member_count}人</div></div>
       <button class="btn btn-outline btn-sm" onclick="admDelGroup(${g.id})" style="font-size:10px;color:var(--red)">解散</button>
@@ -7575,8 +7569,8 @@ function admLoadGroups(q){
   }).catch(()=>{})
 }
 function admDelGroup(gid){
-  if(!confirm('⚠️ 確定強制解散此群組？'))return;
-  fetch(API_BASE+'/api/admin/groups/'+gid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast('已解散','success');admLoadGroups()}else toast(r.error||'操作失敗','error')}).catch(()=>toast('網絡錯誤','error'))
+  if(!confirm(T('grp_confirm_force_disband')))return;
+  fetch(API_BASE+'/api/admin/groups/'+gid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast(T('grp_force_disbanded'),'success');admLoadGroups()}else toast(r.error||'操作失敗','error')}).catch(()=>toast(T('net_err'),'error'))
 }
 
 </script>
