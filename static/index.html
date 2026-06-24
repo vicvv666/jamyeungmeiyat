@@ -446,6 +446,19 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .mem-title-2{background:rgba(139,92,246,.12);color:#a78bfa;border:1px solid rgba(139,92,246,.25)}
 .mem-title-3{background:linear-gradient(90deg,rgba(245,158,11,.12),rgba(239,68,68,.12));color:#f59e0b;border:1px solid rgba(245,158,11,.25);animation:title-shimmer 3s ease-in-out infinite}
 @keyframes title-shimmer{0%,100%{opacity:1}50%{opacity:.85}}
+/* ─── AI推荐场景按钮 ─── */
+.ai-scene-btn{background:rgba(139,92,246,0.06)!important;border-color:rgba(139,92,246,0.2)!important;color:var(--text)!important;transition:all .2s}
+.ai-scene-btn.active-scene{background:linear-gradient(135deg,#8b5cf6,#6366f1)!important;border-color:#6366f1!important;color:#fff!important;box-shadow:0 0 10px rgba(139,92,246,0.3)}
+.ai-rec-card{display:flex;gap:10px;padding:10px;border-radius:10px;background:var(--card);border:1px solid var(--border);align-items:center;transition:transform .15s}
+.ai-rec-card:hover{transform:translateY(-1px)}
+.ai-rec-card .rec-icon{font-size:28px;flex-shrink:0}
+.ai-rec-card .rec-info{flex:1;min-width:0}
+.ai-rec-card .rec-name{font-weight:700;font-size:13px}
+.ai-rec-card .rec-cat{font-size:11px;color:var(--sub)}
+.ai-rec-card .rec-reason{font-size:10px;color:#a78bfa;margin-top:2px}
+.ai-rec-card .rec-abv{font-size:11px;color:var(--amber);font-weight:600}
+.ai-taste-tag{font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(139,92,246,0.1);color:#a78bfa;border:1px solid rgba(139,92,246,0.15)}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 .attendee-list{max-height:0;overflow:hidden;transition:max-height .3s}.attendee-list.open{max-height:300px;overflow-y:auto}
 .attendee-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
 .clickable{cursor:pointer;color:var(--purple);font-weight:600}
@@ -730,6 +743,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏙️ <span>酒吧VIP</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>年度報告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span>打卡地圖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">瀏覽</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🤖 <span>AI酒單推薦</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3條</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅全部</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+畫像</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏠 <span data-i18n="cmp_room">開房約戰</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🚫 <span data-i18n="cmp_noad">去廣告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">⭐ <span data-i18n="cmp_badge">專屬徽章</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
@@ -857,6 +871,34 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <div style="display:flex;gap:6px;margin-bottom:10px">
     <input class="input" id="shop-search" placeholder="🔍 搜索商品..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')shopLoadProducts(shopCurrentCat)">
     <button class="btn btn-outline btn-sm" onclick="shopLoadProducts(shopCurrentCat)">搜索</button>
+  </div>
+  <!-- 🤖 AI 酒单推荐 -->
+  <div id="ai-rec-section" class="card" style="border:2px solid #8b5cf6;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.04));padding:16px;display:none">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <span style="font-size:20px">🤖</span>
+      <div style="font-weight:700;font-size:15px;color:var(--text)">AI 酒單推薦</div>
+      <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(139,92,246,0.15);color:#a78bfa">BETA</span>
+    </div>
+    <!-- 场景选择 -->
+    <div id="ai-scene-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+      <button class="btn btn-outline btn-sm ai-scene-btn active-scene" onclick="aiSelectScene('solo')" data-scene="solo">🌙 独饮微醺</button>
+      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('party')" data-scene="party">🎉 聚会开瓶</button>
+      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('dining')" data-scene="dining">🍽️ 配餐佳酿</button>
+      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('gift')" data-scene="gift">🎁 送礼首选</button>
+    </div>
+    <!-- 推荐结果 -->
+    <div id="ai-rec-results" style="display:grid;gap:8px"></div>
+    <!-- 口味画像 -->
+    <div id="ai-taste-bar" style="margin-top:12px;display:none">
+      <div style="font-size:12px;color:var(--sub);margin-bottom:6px">🧬 你的口味画像</div>
+      <div id="ai-taste-tags" style="display:flex;gap:4px;flex-wrap:wrap"></div>
+    </div>
+    <!-- 锁定提示 -->
+    <div id="ai-rec-lock" style="display:none;text-align:center;padding:24px 0">
+      <div style="font-size:40px;margin-bottom:8px">🔒</div>
+      <div style="font-size:13px;color:var(--sub)">AI 酒單推薦為 <b style="color:#CD7F32">酒友</b> 及以上專屬</div>
+      <button class="btn btn-sm" onclick="showUpgradeModal(1)" style="margin-top:10px;background:linear-gradient(135deg,#CD7F32,#B87333)">💎 升級解鎖</button>
+    </div>
   </div>
   <!-- 商品列表 -->
   <div id="shop-products" style="display:grid;gap:10px"></div>
@@ -2053,7 +2095,7 @@ function showPage(name){
   window.scrollTo({top:0,behavior:'smooth'});
   // Close any open modal overlays when switching pages
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
-  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='map')initMap();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop')shopLoadProducts(shopCurrentCat||'');
+  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='map')initMap();if(name==='party')loadParties();if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
 }
 
 // ═══════ SWIPE GESTURE SUPPORT ═══════
@@ -2451,6 +2493,9 @@ const L={
   grp_free_no_create:'免費用戶不能建群，請升級會員',grp_free_no_join:'免費用戶不能加群，請升級會員',grp_no_data:'暫無群組',
   shop_all:'🏠 全部',shop_music:'🎵 舞曲',shop_liquor:'🍾 酒品',shop_voucher:'🎫 消費券',
   shop_search_placeholder:'🔍 搜索商品...',shop_title:'今晚飲咗未 · 商鋪',
+  ai_rec_title:'AI 酒單推薦',ai_rec_beta:'BETA',ai_scene_solo:'🌙 獨飲微醺',ai_scene_party:'🎉 聚會開瓶',ai_scene_dining:'🍽️ 配餐佳釀',ai_scene_gift:'🎁 送禮首選',
+  ai_rec_loading:'AI 分析中...',ai_rec_no_data:'暫無推薦數據',ai_rec_no_match:'未找到匹配酒品',ai_rec_locked:'AI 酒單推薦為酒友及以上專屬',
+  ai_rec_upgrade:'升級解鎖',ai_rec_limited:'酒友僅看3條 · 升級酒鬼看全部',ai_taste_label:'🧬 你的口味畫像',
   toast_password_mismatch:'密碼不一致',toast_select_date:'選擇日期',
   toast_no_friends:'仲未有酒友 🥲',toast_loading:'載入中...',toast_user_not_found:'搵唔到用戶',
   toast_updated:'已更新',toast_password_min:'密碼至少4位',toast_password_reset:'密碼已重設',
@@ -2832,6 +2877,9 @@ const L={
   grp_free_no_create:'免费用户不能建群，请升级会员',grp_free_no_join:'免费用户不能加群，请升级会员',grp_no_data:'暂无群组',
   shop_all:'🏠 全部',shop_music:'🎵 舞曲',shop_liquor:'🍾 酒品',shop_voucher:'🎫 消费券',
   shop_search_placeholder:'🔍 搜索商品...',shop_title:'今晚饮咗未 · 商铺',
+  ai_rec_title:'AI 酒单推荐',ai_rec_beta:'BETA',ai_scene_solo:'🌙 独饮微醺',ai_scene_party:'🎉 聚会开瓶',ai_scene_dining:'🍽️ 配餐佳酿',ai_scene_gift:'🎁 送礼首选',
+  ai_rec_loading:'AI 分析中...',ai_rec_no_data:'暂无推荐数据',ai_rec_no_match:'未找到匹配酒品',ai_rec_locked:'AI 酒单推荐为酒友及以上专属',
+  ai_rec_upgrade:'升级解锁',ai_rec_limited:'酒友仅看3条 · 升级酒鬼看全部',ai_taste_label:'🧬 你的口味画像',
   toast_password_mismatch:'密码不一致',toast_select_date:'选择日期',
   toast_no_friends:'还没有酒友 🥲',toast_loading:'加载中...',toast_user_not_found:'找不到用户',
   toast_updated:'已更新',toast_password_min:'密码至少4位',toast_password_reset:'密码已重设',
@@ -3213,6 +3261,9 @@ const L={
   grp_free_no_create:'Free users cannot create groups. Upgrade!',grp_free_no_join:'Free users cannot join groups. Upgrade!',grp_no_data:'No groups yet',
   shop_all:'🏠 All',shop_music:'🎵 Music',shop_liquor:'🍾 Liquor',shop_voucher:'🎫 Voucher',
   shop_search_placeholder:'🔍 Search products...',shop_title:'JYMW · Shop',
+  ai_rec_title:'AI Sommelier',ai_rec_beta:'BETA',ai_scene_solo:'🌙 Solo Sip',ai_scene_party:'🎉 Party Pick',ai_scene_dining:'🍽️ Dining Pair',ai_scene_gift:'🎁 Gift Select',
+  ai_rec_loading:'AI analyzing...',ai_rec_no_data:'No recommendations yet',ai_rec_no_match:'No matching spirits found',ai_rec_locked:'AI Sommelier is VIP-only',
+  ai_rec_upgrade:'Upgrade to unlock',ai_rec_limited:'VIP sees 3 · Upgrade for full list',ai_taste_label:'🧬 Your Taste Profile',
   toast_password_mismatch:'Passwords do not match',toast_select_date:'Select a date',
   toast_no_friends:'No drinking buddies yet 🥲',toast_loading:'Loading...',toast_user_not_found:'User not found',
   toast_updated:'Updated',toast_password_min:'Password min 4 chars',toast_password_reset:'Password reset',
@@ -5874,6 +5925,97 @@ function showReplyInput(pid,cid,name){
 
 // ═══════════ AVATAR UPLOAD in saveProf ═══════════
 // Override saveProf to include avatar upload
+
+// ═══════════════════ AI 酒單推薦 ═══════════════════
+let _aiScene='solo',_aiRecLoaded=false;
+
+function initAIRec(){
+  if(_aiRecLoaded)return;
+  _aiRecLoaded=true;
+  const sec=document.getElementById('ai-rec-section');
+  if(!sec)return;
+  const lv=memLevel();
+  if(lv<1){
+    sec.style.display='block';
+    document.getElementById('ai-rec-lock').style.display='block';
+    document.getElementById('ai-scene-btns').style.display='none';
+    document.getElementById('ai-rec-results').style.display='none';
+    document.getElementById('ai-taste-bar').style.display='none';
+    return;
+  }
+  sec.style.display='block';
+  document.getElementById('ai-rec-lock').style.display='none';
+  loadAIRec(_aiScene);
+}
+
+function aiSelectScene(scene){
+  _aiScene=scene;
+  document.querySelectorAll('.ai-scene-btn').forEach(b=>{
+    b.classList.toggle('active-scene',b.dataset.scene===scene);
+  });
+  loadAIRec(scene);
+}
+
+async function loadAIRec(scene){
+  const box=document.getElementById('ai-rec-results');
+  box.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)"><span class="spinner"></span> AI 分析中...</div>';
+  try{
+    const r=await(await fetch(API_BASE+'/api/ai/recommend?scene='+scene,{headers:{'Authorization':'Bearer '+token}})).json();
+    if(!r.ok){
+      if(r.error==='need_upgrade'){
+        document.getElementById('ai-rec-lock').style.display='block';
+        document.getElementById('ai-scene-btns').style.display='none';
+        box.style.display='none';
+        return;
+      }
+      box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">暫無推薦數據</div>';
+      return;
+    }
+    const recs=r.recommendations||[];
+    if(!recs.length){
+      box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">未找到匹配酒品，試試其他場景？</div>';
+      return;
+    }
+    const catIcons={'醬香型白酒':'🫗','威士忌':'🥃','白葡萄酒':'🥂','紅葡萄酒':'🍷','清酒':'🍶','啤酒':'🍺','龍舌蘭':'🍹','干邑白蘭地':'🥃','白蘭地':'🥃','梅酒':'🫗','果酒':'🫗','氣泡酒':'🥂'};
+    let h='';
+    recs.forEach((li,i)=>{
+      const icon=catIcons[li.category]||'🍾';
+      let ej={};
+      try{ej=JSON.parse(li.extra_json||'{}');}catch(e){}
+      const price=ej.price?('¥'+ej.price):'';
+      const rating=ej.rating?('⭐'+ej.rating):'';
+      h+='<div class="ai-rec-card" style="animation:fadeSlideIn .3s '+i*0.08+'s both">'
+        +'<div class="rec-icon">'+icon+'</div>'
+        +'<div class="rec-info">'
+        +'<div class="rec-name">'+esc(li.name)+'</div>'
+        +'<div class="rec-cat">'+esc(li.category||'')+' · '+esc(li.brand||'')+'</div>'
+        +(li.match_reason?'<div class="rec-reason">'+esc(li.match_reason)+'</div>':'')
+        +'</div>'
+        +'<div style="text-align:right;flex-shrink:0">'
+        +'<div class="rec-abv">'+(li.abv?li.abv+'%':'')+'</div>'
+        +(price?'<div style="font-size:11px;color:var(--amber);font-weight:600">'+price+'</div>':'')
+        +(rating?'<div style="font-size:10px;color:var(--sub)">'+rating+'</div>':'')
+        +'</div></div>';
+    });
+    if(r.is_limited){
+      h+='<div style="text-align:center;padding:8px;font-size:11px;color:var(--sub)">🔒 酒友僅看3條 · <span style="color:#8b5cf6;cursor:pointer" onclick="showUpgradeModal(2)">升級酒鬼看全部</span></div>';
+    }
+    box.innerHTML=h;
+    /* 口味画像 */
+    const tp=r.taste_profile||[];
+    const tb=document.getElementById('ai-taste-bar');
+    const tt=document.getElementById('ai-taste-tags');
+    if(tp.length){
+      tb.style.display='block';
+      tt.innerHTML=tp.map(function(t){return '<span class="ai-taste-tag">'+esc(t.taste)+' ×'+t.count+'</span>';}).join('');
+    }else{
+      tb.style.display='none';
+    }
+  }catch(e){
+    box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">加載失敗，請重試</div>';
+    console.error('AI rec error:',e);
+  }
+}
 
 // ═══════════════════ SHOP / PRODUCTS ═══════════════════
 let shopCurrentCat = '';

@@ -4378,12 +4378,175 @@ def api_config():
     return jsonify({
         'amap_key': os.environ.get('AMAP_KEY',''),
         'app_name': '今晚飲咗未',
-        'version': '2.1'
+        'version': '2.2'
+    })
+
+# ═══════════════════ AI 酒单推荐 ═══════════════════════
+SCENE_PROFILES = {
+    'solo': {
+        'name': '独饮微醺',
+        'tags': ['順滑','柔和','果香','花香','清甜','微甜','易飲','清爽'],
+        'abv_range': (5, 40),
+        'categories': ['清酒','白葡萄酒','果酒','梅酒','氣泡酒','啤酒','淡色拉格'],
+        'limit': 8
+    },
+    'party': {
+        'name': '聚会开瓶',
+        'tags': ['濃郁','醇厚','複雜','層次','煙熏','陳年','餘韻','香草','焦糖'],
+        'abv_range': (35, 60),
+        'categories': ['醬香型白酒','威士忌','干邑白蘭地','龍舌蘭'],
+        'limit': 8
+    },
+    'dining': {
+        'name': '配餐佳釀',
+        'tags': ['柔和','果香','單寧','酸度','均衡','餘韻','清甜','花香'],
+        'abv_range': (8, 50),
+        'categories': ['紅葡萄酒','白葡萄酒','清酒','醬香型白酒','白蘭地'],
+        'limit': 8
+    },
+    'gift': {
+        'name': '送禮首選',
+        'tags': ['陳年','限量','醇厚','複雜','餘韻','珍藏','窖藏','特級'],
+        'abv_range': (30, 60),
+        'categories': ['醬香型白酒','威士忌','干邑白蘭地'],
+        'limit': 8
+    }
+}
+
+def _score_liquor_for_scene(liquor, scene_key, user_taste_freq):
+    """为酒品打场景匹配分"""
+    profile = SCENE_PROFILES.get(scene_key)
+    if not profile:
+        return 0
+    score = 0
+    # 匹配category
+    cat = (liquor.get('category') or '').strip()
+    if cat in profile['categories']:
+        score += 30
+    # 匹配taste_notes标签
+    notes = (liquor.get('taste_notes') or '').strip()
+    if notes:
+        for tag in profile['tags']:
+            if tag in notes:
+                score += 10
+    # 匹配ABV
+    abv = liquor.get('abv', 0) or 0
+    lo, hi = profile['abv_range']
+    if lo <= abv <= hi:
+        score += 15
+    elif lo - 5 <= abv <= hi + 5:
+        score += 5
+    # 用户偏好加成
+    if user_taste_freq and notes:
+        for taste, freq in user_taste_freq.items():
+            if taste in notes:
+                score += min(freq, 5) * 3  # 最多+15
+    # 评分加成
+    try:
+        ej = json.loads(liquor.get('extra_json') or '{}')
+        rating = float(ej.get('rating', 0))
+        if rating >= 4.5: score += 10
+        elif rating >= 4.0: score += 5
+    except:
+        pass
+    return score
+
+def _get_user_taste_freq(db, uid):
+    """统计用户扫过的酒品口味偏好"""
+    rows = db.execute('''SELECT l.taste_notes FROM scan_logs s
+                         JOIN liquor_db l ON s.liquor_id = l.id
+                         WHERE s.user_id=? AND s.liquor_id > 0 AND l.taste_notes != ''
+                         ORDER BY s.id DESC LIMIT 30''', (uid,)).fetchall()
+    freq = {}
+    for r in rows:
+        for note in (r['taste_notes'] or '').split():
+            note = note.strip()
+            if note:
+                freq[note] = freq.get(note, 0) + 1
+    return freq
+
+@app.route('/api/ai/recommend')
+@auth_required
+def api_ai_recommend():
+    """AI酒单推荐. ?scene=solo|party|dining|gift"""
+    uid = g.uid
+    plan, mem_level, _ = _get_membership(uid)
+    if mem_level < 1:
+        return jsonify({'ok': False, 'error': 'need_upgrade', 'required': 1}), 403
+    scene = request.args.get('scene', 'solo')
+    if scene not in SCENE_PROFILES:
+        return jsonify({'ok': False, 'error': 'invalid_scene'}), 400
+    db = get_db()
+    rows = db.execute('SELECT * FROM liquor_db WHERE verified=1').fetchall()
+    liquors = [dict(r) for r in rows]
+    user_freq = _get_user_taste_freq(db, uid)
+    # 打分排序
+    for lq in liquors:
+        lq['match_score'] = _score_liquor_for_scene(lq, scene, user_freq)
+    liquors.sort(key=lambda x: x['match_score'], reverse=True)
+    # 免费酒友只返回3条，酒鬼+返回全部
+    limit = 3 if mem_level < 2 else SCENE_PROFILES[scene]['limit']
+    results = liquors[:limit]
+    # 加匹配理由
+    for lq in results:
+        reasons = []
+        cat = (lq.get('category') or '').strip()
+        if cat in SCENE_PROFILES[scene]['categories']:
+            reasons.append('场景适配')
+        notes = (lq.get('taste_notes') or '').strip()
+        if notes:
+            matched_tags = [t for t in SCENE_PROFILES[scene]['tags'] if t in notes]
+            if matched_tags:
+                reasons.append('口味匹配: ' + ','.join(matched_tags[:3]))
+        if user_freq and notes:
+            pref_matches = [t for t in user_freq if t in notes]
+            if pref_matches:
+                reasons.append('个人偏好')
+        lq['match_reason'] = ' · '.join(reasons) if reasons else '热门推荐'
+    # 口味画像
+    taste_profile = []
+    if user_freq:
+        sorted_tastes = sorted(user_freq.items(), key=lambda x: -x[1])[:5]
+        taste_profile = [{'taste': t, 'count': c} for t, c in sorted_tastes]
+    return jsonify({
+        'ok': True,
+        'scene': scene,
+        'scene_name': SCENE_PROFILES[scene]['name'],
+        'recommendations': results,
+        'taste_profile': taste_profile,
+        'is_limited': mem_level < 2
+    })
+
+@app.route('/api/ai/taste-profile')
+@auth_required
+def api_ai_taste_profile():
+    """用户口味画像"""
+    uid = g.uid
+    db = get_db()
+    freq = _get_user_taste_freq(db, uid)
+    # 最近扫描
+    recent = db.execute('''SELECT l.name, l.category, l.taste_notes, s.created_at
+                           FROM scan_logs s JOIN liquor_db l ON s.liquor_id = l.id
+                           WHERE s.user_id=? AND s.liquor_id > 0
+                           ORDER BY s.id DESC LIMIT 10''', (uid,)).fetchall()
+    total_scans = db.execute('SELECT COUNT(*) as c FROM scan_logs WHERE user_id=?', (uid,)).fetchone()['c']
+    # 偏好统计
+    cat_freq = {}
+    for r in recent:
+        cat = (r['category'] or '其他').strip()
+        cat_freq[cat] = cat_freq.get(cat, 0) + 1
+    top_cats = sorted(cat_freq.items(), key=lambda x: -x[1])[:3]
+    return jsonify({
+        'ok': True,
+        'total_scans': total_scans,
+        'taste_freq': sorted(freq.items(), key=lambda x: -x[1])[:8],
+        'top_categories': [{'category': c, 'count': n} for c, n in top_cats],
+        'recent_scans': [dict(r) for r in recent]
     })
 
 
+
 if __name__ == '__main__':
-    # ─── Startup: clean old temp uploads ────────────────
     if UPLOAD_DIR.exists():
         cutoff = time.time() - 30 * 86400
         cleaned = 0
