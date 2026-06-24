@@ -475,6 +475,21 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .ci-tag-collect{background:rgba(139,92,246,0.1);color:#7c3aed}
 .cellar-stat-chip{font-size:11px;padding:4px 8px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;gap:4px}
 .cellar-stat-chip b{color:var(--amber)}
+/* ─── 投票/接龙 ─── */
+.poll-card{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px;transition:all .2s}
+.poll-card:hover{border-color:var(--purple)}
+.poll-q{font-weight:700;font-size:13px;margin-bottom:8px}
+.poll-opt{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px;cursor:pointer;transition:background .2s;font-size:12px}
+.poll-opt:hover{background:rgba(139,92,246,0.06)}
+.poll-opt.voted{background:rgba(139,92,246,0.1)}
+.poll-opt .bar{height:4px;border-radius:2px;background:var(--purple);transition:width .6s}
+.poll-opt .cnt{color:var(--sub);font-size:11px;min-width:20px;text-align:right}
+.poll-closed-badge{font-size:10px;background:rgba(239,68,68,0.1);color:var(--red);padding:2px 6px;border-radius:6px;margin-left:6px}
+.chain-card{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px}
+.chain-title{font-weight:700;font-size:13px;margin-bottom:6px}
+.chain-slot{display:flex;gap:6px;padding:3px 0;font-size:12px;align-items:center}
+.chain-slot .sn{color:var(--amber);font-weight:700;min-width:20px}
+.chain-join-btn{margin-top:6px}
 .attendee-list{max-height:0;overflow:hidden;transition:max-height .3s}.attendee-list.open{max-height:300px;overflow-y:auto}
 .attendee-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
 .clickable{cursor:pointer;color:var(--purple);font-weight:600}
@@ -776,6 +791,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span>打卡地圖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">瀏覽</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🤖 <span>AI酒單推薦</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3條</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅全部</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+畫像</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🍷 <span>我的酒柜</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">5款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>群聊投票</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">投票</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔗 <span>接龍報名</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">加入</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏠 <span data-i18n="cmp_room">開房約戰</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🚫 <span data-i18n="cmp_noad">去廣告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">⭐ <span data-i18n="cmp_badge">專屬徽章</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
@@ -1569,6 +1586,49 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <textarea class="textarea" id="jnl-inp" data-i18n-placeholder="write_log"></textarea>
     <button class="btn btn-primary" onclick="doJnl()" data-i18n="publish_btn">發布</button>
     <div class="ad-email">📧 vichoo2020@gmail.com</div>
+  </div>
+</div>
+
+<!-- POLL VOTE Modal -->
+<div class="modal-overlay" id="poll-mod" onclick="if(event.target===this)closePollMod()">
+  <div class="modal" style="max-width:420px;max-height:85vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <h3 style="color:var(--purple);margin:0;flex:1">📊 <span data-i18n="poll_title">投票</span></h3>
+      <button class="btn btn-sm btn-outline" onclick="closePollMod()">✕</button>
+    </div>
+    <div style="margin-bottom:10px;display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-sm btn-outline" style="border-color:var(--purple);color:var(--purple)" onclick="showCreatePoll()" data-i18n="poll_create">➕ 發起投票</button>
+    </div>
+    <!-- Create Poll Form (hidden) -->
+    <div id="poll-create-form" style="display:none;margin-bottom:12px;padding:10px;border:1px solid var(--purple);border-radius:10px;background:rgba(139,92,246,0.04)">
+      <input class="input" id="poll-question" placeholder="❓ 問題" style="margin-bottom:6px">
+      <div id="poll-options-input">
+        <input class="input poll-opt-input" placeholder="選項1" style="margin-bottom:4px">
+        <input class="input poll-opt-input" placeholder="選項2" style="margin-bottom:4px">
+      </div>
+      <button class="btn btn-sm" onclick="addPollOption()" style="font-size:11px;margin-bottom:6px">➕ 加選項</button>
+      <label style="font-size:11px;display:flex;align-items:center;gap:4px;margin-bottom:8px"><input type="checkbox" id="poll-multi"> 多選</label>
+      <button class="btn btn-primary btn-sm" onclick="submitPoll()" data-i18n="poll_submit">📊 提交投票</button>
+    </div>
+    <div id="poll-list" style="max-height:50vh;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- CHAIN Modal -->
+<div class="modal-overlay" id="chain-mod" onclick="if(event.target===this)closeChainMod()">
+  <div class="modal" style="max-width:420px;max-height:85vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+      <h3 style="color:var(--amber);margin:0;flex:1">🔗 <span data-i18n="chain_title">接龍報名</span></h3>
+      <button class="btn btn-sm btn-outline" onclick="closeChainMod()">✕</button>
+    </div>
+    <button class="btn btn-sm btn-outline" style="border-color:var(--amber);color:var(--amber);margin-bottom:10px" onclick="showCreateChain()" data-i18n="chain_create">➕ 發起接龍</button>
+    <!-- Create Chain Form -->
+    <div id="chain-create-form" style="display:none;margin-bottom:12px;padding:10px;border:1px solid var(--amber);border-radius:10px;background:rgba(245,158,11,0.04)">
+      <input class="input" id="chain-title" placeholder="📝 接龍標題（如：帶酒報名）" style="margin-bottom:6px">
+      <input class="input" id="chain-max" type="number" placeholder="人數上限(0=不限)" style="margin-bottom:8px">
+      <button class="btn btn-primary btn-sm" onclick="submitChain()" data-i18n="chain_submit">🔗 發起</button>
+    </div>
+    <div id="chain-list" style="max-height:55vh;overflow-y:auto"></div>
   </div>
 </div>
 
@@ -2498,6 +2558,8 @@ const L={
   back_to_login:'← 返回登入',
   comment_title:'💬 留言',
   journal_title:'📝 酒局記錄',
+  poll_title:'投票',poll_create:'➕ 發起投票',poll_opt:'選項',poll_need_2:'需要問題+2個選項',poll_created:'投票已建立',poll_empty:'暫無投票',poll_submit:'📊 提交投票',
+  chain_title:'接龍報名',chain_create:'➕ 發起接龍',chain_need_title:'請輸入標題',chain_created:'接龍已建立',chain_empty:'暫無接龍',chain_join:'報名',chain_leave:'退出',chain_full:'已滿',chain_note_hint:'備註(可選)',chain_submit:'🔗 發起',
   pay_scan_hint:'請掃描對應支付方式二維碼<br>或複製帳號付款',
   pay_done_btn:'✅ 已完成付款',
   dice_upgrade_hint:'🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥39.9/月 — 全部解鎖',
@@ -2883,6 +2945,8 @@ const L={
   back_to_login:'← 返回登录',
   comment_title:'💬 留言',
   journal_title:'📝 酒局记录',
+  poll_title:'投票',poll_create:'➕ 发起投票',poll_opt:'选项',poll_need_2:'需要问题+2个选项',poll_created:'投票已创建',poll_empty:'暂无投票',poll_submit:'📊 提交投票',
+  chain_title:'接龙报名',chain_create:'➕ 发起接龙',chain_need_title:'请输入标题',chain_created:'接龙已创建',chain_empty:'暂无接龙',chain_join:'报名',chain_leave:'退出',chain_full:'已满',chain_note_hint:'备注(可选)',chain_submit:'🔗 发起',
   pay_scan_hint:'请扫描对应支付方式二维码<br>或复制帐号付款',
   pay_done_btn:'✅ 已完成付款',
   dice_upgrade_hint:'🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房间 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 开房 ｜ 🥇 酒神 ¥39.9/月 — 全部解锁',
@@ -3268,6 +3332,8 @@ const L={
   back_to_login:'← Back to Login',
   comment_title:'💬 Comment',
   journal_title:'📝 Party Journal',
+  poll_title:'Poll',poll_create:'➕ New Poll',poll_opt:'Option',poll_need_2:'Need question + 2 options',poll_created:'Poll created',poll_empty:'No polls yet',poll_submit:'📊 Submit Poll',
+  chain_title:'Chain Signup',chain_create:'➕ New Chain',chain_need_title:'Need a title',chain_created:'Chain created',chain_empty:'No chains yet',chain_join:'Join',chain_leave:'Leave',chain_full:'Full',chain_note_hint:'Note (optional)',chain_submit:'🔗 Create',
   pay_scan_hint:'Scan QR code<br>or copy account to pay',
   pay_done_btn:'✅ Payment Done',
   dice_upgrade_hint:'🥉 Friend $1/mo — 3 dice + join room ｜ 🥈 Drunker $3/mo — 4 dice + create room ｜ 🥇 God $30/yr — All unlocked',
@@ -3782,7 +3848,7 @@ async function loadParties(){
  h+='<div class="card"><div style="font-weight:700;font-size:15px">'+esc(p.title)+'</div><div style="font-size:12px;color:var(--sub);margin:6px 0">📍 '+(esc(p.location)||T('party_loc_tbd'))+' · 🕐 '+(p.meet_time||T('party_loc_tbd'))+'</div><div style="font-size:11px;color:var(--amber)">👑 '+esc(p.creator_nickname)+'</div>';
  h+='<div style="margin:8px 0"><span class="clickable" onclick="this.nextElementSibling.classList.toggle(\'open\')">👥 '+p.going_count+T('ppl_join')+'</span><div class="attendee-list">';
  atts.forEach(a=>{h+='<div class="attendee-row">'+(a.response==='going'?'✅':a.response==='maybe'?'🤔':'❌')+' <b>'+esc(a.nickname)+'</b></div>'});
- h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">'+T('rsvp_yes')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">'+T('rsvp_maybe')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">'+T('rsvp_no')+'</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">'+T('attend_log')+' ('+(p.journal_count||0)+')</button></div></div>';
+ h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">'+T('rsvp_yes')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">'+T('rsvp_maybe')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">'+T('rsvp_no')+'</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">'+T('attend_log')+' ('+(p.journal_count||0)+')</button><button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="openPollMod('+p.id+')">📊 '+T('poll_title')+'</button><button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="openChainMod('+p.id+')">🔗 '+T('chain_title')+'</button></div></div>';
  });
  if(!parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>'+T('party_no')+'</div>';
  document.getElementById('party-list').innerHTML=h;
@@ -3803,6 +3869,168 @@ async function loadJnl(pid){
     document.getElementById('jnl-list').innerHTML=h;
   }catch(e){}}
 async function doJnl(){const t=document.getElementById('jnl-inp').value.trim();if(!t||!curPid)return;try{await api('/api/party/'+curPid+'/journal',{method:'POST',body:{content:t}});document.getElementById('jnl-inp').value='';loadJnl(curPid);loadParties()}catch(e){toast('❌ '+e.message,1)}}
+
+// ═══════════════════ 投票 & 接龍 ═══════════════════
+let _pollPartyId=null,_chainPartyId=null;
+
+function openPollMod(pid){
+  _pollPartyId=pid;
+  const el=document.getElementById('poll-mod');
+  el.style.display='flex';el.style.position='fixed';
+  el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
+  document.getElementById('poll-create-form').style.display='none';
+  loadPolls(pid);
+}
+function closePollMod(){document.getElementById('poll-mod').style.display='none';_pollPartyId=null}
+
+function showCreatePoll(){
+  const f=document.getElementById('poll-create-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+  if(f.style.display==='block'){
+    document.getElementById('poll-question').value='';
+    document.getElementById('poll-options-input').innerHTML='<input class="input poll-opt-input" placeholder="'+T('poll_opt')+'1" style="margin-bottom:4px"><input class="input poll-opt-input" placeholder="'+T('poll_opt')+'2" style="margin-bottom:4px">';
+    document.getElementById('poll-multi').checked=false;
+  }
+}
+
+function addPollOption(){
+  const box=document.getElementById('poll-options-input');
+  const n=box.querySelectorAll('.poll-opt-input').length+1;
+  const inp=document.createElement('input');
+  inp.className='input poll-opt-input';inp.placeholder=T('poll_opt')+n;inp.style.marginBottom='4px';
+  box.appendChild(inp);
+}
+
+async function submitPoll(){
+  if(!_pollPartyId)return;
+  const q=document.getElementById('poll-question').value.trim();
+  const inputs=document.querySelectorAll('.poll-opt-input');
+  const opts=[];inputs.forEach(i=>{const v=i.value.trim();if(v)opts.push(v)});
+  if(!q||opts.length<2){toast(T('poll_need_2'),1);return}
+  try{
+    await api('/api/party/'+_pollPartyId+'/polls',{method:'POST',body:{question:q,options:opts,multi:document.getElementById('poll-multi').checked}});
+    document.getElementById('poll-create-form').style.display='none';
+    loadPolls(_pollPartyId);
+    toast('📊 '+T('poll_created'));
+  }catch(e){toast('❌ '+e.message,1)}
+}
+
+async function loadPolls(pid){
+  try{
+    const d=await api('/api/party/'+pid+'/polls');
+    const polls=d.polls||[];
+    let h='';
+    polls.forEach(poll=>{
+      const total=Object.values(poll.votes||{}).reduce((a,b)=>a+b,0)||1;
+      h+='<div class="poll-card"><div class="poll-q">'+esc(poll.question)+(poll.closed?'<span class="poll-closed-badge">已結束</span>':'')+'<span style="color:var(--sub);font-size:10px;margin-left:6px">👤 '+esc(poll.nick)+'</span></div>';
+      (poll.options||[]).forEach((opt,i)=>{
+        const cnt=(poll.votes&&poll.votes[i])||0;
+        const pct=Math.round(cnt/total*100);
+        const myVote=(poll.my_votes||[]).includes(i);
+        h+='<div class="poll-opt'+(myVote?' voted':'')+'" onclick="'+(poll.closed?'':('votePoll('+poll.id+','+i+')'))+'">';
+        h+='<span style="flex:1">'+esc(opt)+'</span>';
+        h+='<div style="flex:2"><div class="bar" style="width:'+pct+'%"></div></div>';
+        h+='<span class="cnt">'+cnt+'('+pct+'%)</span>';
+        h+='</div>';
+      });
+      if(!poll.closed){
+        h+='<div style="margin-top:4px"><button class="btn btn-sm btn-outline" style="font-size:10px;border-color:var(--red);color:var(--red)" onclick="closePoll('+poll.id+')">結束投票</button></div>';
+      }
+      h+='</div>';
+    });
+    if(!polls.length)h='<div style="color:var(--sub);text-align:center;padding:16px;font-size:12px">'+T('poll_empty')+'</div>';
+    document.getElementById('poll-list').innerHTML=h;
+  }catch(e){}
+}
+
+async function votePoll(pollId,idx){
+  try{
+    await api('/api/poll/'+pollId+'/vote',{method:'POST',body:{options:[idx]}});
+    loadPolls(_pollPartyId);
+  }catch(e){toast('❌ '+e.message,1)}
+}
+
+async function closePoll(pollId){
+  try{
+    await api('/api/poll/'+pollId+'/close',{method:'POST'});
+    loadPolls(_pollPartyId);
+  }catch(e){toast('❌ '+e.message,1)}
+}
+
+// ─── 接龍 ───
+
+function openChainMod(pid){
+  _chainPartyId=pid;
+  const el=document.getElementById('chain-mod');
+  el.style.display='flex';el.style.position='fixed';
+  el.style.top='0';el.style.left='0';el.style.right='0';el.style.bottom='0';
+  document.getElementById('chain-create-form').style.display='none';
+  loadChains(pid);
+}
+function closeChainMod(){document.getElementById('chain-mod').style.display='none';_chainPartyId=null}
+
+function showCreateChain(){
+  const f=document.getElementById('chain-create-form');
+  f.style.display=f.style.display==='none'?'block':'none';
+  if(f.style.display==='block'){
+    document.getElementById('chain-title').value='';
+    document.getElementById('chain-max').value='20';
+  }
+}
+
+async function submitChain(){
+  if(!_chainPartyId)return;
+  const title=document.getElementById('chain-title').value.trim();
+  const max=parseInt(document.getElementById('chain-max').value)||0;
+  if(!title){toast(T('chain_need_title'),1);return}
+  try{
+    await api('/api/party/'+_chainPartyId+'/chains',{method:'POST',body:{title:title,max_slots:max}});
+    document.getElementById('chain-create-form').style.display='none';
+    loadChains(_chainPartyId);
+    toast('🔗 '+T('chain_created'));
+  }catch(e){toast('❌ '+e.message,1)}
+}
+
+async function loadChains(pid){
+  try{
+    const d=await api('/api/party/'+pid+'/chains');
+    const chains=d.chains||[];
+    let h='';
+    chains.forEach(ch=>{
+      h+='<div class="chain-card"><div class="chain-title">🔗 '+esc(ch.title)+' <span style="color:var(--sub);font-size:11px">('+ch.taken+'/'+(ch.max_slots||'∞')+')</span> <span style="color:var(--sub);font-size:10px">👤 '+esc(ch.nick)+'</span></div>';
+      (ch.slots||[]).forEach(s=>{
+        h+='<div class="chain-slot"><span class="sn">'+s.slot_no+'.</span> <b>'+esc(s.nick)+'</b>'+(s.note?' <span style="color:var(--sub)">('+esc(s.note)+')</span>':'')+'</div>';
+      });
+      const mySlot=(ch.slots||[]).find(s=>s.user_id===(me&&me.id));
+      h+='<div class="chain-join-btn">';
+      if(mySlot){
+        h+='<button class="btn btn-sm btn-outline" style="border-color:var(--red);color:var(--red)" onclick="leaveChain('+ch.id+')">'+T('chain_leave')+' (#'+mySlot.slot_no+')</button>';
+      }else if(ch.max_slots>0&&ch.taken>=ch.max_slots){
+        h+='<span style="color:var(--red);font-size:12px">🚫 '+T('chain_full')+'</span>';
+      }else{
+        h+='<button class="btn btn-sm btn-primary" onclick="joinChain('+ch.id+')">✋ '+T('chain_join')+'</button>';
+      }
+      h+='</div></div>';
+    });
+    if(!chains.length)h='<div style="color:var(--sub);text-align:center;padding:16px;font-size:12px">'+T('chain_empty')+'</div>';
+    document.getElementById('chain-list').innerHTML=h;
+  }catch(e){}
+}
+
+async function joinChain(chainId){
+  try{
+    const note=prompt(T('chain_note_hint')||'备注(可选)')||'';
+    await api('/api/chain/'+chainId+'/join',{method:'POST',body:{note:note}});
+    loadChains(_chainPartyId);
+  }catch(e){toast('❌ '+e.message,1)}
+}
+
+async function leaveChain(chainId){
+  try{
+    await api('/api/chain/'+chainId+'/leave',{method:'POST'});
+    loadChains(_chainPartyId);
+  }catch(e){toast('❌ '+e.message,1)}
+}
 
 // ═══════ STATS ═══════
 async function loadStats(){

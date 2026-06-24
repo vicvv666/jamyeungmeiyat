@@ -296,6 +296,39 @@ CREATE TABLE IF NOT EXISTS users (
             content   TEXT DEFAULT '',
             created_at TEXT DEFAULT (datetime('now','localtime'))
         );
+        -- party polls (voting)
+        CREATE TABLE IF NOT EXISTS party_polls (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            party_id  INTEGER NOT NULL,
+            creator_id INTEGER NOT NULL,
+            question  TEXT NOT NULL,
+            options   TEXT NOT NULL DEFAULT '[]',
+            multi     INTEGER DEFAULT 0,
+            closed    INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE TABLE IF NOT EXISTS party_poll_votes (
+            poll_id   INTEGER NOT NULL,
+            user_id   INTEGER NOT NULL,
+            option_idx INTEGER NOT NULL,
+            PRIMARY KEY (poll_id, user_id, option_idx)
+        );
+        -- party chain (接龙报名)
+        CREATE TABLE IF NOT EXISTS party_chains (
+            id        INTEGER PRIMARY KEY AUTOINCREMENT,
+            party_id  INTEGER NOT NULL,
+            creator_id INTEGER NOT NULL,
+            title     TEXT NOT NULL,
+            max_slots INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now','localtime'))
+        );
+        CREATE TABLE IF NOT EXISTS party_chain_slots (
+            chain_id  INTEGER NOT NULL,
+            slot_no   INTEGER NOT NULL,
+            user_id   INTEGER NOT NULL,
+            note      TEXT DEFAULT '',
+            PRIMARY KEY (chain_id, slot_no)
+        );
         -- avatars directory
         CREATE TABLE IF NOT EXISTS avatars (
             user_id INTEGER PRIMARY KEY,
@@ -4147,7 +4180,124 @@ def api_cellar_update(fav_id):
     return jsonify({'ok':True})
 
 
-# ═══════════════════ Coupons API (優惠券) ═══════════════════
+# ═══════════════════ Party Polls (投票) ═══════════════════
+
+@app.route('/api/party/<int:pid>/polls')
+@auth_required
+def api_polls_list(pid):
+    db=get_db()
+    polls=db.execute('SELECT p.id,p.question,p.options,p.multi,p.closed,p.created_at,u.nick FROM party_polls p JOIN users u ON p.creator_id=u.id WHERE p.party_id=? ORDER BY p.id DESC',(pid,)).fetchall()
+    uid=g.uid
+    result=[]
+    for p in polls:
+        d=dict(p); d['options']=json.loads(d['options'])
+        votes=db.execute('SELECT option_idx,COUNT(*) as cnt FROM party_poll_votes WHERE poll_id=? GROUP BY option_idx',(p['id'],)).fetchall()
+        d['votes']={v['option_idx']:v['cnt'] for v in votes}
+        my=db.execute('SELECT option_idx FROM party_poll_votes WHERE poll_id=? AND user_id=?',(p['id'],uid)).fetchall()
+        d['my_votes']=[v['option_idx'] for v in my]
+        result.append(d)
+    return jsonify({'ok':True,'polls':result})
+
+@app.route('/api/party/<int:pid>/polls',methods=['POST'])
+@auth_required
+def api_polls_create(pid):
+    uid=g.uid; d=request.json or {}
+    q=d.get('question','').strip()
+    opts=d.get('options',[])
+    if not q or len(opts)<2:
+        return jsonify({'ok':False,'error':'need question + 2+ options'}),400
+    db=get_db()
+    cur=db.execute('INSERT INTO party_polls(party_id,creator_id,question,options,multi) VALUES(?,?,?,?,?)',
+                   (pid,uid,q,json.dumps(opts,ensure_ascii=False),1 if d.get('multi') else 0))
+    db.commit()
+    return jsonify({'ok':True,'id':cur.lastrowid})
+
+@app.route('/api/poll/<int:poll_id>/vote',methods=['POST'])
+@auth_required
+def api_poll_vote(poll_id):
+    uid=g.uid; d=request.json or {}
+    idxs=d.get('options',[])
+    if not isinstance(idxs,list) or not idxs:
+        return jsonify({'ok':False,'error':'need options list'}),400
+    db=get_db()
+    poll=db.execute('SELECT multi,closed FROM party_polls WHERE id=?',(poll_id,)).fetchone()
+    if not poll: return jsonify({'ok':False,'error':'not found'}),404
+    if poll['closed']: return jsonify({'ok':False,'error':'poll closed'}),403
+    if not poll['multi'] and len(idxs)>1:
+        return jsonify({'ok':False,'error':'single choice only'}),400
+    db.execute('DELETE FROM party_poll_votes WHERE poll_id=? AND user_id=?',(poll_id,uid))
+    for idx in idxs:
+        db.execute('INSERT OR IGNORE INTO party_poll_votes(poll_id,user_id,option_idx) VALUES(?,?,?)',(poll_id,uid,idx))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/poll/<int:poll_id>/close',methods=['POST'])
+@auth_required
+def api_poll_close(poll_id):
+    uid=g.uid; db=get_db()
+    p=db.execute('SELECT creator_id FROM party_polls WHERE id=?',(poll_id,)).fetchone()
+    if not p: return jsonify({'ok':False,'error':'not found'}),404
+    party=db.execute('SELECT creator_id FROM parties WHERE id=(SELECT party_id FROM party_polls WHERE id=?)',(poll_id,)).fetchone()
+    if p['creator_id']!=uid and (not party or party['creator_id']!=uid):
+        return jsonify({'ok':False,'error':'no permission'}),403
+    db.execute('UPDATE party_polls SET closed=1 WHERE id=?',(poll_id,))
+    db.commit()
+    return jsonify({'ok':True})
+
+# ═══════════════════ Party Chains (接龍) ═══════════════════
+
+@app.route('/api/party/<int:pid>/chains')
+@auth_required
+def api_chains_list(pid):
+    db=get_db()
+    chains=db.execute('SELECT c.id,c.title,c.max_slots,c.created_at,u.nick FROM party_chains c JOIN users u ON c.creator_id=u.id WHERE c.party_id=? ORDER BY c.id ASC',(pid,)).fetchall()
+    result=[]
+    for c in chains:
+        slots=db.execute('SELECT s.slot_no,s.user_id,s.note,u.nick FROM party_chain_slots s JOIN users u ON s.user_id=u.id WHERE s.chain_id=? ORDER BY s.slot_no',(c['id'],)).fetchall()
+        d=dict(c); d['slots']=[dict(s) for s in slots]; d['taken']=len(slots); result.append(d)
+    return jsonify({'ok':True,'chains':result})
+
+@app.route('/api/party/<int:pid>/chains',methods=['POST'])
+@auth_required
+def api_chains_create(pid):
+    uid=g.uid; d=request.json or {}
+    title=d.get('title','').strip()
+    max_slots=d.get('max_slots',20)
+    if not title: return jsonify({'ok':False,'error':'need title'}),400
+    db=get_db()
+    cur=db.execute('INSERT INTO party_chains(party_id,creator_id,title,max_slots) VALUES(?,?,?,?)',(pid,uid,title,max_slots))
+    db.commit()
+    return jsonify({'ok':True,'id':cur.lastrowid})
+
+@app.route('/api/chain/<int:chain_id>/join',methods=['POST'])
+@auth_required
+def api_chain_join(chain_id):
+    uid=g.uid; d=request.json or {}; note=d.get('note','')
+    db=get_db()
+    ch=db.execute('SELECT id,max_slots,party_id FROM party_chains WHERE id=?',(chain_id,)).fetchone()
+    if not ch: return jsonify({'ok':False,'error':'not found'}),404
+    existing=db.execute('SELECT slot_no FROM party_chain_slots WHERE chain_id=? ORDER BY slot_no',(chain_id,)).fetchall()
+    taken={s['slot_no'] for s in existing}
+    already_joined=db.execute('SELECT slot_no FROM party_chain_slots WHERE chain_id=? AND user_id=?',(chain_id,uid)).fetchone()
+    if already_joined: return jsonify({'ok':False,'error':'already joined','slot':already_joined[0]}),409
+    if ch['max_slots']>0 and len(taken)>=ch['max_slots']:
+        return jsonify({'ok':False,'error':'full'}),403
+    slot=1
+    while slot in taken: slot+=1
+    db.execute('INSERT INTO party_chain_slots(chain_id,slot_no,user_id,note) VALUES(?,?,?,?)',(chain_id,slot,uid,note))
+    db.commit()
+    return jsonify({'ok':True,'slot':slot})
+
+@app.route('/api/chain/<int:chain_id>/leave',methods=['POST'])
+@auth_required
+def api_chain_leave(chain_id):
+    uid=g.uid; db=get_db()
+    db.execute('DELETE FROM party_chain_slots WHERE chain_id=? AND user_id=?',(chain_id,uid))
+    db.commit()
+    return jsonify({'ok':True})
+
+
+
 
 @app.route('/api/coupons')
 @auth_required
