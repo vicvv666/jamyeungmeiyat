@@ -774,7 +774,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
  <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.08));border:1px solid rgba(139,92,246,0.15);padding:10px">
   <span style="font-size:20px">💎</span>
   <span style="font-weight:700;font-size:13px;color:var(--pink);margin-left:4px" data-i18n="unlock_dice">解鎖更多骰盅玩法</span>
-  <div id="dice-upgrade-hint" data-i18n="dice_upgrade_hint" style="font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5">🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥39.9/月 — 5粒骰 + 自訂規則</div>
+  <div id="dice-upgrade-hint" data-i18n="dice_upgrade_hint" style="font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5">🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥29.9/月 — 5粒骰 + 自訂規則</div>
  </div>
 </div>
 
@@ -873,12 +873,12 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       <span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#555;border-radius:22px;transition:.3s"></span>
       <span style="position:absolute;height:16px;width:16px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s" id="billing-slider"></span>
     </label>
-    <span data-i18n="billing_annual" style="font-size:12px;color:var(--amber);font-weight:700">年付 省40%</span>
+    <span data-i18n="billing_annual" style="font-size:12px;color:var(--amber);font-weight:700">年付 省35%</span>
   </div>
   <div class="plans-row">
     <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name" data-i18n="member_jiuyau">🥉 酒友</div><div class="plan-price" id="price-jiuyau">¥9.9</div><div class="plan-feat" id="feat-jiuyau" data-i18n="per_month">月費</div></div>
     <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')" style="position:relative;border-color:#6366f1;background:rgba(99,102,241,0.08)"><div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:9px;padding:2px 8px;border-radius:8px;white-space:nowrap" data-i18n="most_popular">🔥 最受歡迎</div><div class="plan-name" data-i18n="member_jaugwai">🥈 酒鬼</div><div class="plan-price" id="price-jaugwai">¥19.9</div><div class="plan-feat" id="feat-jaugwai" data-i18n="per_month">月費</div></div>
-    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')" style="position:relative"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price" id="price-jausan">¥49.9</div><div class="plan-feat" id="feat-jausan" data-i18n="per_month">月費</div></div>
+    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')" style="position:relative"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price" id="price-jausan">¥29.9</div><div class="plan-feat" id="feat-jausan" data-i18n="per_month">月費</div></div>
   </div>
   <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'" data-i18n="ad_cooperation">📢 廣告合作<br>vichoo2020@gmail.com</div>
   <!-- APK Download -->
@@ -1996,8 +1996,8 @@ async function loadAdBanner(container){
 // ─── Upgrade Modal (Enhanced Visual) ───
 function showUpgradeModal(requiredLv){
   const names={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
-  const pricesM={1:'¥9.9/月',2:'¥19.9/月',3:'¥39.9/月'};
-  const pricesA={1:'¥69/年',2:'¥149/年',3:'¥299/年'};
+  const pricesM={1:'¥9.9/月',2:'¥19.9/月',3:'¥29.9/月'};
+  const pricesA={1:'¥77/年',2:'¥155/年',3:'¥233/年'};
   const freeVs={1:['3粒骰 ← 免費僅2粒','5張打卡相 ← 免費僅1張','500字筆記 ← 免費僅200字','300酒友 ← 免費僅80','每日15帖 ← 免費僅5','可建3群 ← 免費0','開房約戰','去廣告','專屬徽章'],2:['4粒骰 ← 免費僅2粒','9張打卡相 ← 免費僅1張','1000字筆記 ← 免費僅200字','500酒友 ← 免費僅80','每日無限帖 ← 免費僅5','可建10群 ← 免費0','每月5酒局 ← 免費僅1','開房+約戰','去廣告','專屬徽章'],3:['5粒骰 ← 免費僅2粒','9張打卡相 ← 免費僅1張','3000字筆記 ← 免費僅200字','無限酒友 ← 免費僅80','每日無限帖 ← 免費僅5','建群不限 ← 免費0','無限酒局 ← 免費僅1','開房+約戰','去廣告','專屬徽章','🌈 炫彩暱稱','⚡ 優先匹配','🔥 酒神專屬特效']};
   // 限时倒计时
   var cdKey='jymy_ug_cd_start',cdStart=localStorage.getItem(cdKey);
@@ -2012,7 +2012,7 @@ function showUpgradeModal(requiredLv){
   for(var pi=0;pi<12;pi++){var px=Math.random()*100,py=Math.random()*100,ps=2+Math.random()*3,pa=1+Math.floor(Math.random()*5);h+='<div style="position:absolute;left:'+px+'%;top:'+py+'%;width:'+ps+'px;height:'+ps+'px;border-radius:50%;background:'+(pi%2?'var(--amber)':'var(--purple)')+';animation:ugParticle '+(2+pi%3)+'s ease-in-out '+(pi*.3)+'s infinite"></div>'}
   h+='</div>';
   // 限时5折横幅
-  if(cdShow)h+='<div style="background:linear-gradient(90deg,#dc2626,#ef4444);color:#fff;text-align:center;padding:8px 12px;border-radius:20px 20px 0 0;font-size:13px;font-weight:800;animation:flashBanner 1.5s ease-in-out infinite">🔥 限時優惠：首月5折！<span id="ug-cd" style="margin-left:8px;font-variant-numeric:tabular-nums">'+cdH+'時'+String(cdM).padStart(2,'0')+'分'+String(cdS).padStart(2,'0')+'秒</span></div>';
+  if(cdShow)h+='<div style="background:linear-gradient(90deg,#dc2626,#ef4444);color:#fff;text-align:center;padding:8px 12px;border-radius:20px 20px 0 0;font-size:13px;font-weight:800;animation:flashBanner 1.5s ease-in-out infinite">🔥 限時體驗：首月 ¥1/¥3/¥5！<span id="ug-cd" style="margin-left:8px;font-variant-numeric:tabular-nums">'+cdH+'時'+String(cdM).padStart(2,'0')+'分'+String(cdS).padStart(2,'0')+'秒</span></div>';
   else h+='<div style="height:8px;border-radius:20px 20px 0 0"></div>';
   h+='<div style="position:relative;padding:20px">';
   // 大钻石动画
@@ -2039,7 +2039,7 @@ function showUpgradeModal(requiredLv){
   h+='<span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#555;border-radius:20px;transition:.3s" id="ug-bill-bg"></span>';
   h+='<span style="position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s" id="ug-bill-sl"></span>';
   h+='</label>';
-  h+='<span style="color:var(--amber);font-weight:700" id="ug-a-label">年付 省40%</span>';
+  h+='<span style="color:var(--amber);font-weight:700" id="ug-a-label">年付 省35%</span>';
   h+='</div>';
   [1,2,3].forEach(lv=>{
     const sel=lv===requiredLv?'border:2px solid var(--amber);background:rgba(245,158,11,0.1)':'border:1px solid var(--border)';
@@ -2048,6 +2048,9 @@ function showUpgradeModal(requiredLv){
   });
   h+='<input type="hidden" id="ug-lv" value="'+requiredLv+'">';
   h+='<input type="hidden" id="ug-billing" value="monthly">';
+  // Trial button
+  const trialPrices={1:'¥1',2:'¥3',3:'¥5'};
+  h+='<button class="btn" style="width:100%;margin-top:8px;font-size:14px;font-weight:700;padding:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 16px rgba(16,185,129,.3)" onclick="doUpgrade(\'trial\')">🎉 首月體驗 '+trialPrices[requiredLv]+' → 原價續費</button>';
   // Gradient + pulse button
   h+='<button class="btn btn-primary" style="width:100%;margin-top:12px;font-size:18px;font-weight:800;padding:14px;background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);box-shadow:0 4px 20px rgba(245,158,11,.4);animation:ugBtnPulse 2s ease-in-out infinite" onclick="doUpgrade()">🚀 立即升級</button>';
   h+='</div>';
@@ -2097,7 +2100,7 @@ function _ugCompareTable(){
   h+='<tr style="border-bottom:2px solid var(--border)"><td style="padding:6px 4px;color:var(--sub)"></td>';
   [0,1,2,3].forEach(lv=>{const c=lv===curLv?'color:var(--pink);font-weight:700':'color:var(--text)';const tag=lv===curLv?' (你)':'';h+='<td style="padding:6px 4px;text-align:center;'+c+'">'+L[lv].t+tag+'</td>'});
   h+='</tr>';
-  h+='<tr style="border-bottom:1px solid var(--border)"><td></td><td style="text-align:center;color:var(--sub);font-size:10px;padding:4px">免費</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥9.9/月</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥19.9/月</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥39.9/月</td></tr>';
+  h+='<tr style="border-bottom:1px solid var(--border)"><td></td><td style="text-align:center;color:var(--sub);font-size:10px;padding:4px">免費</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥9.9/月</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥19.9/月</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥29.9/月</td></tr>';
   F.forEach(row=>{
     h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 4px;white-space:nowrap;color:var(--text)">'+row[0]+'</td>';
     for(let i=1;i<=4;i++){
@@ -2124,20 +2127,23 @@ function ugToggleBilling(){
   const bg=document.getElementById('ug-bill-bg');
   if(bg)bg.style.background=isAnnual?'var(--amber)':'#555';
   const names={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
-  const pricesM={1:'¥9.9/月',2:'¥19.9/月',3:'¥39.9/月'};
-  const pricesA={1:'¥69/年',2:'¥149/年',3:'¥299/年'};
+  const pricesM={1:'¥9.9/月',2:'¥19.9/月',3:'¥29.9/月'};
+  const pricesA={1:'¥77/年',2:'¥155/年',3:'¥233/年'};
   [1,2,3].forEach(lv=>{
     const el=document.getElementById('ug-price-'+lv);
     if(el)el.textContent=isAnnual?pricesA[lv]:pricesM[lv];
   });
 }
-async function doUpgrade(){
+async function doUpgrade(mode){
   const lv=parseInt(document.getElementById('ug-lv')?.value||1);
   const planMap={1:'jiuyau',2:'jaugwai',3:'jausan'};
   selPlan=planMap[lv]||'jiuyau';
   // sync billing from upgrade modal
   const ugBill=document.getElementById('ug-billing');
   if(ugBill){selBilling=ugBill.value;const cb=document.getElementById('billing-toggle');if(cb){cb.checked=selBilling==='annual';toggleBilling()}}
+  // trial mode: first month discounted price
+  if(mode==='trial'){selBilling='trial';isTrialPurchase=true}
+  else{isTrialPurchase=false}
   // close upgrade modal, open payment QR modal
   document.getElementById('upgrade-overlay')?.remove();
   showPay();
@@ -2499,7 +2505,7 @@ const L={
   cmp_party:'月建酒局',
   cmp_room:'開房約戰',
   billing_monthly:'月付',
-  billing_annual:'年付 省40%',
+  billing_annual:'年付 省35%',
   per_month:'月費',
   cmp_noad:'去廣告',
   cmp_badge:'專屬徽章',
@@ -2522,7 +2528,7 @@ const L={
   plan_select:'選擇方案',
   plan_jiuyau:'🥉酒友 ¥9.9/月',
   plan_jaugwai:'🥈酒鬼 ¥19.9/月',
-  plan_jausan:'🥇酒神 ¥39.9/月',
+  plan_jausan:'🥇酒神 ¥29.9/月',
   upgrade_btn:'🚀 立即升級',
   change_avatar:'更換',
   avatar_label:'頭像',
@@ -2617,7 +2623,7 @@ const L={
   chain_title:'接龍報名',chain_create:'➕ 發起接龍',chain_need_title:'請輸入標題',chain_created:'接龍已建立',chain_empty:'暫無接龍',chain_join:'報名',chain_leave:'退出',chain_full:'已滿',chain_note_hint:'備註(可選)',chain_submit:'🔗 發起',
   pay_scan_hint:'請掃描對應支付方式二維碼<br>或複製帳號付款',
   pay_done_btn:'✅ 已完成付款',
-  dice_upgrade_hint:'🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥39.9/月 — 全部解鎖',
+  dice_upgrade_hint:'🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥29.9/月 — 全部解鎖',
   pay_hint_after:'付款後點擊「已完成付款」',
   phone_label:'📞 電話號碼',
   username:'用戶名',
@@ -2710,7 +2716,7 @@ const L={
   prod_img_url:'圖片URL',prod_file_url:'檔案URL(舞曲下載)',prod_active:'上架',
   save:'保存',cancel:'取消',load_failed:'載入失敗',
   grp_free_no_create:'免費用戶不能建群，請升級會員',grp_free_no_join:'免費用戶不能加群，請升級會員'
-,mem_jiuyau:'🥉酒友',mem_jaugwai:'🥈酒鬼',mem_jausan:'🥇酒神',mem_title_1:'酒道新手',mem_title_2:'品酒達人',mem_title_3:'酒界傳說',mem_upgrade_to:'需要升級至',expired:'已過期',countdown_hm:'{h}時{m}分{s}秒',mem_free:'🆓 免費會員',mem_upgrade_cta:'升級享受完整功能',mem_jiuyau_label:'酒友',mem_jaugwai_label:'酒鬼',mem_jausan_label:'酒神',confirm_del_fav:'確定刪除此收藏？',fav_deleted:'已刪除',fav_added:'已收藏入酒櫃🔖',net_err:'網絡錯誤',fav_del_fail:'刪除失敗',fav_add_fail:'收藏失敗',load_fail:'載入失敗',inv_copied:'邀請碼已複製📤',inv_copied_alt:'已複製📤',inv_input:'請輸入邀請碼',inv_friend_free:'🎉 好友獲得7日免費酒友！',inv_used:'✅ 邀請碼已使用',inv_fail:'使用失敗',coupon_none:'暫無優惠券～升級會員每月自動派券！',coupon_count:'張',bar_none:'暫無合作酒吧～持續拓展中！',no_friends:'仲未有酒友 🥲',no_posts:'仲未發過帖 📝',no_checkins:'仲未報到過 🍺',cellar_empty_hint:'🔖 酒櫃空空如也～掃碼後收藏心水酒品！',admin_name:'管理員',admin_saved:'已更新',admin_fail:'失敗',admin_set_fail:'設置失敗',admin_set_done:'已設置',admin_confirm_admin:'確定將「{u}」設定為管理員？',admin_remove_admin:'確定取消「{u}」的管理員權限？',admin_cancel_fail:'取消失敗',admin_removed:'已取消管理員',admin_del_user:'⚠️ 確定刪除用戶「{u}」？\n此操作將刪除該用戶及其所有報到記錄，不可撤銷！',admin_renew_all:'確定將所有到期會員續期30日？',admin_downgrade_all:'確定將所有到期會員降為免費？',dice_select_hint:'選擇骰數',dice_max:'最多',dice_rolling:'搖緊...',dice_result:'擲出',dice_pts:'點 🎉',dice_again:'🍻 再搖！',dice_round:'第',dice_round_suffix:'輪',btn_edit:'編輯',btn_delete:'刪除',btn_save:'儲存',btn_cancel:'取消',confirm_del_checkin:'確認刪除呢條動態？',confirm_del_party:'確認刪除呢個酒局？',confirm_del_post:'確認刪除呢條帖子？',confirm_remove_friend:'確認移除呢位酒友？',shop_submit_fail:'提交失敗',cellar_saved:'✅ 已更新',cellar_save_fail:'❌ 更新失敗',confirm_del_cellar:'刪除此收藏？',cellar_del_done:'🗑️ 已刪除',cellar_del_fail:'❌ 刪除失敗',shop_load_err:'加載失敗',shop_need_login:'請先登入',shop_loading:'商品信息加載中，請稍後',pay_title:'💳 確認付款',ship_title:'📦 收貨信息',ship_need_name:'請填寫收貨人姓名',ship_need_phone:'請填寫手機號碼',ship_need_city:'請填寫城市',opt_select:'-- 請選擇 --',mem_jiuyau_yearly:'🥉酒友 ¥69/年',mem_jaugwai_yearly:'🥈酒鬼 ¥149/年',mem_jausan_yearly:'🥇酒神 ¥299/年',mem_jiuyau_monthly:'🥉酒友 ¥9.9/月',mem_jaugwai_monthly:'🥈酒鬼 ¥19.9/月',mem_jausan_monthly:'🥇酒神 ¥39.9/月',expires_on:'到期：',mem_free_label:'免費',mem_limit_today:'今日剩餘掃碼',mem_jiuyau:'🥉酒友',mem_jaugwai:'🥈酒鬼',mem_jausan:'🥇酒神',mem_title_1:'酒道新手',mem_title_2:'品酒达人',mem_title_3:'酒界传说',mem_upgrade_to:'需要升级至',expired:'已过期',countdown_hm:'{h}时{m}分{s}秒',mem_free:'🆓 免费会员',mem_upgrade_cta:'升级享受完整功能',mem_jiuyau_label:'酒友',mem_jaugwai_label:'酒鬼',mem_jausan_label:'酒神',confirm_del_fav:'确定删除此收藏？',fav_deleted:'已删除',fav_added:'已收藏入酒柜🔖',net_err:'网络错误',fav_del_fail:'删除失败',fav_add_fail:'收藏失败',load_fail:'加载失败',inv_copied:'邀请码已复制📤',inv_copied_alt:'已复制📤',inv_input:'请输入邀请码',inv_friend_free:'🎉 好友获得7日免费酒友！',inv_used:'✅ 邀请码已使用',inv_fail:'使用失败',coupon_none:'🧧 暂无优惠券～升级会员每月自动派券！',coupon_count:'张',bar_none:'🏙️ 暂无合作酒吧～持续拓展中！',no_friends:'还没有酒友 🥲',no_posts:'还没发过帖 📝',no_checkins:'还没报到过 🍺',cellar_empty_hint:'🔖 酒柜空空如也～扫码后收藏心水酒品！',admin_name:'管理员',admin_saved:'已更新',admin_fail:'失败',admin_set_fail:'设置失败',admin_set_done:'已设置',admin_confirm_admin:'确定将「{u}」设为管理员？',admin_remove_admin:'确定取消「{u}」的管理员权限？',admin_cancel_fail:'取消失败',admin_removed:'已取消管理员',admin_del_user:'⚠️ 确定删除用户「{u}」？\n此操作将删除该用户及其所有报到记录，不可撤销！',admin_renew_all:'确定将所有到期会员续期30日？',admin_downgrade_all:'确定将所有到期会员降为免费？',dice_select_hint:'选择骰数',dice_max:'最多',dice_rolling:'摇紧...',dice_result:'掷出',dice_pts:'点 🎉',dice_again:'🍻 再摇！',dice_round:'第',dice_round_suffix:'轮',btn_edit:'编辑',btn_delete:'删除',btn_save:'储存',btn_cancel:'取消',confirm_del_checkin:'确认删除此动态？',confirm_del_party:'确认删除此酒局？',confirm_del_post:'确认删除此帖子？',confirm_remove_friend:'确认移除这位酒友？',shop_submit_fail:'提交失败',cellar_saved:'✅ 已更新',cellar_save_fail:'❌ 更新失败',confirm_del_cellar:'删除此收藏？',cellar_del_done:'🗑️ 已删除',cellar_del_fail:'❌ 删除失败',shop_load_err:'加载失败',shop_need_login:'请先登入',shop_loading:'商品信息加载中，请稍后',pay_title:'💳 确认付款',ship_title:'📦 收货信息',ship_need_name:'请填写收货人姓名',ship_need_phone:'请填写手机号码',ship_need_city:'请填写城市',opt_select:'-- 请选择 --',mem_jiuyau_yearly:'🥉酒友 ¥69/年',mem_jaugwai_yearly:'🥈酒鬼 ¥149/年',mem_jausan_yearly:'🥇酒神 ¥299/年',mem_jiuyau_monthly:'🥉酒友 ¥9.9/月',mem_jaugwai_monthly:'🥈酒鬼 ¥19.9/月',mem_jausan_monthly:'🥇酒神 ¥39.9/月',expires_on:'到期：',mem_free_label:'免费',mem_limit_today:'今日剩余扫码',ship_need_addr:'請填寫詳細地址',shop_reselect:'請重新選擇商品',pay_scan_title:'📱 掃碼付款',pay_done_btn:'✅ 我已付款',pay_confirm_again:'⚠️ 再按一次確認',submitting:'提交中...',please_use:'請使用 ',dl_link_invalid:'下載連結無效',downloading:'正在下載...',load_fail_short:'加載失敗',adm_confirm_del_product:'確定刪除此商品？',adm_product_deleted:'已刪除',adm_order_updated:'訂單狀態已更新',adm_confirm_del_liquor:'確定刪除此酒品記錄？',grp_need_name:'請輸入群組名稱',grp_created:'群組創建成功！',grp_joined:'已加入群組！',grp_confirm_leave:'確定退出此群組？',grp_left:'已退出',grp_confirm_kick:'確定踢出此成員？',grp_kicked:'已踢出',grp_confirm_disband:'⚠️ 確定解散此群組？此操作不可撤銷！',grp_disbanded:'群組已解散',grp_updated:'已更新',grp_confirm_force_disband:'⚠️ 確定強制解散此群組？',grp_force_disbanded:'已解散',empty_no_friends2:'仲未有酒友，去推薦區添加啦！',empty_no_recommend:'暫無推薦',empty_no_group:'仲未加入任何群組，創建或探索一個啦！',empty_no_posts_short:'仲未發過帖 📝',empty_cellar_full:'🥲 酒櫃空空如也～掃碼後收藏心水酒品！',empty_no_product:'暫無商品',empty_no_order:'暫無訂單',empty_no_audit:'暫無審計日誌',empty_no_checkins:'暫無報到',empty_no_parties:'暫無酒局',empty_no_posts_admin:'暫無帖子',loading_dots:'載入中...',loading_gift:'載入中...🎁',mem_upgrade_cta2:'升級享受完整功能',ship_need_name2:'請填寫收貨人姓名',grp_name_updated:'已更新',grp_no_msg:'仲未有對話，講聲嗨啦！',cellar_scan_to_save:'掃碼辨酒後可收藏到酒柜',trial_14days_left:'🎉 14天免費體驗 · 剩餘{dl}天',permanent:'永久'},
+,mem_jiuyau:'🥉酒友',mem_jaugwai:'🥈酒鬼',mem_jausan:'🥇酒神',mem_title_1:'酒道新手',mem_title_2:'品酒達人',mem_title_3:'酒界傳說',mem_upgrade_to:'需要升級至',expired:'已過期',countdown_hm:'{h}時{m}分{s}秒',mem_free:'🆓 免費會員',mem_upgrade_cta:'升級享受完整功能',mem_jiuyau_label:'酒友',mem_jaugwai_label:'酒鬼',mem_jausan_label:'酒神',confirm_del_fav:'確定刪除此收藏？',fav_deleted:'已刪除',fav_added:'已收藏入酒櫃🔖',net_err:'網絡錯誤',fav_del_fail:'刪除失敗',fav_add_fail:'收藏失敗',load_fail:'載入失敗',inv_copied:'邀請碼已複製📤',inv_copied_alt:'已複製📤',inv_input:'請輸入邀請碼',inv_friend_free:'🎉 好友獲得7日免費酒友！',inv_used:'✅ 邀請碼已使用',inv_fail:'使用失敗',coupon_none:'暫無優惠券～升級會員每月自動派券！',coupon_count:'張',bar_none:'暫無合作酒吧～持續拓展中！',no_friends:'仲未有酒友 🥲',no_posts:'仲未發過帖 📝',no_checkins:'仲未報到過 🍺',cellar_empty_hint:'🔖 酒櫃空空如也～掃碼後收藏心水酒品！',admin_name:'管理員',admin_saved:'已更新',admin_fail:'失敗',admin_set_fail:'設置失敗',admin_set_done:'已設置',admin_confirm_admin:'確定將「{u}」設定為管理員？',admin_remove_admin:'確定取消「{u}」的管理員權限？',admin_cancel_fail:'取消失敗',admin_removed:'已取消管理員',admin_del_user:'⚠️ 確定刪除用戶「{u}」？\n此操作將刪除該用戶及其所有報到記錄，不可撤銷！',admin_renew_all:'確定將所有到期會員續期30日？',admin_downgrade_all:'確定將所有到期會員降為免費？',dice_select_hint:'選擇骰數',dice_max:'最多',dice_rolling:'搖緊...',dice_result:'擲出',dice_pts:'點 🎉',dice_again:'🍻 再搖！',dice_round:'第',dice_round_suffix:'輪',btn_edit:'編輯',btn_delete:'刪除',btn_save:'儲存',btn_cancel:'取消',confirm_del_checkin:'確認刪除呢條動態？',confirm_del_party:'確認刪除呢個酒局？',confirm_del_post:'確認刪除呢條帖子？',confirm_remove_friend:'確認移除呢位酒友？',shop_submit_fail:'提交失敗',cellar_saved:'✅ 已更新',cellar_save_fail:'❌ 更新失敗',confirm_del_cellar:'刪除此收藏？',cellar_del_done:'🗑️ 已刪除',cellar_del_fail:'❌ 刪除失敗',shop_load_err:'加載失敗',shop_need_login:'請先登入',shop_loading:'商品信息加載中，請稍後',pay_title:'💳 確認付款',ship_title:'📦 收貨信息',ship_need_name:'請填寫收貨人姓名',ship_need_phone:'請填寫手機號碼',ship_need_city:'請填寫城市',opt_select:'-- 請選擇 --',mem_jiuyau_yearly:'🥉酒友 ¥77/年',mem_jaugwai_yearly:'🥈酒鬼 ¥155/年',mem_jausan_yearly:'🥇酒神 ¥233/年',mem_jiuyau_monthly:'🥉酒友 ¥9.9/月',mem_jaugwai_monthly:'🥈酒鬼 ¥19.9/月',mem_jausan_monthly:'🥇酒神 ¥29.9/月',expires_on:'到期：',mem_free_label:'免費',mem_limit_today:'今日剩餘掃碼',mem_jiuyau:'🥉酒友',mem_jaugwai:'🥈酒鬼',mem_jausan:'🥇酒神',mem_title_1:'酒道新手',mem_title_2:'品酒达人',mem_title_3:'酒界传说',mem_upgrade_to:'需要升级至',expired:'已过期',countdown_hm:'{h}时{m}分{s}秒',mem_free:'🆓 免费会员',mem_upgrade_cta:'升级享受完整功能',mem_jiuyau_label:'酒友',mem_jaugwai_label:'酒鬼',mem_jausan_label:'酒神',confirm_del_fav:'确定删除此收藏？',fav_deleted:'已删除',fav_added:'已收藏入酒柜🔖',net_err:'网络错误',fav_del_fail:'删除失败',fav_add_fail:'收藏失败',load_fail:'加载失败',inv_copied:'邀请码已复制📤',inv_copied_alt:'已复制📤',inv_input:'请输入邀请码',inv_friend_free:'🎉 好友获得7日免费酒友！',inv_used:'✅ 邀请码已使用',inv_fail:'使用失败',coupon_none:'🧧 暂无优惠券～升级会员每月自动派券！',coupon_count:'张',bar_none:'🏙️ 暂无合作酒吧～持续拓展中！',no_friends:'还没有酒友 🥲',no_posts:'还没发过帖 📝',no_checkins:'还没报到过 🍺',cellar_empty_hint:'🔖 酒柜空空如也～扫码后收藏心水酒品！',admin_name:'管理员',admin_saved:'已更新',admin_fail:'失败',admin_set_fail:'设置失败',admin_set_done:'已设置',admin_confirm_admin:'确定将「{u}」设为管理员？',admin_remove_admin:'确定取消「{u}」的管理员权限？',admin_cancel_fail:'取消失败',admin_removed:'已取消管理员',admin_del_user:'⚠️ 确定删除用户「{u}」？\n此操作将删除该用户及其所有报到记录，不可撤销！',admin_renew_all:'确定将所有到期会员续期30日？',admin_downgrade_all:'确定将所有到期会员降为免费？',dice_select_hint:'选择骰数',dice_max:'最多',dice_rolling:'摇紧...',dice_result:'掷出',dice_pts:'点 🎉',dice_again:'🍻 再摇！',dice_round:'第',dice_round_suffix:'轮',btn_edit:'编辑',btn_delete:'删除',btn_save:'储存',btn_cancel:'取消',confirm_del_checkin:'确认删除此动态？',confirm_del_party:'确认删除此酒局？',confirm_del_post:'确认删除此帖子？',confirm_remove_friend:'确认移除这位酒友？',shop_submit_fail:'提交失败',cellar_saved:'✅ 已更新',cellar_save_fail:'❌ 更新失败',confirm_del_cellar:'删除此收藏？',cellar_del_done:'🗑️ 已删除',cellar_del_fail:'❌ 删除失败',shop_load_err:'加载失败',shop_need_login:'请先登入',shop_loading:'商品信息加载中，请稍后',pay_title:'💳 确认付款',ship_title:'📦 收货信息',ship_need_name:'请填写收货人姓名',ship_need_phone:'请填写手机号码',ship_need_city:'请填写城市',opt_select:'-- 请选择 --',mem_jiuyau_yearly:'🥉酒友 ¥77/年',mem_jaugwai_yearly:'🥈酒鬼 ¥155/年',mem_jausan_yearly:'🥇酒神 ¥233/年',mem_jiuyau_monthly:'🥉酒友 ¥9.9/月',mem_jaugwai_monthly:'🥈酒鬼 ¥19.9/月',mem_jausan_monthly:'🥇酒神 ¥29.9/月',expires_on:'到期：',mem_free_label:'免费',mem_limit_today:'今日剩余扫码',ship_need_addr:'請填寫詳細地址',shop_reselect:'請重新選擇商品',pay_scan_title:'📱 掃碼付款',pay_done_btn:'✅ 我已付款',pay_confirm_again:'⚠️ 再按一次確認',submitting:'提交中...',please_use:'請使用 ',dl_link_invalid:'下載連結無效',downloading:'正在下載...',load_fail_short:'加載失敗',adm_confirm_del_product:'確定刪除此商品？',adm_product_deleted:'已刪除',adm_order_updated:'訂單狀態已更新',adm_confirm_del_liquor:'確定刪除此酒品記錄？',grp_need_name:'請輸入群組名稱',grp_created:'群組創建成功！',grp_joined:'已加入群組！',grp_confirm_leave:'確定退出此群組？',grp_left:'已退出',grp_confirm_kick:'確定踢出此成員？',grp_kicked:'已踢出',grp_confirm_disband:'⚠️ 確定解散此群組？此操作不可撤銷！',grp_disbanded:'群組已解散',grp_updated:'已更新',grp_confirm_force_disband:'⚠️ 確定強制解散此群組？',grp_force_disbanded:'已解散',empty_no_friends2:'仲未有酒友，去推薦區添加啦！',empty_no_recommend:'暫無推薦',empty_no_group:'仲未加入任何群組，創建或探索一個啦！',empty_no_posts_short:'仲未發過帖 📝',empty_cellar_full:'🥲 酒櫃空空如也～掃碼後收藏心水酒品！',empty_no_product:'暫無商品',empty_no_order:'暫無訂單',empty_no_audit:'暫無審計日誌',empty_no_checkins:'暫無報到',empty_no_parties:'暫無酒局',empty_no_posts_admin:'暫無帖子',loading_dots:'載入中...',loading_gift:'載入中...🎁',mem_upgrade_cta2:'升級享受完整功能',ship_need_name2:'請填寫收貨人姓名',grp_name_updated:'已更新',grp_no_msg:'仲未有對話，講聲嗨啦！',cellar_scan_to_save:'掃碼辨酒後可收藏到酒柜',trial_14days_left:'🎉 14天免費體驗 · 剩餘{dl}天',permanent:'永久'},
 'zh-CN':{
   st_mai_yum:'没喝',
   st_seung_yum:'想喝',
@@ -2888,7 +2894,7 @@ const L={
   cmp_party:'月建酒局',
   cmp_room:'开房约战',
   billing_monthly:'月付',
-  billing_annual:'年付 省40%',
+  billing_annual:'年付 省35%',
   per_month:'月费',
   cmp_noad:'去广告',
   cmp_badge:'专属徽章',
@@ -2911,7 +2917,7 @@ const L={
   plan_select:'选择方案',
   plan_jiuyau:'🥉酒友 ¥9.9/月',
   plan_jaugwai:'🥈酒鬼 ¥19.9/月',
-  plan_jausan:'🥇酒神 ¥39.9/月',
+  plan_jausan:'🥇酒神 ¥29.9/月',
   upgrade_btn:'🚀 立即升级',
   change_avatar:'更换',
   avatar_label:'头像',
@@ -3006,7 +3012,7 @@ const L={
   chain_title:'接龙报名',chain_create:'➕ 发起接龙',chain_need_title:'请输入标题',chain_created:'接龙已创建',chain_empty:'暂无接龙',chain_join:'报名',chain_leave:'退出',chain_full:'已满',chain_note_hint:'备注(可选)',chain_submit:'🔗 发起',
   pay_scan_hint:'请扫描对应支付方式二维码<br>或复制帐号付款',
   pay_done_btn:'✅ 已完成付款',
-  dice_upgrade_hint:'🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房间 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 开房 ｜ 🥇 酒神 ¥39.9/月 — 全部解锁',
+  dice_upgrade_hint:'🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房间 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 开房 ｜ 🥇 酒神 ¥29.9/月 — 全部解锁',
   pay_hint_after:'付款后点击「已完成付款」',
   phone_label:'📞 电话号码',
   username:'用户名',
@@ -3099,7 +3105,7 @@ const L={
   prod_img_url:'图片URL',prod_file_url:'档案URL(舞曲下载)',prod_active:'上架',
   save:'保存',cancel:'取消',load_failed:'加载失败',
   grp_free_no_create:'免费用户不能建群，请升级会员',grp_free_no_join:'免费用户不能加群，请升级会员'
-,mem_jiuyau:'🥉Jiuyau',mem_jaugwai:'🥈Jaugwai',mem_jausan:'🥇Jausan',mem_title_1:'Novice',mem_title_2:'Connoisseur',mem_title_3:'Legend',mem_upgrade_to:'Upgrade to',expired:'Expired',countdown_hm:'{h}h {m}m {s}s',mem_free:'🆓 Free',mem_upgrade_cta:'Upgrade for full features',mem_jiuyau_label:'Jiuyau',mem_jaugwai_label:'Jaugwai',mem_jausan_label:'Jausan',confirm_del_fav:'Delete this favorite?',fav_deleted:'Deleted',fav_added:'Added to cellar 🔖',net_err:'Network error',fav_del_fail:'Delete failed',fav_add_fail:'Add failed',load_fail:'Load failed',inv_copied:'Invite code copied📤',inv_copied_alt:'Copied📤',inv_input:'Enter invite code',inv_friend_free:'🎉 Friend gets 7 days free Jiuyau!',inv_used:'✅ Invite code used',inv_fail:'Redeem failed',coupon_none:'🧧 No coupons yet~ Upgrade for monthly coupons!',coupon_count:'',bar_none:'🏙️ No partner bars yet~',no_friends:'No friends yet 🥲',no_posts:'No posts yet 📝',no_checkins:'No check-ins yet 🍺',cellar_empty_hint:'🔖 Cellar empty~ Scan to add favorites!',admin_name:'Admin',admin_saved:'Updated',admin_fail:'Failed',admin_set_fail:'Setting failed',admin_set_done:'Set',admin_confirm_admin:'Make {u} admin?',admin_remove_admin:'Remove admin from {u}?',admin_cancel_fail:'Cancel failed',admin_removed:'Admin removed',admin_del_user:'⚠️ Delete user {u}?\nThis action is irreversible!',admin_renew_all:'Renew all expired members for 30 days?',admin_downgrade_all:'Downgrade all expired members to free?',dice_select_hint:'Select dice count',dice_max:'max',dice_rolling:'Rolling...',dice_result:'Rolled',dice_pts:' pts 🎉',dice_again:'🍻 Roll again!',dice_round:'Round',dice_round_suffix:'',btn_edit:'Edit',btn_delete:'Delete',btn_save:'Save',btn_cancel:'Cancel',confirm_del_checkin:'Delete this check-in?',confirm_del_party:'Delete this party?',confirm_del_post:'Delete this post?',confirm_remove_friend:'Remove this friend?',shop_submit_fail:'Submit failed',cellar_saved:'✅ Saved',cellar_save_fail:'❌ Save failed',confirm_del_cellar:'Delete from cellar?',cellar_del_done:'🗑️ Deleted',cellar_del_fail:'❌ Delete failed',shop_load_err:'Load failed',shop_need_login:'Please login',shop_loading:'Loading product info...',pay_title:'💳 Confirm Payment',ship_title:'📦 Shipping Info',ship_need_name:'Fill in recipient name',ship_need_phone:'Fill in phone number',ship_need_city:'Fill in city',opt_select:'-- Select --',mem_jiuyau_yearly:'🥉Jiuyau ¥69/yr',mem_jaugwai_yearly:'🥈Jaugwai ¥149/yr',mem_jausan_yearly:'🥇Jausan ¥299/yr',mem_jiuyau_monthly:'🥉Jiuyau ¥9.9/mo',mem_jaugwai_monthly:'🥈Jaugwai ¥19.9/mo',mem_jausan_monthly:'🥇Jausan ¥39.9/mo',expires_on:'Expires: ',mem_free_label:'Free',mem_limit_today:'Today scans left',ship_need_addr:'请填写详细地址',shop_reselect:'请重新选择商品',pay_scan_title:'📱 扫码付款',pay_done_btn:'✅ 我已付款',pay_confirm_again:'⚠️ 再按一次确认',submitting:'提交中...',please_use:'请使用 ',dl_link_invalid:'下载链接无效',downloading:'正在下载...',load_fail_short:'加载失败',adm_confirm_del_product:'确定删除此商品？',adm_product_deleted:'已删除',adm_order_updated:'订单状态已更新',adm_confirm_del_liquor:'确定删除此酒品记录？',grp_need_name:'请输入群组名称',grp_created:'群组创建成功！',grp_joined:'已加入群组！',grp_confirm_leave:'确定退出此群组？',grp_left:'已退出',grp_confirm_kick:'确定踢出此成员？',grp_kicked:'已踢出',grp_confirm_disband:'⚠️ 确定解散此群组？此操作不可撤销！',grp_disbanded:'群组已解散',grp_updated:'已更新',grp_confirm_force_disband:'⚠️ 确定强制解散此群组？',grp_force_disbanded:'已解散',empty_no_friends2:'还没有酒友，去推荐区添加啦！',empty_no_recommend:'暂无推荐',empty_no_group:'还未加入任何群组，创建或探索一个啦！',empty_no_posts_short:'还没发过帖 📝',empty_cellar_full:'🥲 酒柜空空如也～扫码后收藏心水酒品！',empty_no_product:'暂无商品',empty_no_order:'暂无订单',empty_no_audit:'暂无审计日志',empty_no_checkins:'暂无报到',empty_no_parties:'暂无酒局',empty_no_posts_admin:'暂无帖子',loading_dots:'加载中...',loading_gift:'加载中...🎁',mem_upgrade_cta2:'升级享受完整功能',ship_need_name2:'请填写收货人姓名',grp_name_updated:'已更新',grp_no_msg:'还没有对话，说声嗨吧！',cellar_scan_to_save:'扫码辨酒后可收藏到酒柜',trial_14days_left:'🎉 14天免费体验 · 剩余{dl}天',permanent:'永久'},
+,mem_jiuyau:'🥉Jiuyau',mem_jaugwai:'🥈Jaugwai',mem_jausan:'🥇Jausan',mem_title_1:'Novice',mem_title_2:'Connoisseur',mem_title_3:'Legend',mem_upgrade_to:'Upgrade to',expired:'Expired',countdown_hm:'{h}h {m}m {s}s',mem_free:'🆓 Free',mem_upgrade_cta:'Upgrade for full features',mem_jiuyau_label:'Jiuyau',mem_jaugwai_label:'Jaugwai',mem_jausan_label:'Jausan',confirm_del_fav:'Delete this favorite?',fav_deleted:'Deleted',fav_added:'Added to cellar 🔖',net_err:'Network error',fav_del_fail:'Delete failed',fav_add_fail:'Add failed',load_fail:'Load failed',inv_copied:'Invite code copied📤',inv_copied_alt:'Copied📤',inv_input:'Enter invite code',inv_friend_free:'🎉 Friend gets 7 days free Jiuyau!',inv_used:'✅ Invite code used',inv_fail:'Redeem failed',coupon_none:'🧧 No coupons yet~ Upgrade for monthly coupons!',coupon_count:'',bar_none:'🏙️ No partner bars yet~',no_friends:'No friends yet 🥲',no_posts:'No posts yet 📝',no_checkins:'No check-ins yet 🍺',cellar_empty_hint:'🔖 Cellar empty~ Scan to add favorites!',admin_name:'Admin',admin_saved:'Updated',admin_fail:'Failed',admin_set_fail:'Setting failed',admin_set_done:'Set',admin_confirm_admin:'Make {u} admin?',admin_remove_admin:'Remove admin from {u}?',admin_cancel_fail:'Cancel failed',admin_removed:'Admin removed',admin_del_user:'⚠️ Delete user {u}?\nThis action is irreversible!',admin_renew_all:'Renew all expired members for 30 days?',admin_downgrade_all:'Downgrade all expired members to free?',dice_select_hint:'Select dice count',dice_max:'max',dice_rolling:'Rolling...',dice_result:'Rolled',dice_pts:' pts 🎉',dice_again:'🍻 Roll again!',dice_round:'Round',dice_round_suffix:'',btn_edit:'Edit',btn_delete:'Delete',btn_save:'Save',btn_cancel:'Cancel',confirm_del_checkin:'Delete this check-in?',confirm_del_party:'Delete this party?',confirm_del_post:'Delete this post?',confirm_remove_friend:'Remove this friend?',shop_submit_fail:'Submit failed',cellar_saved:'✅ Saved',cellar_save_fail:'❌ Save failed',confirm_del_cellar:'Delete from cellar?',cellar_del_done:'🗑️ Deleted',cellar_del_fail:'❌ Delete failed',shop_load_err:'Load failed',shop_need_login:'Please login',shop_loading:'Loading product info...',pay_title:'💳 Confirm Payment',ship_title:'📦 Shipping Info',ship_need_name:'Fill in recipient name',ship_need_phone:'Fill in phone number',ship_need_city:'Fill in city',opt_select:'-- Select --',mem_jiuyau_yearly:'🥉Jiuyau ¥77/yr',mem_jaugwai_yearly:'🥈Jaugwai ¥155/yr',mem_jausan_yearly:'🥇Jausan ¥233/yr',mem_jiuyau_monthly:'🥉Jiuyau ¥9.9/mo',mem_jaugwai_monthly:'🥈Jaugwai ¥19.9/mo',mem_jausan_monthly:'🥇Jausan ¥29.9/mo',expires_on:'Expires: ',mem_free_label:'Free',mem_limit_today:'Today scans left',ship_need_addr:'请填写详细地址',shop_reselect:'请重新选择商品',pay_scan_title:'📱 扫码付款',pay_done_btn:'✅ 我已付款',pay_confirm_again:'⚠️ 再按一次确认',submitting:'提交中...',please_use:'请使用 ',dl_link_invalid:'下载链接无效',downloading:'正在下载...',load_fail_short:'加载失败',adm_confirm_del_product:'确定删除此商品？',adm_product_deleted:'已删除',adm_order_updated:'订单状态已更新',adm_confirm_del_liquor:'确定删除此酒品记录？',grp_need_name:'请输入群组名称',grp_created:'群组创建成功！',grp_joined:'已加入群组！',grp_confirm_leave:'确定退出此群组？',grp_left:'已退出',grp_confirm_kick:'确定踢出此成员？',grp_kicked:'已踢出',grp_confirm_disband:'⚠️ 确定解散此群组？此操作不可撤销！',grp_disbanded:'群组已解散',grp_updated:'已更新',grp_confirm_force_disband:'⚠️ 确定强制解散此群组？',grp_force_disbanded:'已解散',empty_no_friends2:'还没有酒友，去推荐区添加啦！',empty_no_recommend:'暂无推荐',empty_no_group:'还未加入任何群组，创建或探索一个啦！',empty_no_posts_short:'还没发过帖 📝',empty_cellar_full:'🥲 酒柜空空如也～扫码后收藏心水酒品！',empty_no_product:'暂无商品',empty_no_order:'暂无订单',empty_no_audit:'暂无审计日志',empty_no_checkins:'暂无报到',empty_no_parties:'暂无酒局',empty_no_posts_admin:'暂无帖子',loading_dots:'加载中...',loading_gift:'加载中...🎁',mem_upgrade_cta2:'升级享受完整功能',ship_need_name2:'请填写收货人姓名',grp_name_updated:'已更新',grp_no_msg:'还没有对话，说声嗨吧！',cellar_scan_to_save:'扫码辨酒后可收藏到酒柜',trial_14days_left:'🎉 14天免费体验 · 剩余{dl}天',permanent:'永久'},
 'en':{
   st_mai_yum:'Sober',
   st_seung_yum:'Thirsty',
@@ -3548,11 +3554,12 @@ const GKEYS=['grp_hei_sau','grp_seung_gan','grp_jui_gan','grp_baau_cho','grp_jyu
 const RE_EM=['🍻','🫣','🤣','❤️','🔥','😭','💀','🥂','👏','🎉','🤤','😈'];
 const CM_EM=['😍','🤣','👍','🔥','❤️','🥂','🫣','💀','🎉','👏','😈','💪','🍺','🍻','😭','🤤'];
 const QR_M={alipay:'qrcodes/alipay.jpg',wechat:'qrcodes/wechat.png',paypal:'qrcodes/paypal.jpg'};
-const PAY_U={jiuyau:'1.40',jaugwai:'2.80',jausan:'5.60'};
-const PAY_U_ANNUAL={jiuyau:'9.75',jaugwai:'21.00',jausan:'42.00'};
-const PAY_M={jiuyau:9.9,jaugwai:19.9,jausan:39.9};
-const PAY_A={jiuyau:69,jaugwai:149,jausan:299};
+const PAY_U={jiuyau:'1',jaugwai:'3',jausan:'5'};
+const PAY_U_ANNUAL={jiuyau:'7.70',jaugwai:'15.50',jausan:'23.30'};
+const PAY_M={jiuyau:9.9,jaugwai:19.9,jausan:29.9};
+const PAY_A={jiuyau:77,jaugwai:155,jausan:233};
 let selBilling='monthly';
+let isTrialPurchase=false;
 
 function buildGrid(){
   const g=document.getElementById('status-grid');g.innerHTML='';
@@ -4230,8 +4237,8 @@ function toggleBilling(){
   if(bg)bg.style.background=cb.checked?'var(--amber)':'#555';
   // update price displays
   const prices=selBilling==='annual'?PAY_A:PAY_M;
-  const labels=selBilling==='annual'?{'jiuyau':'¥69/年','jaugwai':'¥149/年','jausan':'¥299/年'}:{'jiuyau':'¥9.9','jaugwai':'¥19.9','jausan':'¥39.9'};
-  const feats=selBilling==='annual'?{'jiuyau':'年付 省42%','jaugwai':'年付 省38%','jausan':'年付 省38%'}:{'jiuyau':'月費','jaugwai':'月費','jausan':'月費'};
+  const labels=selBilling==='annual'?{'jiuyau':'¥77/年','jaugwai':'¥155/年','jausan':'¥233/年'}:{'jiuyau':'¥9.9','jaugwai':'¥19.9','jausan':'¥29.9'};
+  const feats=selBilling==='annual'?{'jiuyau':'年付 省35%','jaugwai':'年付 省35%','jausan':'年付 省35%'}:{'jiuyau':'月費','jaugwai':'月費','jausan':'月費'};
   for(const k of ['jiuyau','jaugwai','jausan']){
     const pe=document.getElementById('price-'+k);if(pe)pe.textContent=labels[k];
     const fe=document.getElementById('feat-'+k);if(fe)fe.textContent=feats[k];
@@ -4239,7 +4246,11 @@ function toggleBilling(){
   showPay();
 }
 function showPay(){if(!me)return toast(T('please_login'),1);var pn=document.getElementById('pay-plan-name'),pu=document.getElementById('pay-usd'),pm=document.getElementById('pay-mod');
-  if(selBilling==='annual'){
+  if(selBilling==='trial'){
+    const trialLabels={jiuyau:'🎉 首月體驗 🥉酒友 ¥1',jaugwai:'🎉 首月體驗 🥈酒鬼 ¥3',jausan:'🎉 首月體驗 🥇酒神 ¥5'};
+    if(pn)pn.textContent=trialLabels[selPlan]||'';
+    if(pu)pu.textContent='首月特價 · 次月原價續費';
+  }else if(selBilling==='annual'){
     if(pn)pn.textContent={jiuyau:T('mem_jiuyau_yearly'),jaugwai:T('mem_jaugwai_yearly'),jausan:T('mem_jausan_yearly')}[selPlan]||'';
     if(pu)pu.textContent='≈ $'+PAY_U_ANNUAL[selPlan]+' USD';
   }else{
@@ -4394,7 +4405,7 @@ async function loadAnnualReport(){
    +'<div style="font-size:12px;color:var(--sub);margin-top:4px">🏷️ 最愛品牌: '+esc(brands)+'</div>'
    +'</div>';
  }catch(e){
-  if(e.message&&e.message.includes('酒神')){body.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">🥇 年度報告係酒神專屬<br>升級解鎖 → ¥49.9/月 💎</div>'}
+  if(e.message&&e.message.includes('酒神')){body.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">🥇 年度報告係酒神專屬<br>升級解鎖 → ¥29.9/月 💎</div>'}
   else{body.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||'載入失敗')+'</div>'}
  }
 }
@@ -4493,7 +4504,7 @@ function updLegalLinks(){
   const lc=document.getElementById('lt-ct-txt');if(lc)lc.textContent=T('contact');
 }
 function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));var img=document.getElementById('pay-qr-img');document.getElementById('pay-fb').style.display='none';img.style.display='block';function trySrc(src,onfail){img.onload=function(){img.onload=null;img.onerror=null};img.onerror=function(){img.onload=null;img.onerror=null;onfail()};img.src=src}function loadLocal(){if(ASSET_BASE){trySrc(ASSET_BASE+'/'+QR_M[t],loadRemote)}else{loadRemote()}}function loadRemote(){if(API_BASE){trySrc(API_BASE+'/'+QR_M[t],loadDirect)}else{loadDirect()}}function loadDirect(){trySrc('/'+QR_M[t],showFallback)}function showFallback(){img.style.display='none';document.getElementById('pay-fb').style.display='block'}loadLocal()}
-async function cfmPay(){if(!me)return;try{const amounts=selBilling==='annual'?{jiuyau:69,jaugwai:149,jausan:299}:{jiuyau:9.9,jaugwai:19.9,jausan:39.9};const r=await api('/api/payment/submit',{method:'POST',body:{plan:selPlan,method:payQR,billing:selBilling,amount:amounts[selPlan]||9.9,receipt:'QR掃碼付款'}});closePay();toast(T('pay_submitted')||'✅ 付款已提交，等待管理員確認')}catch(e){toast('❌ '+e.message,1)}}
+async function cfmPay(){if(!me)return;try{const amounts=selBilling==='trial'?{jiuyau:1,jaugwai:3,jausan:5}:selBilling==='annual'?{jiuyau:77,jaugwai:155,jausan:233}:{jiuyau:9.9,jaugwai:19.9,jausan:29.9};const r=await api('/api/payment/submit',{method:'POST',body:{plan:selPlan,method:payQR,billing:selBilling,amount:amounts[selPlan]||9.9,receipt:'QR掃碼付款'+(selBilling==='trial'?' [首月體驗]':'')}});closePay();toast(T('pay_submitted')||'✅ 付款已提交，等待管理員確認')}catch(e){toast('❌ '+e.message,1)}}
 
 // ═══════ PROFILE ═══════
 function openProfile(){
