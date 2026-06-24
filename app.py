@@ -329,6 +329,30 @@ CREATE TABLE IF NOT EXISTS users (
             note      TEXT DEFAULT '',
             PRIMARY KEY (chain_id, slot_no)
         );
+        -- tasting reviews
+        CREATE TABLE IF NOT EXISTS reviews (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id     INTEGER NOT NULL,
+            liquor_id   INTEGER,
+            brand       TEXT DEFAULT '',
+            name        TEXT DEFAULT '',
+            appearance  TEXT DEFAULT '',
+            aroma       TEXT DEFAULT '',
+            palate      TEXT DEFAULT '',
+            finish       TEXT DEFAULT '',
+            overall     REAL DEFAULT 0,
+            proven      INTEGER DEFAULT 0,
+            proven_at   TEXT,
+            created_at  TEXT DEFAULT (datetime('now','localtime'))
+        );
+        -- review votes (certification)
+        CREATE TABLE IF NOT EXISTS review_votes (
+            review_id   INTEGER NOT NULL,
+            user_id     INTEGER NOT NULL,
+            vote        INTEGER NOT NULL DEFAULT 1,
+            created_at  TEXT DEFAULT (datetime('now','localtime')),
+            PRIMARY KEY (review_id, user_id)
+        );
         -- avatars directory
         CREATE TABLE IF NOT EXISTS avatars (
             user_id INTEGER PRIMARY KEY,
@@ -4295,6 +4319,87 @@ def api_chain_leave(chain_id):
     db.execute('DELETE FROM party_chain_slots WHERE chain_id=? AND user_id=?',(chain_id,uid))
     db.commit()
     return jsonify({'ok':True})
+
+
+# ═══════════════════ Tasting Reviews (酒評) ═══════════════════
+
+@app.route('/api/reviews')
+@auth_required
+def api_reviews_list():
+    db=get_db()
+    limit=min(int(request.args.get('limit',20)),50)
+    offset=int(request.args.get('offset',0))
+    reviews=db.execute('''SELECT r.id,r.user_id,r.liquor_id,r.brand,r.name,r.appearance,r.aroma,r.palate,r.finish,
+                                  r.overall,r.proven,r.proven_at,r.created_at,u.nick,u.membership_level
+                           FROM reviews r JOIN users u ON r.user_id=u.id
+                           ORDER BY r.id DESC LIMIT ? OFFSET ?''',(limit,offset)).fetchall()
+    uid=g.uid
+    result=[]
+    for r in reviews:
+        d=dict(r)
+        votes=db.execute('SELECT vote,COUNT(*) as cnt FROM review_votes WHERE review_id=? GROUP BY vote',(r['id'],)).fetchall()
+        d['votes']={v['vote']:v['cnt'] for v in votes}
+        my_vote=db.execute('SELECT vote FROM review_votes WHERE review_id=? AND user_id=?',(r['id'],uid)).fetchone()
+        d['my_vote']=my_vote['vote'] if my_vote else None
+        result.append(d)
+    return jsonify({'ok':True,'reviews':result,'count':len(result)})
+
+@app.route('/api/reviews',methods=['POST'])
+@auth_required
+def api_reviews_create():
+    uid=g.uid; d=request.json or {}
+    brand=d.get('brand','').strip()
+    name=d.get('name','').strip()
+    if not brand and not name:
+        return jsonify({'ok':False,'error':'need brand or name'}),400
+    db=get_db()
+    cur=db.execute('INSERT INTO reviews(user_id,liquor_id,brand,name,appearance,aroma,palate,finish,overall) VALUES(?,?,?,?,?,?,?,?,?)',
+                   (uid,d.get('liquor_id'),brand,name,d.get('appearance',''),d.get('aroma',''),d.get('palate',''),d.get('finish',''),d.get('overall',0)))
+    db.commit()
+    return jsonify({'ok':True,'id':cur.lastrowid})
+
+@app.route('/api/review/<int:rid>/vote',methods=['POST'])
+@auth_required
+def api_review_vote(rid):
+    uid=g.uid; d=request.json or {}
+    vote=int(d.get('vote',1))
+    if vote not in (1,0,-1):
+        return jsonify({'ok':False,'error':'vote must be 1(pro), 0(neutral), -1(con)'}),400
+    db=get_db()
+    review=db.execute('SELECT id,user_id FROM reviews WHERE id=?',(rid,)).fetchone()
+    if not review: return jsonify({'ok':False,'error':'not found'}),404
+    if review['user_id']==uid:
+        return jsonify({'ok':False,'error':'cannot vote own review'}),403
+    db.execute('INSERT OR REPLACE INTO review_votes(review_id,user_id,vote) VALUES(?,?,?)',(rid,uid,vote))
+    # check proven threshold (3 pro votes)
+    pro_count=db.execute('SELECT COUNT(*) FROM review_votes WHERE review_id=? AND vote=1',(rid,)).fetchone()[0]
+    if pro_count>=3 and not review['proven']:
+        db.execute('UPDATE reviews SET proven=1,proven_at=datetime("now","localtime") WHERE id=? AND proven=0',(rid,))
+    db.commit()
+    return jsonify({'ok':True,'pro_count':pro_count})
+
+@app.route('/api/review/<int:rid>',methods=['DELETE'])
+@auth_required
+def api_reviews_delete(rid):
+    uid=g.uid; db=get_db()
+    r=db.execute('SELECT user_id FROM reviews WHERE id=?',(rid,)).fetchone()
+    if not r: return jsonify({'ok':False,'error':'not found'}),404
+    if r['user_id']!=uid:
+        return jsonify({'ok':False,'error':'no permission'}),403
+    db.execute('DELETE FROM review_votes WHERE review_id=?',(rid,))
+    db.execute('DELETE FROM reviews WHERE id=?',(rid,))
+    db.commit()
+    return jsonify({'ok':True})
+
+@app.route('/api/reviews/proven')
+@auth_required
+def api_reviews_proven():
+    """List proven (certified) reviews"""
+    db=get_db()
+    reviews=db.execute('''SELECT r.id,r.user_id,r.brand,r.name,r.overall,r.proven_at,r.created_at,u.nick
+                           FROM reviews r JOIN users u ON r.user_id=u.id
+                           WHERE r.proven=1 ORDER BY r.proven_at DESC LIMIT 50''').fetchall()
+    return jsonify({'ok':True,'reviews':[dict(r) for r in reviews]})
 
 
 

@@ -475,6 +475,26 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .ci-tag-collect{background:rgba(139,92,246,0.1);color:#7c3aed}
 .cellar-stat-chip{font-size:11px;padding:4px 8px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;gap:4px}
 .cellar-stat-chip b{color:var(--amber)}
+/* ─── 酒柜Tab + 酒评 ─── */
+.cellar-tab-btn{border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--sub);cursor:pointer;transition:all .2s}
+.cellar-tab-btn.active-scene{background:var(--amber);color:#fff;border-color:var(--amber);font-weight:700;box-shadow:0 2px 8px rgba(245,158,11,0.3)}
+.review-card{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;transition:all .2s}
+.review-card:hover{border-color:var(--amber);box-shadow:0 2px 8px rgba(245,158,11,0.1)}
+.review-card.proven{border-color:var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.06),transparent)}
+.review-card.proven::before{content:'🏅';position:absolute;top:-6px;right:8px;font-size:16px}
+.review-card{position:relative}
+.rv-author{font-size:12px;font-weight:600;color:var(--text)}
+.rv-brand{font-size:13px;font-weight:700;color:var(--amber)}
+.rv-name{font-size:11px;color:var(--sub)}
+.rv-detail{font-size:11px;color:var(--sub);line-height:1.5;margin-top:4px}
+.rv-detail span{margin-right:8px}
+.rv-votes{display:flex;gap:6px;margin-top:6px}
+.rv-vote-btn{font-size:11px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .15s}
+.rv-vote-btn:hover{border-color:var(--amber)}
+.rv-vote-btn.active-pro{background:#16a34a;color:#fff;border-color:#16a34a}
+.rv-vote-btn.active-con{background:#dc2626;color:#fff;border-color:#dc2626}
+.rv-stars{color:var(--amber);font-size:12px;letter-spacing:1px}
+.review-form-input:focus{border-color:var(--amber);box-shadow:0 0 0 2px rgba(245,158,11,0.15)}
 /* ─── 投票/接龙 ─── */
 .poll-card{border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:10px;transition:all .2s}
 .poll-card:hover{border-color:var(--purple)}
@@ -793,6 +813,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🍷 <span>我的酒柜</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">5款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>群聊投票</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">投票</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🔗 <span>接龍報名</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">加入</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">📝 <span>酒評認證</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">看評</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅寫評</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅認證</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏠 <span data-i18n="cmp_room">開房約戰</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🚫 <span data-i18n="cmp_noad">去廣告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">⭐ <span data-i18n="cmp_badge">專屬徽章</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
@@ -908,26 +929,61 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 <div id="cellar-modal" class="modal" style="display:none;z-index:9000">
   <div class="modal-bg" onclick="closeCellar()"></div>
   <div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;border-radius:16px;padding:0">
-    <div style="position:sticky;top:0;z-index:2;background:var(--card);padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+    <div style="position:sticky;top:0;z-index:2;background:var(--card);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
       <div style="font-size:20px">🍷</div>
-      <div style="flex:1;font-weight:700;font-size:16px" id="cellar-modal-title">我的酒柜</div>
+      <div style="display:flex;gap:4px;flex:1">
+        <button class="btn btn-sm cellar-tab-btn active-scene" data-tab="cellar" onclick="cellarSwitchTab('cellar')" id="ctab-cellar" style="font-size:12px;padding:4px 12px" data-i18n="cellar_title">我的酒柜</button>
+        <button class="btn btn-sm cellar-tab-btn" data-tab="reviews" onclick="cellarSwitchTab('reviews')" id="ctab-reviews" style="font-size:12px;padding:4px 12px" data-i18n="rv_tab">📝 酒评</button>
+      </div>
       <button class="btn btn-sm btn-outline" onclick="closeCellar()" style="padding:4px 12px">✕</button>
     </div>
-    <!-- 统计条 -->
+    <!-- ══ 酒柜 Tab ══ -->
+    <div id="ctab-content-cellar">
     <div style="padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap" id="cellar-stats-bar"></div>
-    <!-- 分类filter -->
     <div style="padding:4px 16px 8px;display:flex;gap:6px" id="cellar-tag-btns">
       <button class="btn btn-sm cellar-tag-btn active-scene" data-tag="" onclick="cellarFilterTag('')" style="font-size:11px;padding:4px 12px">全部</button>
       <button class="btn btn-sm cellar-tag-btn" data-tag="want" onclick="cellarFilterTag('want')" style="font-size:11px;padding:4px 12px">🤤 想饮</button>
       <button class="btn btn-sm cellar-tag-btn" data-tag="tried" onclick="cellarFilterTag('tried')" style="font-size:11px;padding:4px 12px">✅ 饮过</button>
       <button class="btn btn-sm cellar-tag-btn" data-tag="collect" onclick="cellarFilterTag('collect')" style="font-size:11px;padding:4px 12px">💎 收藏</button>
     </div>
-    <!-- 搜索 -->
     <div style="padding:0 16px 8px">
       <input class="input" id="cellar-search" placeholder="🔍 搜索酒品..." style="width:100%;font-size:12px;padding:8px 10px" onkeydown="if(event.key==='Enter')loadCellar()">
     </div>
-    <!-- 酒品列表 -->
     <div id="cellar-list" style="padding:0 16px 16px"></div>
+    </div>
+    <!-- ══ 酒评 Tab ══ -->
+    <div id="ctab-content-reviews" style="display:none">
+      <div style="padding:10px 16px;display:flex;gap:8px;align-items:center">
+        <button class="btn btn-sm btn-primary" onclick="showReviewForm()" id="review-create-btn" style="font-size:12px;padding:4px 12px" data-i18n="rv_create">✏️ 写酒评</button>
+        <button class="btn btn-sm btn-outline" onclick="loadProvenReviews()" style="font-size:12px;padding:4px 12px" data-i18n="rv_proven_list">🏅 认证酒评</button>
+      </div>
+      <!-- 写酒评表单 -->
+      <div id="review-form-wrap" style="display:none;padding:0 16px 12px">
+        <div style="border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--bg)">
+          <input class="input" id="rv-brand" placeholder="品牌(必填)" style="width:100%;font-size:12px;margin-bottom:6px;padding:8px 10px">
+          <input class="input" id="rv-name" placeholder="酒款名称" style="width:100%;font-size:12px;margin-bottom:6px;padding:8px 10px">
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <input class="input" id="rv-appearance" placeholder="👀 外观" style="flex:1;font-size:12px;padding:8px 10px">
+            <input class="input" id="rv-aroma" placeholder="👃 香气" style="flex:1;font-size:12px;padding:8px 10px">
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:6px">
+            <input class="input" id="rv-palate" placeholder="👅 口感" style="flex:1;font-size:12px;padding:8px 10px">
+            <input class="input" id="rv-finish" placeholder="🎬 余韵" style="flex:1;font-size:12px;padding:8px 10px">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <span style="font-size:12px;color:var(--sub)">总评</span>
+            <div id="rv-stars" style="display:flex;gap:2px"></div>
+            <span id="rv-score-txt" style="font-size:12px;color:var(--amber);font-weight:700">0</span>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-sm btn-primary" onclick="submitReview()" style="font-size:12px;padding:6px 16px">发布酒评</button>
+            <button class="btn btn-sm btn-outline" onclick="hideReviewForm()" style="font-size:12px;padding:6px 16px">取消</button>
+          </div>
+        </div>
+      </div>
+      <!-- 酒评列表 -->
+      <div id="review-list" style="padding:0 16px 16px"></div>
+    </div>
   </div>
 </div>
 
@@ -2618,6 +2674,7 @@ const L={
   ai_rec_loading:'AI 分析中...',ai_rec_no_data:'暫無推薦數據',ai_rec_no_match:'未找到匹配酒品',ai_rec_locked:'AI 酒單推薦為酒友及以上專屬',
   ai_rec_upgrade:'升級解鎖',ai_rec_limited:'酒友僅看3條 · 升級酒鬼看全部',ai_taste_label:'🧬 你的口味畫像',
   cellar_title:'我的酒柜',cellar_sub:'收藏、評分、品飲記錄',cellar_empty:'酒柜空空如也',cellar_empty_hint:'掃碼辨酒後可收藏到酒柜',
+  rv_tab:'📝 酒評',rv_create:'✏️ 寫酒評',rv_proven_list:'🏅 認證酒評',rv_need_brand:'請填寫品牌',rv_published:'酒評已發布！',rv_empty:'暫無酒評',rv_proven:'認證通過',rv_just_proven:'🎉 酒評剛獲認證！',
   toast_password_mismatch:'密碼不一致',toast_select_date:'選擇日期',
   toast_no_friends:'仲未有酒友 🥲',toast_loading:'載入中...',toast_user_not_found:'搵唔到用戶',
   toast_updated:'已更新',toast_password_min:'密碼至少4位',toast_password_reset:'密碼已重設',
@@ -3005,6 +3062,7 @@ const L={
   ai_rec_loading:'AI 分析中...',ai_rec_no_data:'暂无推荐数据',ai_rec_no_match:'未找到匹配酒品',ai_rec_locked:'AI 酒单推荐为酒友及以上专属',
   ai_rec_upgrade:'升级解锁',ai_rec_limited:'酒友仅看3条 · 升级酒鬼看全部',ai_taste_label:'🧬 你的口味画像',
   cellar_title:'我的酒柜',cellar_sub:'收藏、评分、品饮记录',cellar_empty:'酒柜空空如也',cellar_empty_hint:'扫码辨酒后可收藏到酒柜',
+  rv_tab:'📝 酒评',rv_create:'✏️ 写酒评',rv_proven_list:'🏅 认证酒评',rv_need_brand:'请填写品牌',rv_published:'酒评已发布！',rv_empty:'暂无酒评',rv_proven:'认证通过',rv_just_proven:'🎉 酒评刚获认证！',
   toast_password_mismatch:'密码不一致',toast_select_date:'选择日期',
   toast_no_friends:'还没有酒友 🥲',toast_loading:'加载中...',toast_user_not_found:'找不到用户',
   toast_updated:'已更新',toast_password_min:'密码至少4位',toast_password_reset:'密码已重设',
@@ -3392,6 +3450,7 @@ const L={
   ai_rec_loading:'AI analyzing...',ai_rec_no_data:'No recommendations yet',ai_rec_no_match:'No matching spirits found',ai_rec_locked:'AI Sommelier is VIP-only',
   ai_rec_upgrade:'Upgrade to unlock',ai_rec_limited:'VIP sees 3 · Upgrade for full list',ai_taste_label:'🧬 Your Taste Profile',
   cellar_title:'My Cellar',cellar_sub:'Favorites, ratings & tasting notes',cellar_empty:'Your cellar is empty',cellar_empty_hint:'Scan spirits to add to cellar',
+  rv_tab:'📝 Reviews',rv_create:'✏️ Write Review',rv_proven_list:'🏅 Certified',rv_need_brand:'Brand is required',rv_published:'Review published!',rv_empty:'No reviews yet',rv_proven:'Certified',rv_just_proven:'🎉 Review just got certified!',
   toast_password_mismatch:'Passwords do not match',toast_select_date:'Select a date',
   toast_no_friends:'No drinking buddies yet 🥲',toast_loading:'Loading...',toast_user_not_found:'User not found',
   toast_updated:'Updated',toast_password_min:'Password min 4 chars',toast_password_reset:'Password reset',
@@ -6322,6 +6381,143 @@ function openCellar(){
 function closeCellar(){
   document.getElementById('cellar-modal').style.display='none';
 }
+
+// ═══════════════════ 酒评认证 (Reviews) ═══════════════════
+
+var _rvScore=0;
+var _rvProvenOnly=false;
+
+function cellarSwitchTab(tab){
+  document.querySelectorAll('.cellar-tab-btn').forEach(b=>{
+    b.classList.toggle('active-scene',b.dataset.tab===tab);
+  });
+  document.getElementById('ctab-content-cellar').style.display=tab==='cellar'?'':'none';
+  document.getElementById('ctab-content-reviews').style.display=tab==='reviews'?'':'none';
+  if(tab==='reviews'&&!_rvProvenOnly) loadReviews();
+}
+
+function showReviewForm(){
+  var f=document.getElementById('review-form-wrap');
+  f.style.display=f.style.display==='none'?'':'none';
+  if(f.style.display!=='none'&&!document.getElementById('rv-stars').children.length){
+    // init star rating
+    var box=document.getElementById('rv-stars');
+    for(var i=1;i<=5;i++){
+      var s=document.createElement('span');
+      s.textContent='☆';s.style.cursor='pointer';s.style.fontSize='18px';
+      s.dataset.val=i;
+      s.onclick=function(){_rvScore=+this.dataset.val;renderStars();};
+      box.appendChild(s);
+    }
+  }
+}
+function hideReviewForm(){document.getElementById('review-form-wrap').style.display='none';}
+function renderStars(){
+  var box=document.getElementById('rv-stars');
+  if(!box)return;
+  for(var i=0;i<box.children.length;i++){
+    box.children[i].textContent=(i<_rvScore)?'★':'☆';
+  }
+  var t=document.getElementById('rv-score-txt');if(t)t.textContent=_rvScore;
+}
+
+function submitReview(){
+  var brand=document.getElementById('rv-brand').value.trim();
+  if(!brand){toast(T('rv_need_brand')||'請填寫品牌');return;}
+  var body={
+    brand:brand,
+    name:document.getElementById('rv-name').value.trim(),
+    appearance:document.getElementById('rv-appearance').value.trim(),
+    aroma:document.getElementById('rv-aroma').value.trim(),
+    palate:document.getElementById('rv-palate').value.trim(),
+    finish:document.getElementById('rv-finish').value.trim(),
+    overall:_rvScore
+  };
+  api('/api/reviews',{method:'POST',body:body}).then(function(r){
+    if(r.ok){
+      toast(T('rv_published')||'酒評已發布！');
+      ['rv-brand','rv-name','rv-appearance','rv-aroma','rv-palate','rv-finish'].forEach(function(id){
+        var el=document.getElementById(id);if(el)el.value='';
+      });
+      _rvScore=0;renderStars();
+      hideReviewForm();
+      loadReviews();
+    }else{
+      toast(r.error||'error');
+    }
+  }).catch(function(){toast('提交失敗');});
+}
+
+function loadReviews(){
+  _rvProvenOnly=false;
+  api('/api/reviews?limit=30').then(function(r){
+    if(!r.ok)return;
+    renderReviews(r.reviews);
+  }).catch(function(){});
+}
+
+function loadProvenReviews(){
+  _rvProvenOnly=true;
+  api('/api/reviews/proven').then(function(r){
+    if(!r.ok)return;
+    renderReviews(r.reviews);
+  }).catch(function(){});
+}
+
+function renderReviews(list){
+  var box=document.getElementById('review-list');
+  if(!box)return;
+  if(!list||!list.length){
+    box.innerHTML='<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px">'+(T('rv_empty')||'暫無酒評')+'</div>';
+    return;
+  }
+  var h='';
+  list.forEach(function(r){
+    var stars='';for(var i=0;i<5;i++) stars+=(i<Math.round(r.overall))?'★':'☆';
+    var provenCls=r.proven?' proven':'';
+    var proCnt=(r.votes&&r.votes[1])||0;
+    var conCnt=(r.votes&&r.votes[-1])||0;
+    h+='<div class="review-card'+provenCls+'">';
+    h+='<div style="display:flex;align-items:center;gap:6px;justify-content:space-between">';
+    h+='<div><span class="rv-author">'+esc(r.nick||'User')+'</span>';
+    if(r.membership_level>=2) h+='<span style="margin-left:4px;font-size:10px;color:#8b5cf6">🍷</span>';
+    h+='</div>';
+    h+='<div class="rv-stars">'+stars+'</div>';
+    h+='</div>';
+    h+='<div class="rv-brand">'+esc(r.brand||'')+'</div>';
+    if(r.name) h+='<div class="rv-name">'+esc(r.name)+'</div>';
+    var detail=[];
+    if(r.appearance) detail.push('<span>👀 '+esc(r.appearance)+'</span>');
+    if(r.aroma) detail.push('<span>👃 '+esc(r.aroma)+'</span>');
+    if(r.palate) detail.push('<span>👅 '+esc(r.palate)+'</span>');
+    if(r.finish) detail.push('<span>🎬 '+esc(r.finish)+'</span>');
+    if(detail.length) h+='<div class="rv-detail">'+detail.join('')+'</div>';
+    if(r.proven) h+='<div style="font-size:10px;color:var(--amber);margin-top:4px">🏅 '+T('rv_proven')+' · '+r.proven_at+'</div>';
+    // vote buttons
+    if(!r.proven){
+      h+='<div class="rv-votes">';
+      h+='<button class="rv-vote-btn'+(r.my_vote===1?' active-pro':'')+'" onclick="voteReview('+r.id+',1)">👍 專業 ('+proCnt+')</button>';
+      h+='<button class="rv-vote-btn'+(r.my_vote===-1?' active-con':'')+'" onclick="voteReview('+r.id+',-1)">👎 水軍 ('+conCnt+')</button>';
+      h+='</div>';
+    }
+    h+='<div style="font-size:10px;color:var(--sub);margin-top:4px">'+r.created_at+'</div>';
+    h+='</div>';
+  });
+  box.innerHTML=h;
+}
+
+function voteReview(rid,vote){
+  api('/api/review/'+rid+'/vote',{method:'POST',body:{vote:vote}}).then(function(r){
+    if(r.ok){
+      toast(r.pro_count>=3?T('rv_just_proven')||'🎉 酒評剛獲認證！':'已投票');
+      if(_rvProvenOnly) loadProvenReviews(); else loadReviews();
+    }else{
+      toast(r.error||'投票失敗');
+    }
+  }).catch(function(){});
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');}
 function cellarFilterTag(tag){
   _cellarTag=tag;
   document.querySelectorAll('.cellar-tag-btn').forEach(b=>{
