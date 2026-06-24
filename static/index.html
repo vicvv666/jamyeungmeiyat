@@ -3677,22 +3677,40 @@ function _loadAMapSDK(){
     _amapLoading=true;
     const key=await _getAMapKey();
     if(!key){reject(new Error('未配置高德key，請管理員設置AMAP_KEY環境變量'));return}
-    // Load AMap Loader first for JS API 2.0 security
+    // Strategy 1: AMap Loader (for JS API 2.0 with security)
     const loader=document.createElement('script');
     loader.src='https://webapi.amap.com/loader.js';
     loader.onload=async()=>{
       try{
-        // Set security config for JS API 2.0
         if(window.__AMAP_SECRET__){
           window._AMapSecurityConfig={securityJsCode:window.__AMAP_SECRET__};
         }
         await AMapLoader.load({key:key,version:'2.0',plugins:['AMap.HeatMap','AMap.MarkerCluster','AMap.Geolocation']});
         resolve();
-      }catch(e){reject(new Error('高德SDK載入失敗: '+e.message))}
+      }catch(e){
+        console.warn('AMapLoader failed, fallback to direct script:',e);
+        _loadAMapDirect(key,resolve,reject);
+      }
     };
-    loader.onerror=()=>{reject(new Error('高德Loader載入失敗'))};
+    loader.onerror=()=>{
+      console.warn('loader.js blocked, fallback to direct script');
+      _loadAMapDirect(key,resolve,reject);
+    };
     document.head.appendChild(loader);
   });
+}
+
+function _loadAMapDirect(key,resolve,reject){
+  // Strategy 2: Direct script tag (fallback)
+  // Must set _AMapSecurityConfig BEFORE loading the SDK script
+  window._AMapSecurityConfig={securityJsCode:window.__AMAP_SECRET__||''};
+  // Also set the static security proxy for API calls
+  window._AMapSecurityConfig.serviceHost=window.location.origin+'/_AMapService';
+  const s=document.createElement('script');
+  s.src='https://webapi.amap.com/maps?v=2.0&key='+key+'&plugin=AMap.HeatMap,AMap.MarkerCluster,AMap.Geolocation';
+  s.onload=()=>{resolve()};
+  s.onerror=()=>{reject(new Error('高德SDK載入失敗'))};
+  document.head.appendChild(s);
 }
 
 async function initMap(){

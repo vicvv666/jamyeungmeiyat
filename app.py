@@ -4711,6 +4711,28 @@ def api_config():
         'version': '2.3'
     })
 
+# ─── AMap Service Proxy (JS API 2.0 security) ────────────
+import urllib.request as urllib2
+
+@app.route('/_AMapService/<path:path>', methods=['GET','POST'])
+def amap_proxy(path):
+    """Proxy AMap REST API requests (security mode 2)"""
+    amap_key = os.environ.get('AMAP_KEY','')
+    qs = request.query_string.decode() if request.query_string else ''
+    target = f'https://restapi.amap.com/{path}?{qs}'
+    if 'key=' not in target:
+        target += ('&' if qs else '?') + 'key=' + amap_key
+    try:
+        req = urllib2.Request(target)
+        if request.method == 'POST':
+            req.data = request.get_data()
+        resp = urllib2.urlopen(req, timeout=10)
+        content = resp.read()
+        ct = resp.headers.get('Content-Type', 'application/json')
+        return Response(content, status=200, content_type=ct)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 502
+
 # ═══════════════════ AI 酒单推荐 ═══════════════════════
 SCENE_PROFILES = {
     'solo': {
