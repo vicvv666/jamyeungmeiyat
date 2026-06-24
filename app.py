@@ -4081,6 +4081,71 @@ def api_favorites_count():
     cnt = db.execute('SELECT COUNT(*) FROM liquor_favorites WHERE user_id=?',(uid,)).fetchone()[0]
     return jsonify({'ok':True,'count':cnt,'max':_mem_favorites_max(mem_level)})
 
+# ═══════════════════ Cellar (個人酒櫃) ═══════════════════
+
+@app.route('/api/cellar')
+@auth_required
+def api_cellar():
+    """我的酒柜 — 收藏列表+分类+统计"""
+    uid = g.uid
+    db = get_db()
+    plan, mem_level, mem_exp = _get_membership(uid)
+    tag = request.args.get('tag', '')
+    search = request.args.get('q', '').strip()
+    sql = '''SELECT f.id,f.liquor_id,f.memo,f.rating,f.cellar_tag,f.created_at,
+                    l.name,l.name_en,l.brand,l.category,l.abv,l.taste_notes,l.image_url,l.extra_json
+             FROM liquor_favorites f JOIN liquor_db l ON f.liquor_id=l.id
+             WHERE f.user_id=?'''
+    params = [uid]
+    if tag:
+        sql += ' AND f.cellar_tag=?'
+        params.append(tag)
+    if search:
+        sql += ' AND (l.name LIKE ? OR l.brand LIKE ? OR l.category LIKE ?)'
+        s = f'%{search}%'
+        params += [s, s, s]
+    sql += ' ORDER BY f.rating DESC, f.created_at DESC'
+    rows = db.execute(sql, params).fetchall()
+    items = []
+    for r in rows:
+        d = dict(r)
+        try: d['extra'] = json.loads(d.pop('extra_json','') or '{}')
+        except: d['extra'] = {}
+        items.append(d)
+    total = db.execute('SELECT COUNT(*) FROM liquor_favorites WHERE user_id=?', (uid,)).fetchone()[0]
+    tag_counts = {'want':0,'tried':0,'collect':0}
+    for r in db.execute("SELECT cellar_tag,COUNT(*) as c FROM liquor_favorites WHERE user_id=? GROUP BY cellar_tag", (uid,)):
+        if r['cellar_tag'] in tag_counts: tag_counts[r['cellar_tag']] = r['c']
+    cat_dist = []
+    for r in db.execute('''SELECT l.category,COUNT(*) as c FROM liquor_favorites f JOIN liquor_db l ON f.liquor_id=l.id
+                           WHERE f.user_id=? GROUP BY l.category ORDER BY c DESC LIMIT 5''', (uid,)):
+        if r['category']: cat_dist.append({'category':r['category'],'count':r['c']})
+    avg_rating = 0
+    r_row = db.execute('SELECT AVG(rating) as avg FROM liquor_favorites WHERE user_id=? AND rating>0',(uid,)).fetchone()
+    if r_row and r_row['avg']: avg_rating = round(float(r_row['avg']),1)
+    return jsonify({'ok':True,'items':items,'total':total,'max':_mem_favorites_max(mem_level),
+                     'tag_counts':tag_counts,'cat_dist':cat_dist,'avg_rating':avg_rating,
+                     'is_limited':total>=_mem_favorites_max(mem_level)})
+
+@app.route('/api/cellar/<int:fav_id>', methods=['PATCH'])
+@auth_required
+def api_cellar_update(fav_id):
+    """更新酒柜条目（评分/笔记/标签）"""
+    uid = g.uid
+    d = request.get_json(force=True) or {}
+    db = get_db()
+    row = db.execute('SELECT id FROM liquor_favorites WHERE id=? AND user_id=?',(fav_id,uid)).fetchone()
+    if not row: return jsonify({'ok':False,'error':'not_found'}), 404
+    updates,params = [],[]
+    if 'memo' in d: updates.append('memo=?'); params.append(d['memo'][:200])
+    if 'rating' in d: updates.append('rating=?'); params.append(max(0,min(5,int(d['rating']))))
+    if 'cellar_tag' in d:
+        tag=d['cellar_tag']
+        if tag not in ('','want','tried','collect'): tag=''
+        updates.append('cellar_tag=?'); params.append(tag)
+    if updates: db.execute(f'UPDATE liquor_favorites SET {",".join(updates)} WHERE id=?',params+[fav_id]); db.commit()
+    return jsonify({'ok':True})
+
 
 # ═══════════════════ Coupons API (優惠券) ═══════════════════
 

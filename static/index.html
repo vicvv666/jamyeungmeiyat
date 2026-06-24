@@ -459,6 +459,22 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .ai-rec-card .rec-abv{font-size:11px;color:var(--amber);font-weight:600}
 .ai-taste-tag{font-size:11px;padding:3px 8px;border-radius:12px;background:rgba(139,92,246,0.1);color:#a78bfa;border:1px solid rgba(139,92,246,0.15)}
 @keyframes fadeSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* ─── 酒柜 ─── */
+.cellar-item{display:flex;gap:10px;padding:10px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;align-items:center;transition:all .2s}
+.cellar-item:hover{border-color:var(--amber);background:rgba(245,158,11,0.03)}
+.cellar-item .ci-icon{font-size:28px;flex-shrink:0}
+.cellar-item .ci-info{flex:1;min-width:0}
+.cellar-item .ci-name{font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cellar-item .ci-meta{font-size:11px;color:var(--sub);margin-top:2px}
+.cellar-item .ci-memo{font-size:11px;color:var(--sub);background:rgba(139,92,246,0.06);border-radius:6px;padding:2px 6px;margin-top:3px;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cellar-item .ci-right{text-align:right;flex-shrink:0;min-width:50px}
+.cellar-item .ci-rating{color:var(--amber);font-weight:700;font-size:13px}
+.cellar-item .ci-tag{font-size:9px;padding:2px 6px;border-radius:8px;font-weight:600}
+.ci-tag-want{background:rgba(245,158,11,0.1);color:#d97706}
+.ci-tag-tried{background:rgba(34,197,94,0.1);color:#16a34a}
+.ci-tag-collect{background:rgba(139,92,246,0.1);color:#7c3aed}
+.cellar-stat-chip{font-size:11px;padding:4px 8px;border-radius:8px;background:var(--bg);border:1px solid var(--border);display:flex;align-items:center;gap:4px}
+.cellar-stat-chip b{color:var(--amber)}
 .attendee-list{max-height:0;overflow:hidden;transition:max-height .3s}.attendee-list.open{max-height:300px;overflow-y:auto}
 .attendee-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
 .clickable{cursor:pointer;color:var(--purple);font-weight:600}
@@ -711,6 +727,21 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_friends" data-i18n="stats_friends">酒友</div><div style="font-weight:700;font-size:18px;color:var(--pink)" id="mem-frd-count">0</div></div>
     <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_posts" data-i18n="stats_posts">帖子</div><div style="font-weight:700;font-size:18px;color:var(--purple)" id="mem-post-count">0</div></div>
   </div>
+  <!-- 我的酒柜入口 -->
+  <div class="card" style="margin-top:8px;padding:0;overflow:hidden;cursor:pointer" onclick="openCellar()">
+    <div style="padding:12px 14px;display:flex;align-items:center;gap:10px">
+      <div style="font-size:28px">🍷</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px" id="cellar-entry-title">我的酒柜</div>
+        <div style="font-size:11px;color:var(--sub)" id="cellar-entry-sub">收藏、评分、品饮记录</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:700;font-size:18px;color:var(--amber)" id="cellar-entry-count">-</div>
+        <div style="font-size:10px;color:var(--sub)">款</div>
+      </div>
+      <div style="color:var(--sub);font-size:16px">›</div>
+    </div>
+  </div>
   <div class="card" id="mem-status-card" style="text-align:center;transition:all .3s">
     <div id="mem-cta-area"></div>
     <div style="font-size:40px;margin-bottom:8px" id="mem-icon-wrap">💎</div>
@@ -744,6 +775,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>年度報告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span>打卡地圖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">瀏覽</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🤖 <span>AI酒單推薦</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3條</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅全部</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+畫像</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🍷 <span>我的酒柜</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">5款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏠 <span data-i18n="cmp_room">開房約戰</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🚫 <span data-i18n="cmp_noad">去廣告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">⭐ <span data-i18n="cmp_badge">專屬徽章</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
@@ -852,6 +884,33 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       <div style="font-size:32px;filter:grayscale(1);opacity:0.5">📊</div>
       <div style="font-size:13px;margin-top:6px">🔒 年度飲酒報告係酒神專屬 · <span style="color:var(--amber);cursor:pointer;text-decoration:underline" onclick="showPay()">升級酒神解鎖</span> 💎</div>
     </div>
+  </div>
+</div>
+
+<!-- 酒柜 Modal -->
+<div id="cellar-modal" class="modal" style="display:none;z-index:9000">
+  <div class="modal-bg" onclick="closeCellar()"></div>
+  <div class="modal-content" style="max-width:480px;max-height:90vh;overflow-y:auto;border-radius:16px;padding:0">
+    <div style="position:sticky;top:0;z-index:2;background:var(--card);padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+      <div style="font-size:20px">🍷</div>
+      <div style="flex:1;font-weight:700;font-size:16px" id="cellar-modal-title">我的酒柜</div>
+      <button class="btn btn-sm btn-outline" onclick="closeCellar()" style="padding:4px 12px">✕</button>
+    </div>
+    <!-- 统计条 -->
+    <div style="padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap" id="cellar-stats-bar"></div>
+    <!-- 分类filter -->
+    <div style="padding:4px 16px 8px;display:flex;gap:6px" id="cellar-tag-btns">
+      <button class="btn btn-sm cellar-tag-btn active-scene" data-tag="" onclick="cellarFilterTag('')" style="font-size:11px;padding:4px 12px">全部</button>
+      <button class="btn btn-sm cellar-tag-btn" data-tag="want" onclick="cellarFilterTag('want')" style="font-size:11px;padding:4px 12px">🤤 想饮</button>
+      <button class="btn btn-sm cellar-tag-btn" data-tag="tried" onclick="cellarFilterTag('tried')" style="font-size:11px;padding:4px 12px">✅ 饮过</button>
+      <button class="btn btn-sm cellar-tag-btn" data-tag="collect" onclick="cellarFilterTag('collect')" style="font-size:11px;padding:4px 12px">💎 收藏</button>
+    </div>
+    <!-- 搜索 -->
+    <div style="padding:0 16px 8px">
+      <input class="input" id="cellar-search" placeholder="🔍 搜索酒品..." style="width:100%;font-size:12px;padding:8px 10px" onkeydown="if(event.key==='Enter')loadCellar()">
+    </div>
+    <!-- 酒品列表 -->
+    <div id="cellar-list" style="padding:0 16px 16px"></div>
   </div>
 </div>
 
@@ -2496,6 +2555,7 @@ const L={
   ai_rec_title:'AI 酒單推薦',ai_rec_beta:'BETA',ai_scene_solo:'🌙 獨飲微醺',ai_scene_party:'🎉 聚會開瓶',ai_scene_dining:'🍽️ 配餐佳釀',ai_scene_gift:'🎁 送禮首選',
   ai_rec_loading:'AI 分析中...',ai_rec_no_data:'暫無推薦數據',ai_rec_no_match:'未找到匹配酒品',ai_rec_locked:'AI 酒單推薦為酒友及以上專屬',
   ai_rec_upgrade:'升級解鎖',ai_rec_limited:'酒友僅看3條 · 升級酒鬼看全部',ai_taste_label:'🧬 你的口味畫像',
+  cellar_title:'我的酒柜',cellar_sub:'收藏、評分、品飲記錄',cellar_empty:'酒柜空空如也',cellar_empty_hint:'掃碼辨酒後可收藏到酒柜',
   toast_password_mismatch:'密碼不一致',toast_select_date:'選擇日期',
   toast_no_friends:'仲未有酒友 🥲',toast_loading:'載入中...',toast_user_not_found:'搵唔到用戶',
   toast_updated:'已更新',toast_password_min:'密碼至少4位',toast_password_reset:'密碼已重設',
@@ -2880,6 +2940,7 @@ const L={
   ai_rec_title:'AI 酒单推荐',ai_rec_beta:'BETA',ai_scene_solo:'🌙 独饮微醺',ai_scene_party:'🎉 聚会开瓶',ai_scene_dining:'🍽️ 配餐佳酿',ai_scene_gift:'🎁 送礼首选',
   ai_rec_loading:'AI 分析中...',ai_rec_no_data:'暂无推荐数据',ai_rec_no_match:'未找到匹配酒品',ai_rec_locked:'AI 酒单推荐为酒友及以上专属',
   ai_rec_upgrade:'升级解锁',ai_rec_limited:'酒友仅看3条 · 升级酒鬼看全部',ai_taste_label:'🧬 你的口味画像',
+  cellar_title:'我的酒柜',cellar_sub:'收藏、评分、品饮记录',cellar_empty:'酒柜空空如也',cellar_empty_hint:'扫码辨酒后可收藏到酒柜',
   toast_password_mismatch:'密码不一致',toast_select_date:'选择日期',
   toast_no_friends:'还没有酒友 🥲',toast_loading:'加载中...',toast_user_not_found:'找不到用户',
   toast_updated:'已更新',toast_password_min:'密码至少4位',toast_password_reset:'密码已重设',
@@ -3264,6 +3325,7 @@ const L={
   ai_rec_title:'AI Sommelier',ai_rec_beta:'BETA',ai_scene_solo:'🌙 Solo Sip',ai_scene_party:'🎉 Party Pick',ai_scene_dining:'🍽️ Dining Pair',ai_scene_gift:'🎁 Gift Select',
   ai_rec_loading:'AI analyzing...',ai_rec_no_data:'No recommendations yet',ai_rec_no_match:'No matching spirits found',ai_rec_locked:'AI Sommelier is VIP-only',
   ai_rec_upgrade:'Upgrade to unlock',ai_rec_limited:'VIP sees 3 · Upgrade for full list',ai_taste_label:'🧬 Your Taste Profile',
+  cellar_title:'My Cellar',cellar_sub:'Favorites, ratings & tasting notes',cellar_empty:'Your cellar is empty',cellar_empty_hint:'Scan spirits to add to cellar',
   toast_password_mismatch:'Passwords do not match',toast_select_date:'Select a date',
   toast_no_friends:'No drinking buddies yet 🥲',toast_loading:'Loading...',toast_user_not_found:'User not found',
   toast_updated:'Updated',toast_password_min:'Password min 4 chars',toast_password_reset:'Password reset',
@@ -3807,6 +3869,11 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
   api('/api/me').then(d=>{
    var u=d.user||{};
    var cc=document.getElementById('mem-chk-count');if(cc)cc.textContent=u.checkin_count||0;
+  }).catch(()=>{});
+  // 酒柜数
+  api('/api/favorites/count').then(d=>{
+   var ec=document.getElementById('cellar-entry-count');
+   if(ec&&d.ok) ec.textContent=d.count;
   }).catch(()=>{});
   api('/api/friends').then(d=>{
    var frs=d.friends||[];
@@ -6015,6 +6082,113 @@ async function loadAIRec(scene){
     box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">加載失敗，請重試</div>';
     console.error('AI rec error:',e);
   }
+}
+
+// ═══════════════════ 酒櫃 (Cellar) ═══════════════════
+let _cellarTag='', _cellarData=null;
+
+function openCellar(){
+  document.getElementById('cellar-modal').style.display='';
+  loadCellar();
+}
+function closeCellar(){
+  document.getElementById('cellar-modal').style.display='none';
+}
+function cellarFilterTag(tag){
+  _cellarTag=tag;
+  document.querySelectorAll('.cellar-tag-btn').forEach(b=>{
+    b.classList.toggle('active-scene',b.dataset.tag===tag);
+  });
+  loadCellar();
+}
+async function loadCellar(){
+  const list=document.getElementById('cellar-list');
+  list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)"><span class="spinner"></span> 載入中...</div>';
+  try{
+    let url=API_BASE+'/api/cellar?tag='+_cellarTag;
+    const q=document.getElementById('cellar-search').value.trim();
+    if(q) url+='&q='+encodeURIComponent(q);
+    const r=await(await fetch(url,{headers:{'Authorization':'Bearer '+token}})).json();
+    if(!r.ok){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">載入失敗</div>';return;}
+    _cellarData=r;
+    // 统计条
+    const sb=document.getElementById('cellar-stats-bar');
+    const tagLabels={want:'🤤 想饮',tried:'✅ 饮过',collect:'💎 收藏'};
+    sb.innerHTML='<div class="cellar-stat-chip">📦 <b>'+r.total+'</b>/'+r.max+'款</div>'
+      +['want','tried','collect'].map(t=>'<div class="cellar-stat-chip">'+tagLabels[t]+' <b>'+r.tag_counts[t]+'</b></div>').join('')
+      +(r.avg_rating?'<div class="cellar-stat-chip">⭐ 均分<b>'+r.avg_rating+'</b></div>':'');
+    // 入口数字
+    const ec=document.getElementById('cellar-entry-count');
+    if(ec) ec.textContent=r.total;
+    // 列表
+    const items=r.items||[];
+    if(!items.length){
+      list.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">🥲 酒柜空空如也<br><span style="font-size:11px">掃碼辨酒後可收藏到酒柜</span></div>';
+      return;
+    }
+    const catIcons={'醬香型白酒':'🫗','威士忌':'🥃','白葡萄酒':'🥂','紅葡萄酒':'🍷','清酒':'🍶','啤酒':'🍺','龍舌蘭':'🍹','干邑白蘭地':'🥃','白蘭地':'🥃','梅酒':'🫗','果酒':'🫗','氣泡酒':'🥂'};
+    const tagNames={want:'想飲',tried:'飲過',collect:'收藏'};
+    let h='';
+    items.forEach((it,i)=>{
+      const icon=catIcons[it.category]||'🍾';
+      const stars=it.rating?'⭐'.repeat(it.rating):'';
+      const tagClass=it.cellar_tag?'ci-tag-'+it.cellar_tag:'';
+      const tagHtml=it.cellar_tag?'<span class="ci-tag '+tagClass+'">'+(tagNames[it.cellar_tag]||'')+'</span>':'';
+      const price=it.extra&&it.extra.price?'¥'+it.extra.price:'';
+      h+='<div class="cellar-item" style="animation:fadeSlideIn .3s '+i*0.06+'s both">'
+        +'<div class="ci-icon">'+icon+'</div>'
+        +'<div class="ci-info">'
+        +'<div class="ci-name">'+esc(it.name)+'</div>'
+        +'<div class="ci-meta">'+esc(it.category||'')+' · '+esc(it.brand||'')+(it.abv?' · '+it.abv+'%':'')+'</div>'
+        +(it.memo?'<div class="ci-memo">📝 '+esc(it.memo)+'</div>':'')
+        +'</div>'
+        +'<div class="ci-right">'
+        +tagHtml
+        +(stars?'<div class="ci-rating">'+stars+'</div>':'')
+        +(price?'<div style="font-size:11px;color:var(--amber);font-weight:600">'+price+'</div>':'')
+        +'<div style="margin-top:4px;display:flex;gap:4px;justify-content:flex-end">'
+        +'<button class="btn btn-sm" style="font-size:9px;padding:2px 6px" onclick="cellarEdit('+it.id+')">✏️</button>'
+        +'<button class="btn btn-sm" style="font-size:9px;padding:2px 6px" onclick="cellarRemove('+it.id+')">🗑️</button>'
+        +'</div></div></div>';
+    });
+    if(r.is_limited){
+      h+='<div style="text-align:center;padding:8px;font-size:11px;color:var(--sub)">🔒 收藏已滿 · <span style="color:#8b5cf6;cursor:pointer" onclick="closeCellar();showPay()">升級擴容</span></div>';
+    }
+    list.innerHTML=h;
+  }catch(e){
+    list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">載入失敗</div>';
+    console.error('cellar error:',e);
+  }
+}
+
+function cellarEdit(favId){
+  const item=(_cellarData&&_cellarData.items||[]).find(x=>x.id===favId);
+  if(!item) return;
+  const newMemo=prompt('📝 筆記',item.memo||'');
+  if(newMemo===null) return;
+  const newRating=prompt('⭐ 評分(1-5,0=未評)',item.rating||0);
+  if(newRating===null) return;
+  const newTag=prompt('🏷️ 標籤(want/tried/collect)',item.cellar_tag||'');
+  if(newTag===null) return;
+  fetch(API_BASE+'/api/cellar/'+favId,{
+    method:'PATCH',
+    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify({memo:newMemo,rating:parseInt(newRating)||0,cellar_tag:newTag})
+  }).then(r=>r.json()).then(r=>{
+    if(r.ok){toast('✅ 已更新');loadCellar();}
+    else toast('❌ 更新失敗');
+  });
+}
+
+function cellarRemove(favId){
+  if(!confirm('刪除此收藏？')) return;
+  fetch(API_BASE+'/api/favorites/'+favId,{
+    method:'DELETE',
+    headers:{'Authorization':'Bearer '+token}
+  }).then(r=>r.json()).then(r=>{
+    if(r.ok){toast('🗑️ 已刪除');loadCellar();}
+    else toast('❌ 刪除失敗');
+  });
 }
 
 // ═══════════════════ SHOP / PRODUCTS ═══════════════════
