@@ -3665,6 +3665,7 @@ async function _getAMapKey(){
   try{
     const r=await(await fetch('/api/config')).json();
     AMAP_KEY=r.amap_key||'';
+    window.__AMAP_SECRET__=r.amap_secret||'';
   }catch(e){}
   return AMAP_KEY;
 }
@@ -3676,11 +3677,21 @@ function _loadAMapSDK(){
     _amapLoading=true;
     const key=await _getAMapKey();
     if(!key){reject(new Error('未配置高德key，請管理員設置AMAP_KEY環境變量'));return}
-    const s=document.createElement('script');
-    s.src='https://webapi.amap.com/maps?v=2.0&key='+key+'&plugin=AMap.HeatMap,AMap.MarkerCluster,AMap.Geolocation';
-    s.onload=()=>{resolve()};
-    s.onerror=()=>{reject(new Error('高德SDK載入失敗'))};
-    document.head.appendChild(s);
+    // Load AMap Loader first for JS API 2.0 security
+    const loader=document.createElement('script');
+    loader.src='https://webapi.amap.com/loader.js';
+    loader.onload=async()=>{
+      try{
+        // Set security config for JS API 2.0
+        if(window.__AMAP_SECRET__){
+          window._AMapSecurityConfig={securityJsCode:window.__AMAP_SECRET__};
+        }
+        await AMapLoader.load({key:key,version:'2.0',plugins:['AMap.HeatMap','AMap.MarkerCluster','AMap.Geolocation']});
+        resolve();
+      }catch(e){reject(new Error('高德SDK載入失敗: '+e.message))}
+    };
+    loader.onerror=()=>{reject(new Error('高德Loader載入失敗'))};
+    document.head.appendChild(loader);
   });
 }
 

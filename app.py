@@ -9,6 +9,15 @@ import sqlite3
 from functools import wraps
 from flask import Flask, request, jsonify, g, send_from_directory, url_for, Response
 
+# ─── Load .env ────────────────────────────────────────
+_env_path = Path(__file__).parent / '.env'
+if _env_path.exists():
+    for _line in _env_path.read_text(encoding='utf-8').splitlines():
+        _line = _line.strip()
+        if _line and not _line.startswith('#') and '=' in _line:
+            _k, _, _v = _line.partition('=')
+            os.environ.setdefault(_k.strip(), _v.strip())
+
 # ─── Logging ──────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format='%(asctime)s | %(levelname)s | %(message)s')
 log = logging.getLogger(__name__)
@@ -4697,8 +4706,9 @@ def api_config():
     """公开配置（无需登录）"""
     return jsonify({
         'amap_key': os.environ.get('AMAP_KEY',''),
+        'amap_secret': os.environ.get('AMAP_SECRET',''),
         'app_name': '今晚飲咗未',
-        'version': '2.2'
+        'version': '2.3'
     })
 
 # ═══════════════════ AI 酒单推荐 ═══════════════════════
