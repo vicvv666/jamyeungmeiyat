@@ -3685,7 +3685,7 @@ function _loadAMapSDK(){
         if(window.__AMAP_SECRET__){
           window._AMapSecurityConfig={securityJsCode:window.__AMAP_SECRET__};
         }
-        await AMapLoader.load({key:key,version:'2.0',plugins:['AMap.HeatMap','AMap.MarkerCluster','AMap.Geolocation']});
+        await AMapLoader.load({key:key,version:'1.4.15',plugins:['AMap.HeatMap','AMap.MarkerCluster','AMap.Geolocation']});
         resolve();
       }catch(e){
         console.warn('AMapLoader failed, fallback to direct script:',e);
@@ -3701,13 +3701,10 @@ function _loadAMapSDK(){
 }
 
 function _loadAMapDirect(key,resolve,reject){
-  // Strategy 2: Direct script tag (fallback)
-  // Must set _AMapSecurityConfig BEFORE loading the SDK script
+  // Strategy 2: Direct script tag (fallback) - use v1.4.15 (v2.0 hangs on some networks)
   window._AMapSecurityConfig={securityJsCode:window.__AMAP_SECRET__||''};
-  // Also set the static security proxy for API calls
-  window._AMapSecurityConfig.serviceHost=window.location.origin+'/_AMapService';
   const s=document.createElement('script');
-  s.src='https://webapi.amap.com/maps?v=2.0&key='+key+'&plugin=AMap.HeatMap,AMap.MarkerCluster,AMap.Geolocation';
+  s.src='https://webapi.amap.com/maps?v=1.4.15&key='+key+'&plugin=AMap.HeatMap,AMap.MarkerCluster,AMap.Geolocation';
   s.onload=()=>{resolve()};
   s.onerror=()=>{reject(new Error('高德SDK載入失敗'))};
   document.head.appendChild(s);
