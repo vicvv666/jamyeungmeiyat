@@ -4733,6 +4733,44 @@ def amap_proxy(path):
     except Exception as e:
         return jsonify({'error': str(e)}), 502
 
+@app.route('/amap/amap.js')
+def amap_sdk_proxy():
+    """Proxy AMap SDK JS from server (bypasses client-side VPN blocking)"""
+    import time as _time
+    # Cache for 1 hour
+    _cache_key = '_amap_sdk_cache'
+    _cache_ts_key = '_amap_sdk_cache_ts'
+    if hasattr(app, _cache_key) and hasattr(app, _cache_ts_key):
+        if _time.time() - getattr(app, _cache_ts_key) < 3600:
+            return Response(getattr(app, _cache_key), status=200, content_type='application/javascript; charset=utf-8')
+    amap_key = os.environ.get('AMAP_KEY','')
+    amap_secret = os.environ.get('AMAP_SECRET','')
+    url = f'https://webapi.amap.com/maps?v=1.4.15&key={amap_key}&plugin=AMap.HeatMap,AMap.MarkerCluster,AMap.Geolocation'
+    try:
+        req = urllib2.Request(url)
+        resp = urllib2.urlopen(req, timeout=30)
+        content = resp.read()
+        security_js = f'window._AMapSecurityConfig={{securityJsCode:"{amap_secret}"}};\n'.encode()
+        result = security_js + content
+        setattr(app, _cache_key, result)
+        setattr(app, _cache_ts_key, _time.time())
+        r = Response(result, status=200, content_type='application/javascript; charset=utf-8')
+        r.headers['Cache-Control'] = 'public, max-age=3600'
+        return r
+    except Exception as e:
+        return Response(f'// AMap proxy error: {e}', status=502, content_type='application/javascript')
+
+@app.route('/amap/loader.js')
+def amap_loader_proxy():
+    """Proxy AMap Loader JS from server"""
+    try:
+        req = urllib2.Request('https://webapi.amap.com/loader.js')
+        resp = urllib2.urlopen(req, timeout=15)
+        content = resp.read()
+        return Response(content, status=200, content_type='application/javascript; charset=utf-8')
+    except Exception as e:
+        return Response(f'// AMap loader proxy error: {e}', status=502, content_type='application/javascript')
+
 # ═══════════════════ AI 酒单推荐 ═══════════════════════
 SCENE_PROFILES = {
     'solo': {
