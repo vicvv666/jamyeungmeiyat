@@ -678,6 +678,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <div class="card"><div class="card-header">⭐ 徽章進度</div><div id="pp-badges"></div></div>
   <div class="card" id="pp-social-card" style="display:none;border:2px solid var(--pink)"><div class="card-header">👫 好友會員對比</div><div id="pp-social"></div></div>
   <div class="card" id="pp-upgrade-feed" style="display:none;border:2px solid var(--purple)"><div class="card-header">🔥 升級動態</div><div id="pp-feed"></div></div>
+  <div class="card" id="pp-ai-card" style="border:2px solid #8b5cf6;background:linear-gradient(135deg,rgba(139,92,246,0.06),rgba(245,158,11,0.04))"><div class="card-header">🤖 AI 品酒筆記 <span style="font-size:10px;color:var(--amber);background:rgba(245,158,11,0.15);padding:2px 6px;border-radius:8px;margin-left:6px">酒神專屬</span></div><div id="pp-ai-notes"><p style="color:var(--sub);text-align:center;padding:20px">升級酒神解鎖AI品酒分析 🧠</p></div></div>
+  <div class="card" id="pp-report-card" style="border:2px solid #f59e0b;background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(239,68,68,0.04))"><div class="card-header">📊 飲酒月報 <span style="font-size:10px;color:var(--purple);background:rgba(139,92,246,0.15);padding:2px 6px;border-radius:8px;margin-left:6px">酒鬼+</span></div><div id="pp-monthly-report"><p style="color:var(--sub);text-align:center;padding:20px">升級酒鬼解鎖月度報告 📈</p></div></div>
 </div>
 
 <div class="page" id="page-map">
@@ -1942,7 +1944,7 @@ function memNickClass(lv){if(!lv)lv=memLevel();return lv?'nick-'+lv:''}
 function memAvClass(lv){if(!lv)lv=memLevel();return lv?'lv-'+lv:''}
 function memTitle(lv){if(!lv)lv=memLevel();if(!lv)return'';const t={1:T('mem_title_1'),2:T('mem_title_2'),3:T('mem_title_3')}[lv]||'';return t?'<span class="mem-title mem-title-'+lv+'">'+t+'</span>':''}
 function memCardClass(lv){if(!lv)lv=memLevel();if(lv>=2)return'mem-card-glow-'+lv;return''}
-function memLocked(requiredLv,action){const lv=memLevel();if(lv>=requiredLv)return false;const names={1:T('mem_jiuyau_label'),2:T('mem_jaugwai_label'),3:T('mem_jausan_label')};const scenes={'party':'🎉 想約朋友飲杯？升級開趴啦！','friends':'👫 好友位快滿喇！升級加位繼續飲！','posts':'📝 今日講夠喇？升級繼續吹水！','favorites':'🔖 你嘅酒櫃快滿喇！升級收藏更多！','scan':'🔍 想再掃多支？升級解鎖更多掃碼！','map':'🗺️ 想睇更多足跡？升級擴大地圖！','coupon':'🧧 想拎多張券？升級每個月更多優惠！'};let hint=scenes[action];if(!hint){const generic={1:'🍺 飲杯都要升級？升酒友解鎖啦！',2:'🍻 想玩盡啲？升酒鬼先得！',3:'💎 最高享受，酒神先配有！'};hint=generic[requiredLv]||('🔒 '+action+' 需要升級至'+names[requiredLv]+' 💎')}toast(hint,1);showUpgradeModal(requiredLv);return true}
+function memLocked(requiredLv,action){const lv=memLevel();if(lv>=requiredLv)return false;const names={1:T('mem_jiuyau_label'),2:T('mem_jaugwai_label'),3:T('mem_jausan_label')};const scenes={'party':'🎉 想約朋友飲杯？升級開趴啦！','friends':'👫 好友位快滿喇！升級加位繼續飲！','posts':'📝 今日講夠喇？升級繼續吹水！','favorites':'🔖 你嘅酒櫃快滿喇！升級收藏更多！','scan':'🔍 想再掃多支？升級解鎖更多掃碼！','map':'🗺️ 想睇更多足跡？升級擴大地圖！','coupon':'🧧 想拎多張券？升級每個月更多優惠！','cellar':'🍷 想睇好友酒柜？升酒友即開！','ai_note':'🧠 AI品酒分析？酒神先配有！','report':'📊 飲酒月報？酒鬼升級即有！'};let hint=scenes[action];if(!hint){const generic={1:'🍺 飲杯都要升級？升酒友解鎖啦！',2:'🍻 想玩盡啲？升酒鬼先得！',3:'💎 最高享受，酒神先配有！'};hint=generic[requiredLv]||('🔒 '+action+' 需要升級至'+names[requiredLv]+' 💎')}toast(hint,1);showUpgradeModal(requiredLv);return true}
 
 // ─── Usage Progress Bars ───
 function showUsageBars(){
@@ -4984,6 +4986,41 @@ function selectChainParty(pid){
   document.getElementById('chain-section').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
+// ═══════ CELLAR SHOWCASE ═══════
+async function showCellarShowcase(uid,nickname){
+  if(memLevel()<1){memLocked(1,'cellar');return}
+  let h='<div id="cellar-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this)this.remove()">';
+  h+='<div style="width:90%;max-width:500px;max-height:80vh;overflow-y:auto;background:var(--bg);border-radius:16px;padding:20px">';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="margin:0;color:var(--amber)">🍷 '+nickname+' 嘅酒柜</h3><span style="cursor:pointer;font-size:20px;color:var(--sub)" onclick="document.getElementById(\'cellar-overlay\').remove()">✕</span></div>';
+  h+='<div id="cellar-items" style="text-align:center;padding:20px;color:var(--sub)">載入中...</div>';
+  h+='</div></div>';
+  document.body.insertAdjacentHTML('beforeend',h);
+  try{
+    const r=await fetch('/api/cellar/showcase/'+uid,{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}});
+    const d=await r.json();
+    if(d.error){document.getElementById('cellar-items').innerHTML='<p style="color:var(--pink)">'+(d.error==='not_friend'?'唔係好友唔可以睇酒柜':'需要升級先可以睇好友酒柜')+'</p>';return}
+    const items=d.items||[];
+    if(!items.length){document.getElementById('cellar-items').innerHTML='<p style="color:var(--sub)">酒柜空空如也 🏚️</p>';return}
+    const tagEmoji={'want':'💛想試','tried':'✅試過','collect':'💎收藏','':''};
+    let ih='<div style="display:grid;gap:8px">';
+    items.forEach(it=>{
+      ih+='<div style="display:flex;gap:10px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px">';
+      if(it.image_url)ih+='<img src="'+it.image_url+'" style="width:48px;height:48px;border-radius:8px;object-fit:cover" onerror="this.style.display=\'none\'">';
+      ih+='<div style="flex:1"><div style="font-weight:700;font-size:14px;color:var(--text)">'+(it.name||'未知酒款')+'</div>';
+      if(it.brand)ih+='<div style="font-size:11px;color:var(--sub)">'+it.brand+'</div>';
+      ih+='<div style="display:flex;gap:8px;margin-top:4px;font-size:11px">';
+      if(it.rating)ih+='<span style="color:var(--amber)">⭐'+it.rating+'</span>';
+      if(it.cellar_tag)ih+='<span>'+tagEmoji[it.cellar_tag]+'</span>';
+      if(it.abv)ih+='<span style="color:var(--sub)">'+it.abv+'%</span>';
+      ih+='</div>';
+      if(it.memo)ih+='<div style="font-size:11px;color:var(--sub);margin-top:4px;font-style:italic">"'+it.memo+'"</div>';
+      ih+='</div></div>';
+    });
+    ih+='</div>';
+    document.getElementById('cellar-items').innerHTML=ih;
+  }catch(e){document.getElementById('cellar-items').innerHTML='<p style="color:var(--pink)">載入失敗</p>'}
+}
+
 // ═══════ PASSPORT ═══════
 async function loadPassport(){
   const lvNames=['免費','酒友','酒鬼','酒神'];
@@ -5040,6 +5077,45 @@ async function loadPassport(){
     const lvNames=['','酒友','酒鬼','酒神'];
     document.getElementById('pp-feed').innerHTML=d.upgrades.map(u=>'<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:rgba(139,92,246,0.06);border-radius:10px"><img src="/api/avatar/'+u.id+'" style="width:32px;height:32px;border-radius:50%" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><rect fill=%22%23333%22 width=%2232%22 height=%2232%22 rx=%2216%22/><text fill=%22%23F59E0B%22 x=%2216%22 y=%2222%22 text-anchor=%22middle%22 font-size=%2216%22>👤</text></svg>\'"><div><b>'+u.nickname+'</b> 成為了 <span style="color:var(--purple);font-weight:700">'+lvNames[u.lv]+'</span> 🎉</div></div>').join('');
   }).catch(()=>{});
+  // AI tasting notes (lv3+ only)
+  if(memLevel()>=3){
+    fetch('/api/ai/tasting-notes',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}}).then(r=>r.json()).then(d=>{
+      const el=document.getElementById('pp-ai-notes');
+      if(d.error){el.innerHTML='<p style="color:var(--sub);text-align:center;padding:20px" onclick="memLocked(3,\'ai_note\')">🧠 升級酒神解鎖AI品酒分析</p>';return}
+      let h='<div style="padding:12px">';
+      h+='<div style="font-size:15px;font-weight:700;margin-bottom:10px;color:var(--purple)">🍷 你嘅品酒畫像</div>';
+      h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+      if(d.profile_tags)d.profile_tags.forEach(t=>{h+='<span style="background:linear-gradient(135deg,rgba(139,92,246,0.15),rgba(245,158,11,0.1));border:1px solid rgba(139,92,246,0.3);border-radius:20px;padding:4px 12px;font-size:13px;font-weight:600">'+t+'</span>';});
+      h+='</div>';
+      h+='<div style="font-size:13px;margin-bottom:8px;color:var(--text)">'+d.summary+'</div>';
+      if(d.tips){h+='<div style="margin-top:8px">';d.tips.forEach(t=>{h+='<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px">💡 '+t+'</div>';});h+='</div>';}
+      if(d.categories){const cats=Object.entries(d.categories);const maxVal=Math.max(...cats.map(c=>c[1]));h+='<div style="margin-top:12px;font-size:12px;font-weight:600;color:var(--sub)">酒類偏好</div>';cats.forEach(([k,v])=>{const pct=Math.round(v/maxVal*100);h+='<div style="display:flex;align-items:center;gap:6px;margin:4px 0"><span style="width:60px;text-align:right;font-size:11px;color:var(--text)">'+k+'</span><div style="flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--purple),var(--amber));border-radius:4px"></div></div><span style="font-size:11px;color:var(--sub)">'+v+'</span></div>';});}
+      h+='</div>';el.innerHTML=h;
+    }).catch(()=>{});
+  }
+  // Monthly report (lv2+ only)
+  if(memLevel()>=2){
+    fetch('/api/monthly-report',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}}).then(r=>r.json()).then(d=>{
+      const el=document.getElementById('pp-monthly-report');
+      if(d.error){el.innerHTML='<p style="color:var(--sub);text-align:center;padding:20px" onclick="memLocked(2,\'report\')">📊 升級酒鬼解鎖月度報告</p>';return}
+      let h='<div style="padding:12px">';
+      h+='<div style="font-size:16px;font-weight:800;margin-bottom:12px;color:var(--amber)">'+d.month+' 飲酒月報</div>';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">';
+      h+='<div style="text-align:center;padding:10px;background:rgba(245,158,11,0.08);border-radius:10px"><div style="font-size:24px;font-weight:800;color:var(--amber)">'+d.total+'</div><div style="font-size:11px;color:var(--sub)">本月打卡</div></div>';
+      h+='<div style="text-align:center;padding:10px;background:rgba(139,92,246,0.08);border-radius:10px"><div style="font-size:24px;font-weight:800;color:var(--purple)">'+d.unique_liquors+'</div><div style="font-size:11px;color:var(--sub)">品鑒酒款</div></div>';
+      h+='<div style="text-align:center;padding:10px;background:rgba(16,185,129,0.08);border-radius:10px"><div style="font-size:24px;font-weight:800;color:var(--green)">'+d.avg_rating+'⭐</div><div style="font-size:11px;color:var(--sub)">平均評分</div></div>';
+      h+='<div style="text-align:center;padding:10px;background:rgba(239,68,68,0.08);border-radius:10px"><div style="font-size:24px;font-weight:800;color:var(--pink)">'+d.streak_days+'</div><div style="font-size:11px;color:var(--sub)">飲酒天數</div></div>';
+      h+='</div>';
+      const changeColor=d.change_pct>=0?'var(--green)':'var(--pink)';const changeArrow=d.change_pct>=0?'↑':'↓';
+      h+='<div style="padding:8px;background:rgba(245,158,11,0.06);border-radius:10px;font-size:13px;text-align:center;margin-bottom:10px">同比上月 <span style="color:'+changeColor+';font-weight:700">'+changeArrow+Math.abs(d.change_pct)+'%</span></div>';
+      if(d.top_categories&&d.top_categories.length){
+        h+='<div style="font-size:12px;font-weight:600;color:var(--sub);margin-bottom:6px">本月最愛</div>';
+        d.top_categories.forEach(c=>{h+='<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>'+c.name+'</span><span style="color:var(--amber);font-weight:600">'+c.count+'次</span></div>';});
+      }
+      if(d.highlights){h+='<div style="margin-top:12px">';d.highlights.forEach(hl=>{h+='<div style="padding:4px 0;font-size:12px;color:var(--text)">📌 '+hl+'</div>';});h+='</div>';}
+      h+='</div>';el.innerHTML=h;
+    }).catch(()=>{});
+  }
 }
 
 // ═══════ STATS ═══════
@@ -6929,6 +7005,7 @@ async function loadFriendsList(){
     +'<div style="display:flex;gap:4px;margin-top:4px;flex-wrap:wrap" id="ftags-'+f.id+'"></div>'
     +'<div style="margin-top:6px;display:flex;gap:6px">'
     +'<button style="padding:3px 10px;border:1px solid var(--pink);border-radius:6px;background:var(--pink);color:#fff;cursor:pointer;font-size:10px" onclick="event.stopPropagation();openChat('+f.id+')">💬 聊天</button>'
+    +'<button style="padding:3px 10px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px" onclick="event.stopPropagation();showCellarShowcase('+f.id+',\''+(f.nickname||f.username||'?').replace(/'/g,"\\'")+'\')">🍷 酒柜</button>'
     +'<button style="padding:3px 10px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px" onclick="event.stopPropagation();removeFriend('+f.id+')">🗑️ 移除</button>'
     +'</div></div></div>';
    }catch(e){console.error('render friend err:',e,f)}

@@ -4347,6 +4347,135 @@ def api_cellar_update(fav_id):
     return jsonify({'ok':True})
 
 
+# ═══════════════════ Cellar Showcase + AI Notes + Monthly Report ═══
+@app.route('/api/cellar/showcase/<int:uid>')
+@auth_required
+def api_cellar_showcase(uid):
+    """好友浏览某用户酒柜展示 — 会员专属功能"""
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 1:
+        return jsonify({'error':'upgrade_required','required_level':1}), 403
+    db = get_db()
+    # 确认是好友关系
+    is_friend = db.execute("""SELECT COUNT(*) FROM friends 
+        WHERE ((user_id=? AND friend_id=?) OR (user_id=? AND friend_id=?)) AND status='accepted'""",
+        (g.uid,uid,uid,g.uid)).fetchone()[0]
+    if not is_friend:
+        return jsonify({'error':'not_friend'}), 403
+    rows = db.execute("""SELECT lf.id, lf.liquor_id, lf.memo, lf.rating, lf.cellar_tag, lf.created_at,
+        l.name, l.brand, l.category, l.image_url, l.abv
+        FROM liquor_favorites lf LEFT JOIN liquors l ON lf.liquor_id=l.id
+        WHERE lf.user_id=? ORDER BY lf.rating DESC, lf.created_at DESC LIMIT 50""",(uid,)).fetchall()
+    owner = db.execute("SELECT nickname,avatar FROM users WHERE id=?",(uid,)).fetchone()
+    return jsonify({'owner':dict(owner) if owner else {}, 'items':[dict(r) for r in rows]})
+
+@app.route('/api/ai/tasting-notes')
+@auth_required
+def api_ai_tasting_notes():
+    """AI品酒笔记 — 酒神专属AI偏好分析"""
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 3:
+        return jsonify({'error':'upgrade_required','required_level':3}), 403
+    db = get_db()
+    # 收集用户打卡数据做AI分析
+    rows = db.execute("""SELECT c.liquor_id, l.name, l.brand, l.category, l.abv, c.rating, c.note,
+        c.mood, c.location, strftime('%H',c.created_at) as hour
+        FROM checkins c LEFT JOIN liquors l ON c.liquor_id=l.id
+        WHERE c.user_id=? ORDER BY c.created_at DESC LIMIT 100""",(g.uid,)).fetchall()
+    if not rows:
+        return jsonify({'summary':'你仲未打卡，飲一杯先啦！🍺','categories':{},'moods':{},'hours':{},'tips':['打卡越多AI分析越準']})
+    # 本地统计分析（免调外部API）
+    from collections import Counter
+    cats = Counter(r['category'] or '未知' for r in rows)
+    moods = Counter(r['mood'] or '未記錄' for r in rows)
+    hours = Counter(r['hour'] or '未知' for r in rows)
+    ratings = [r['rating'] for r in rows if r['rating']]
+    avg_rating = round(sum(ratings)/len(ratings),1) if ratings else 0
+    top_cat = cats.most_common(1)[0][0] if cats else '未知'
+    top_mood = moods.most_common(1)[0][0] if moods else '未知'
+    top_hour = hours.most_common(1)[0][0] if hours else '未知'
+    brands = Counter(r['brand'] or '未知' for r in rows if r['brand'])
+    top_brand = brands.most_common(1)[0][0] if brands else '未知'
+    # 生成趣味分析
+    cat_pct = round(cats.most_common(1)[0][1]/len(rows)*100) if cats else 0
+    tips = [
+        f'你最鍾意飲{top_cat}，佔你打卡嘅{cat_pct}%',
+        f'你通常喺{top_hour}點飲酒，係個{"早飲派" if int(top_hour or 12)<18 else "夜貓派"}',
+        f'飲酒時最常嘅心情係{top_mood}',
+        f'你最常飲{top_brand}嘅酒',
+        f'你嘅平均評分{avg_rating}/5，{"品味幾高喎" if avg_rating>=3.5 else "試下記錄多啲感受"}',
+    ]
+    # 偏好画像
+    profile_tags = []
+    if cat_pct > 60: profile_tags.append(top_cat+'控')
+    if top_hour and int(top_hour) < 18: profile_tags.append('日光飲者')
+    elif top_hour: profile_tags.append('暗夜酒客')
+    if avg_rating >= 4: profile_tags.append('嚴選品酒')
+    elif avg_rating <= 2.5: profile_tags.append('隨性飲家')
+    if len(rows) >= 50: profile_tags.append('资深酒徒')
+    return jsonify({
+        'total_checkins': len(rows),
+        'avg_rating': avg_rating,
+        'categories': dict(cats.most_common(8)),
+        'moods': dict(moods.most_common(5)),
+        'hours': dict(hours.most_common(6)),
+        'top_brand': top_brand,
+        'profile_tags': profile_tags,
+        'tips': tips,
+        'summary': f'你飲過{len(rows)}次，最鍾意{top_cat}，{top_mood}時飲最先。 profile: {" · ".join(profile_tags)}'
+    })
+
+@app.route('/api/monthly-report')
+@auth_required
+def api_monthly_report():
+    """饮酒月报 — 酒鬼+专属"""
+    plan, mem_level, mem_exp = _get_membership(g.uid)
+    if mem_level < 2:
+        return jsonify({'error':'upgrade_required','required_level':2}), 403
+    db = get_db()
+    from datetime import date as _date
+    today = _date.today()
+    first_of_month = today.replace(day=1).isoformat()
+    prev_month_end = (today.replace(day=1) - __import__('datetime').timedelta(days=1)).isoformat()
+    prev_month_start = (today.replace(day=1) - __import__('datetime').timedelta(days=today.day+30)).replace(day=1).isoformat()
+    # 本月数据
+    month_rows = db.execute("""SELECT c.*, l.name as liquor_name, l.category, l.brand
+        FROM checkins c LEFT JOIN liquors l ON c.liquor_id=l.id
+        WHERE c.user_id=? AND date(c.created_at)>=? ORDER BY c.created_at DESC""",
+        (g.uid, first_of_month)).fetchall()
+    # 上月对比
+    prev_rows = db.execute("""SELECT COUNT(*) FROM checkins 
+        WHERE user_id=? AND date(created_at)>=? AND date(created_at)<=?""",
+        (g.uid, prev_month_start, prev_month_end)).fetchone()[0]
+    from collections import Counter
+    month_cats = Counter(r['category'] or '未知' for r in month_rows if r['category'])
+    top_3 = month_cats.most_common(3)
+    unique_liquors = len(set(r['liquor_id'] for r in month_rows if r['liquor_id']))
+    avg_rating = round(sum(r['rating'] for r in month_rows if r['rating'])/max(1,len([r for r in month_rows if r['rating']])),1)
+    # 连续天数
+    streak = db.execute("""SELECT COUNT(DISTINCT date(created_at)) FROM checkins 
+        WHERE user_id=? AND date(created_at)>=?""",
+        (g.uid, first_of_month)).fetchone()[0]
+    month_total = len(month_rows)
+    change_pct = round((month_total - prev_rows)/max(1,prev_rows)*100,0) if prev_rows else 100
+    return jsonify({
+        'month': today.strftime('%Y年%m月'),
+        'total': month_total,
+        'prev_total': prev_rows,
+        'change_pct': change_pct,
+        'unique_liquors': unique_liquors,
+        'avg_rating': avg_rating,
+        'streak_days': streak,
+        'top_categories': [{'name':n,'count':c} for n,c in top_3],
+        'highlights': [
+            f'本月打卡{month_total}次，{"↑" if change_pct>=0 else "↓"}{abs(change_pct)}% vs 上月',
+            f'品鑒咗{unique_liquors}款唔同嘅酒',
+            f'平均評分{avg_rating}⭐',
+            f'本月飲咗{streak}日',
+        ]
+    })
+
+
 # ═══════════════════ Party Polls (投票) ═══════════════════
 
 @app.route('/api/party/<int:pid>/polls')
