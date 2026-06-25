@@ -4451,6 +4451,7 @@ window._langConvert = (function(){
       window._cnReplace(document.body);
     }
   }
+  }
   return function langConvert(immediate){
     if(immediate){
       // 立即转换（用于switchLang切换时）
@@ -4465,65 +4466,6 @@ window._langConvert = (function(){
       setTimeout(_doConvert, 1500);
     }, 100);
   };
-})();
-// ── innerHTML写后自动转换触发（安全版：只触发DOM walk，不修改字符串） ──
-(function(){
-  var _desc;
-  try{ _desc=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML'); }catch(e){}
-  if(!_desc||typeof _desc.set!=='function') return;
-  var _origSet=_desc.set;
-  var _origGet=_desc.get;
-  try{
-  Object.defineProperty(Element.prototype,'innerHTML',{
-    get:function(){return _origGet.call(this);},
-    set:function(html){
-      // 先让浏览器正常解析HTML
-      _origSet.call(this,html);
-      // 然后触发debounced DOM转换（只改已解析嘅text node）
-      if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
-        window._langConvert(false);
-      }
-    }
-  });
-  }catch(e){}
-})();
-// ── textContent写后自动转换触发 ──
-(function(){
-  var _nd;
-  try{ _nd=Object.getOwnPropertyDescriptor(Node.prototype,'textContent'); }catch(e){}
-  if(!_nd||typeof _nd.set!=='function') return;
-  var _origTCS=_nd.set;
-  var _origTCG=_nd.get;
-  try{
-  Object.defineProperty(Node.prototype,'textContent',{
-    get:function(){return _origTCG.call(this);},
-    set:function(txt){
-      _origTCS.call(this,txt);
-      if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
-        window._langConvert(false);
-      }
-    }
-  });
-  }catch(e){}
-})();
-// ── placeholder写后自动转换触发 ──
-(function(){
-  var _pd;
-  try{ _pd=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'placeholder'); }catch(e){}
-  if(!_pd||typeof _pd.set!=='function') return;
-  var _origPHS=_pd.set;
-  var _origPHG=_pd.get;
-  try{
-  Object.defineProperty(HTMLInputElement.prototype,'placeholder',{
-    get:function(){return _origPHG.call(this);},
-    set:function(txt){
-      _origPHS.call(this,txt);
-      if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
-        window._langConvert(false);
-      }
-    }
-  });
-  }catch(e){}
 })();
 // ── 繁→英 MutationObserver ──
 (function(){
