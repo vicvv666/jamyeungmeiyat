@@ -4451,17 +4451,13 @@ window._langConvert = (function(){
       window._cnReplace(document.body);
     }
   }
-  }
   return function langConvert(immediate){
     if(immediate){
-      // 立即转换（用于switchLang切换时）
       _doConvert();
     }
-    // 无论是否immediate，都安排延迟再扫（防止异步render漏网）
     clearTimeout(_timer);
     _timer = setTimeout(function(){
       _doConvert();
-      // 再多一次兜底
       setTimeout(_doConvert, 500);
       setTimeout(_doConvert, 1500);
     }, 100);
