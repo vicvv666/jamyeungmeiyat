@@ -3101,34 +3101,34 @@ const L={
   trial_14days_left:'🎉 14天免費體驗 · 剩餘{dl}天',
 },
 'zh-CN':{
-  st_mai_yum:'没喝',
-  st_seung_yum:'想喝',
-  st_dou_cho:'到了',
-  st_hoi_cho:'开了',
-  st_yum_gan:'喝着',
+  st_mai_yum:'冇饮',
+  st_seung_yum:'想饮',
+  st_dou_cho:'到咗',
+  st_hoi_cho:'开咗',
+  st_yum_gan:'饮紧',
   st_gai_juk:'继续',
   st_ga_jau:'加酒',
   st_cheung_yum:'畅饮',
-  st_jui_gan:'醉着',
+  st_jui_gan:'醉紧',
   st_ho_jui:'好醉',
   st_tou_jui:'陶醉',
   st_piu_piu:'飘飘',
   st_dyun_pin:'断片',
-  st_seung_au:'想吐',
+  st_seung_au:'想呕',
   st_wan_wan:'晕晕',
-  st_pa_dai:'趴下',
+  st_pa_dai:'趴低',
   st_jyun_cheung:'转场',
-  st_gau_jau:'混酒',
-  st_chaai_mui:'猜拳',
+  st_gau_jau:'沟酒',
+  st_chaai_mui:'猜枚',
   st_jik_lok:'直落',
-  st_yum_cho:'喝了',
-  st_fan_gwai:'回家',
-  st_sing_saai:'醒了',
-  st_ting_yat:'明天',
+  st_yum_cho:'饮咗',
+  st_fan_gwai:'返归',
+  st_sing_saai:'醒晒',
+  st_ting_yat:'听日',
   grp_hei_sau:'起手',
   grp_seung_gan:'上头',
-  grp_jui_gan:'醉着',
-  grp_baau_cho:'爆了',
+  grp_jui_gan:'醉紧',
+  grp_baau_cho:'爆咗',
   grp_jyun_cheung:'转场',
   grp_sau_mei:'收尾',
   checkin:'报到',
@@ -3184,7 +3184,7 @@ const L={
   chk_title:'今晚饮咗未？',
   chk_subtitle:'饮酒社交打卡 · 骰盅对决 · 酒局约起',
   status_checkin:'📍 状态报到',
-  note_placeholder:'写下喝了什么...',
+  note_placeholder:'写低饮咗啲咩...',
   checkin_btn:'🍻 报到！',
   text_input:'文字输入',
   download_title:'📱 下载 App',
@@ -5229,13 +5229,14 @@ function renderPricingTab(){
     h+='<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px">';
     p.features.forEach(f=>{h+='<span style="font-size:10px;background:rgba(245,158,11,0.1);padding:2px 6px;border-radius:6px;color:var(--text)">'+f+'</span>'});
     h+='</div>';
-    if(!isCurrent)h+='<button class="btn btn-primary" style="width:100%;font-size:12px;padding:8px" onclick="showUpgrade('+p.id+')">💪 立即升級</button>';
+    if(!isCurrent)h+='<button class="btn btn-primary" style="width:100%;font-size:12px;padding:8px" onclick="selP(\''+{1:'jiuyau',2:'jaugwai',3:'jausan'}[p.id]+'\');showPay()">💪 立即升級</button>';
     h+='</div>';
   });
   c.innerHTML=h;
   frPricingBilling('m');
 }
 function frPricingBilling(type){
+  selBilling=type==='m'?'monthly':type==='q'?'quarterly':'annual';
   ['m','q','a'].forEach(k=>{
     const el=document.getElementById('fr-pt-'+k);
     if(el){el.style.fontWeight=k===type?'700':'400';el.style.color=k===type?'var(--pink)':'var(--sub)';el.style.borderBottom=k===type?'2px solid var(--pink)':'2px solid transparent';}
@@ -5344,7 +5345,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
    if(cl){
     if(!cks.length)cl.innerHTML='<div style="text-align:center;padding:12px;color:var(--sub)">'+T('no_checkins')+'</div>';
     else cl.innerHTML=cks.slice(0,20).map(c=>{
-     var st=_statusMap[c.status]||'其他';
+     var st=_statusMap()[c.status]||'其他';
      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)"><span style="font-size:16px">🍺</span><div style="flex:1"><div style="font-weight:600;color:var(--text);font-size:13px">'+st+'</div><div style="font-size:10px;color:var(--sub)">'+(c.created_at||'')+(c.note?' · '+c.note:'')+'</div></div></div>';
     }).join('');
    }
@@ -6885,8 +6886,10 @@ setTimeout(initDice,200);setTimeout(startChallengePoll,3000);
 
 // ═══════════ ADMIN: Checkins / Parties / Posts ═══════════
 let _admCheckins=[], _admParties=[], _admPosts=[];
-const _statusMap={0:'酒鬼',1:'微醺',2:'清醒',4:'報到',5:'想飲',10:'到咗',11:'開咗',12:'飲緊',13:'繼續',14:'加酒',15:'暢飲',16:'醉緊',17:'好醉',18:'陶醉',19:'飄飄',20:'斷片',21:'想嘔',22:'暈暈',23:'趴低',24:'轉場',25:'溝酒',26:'猜枚',27:'直落',28:'飲咗',29:'返歸',30:'醒晒',31:'聽日'};
-function _statusOpts(){return Object.entries(_statusMap).map(([k,v])=>[Number(k),v])}
+const _statusMapHK={0:'酒鬼',1:'微醺',2:'清醒',4:'報到',5:'想飲',10:'到咗',11:'開咗',12:'飲緊',13:'繼續',14:'加酒',15:'暢飲',16:'醉緊',17:'好醉',18:'陶醉',19:'飄飄',20:'斷片',21:'想嘔',22:'暈暈',23:'趴低',24:'轉場',25:'溝酒',26:'猜枚',27:'直落',28:'飲咗',29:'返歸',30:'醒晒',31:'聽日'};
+const _statusMapCN={0:'酒鬼',1:'微醺',2:'清醒',4:'报到',5:'想饮',10:'到咗',11:'开咗',12:'饮紧',13:'继续',14:'加酒',15:'畅饮',16:'醉紧',17:'好醉',18:'陶醉',19:'飘飘',20:'断片',21:'想呕',22:'晕晕',23:'趴低',24:'转场',25:'沟酒',26:'猜枚',27:'直落',28:'饮咗',29:'返归',30:'醒晒',31:'听日'};
+function _statusMap(){return (document.documentElement.lang||'zh-HK').startsWith('zh-CN')?_statusMapCN:_statusMapHK}
+function _statusOpts(){return Object.entries(_statusMap()).map(([k,v])=>[Number(k),v])}
 function _admCardRow(label,val,color){
  const d=document.createElement('div');d.style.cssText='display:flex;gap:6px;font-size:12px;line-height:1.6';
  const lb=document.createElement('span');lb.style.cssText='color:var(--sub);min-width:50px';lb.textContent=label;
@@ -6910,7 +6913,7 @@ async function admLoadCheckins(){
    btns.appendChild(eb);btns.appendChild(db_);
    head.appendChild(name);head.appendChild(id);head.appendChild(btns);
    card.appendChild(head);
-   card.appendChild(_admCardRow('狀態',_statusMap[c.status]||'報到','var(--amber)'));
+   card.appendChild(_admCardRow('狀態',_statusMap()[c.status]||'報到','var(--amber)'));
    card.appendChild(_admCardRow('備註',c.note));
    if(c.photo)card.appendChild(_admCardRow('相片',c.photo));
    if(c.party_id)card.appendChild(_admCardRow('酒局','#'+c.party_id));
