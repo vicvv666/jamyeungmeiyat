@@ -2142,6 +2142,8 @@ function ugTab(t){
   const q=document.getElementById('ug-tab-quick'),c=document.getElementById('ug-tab-compare');
   if(t==='quick'){q.style.background='var(--amber)';q.style.color='#fff';c.style.background='var(--bg2)';c.style.color='var(--sub)'}
   else{c.style.background='var(--amber)';c.style.color='#fff';q.style.background='var(--bg2)';q.style.color='var(--sub)'}
+
+  if(typeof window._langConvert==='function')window._langConvert(false);
 }
 function _ugCompareTable(){
   const L={0:{t:'免費',icon:'🆓'},1:{t:'🥉酒友',icon:'🥉'},2:{t:'🥈酒鬼',icon:'🥈'},3:{t:'🥇酒神',icon:'🥇'}};
@@ -2387,18 +2389,9 @@ function showPage(name){
   // Close any open modal overlays when switching pages
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
   if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts();}if(name==='map')initMap();if(name==='party'){loadParties();populatePartySelects();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
-  // 切tab后做语言转换（处理异步加载嘅繁体内容）
-  var _l=document.documentElement.lang;
-  if(_l==='en'&&typeof window._enReplace==='function'){
-    requestAnimationFrame(function(){window._enReplace(document.body);
-      setTimeout(function(){window._enReplace(document.body);},300);
-      setTimeout(function(){window._enReplace(document.body);},800);
-    });
-  }else if(_l==='zh-CN'&&typeof window._cnReplace==='function'){
-    requestAnimationFrame(function(){window._cnReplace(document.body);
-      setTimeout(function(){window._cnReplace(document.body);},300);
-      setTimeout(function(){window._cnReplace(document.body);},800);
-    });
+  // 切tab后触发 debounced 语言转换
+  if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
+    window._langConvert(true);
   }
 }
 
@@ -4445,6 +4438,93 @@ function T(k){return (L[lang]||L['zh-HK'])[k]||k}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
 const _t2e={'我嘅':'My','我的':'My','管理員':'Admin','免費':'Free','永久':'Permanent','升級成功':'Upgraded!','升級失敗':'Upgrade failed','升級享受完整功能':'Upgrade for full features','立即升級':'Upgrade Now','升級解鎖':'Unlock with Upgrade','需要升級至':'Upgrade required: ','掃碼付款':'Scan to Pay','去廣告':'Ad-Free','專屬徽章':'Badge','開趴約飲':'Host Parties','已結束':'Ended','結束投票':'End Vote','確認':'Confirm','拒絕':'Reject','移除':'Remove','加酒友':'Add Friend','搜索失敗':'Search failed','冇結果':'No results','冇數據':'No data','加載失敗，請重試':'Load failed, retry','未找到匹配酒品':'No matching liquors found','酒友':'Drinker','酒鬼':'Boozer','酒神':'Drunkard','好友已升級':'friends upgraded','載入地圖SDK...':'Loading Map SDK...','地圖已載入，點擊下方按鈕查看打卡點':'Map loaded, tap below for check-in spots','地圖載入失敗':'Map load failed','定位中...':'Locating...','已定位':'Located','定位失敗，請確認浏览器已授權位置':'Location failed, allow browser access','載入打卡點...':'Loading check-in spots...','個打卡點':' check-in spots','載入酒吧...':'Loading bars...','間合作酒吧':' partner bars','會員折扣':'Member Discount','載入热力足跡...':'Loading heatmap...','打卡數據不足，多啲帶定位打卡啦！':'Check in more with location!','你的足跡热力圖':'Your heatmap','次定位打卡':' location check-ins','個熱點':' hotspots','累計打卡':'Total Check-ins','品過酒款':'Liquors Tried','連飲食數':'Drink Streak','打卡城市':'Cities Checked In','酒柜':'Cellar','飲酒月報':'Monthly Drink Report','年度飲酒報告':'Annual Drink Report','打卡一次即獲第一個稱號':'First check-in earns your first title!','初嘗者':'First Sip','常客':'Regular','品酒师':'Connoisseur','鑒賞家':'Master','商鋪折扣':'Shop Discount','酒品':'Liquor','編辑商品':'Edit Product','新增商品':'Add Product','編辑酒品':'Edit Liquor','新增酒品':'Add Liquor','名稱':'Name','英文名稱':'English Name','分類':'Category','子分類':'Subcategory','描述':'Description','價格':'Price','貨幣':'Currency','庫存':'Stock','無限':'Unlimited','排序':'Sort','圖片URL':'Image URL','檔案URL':'File URL','上架':'On Sale','保存':'Save','想試':'Want to Try','試過':'Tried','收藏':'Collection','未知酒款':'Unknown Liquor','載入失敗':'Load Failed','所有會員都係有效嘅':'All members are valid','暫無用戶':'No users yet','暫無付款紀錄':'No payment records','暫無操作紀錄':'No operation logs','選項':'Option','投票':'Vote','顯示':'Show','搜索':'Search','續期':'Renew','設定新密碼（至少4位）：':'Set new password (min 4 chars): ','酒友快滿啦！升級解鎖更多位':'Friends limit reached! Upgrade for more','好友酒柜？升酒友即開':'Friend cellar? Upgrade to unlock','排行榜？升酒友解鎖':'Leaderboard? Upgrade to unlock','飲杯都要升級？升酒友解鎖啦':'Upgrade to Drinker to unlock','想玩盡啲？升酒鬼先得':'Upgrade to Boozer for full access','最高享受，酒神先配有':'Best experience, Drunkard exclusive','報到':'Check-in','帖子':'Posts','品鑒酒款':'Liquors Rated','本月打卡':'Monthly Check-ins','飲酒天數':'Drinking Days','狀態分佈':'Status Distribution','均分':'Avg Score','有效期至':'Valid until','方式':'Method','今晚飲咗未':'Drunk Tonight?','飲酒地圖':'Drink Map','打卡地圖':'Check-in Map','免費僅':'Free only','升級擴大地圖':'Upgrade for expanded map','原價':'Original ','首月體驗':'1st month trial','已售':' sold','品牌':'Brand','產地':'Origin','註冊':'Registered','滿':' over ','酒品真偽驗證':'Liquor Authenticity Check','掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品詳情':'Scan barcode to verify & view details','詳情':'Details','接龍':'Chain Order','人數':'People','備註(可選)':'Note (optional)','聊天':'Chat','AI酒單':'AI Menu','酒單推薦':'Menu Picks','酒單':'Menu','真偽驗證':'Auth Check','掃碼驗證':'Scan Verify','掃碼記錄':'Scan Log','掃碼':'Scan','我嘅訂單':'My Orders','訂單':'Orders','酒柜展示':'Cellar Display','優惠劵':'Coupons','優惠':'Discount','邀請好友':'Invite Friends','邀請':'Invite','個人資料':'Profile','位置':'Location','打卡點':'Check-in Spots','酒吧':'Bars','勢力足跡':'Footprint','足跡':'Footprint','热力圖':'Heatmap','上傳圖片':'Upload Image','上傳影片':'Upload Video','上傳':'Upload','好友圈':'Friend Circle','護照':'Passport','統計':'Stats','收費':'Pricing','對比':'Compare','功能對比':'Feature Compare','清醒':'Sober','微醺':'Tipsy','想飲':'Wanna Drink','到咗':'Arrived','開咗':'Started','飲緊':'Drinking','繼續':'Continue','加酒':'Add Booze','暢飲':'Drink Up','醉緊':'Getting Drunk','好醉':'Very Drunk','陶醉':'Blissed','飄飄':'Floating','斷片':'Blackout','想嘔':'Wanna Puke','暈暈':'Dizzy','趴低':'Passed Out','轉場':'Bar Hopping','溝酒':'Mix Drinks','猜枚':'Finger Guess','直落':'All Night','醒晒':'Sober Now','返歸':'Going Home','聽日':'Tomorrow','起手':'Starting','爆咗':'Busted','收尾':'Finishing','👨 男':'👨 M','👩 女':'👩 F','🧑 其他':'🧑 Other','🇭🇰 香港':'🇭🇰 HK','🇲🇴 澳門':'🇲🇴 Macau','🇨🇳 廣東':'🇨🇳 Guangdong','🇨🇳 廣西':'🇨🇳 Guangxi','🇨🇳 北京':'🇨🇳 Beijing','🇨🇳 上海':'🇨🇳 Shanghai','🇨🇳 福建':'🇨🇳 Fujian','🇨🇳 浙江':'🇨🇳 Zhejiang','🇨🇳 其他':'🇨🇳 Other CN','🇹🇼 台灣':'🇹🇼 Taiwan','🇸🇬 新加坡':'🇸🇬 Singapore','🇯🇵 日本':'🇯🇵 Japan','🇦🇺 澳洲':'🇦🇺 Australia','🇲🇾 馬來西亞':'🇲🇾 Malaysia','🇰🇷 韓國':'🇰🇷 Korea','🇺🇸 美國':'🇺🇸 USA','🇬🇧 英國':'🇬🇧 UK','🌍 其他':'🌍 Other','取消':'Cancel','退出':'Exit','登入':'Login','登出':'Logout','删除':'Delete','已删除':'Deleted','删除失敗':'Delete failed','已更新':'Updated','更新失敗:':'Update failed:','操作失敗':'Operation failed','保存失敗':'Save failed','加載失敗':'Load failed','加载失败':'Load failed','加載失败':'Load failed','網络錯誤':'Network error','確定':'OK','返回':'Back','提交':'Submit','待處理':'Pending','已發貨':'Shipped','已送達':'Delivered','已付款':'Paid','已取消':'Cancelled','免費會員':'Free Member','月費':'Monthly','月付':'Monthly','季付 省15%':'Quarterly Save 15%','年付 省35%':'Yearly Save 35%','年付 省38%':'Yearly Save 38%','年付 省42%':'Yearly Save 42%','年付 省36%':'Yearly Save 36%','時間':'Time','地點':'Location','內容':'Content','成員':'Members','到期：':'Expires:','動態':'Feed','骰盅':'Dice','骰子':'Dice','酒局':'Party','暫無酒局':'No parties yet','酒局名稱':'Party Name','日期':'Date','今日':'Today','匹配中...':'Matching...','匹配成功！':'Matched!','取消匹配':'Cancel Match','接受':'Accept','發送':'Send','加入':'Join','等待中':'Waiting','選擇骰數':'Select Dice Count','花名':'Nickname','頭像':'Avatar','打卡相':'Check-in Photos','月建酒局':'Monthly Parties','每月/打卡':'Monthly/Check-in','每年/徽章':'Yearly/Badge','使用條款':'Terms','免責聲明':'Disclaimer','聯络我們':'Contact Us','推送通知':'Push Notifications','已加酒友':'Friend Added','請先登入':'Please login first','商品已更新':'Product updated','商品已新增':'Product added','酒品已更新':'Liquor updated','酒品已新增':'Liquor added','商品描述...':'Product description...','筆記字數':'Note Limit','粒骰':' dice','張打卡相':' check-in photos','字筆記':' char note','酒友位':' friend slots','每日帖':' daily posts','可建':'Can create','群':' groups','日足跡':'-day heatmap','款':' items','次/日':' per day','開趴+約戰':'Party+Match','炫彩昵稱':'Color Nickname','AI品酒':'AI Tasting','月報':'Monthly Report','年度報告':'Annual Report','我嘅酒友':'My Friends','我嘅帖子':'My Posts','名':'Name','價':'Price','類':'Type','留言':'Comment','讚':'Like','分享':'Share','收藏夾':'Favorites','搜尋':'Search','飲':'Drink','酒':'Wine'};
+// ── 全局语言转换（Debounce） ──
+window._langConvert = (function(){
+  var _timer = null;
+  var _pending = false;
+  function _doConvert(){
+    _pending = false;
+    var l = document.documentElement.lang;
+    if(l==='en' && typeof window._enReplace==='function'){
+      window._enReplace(document.body);
+    }else if(l==='zh-CN' && typeof window._cnReplace==='function'){
+      window._cnReplace(document.body);
+    }
+  }
+  return function langConvert(immediate){
+    if(immediate){
+      // 立即转换（用于switchLang切换时）
+      _doConvert();
+    }
+    // 无论是否immediate，都安排延迟再扫（防止异步render漏网）
+    clearTimeout(_timer);
+    _timer = setTimeout(function(){
+      _doConvert();
+      // 再多一次兜底
+      setTimeout(_doConvert, 500);
+      setTimeout(_doConvert, 1500);
+    }, 100);
+  };
+})();
+// ── innerHTML写后自动转换触发（安全版：只触发DOM walk，不修改字符串） ──
+(function(){
+  var _desc;
+  try{ _desc=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML'); }catch(e){}
+  if(!_desc||typeof _desc.set!=='function') return;
+  var _origSet=_desc.set;
+  var _origGet=_desc.get;
+  try{
+  Object.defineProperty(Element.prototype,'innerHTML',{
+    get:function(){return _origGet.call(this);},
+    set:function(html){
+      // 先让浏览器正常解析HTML
+      _origSet.call(this,html);
+      // 然后触发debounced DOM转换（只改已解析嘅text node）
+      if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
+        window._langConvert(false);
+      }
+    }
+  });
+  }catch(e){}
+})();
+// ── textContent写后自动转换触发 ──
+(function(){
+  var _nd;
+  try{ _nd=Object.getOwnPropertyDescriptor(Node.prototype,'textContent'); }catch(e){}
+  if(!_nd||typeof _nd.set!=='function') return;
+  var _origTCS=_nd.set;
+  var _origTCG=_nd.get;
+  try{
+  Object.defineProperty(Node.prototype,'textContent',{
+    get:function(){return _origTCG.call(this);},
+    set:function(txt){
+      _origTCS.call(this,txt);
+      if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
+        window._langConvert(false);
+      }
+    }
+  });
+  }catch(e){}
+})();
+// ── placeholder写后自动转换触发 ──
+(function(){
+  var _pd;
+  try{ _pd=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'placeholder'); }catch(e){}
+  if(!_pd||typeof _pd.set!=='function') return;
+  var _origPHS=_pd.set;
+  var _origPHG=_pd.get;
+  try{
+  Object.defineProperty(HTMLInputElement.prototype,'placeholder',{
+    get:function(){return _origPHG.call(this);},
+    set:function(txt){
+      _origPHS.call(this,txt);
+      if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
+        window._langConvert(false);
+      }
+    }
+  });
+  }catch(e){}
+})();
 // ── 繁→英 MutationObserver ──
 (function(){
   window._enReplace=function _enReplace(node){
@@ -4465,10 +4545,12 @@ const _t2e={'我嘅':'My','我的':'My','管理員':'Admin','免費':'Free','永
   }
   window._enObserver=new MutationObserver(mutations=>{
     if(document.documentElement.lang!=='en') return;
-    mutations.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===Node.ELEMENT_NODE||n.nodeType===Node.TEXT_NODE)_enReplace(n);}));
+    mutations.forEach(m=>{m.addedNodes.forEach(n=>{if(n.nodeType===Node.ELEMENT_NODE||n.nodeType===Node.TEXT_NODE)_enReplace(n);});m.removedNodes.forEach(function(){});});
+    // DOM变化后debounce全量转换
+    if(typeof window._langConvert==='function') window._langConvert(false);
   });
   function _startEnObs(){
-    if(document.body) window._enObserver.observe(document.body,{childList:true,subtree:true});
+    if(document.body) window._enObserver.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true});
     else setTimeout(_startEnObs,100);
   }
   _startEnObs();
@@ -4476,108 +4558,7 @@ const _t2e={'我嘅':'My','我的':'My','管理員':'Admin','免費':'Free','永
 
 const _t2s={'偽':'伪','站':'站','傳':'传','圖':'图','選 ':'选','備':'备','跡':'迹','訂':'订','薦':'荐','動':'动','飲':'饮','報':'报','驗':'验','銀':'银','萬':'万','與':'与','業':'业','應':'应','負':'负','責':'责','專':'专','權':'权','歡':'欢','聯':'联','電':'电','題':'题','導':'导','讓':'让','過':'过','這':'这','開':'开','關':'关','數':'数','點':'点','經':'经','網':'网','費':'费','註':'注','隨':'随','現':'现','場':'场','認':'认','話':'话','說':'说','讀':'读','讚':'赞','選':'选','鐘':'钟','長':'长','間':'间','頭':'头','顯':'显','項':'项','須':'须','際':'际','領':'领','願':'愿','類':'类','風':'风','飽':'饱','餘':'余','騰':'腾','鬥':'斗','歲':'岁','後':'后','從':'从','發':'发','內':'内','對':'对','損':'损','擔':'担','條':'条','繼':'继','續':'续','時':'时','狀':'状','聲':'声','勵':'励','據':'据','資':'资','紀':'纪','儲':'储','檔':'档','暫':'暂','測':'测','試':'试','頻':'频','視':'视','壓':'压','縮':'缩','種':'种','區':'区','個':'个','協':'协','議':'议','處':'处','環':'环','計':'计','劃':'划','營':'营','運':'运','護':'护','統':'统','歷':'历','嚴':'严','將':'将','記':'记','違':'违','齡':'龄','擇':'择','帳':'帐','號':'号','掃':'扫','碼':'码','質':'质','總':'总','響':'响','準':'准','標':'标','機':'机','麼':'么','講':'讲','覺':'觉','進':'进','無':'无','問':'问','聽':'听','見':'见','辦':'办','幣':'币','塊':'块','幾':'几','購':'购','憑':'凭','冊':'册','斷':'断','氣':'气','團':'团','結':'结','極':'极','慶':'庆','節':'节','勞':'劳','屬':'属','廣':'广','職':'职','證':'证','評':'评','審':'审','貨':'货','賽':'赛','輸':'输','設':'设','識':'识','論':'论','贈':'赠','賺':'赚','賠':'赔','貸':'贷','調':'调','來':'来','們':'们','裡':'里','給':'给','於':'于','國':'国','語':'语','誰':'谁','請':'请','買':'买','賣':'卖','實':'实','書':'书','寫':'写','學':'学','東':'东','燈':'灯','燒':'烧','爐':'炉','爭':'争','獲':'获','獻':'献','畫':'画','當':'当','盡':'尽','盤':'盘','確':'确','磚':'砖','禮':'礼','稱':'称','稅':'税','穩':'稳','窮':'穷','競':'竞','範':'范','築':'筑','簡':'简','籌':'筹','籃':'篮','籠':'笼','約':'约','紅':'红','納':'纳','級':'级','紛':'纷','細':'细','終':'终','組':'组','絕':'绝','絞':'绞','絲':'丝','綜':'综','維':'维','綱':'纲','緊':'紧','緒':'绪','線':'线','締':'缔','緣':'缘','編':'编','緬':'缅','緯':'纬','練':'练','縫':'缝','縱':'纵','績':'绩','織':'织','繞':'绕','繪':'绘','繳':'缴','繹':'绎','纖':'纤','罰':'罚','罵':'骂','羅':'罗','羨':'羡','義':'义','肅':'肃','腦':'脑','腸':'肠','膚':'肤','膠':'胶','膽':'胆','臉':'脸','臘':'腊','臟':'脏','臨':'临','舉':'举','舊':'旧','辯':'辩','農':'农','遲':'迟','遷':'迁','郵':'邮','鄰':'邻','醫':'医','釀':'酿','針':'针','鋪':'铺','錦':'锦','煉':'炼','鍋':'锅','鎊':'镑','鎮':'镇','鏡':'镜','鏢':'镖','鐵':'铁','鑄':'铸','鑒':'鉴','陣':'阵','陰':'阴','陳':'陈','陸':'陆','陽':'阳','隊':'队','險':'险','離':'离','靈':'灵','韻':'韵','頁':'页','頃':'顷','額':'额','顏':'颜','顧':'顾','飛':'飞','飾':'饰','餃':'饺','餅':'饼','餓':'饿','饅':'馒','饒':'饶','馬':'马','馳':'驰','騙':'骗','驅':'驱','驕':'骄','驚':'惊','驛':'驿','鬚':'须','鬧':'闹','鬱':'郁','魚':'鱼','鮮':'鲜','鳥':'鸟','鳳':'凤','鳴':'鸣','鵝':'鹅','鶴':'鹤','鷹':'鹰','鹵':'卤','鹹':'咸','麗':'丽','麥':'麦','麵':'面','黃':'黄','黨':'党','齊':'齐','齋':'斋','齒':'齿','龍':'龙','龐':'庞','龜':'龟','廳':'厅','廢':'废','廚':'厨','廟':'庙','縣':'县','燙':'烫','燜':'焖','燦':'灿','燭':'烛','牽':'牵','犧':'牺','獅':'狮','獎':'奖','獨':'独','獵':'猎','瓊':'琼','產':'产','礙':'碍','禦':'御','緻':'致','縛':'缚','繆':'缪','膩':'腻','膿':'脓','鯉':'鲤','鯊':'鲨','鯨':'鲸','鴨':'鸭','鴻':'鸿','暢':'畅','嘔':'呕','暈':'晕','溝':'沟','飄':'飘','歸':'归','嘗':'尝','寶':'宝','寬':'宽','賓':'宾','壽':'寿','層':'层','島':'岛','幫':'帮','幹':'干','徹':'彻','徑':'径','憶':'忆','態':'态','懸':'悬','懲':'惩','懶':'懒','戲':'戏','戶':'户','擴':'扩','擁':'拥','揮':'挥','攬':'揽','攝':'摄','擺':'摆','搖':'摇','擲':'掷','撥':'拨','擬':'拟','攔':'拦','擠':'挤','撈':'捞','撿':'捡','換':'换','攢':'攒','牆':'墙','壇':'坛','壩':'坝','墳':'坟','殼':'壳','壺':'壶','夾':'夹','奪':'夺','奮':'奋','妝':'妆','媽':'妈','嬌':'娇','娛':'娱','嬰':'婴','寵':'宠','參':'参','張':'张','叢':'丛','興':'兴','倉':'仓','億':'亿','優':'优','償':'偿','兩':'两','創':'创','劍':'剑','劑':'剂','勛':'勋','勸':'劝','勢':'势','復':'复','徵':'征','沒':'没','會':'会','樣':'样','強':'强','變':'变','擊':'击','單':'单','預':'预','館':'馆','體':'体','車':'车','轉':'转','載':'载','邊':'边','還':'还','連':'连','達':'达','遠':'远','適':'适','錄':'录','鎖':'锁','鍵':'键','鏈':'链','錢':'钱','門':'门','閉':'闭','難':'难','雲':'云','頂':'顶','雜':'杂','廠':'厂','僅':'仅','繫':'系','佈':'布','係':'系','婦':'妇','駕':'驾','駛':'驶','純':'纯','綠':'绿','穫':'获','穀':'谷','盧':'卢','礎':'础','檯':'台','瞭':'了','瓚':'瓒','犢':'犊','獄':'狱','琺':'珐','嗎':'吗','囉':'啰','兒':'儿','烏':'乌','為':'为'};
 
-// ── innerHTML 自动转换拦截 ──
-// 核心方案：覆写 Element.prototype.innerHTML setter
-// 当语言为en/zh-CN时，自动对写入的HTML做繁→简/英转换
-(function(){
-  var _desc;
-  try{ _desc=Object.getOwnPropertyDescriptor(Element.prototype,'innerHTML'); }catch(e){}
-  if(!_desc||typeof _desc.set!=='function') return; // 无法拦截，靠MutationObserver兜底
-  var _origSet = _desc.set;
-  var _origGet = _desc.get;
-  try{
-  Object.defineProperty(Element.prototype,'innerHTML',{
-    get: function(){ return _origGet.call(this); },
-    set: function(html){
-      var l=document.documentElement.lang;
-      if(l==='en'&&typeof _t2e!=='undefined'){
-        // 繁→英：替换HTML字符串中嘅繁体字为英文
-        for(var tc in _t2e){
-          if(_t2e.hasOwnProperty(tc)&&html.indexOf(tc)>=0){
-            html=html.split(tc).join(_t2e[tc]);
-          }
-        }
-      }else if(l==='zh-CN'&&typeof _t2s!=='undefined'){
-        // 繁→简：替换HTML字符串中嘅繁体字为简体
-        for(var tc in _t2s){
-          if(_t2s.hasOwnProperty(tc)&&html.indexOf(tc)>=0){
-            html=html.split(tc).join(_t2s[tc]);
-          }
-        }
-      }
-      _origSet.call(this,html);
-    }
-  });
-  }catch(e){
-  // 浏览器不支持覆写innerHTML，fall back到MutationObserver+延迟转换
-  console.warn('innerHTML interceptor fallback:',e);
-  }
-})();
-// ── textContent 自动转换拦截 ──
-(function(){
-  var _nd=Object.getOwnPropertyDescriptor(Node.prototype,'textContent');
-  if(!_nd||typeof _nd.set!=='function') return;
-  var _origTCSet=_nd.set;
-  var _origTCGet=_nd.get;
-  try{
-  Object.defineProperty(Node.prototype,'textContent',{
-    get:function(){return _origTCGet.call(this);},
-    set:function(txt){
-      var l=document.documentElement.lang;
-      if(l==='en'&&typeof _t2e!=='undefined'){
-        for(var tc in _t2e){if(_t2e.hasOwnProperty(tc)&&txt.indexOf(tc)>=0){txt=txt.split(tc).join(_t2e[tc]);}}
-      }else if(l==='zh-CN'&&typeof _t2s!=='undefined'){
-        for(var tc in _t2s){if(_t2s.hasOwnProperty(tc)&&txt.indexOf(tc)>=0){txt=txt.split(tc).join(_t2s[tc]);}}
-      }
-      _origTCSet.call(this,txt);
-    }
-  });
-  }catch(e){}
-})();
 
-// ── document.title 自动转换 ──
-(function(){
-  var _origTitleSet=Object.getOwnPropertyDescriptor(Document.prototype,'title');
-  if(_origTitleSet&&typeof _origTitleSet.set==='function'){
-    try{
-    var _otS=_origTitleSet.set;
-    var _otG=_origTitleSet.get;
-    Object.defineProperty(Document.prototype,'title',{
-      get:function(){return _otG.call(this);},
-      set:function(t){
-        var l=document.documentElement.lang;
-        if(l==='en'&&typeof _t2e!=='undefined'){
-          for(var tc in _t2e){if(_t2e.hasOwnProperty(tc)&&t.indexOf(tc)>=0){t=t.split(tc).join(_t2e[tc]);}}
-        }else if(l==='zh-CN'&&typeof _t2s!=='undefined'){
-          for(var tc in _t2s){if(_t2s.hasOwnProperty(tc)&&t.indexOf(tc)>=0){t=t.split(tc).join(_t2s[tc]);}}
-        }
-        _otS.call(this,t);
-      }
-    });
-    }catch(e){}
-  }
-})();
-// ── placeholder 自动转换拦截 ──
-(function(){
-  var _pd=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'placeholder');
-  if(!_pd||typeof _pd.set!=='function') return;
-  var _origPHSet=_pd.set;
-  var _origPHGet=_pd.get;
-  try{
-  Object.defineProperty(HTMLInputElement.prototype,'placeholder',{
-    get:function(){return _origPHGet.call(this);},
-    set:function(txt){
-      var l=document.documentElement.lang;
-      if(l==='en'&&typeof _t2e!=='undefined'){
-        for(var tc in _t2e){if(_t2e.hasOwnProperty(tc)&&txt.indexOf(tc)>=0){txt=txt.split(tc).join(_t2e[tc]);}}
-      }else if(l==='zh-CN'&&typeof _t2s!=='undefined'){
-        for(var tc in _t2s){if(_t2s.hasOwnProperty(tc)&&txt.indexOf(tc)>=0){txt=txt.split(tc).join(_t2s[tc]);}}
-      }
-      _origPHSet.call(this,txt);
-    }
-  });
-  }catch(e){}
-})();
 
 
 // ── 繁→簡 MutationObserver ──
@@ -4600,10 +4581,12 @@ const _t2s={'偽':'伪','站':'站','傳':'传','圖':'图','選 ':'选','備':'
   }
   window._cnObserver=new MutationObserver(mutations=>{
     if(document.documentElement.lang!=='zh-CN') return;
-    mutations.forEach(m=>m.addedNodes.forEach(n=>{if(n.nodeType===Node.ELEMENT_NODE||n.nodeType===Node.TEXT_NODE)_cnReplace(n);}));
+    mutations.forEach(m=>{m.addedNodes.forEach(n=>{if(n.nodeType===Node.ELEMENT_NODE||n.nodeType===Node.TEXT_NODE)_cnReplace(n);});});
+    // DOM变化后debounce全量转换
+    if(typeof window._langConvert==='function') window._langConvert(false);
   });
   function _startCnObs(){
-    if(document.body) window._cnObserver.observe(document.body,{childList:true,subtree:true});
+    if(document.body) window._cnObserver.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true});
     else setTimeout(_startCnObs,100);
   }
   _startCnObs();
@@ -4613,41 +4596,25 @@ function switchLang(l){
   document.documentElement.lang=l;
   document.getElementById('lang-switch').value=l;
   if(me&&token){api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{})}
+  // 1) 更新i18n key元素
   updTitles();
+  // 2) 重新渲染功能模块（innerHTML写入繁体）
   buildGrid();
-  // Refresh member page
   if(typeof updMem==='function')updMem();
-  // Refresh dice page labels
   if(typeof updDiceLabels==='function')updDiceLabels();
-  // Refresh shop category buttons
   if(typeof _renderShopCats==='function')_renderShopCats();
-    // ── 繁→簡 全局DOM轉換（遞歸+延遲兜底） ──
-    if(l==='zh-CN'){
-      if(typeof window._cnReplace==='function'){
-        window._cnReplace(document.body);
-        setTimeout(()=>window._cnReplace(document.body),50);
-        setTimeout(()=>window._cnReplace(document.body),200);
-        setTimeout(()=>window._cnReplace(document.body),600);
-        setTimeout(()=>{window._cnReplace(document.body);document.body.classList.remove('lang-loading');document.body.classList.add('lang-ready');},800);
-        setTimeout(()=>{document.body.classList.remove('lang-loading');document.body.classList.add('lang-ready');},2000);
-      }
+  // 3) 全局DOM转换+延迟兜底
+  if(l!=='zh-HK' && typeof window._langConvert==='function'){
+    // 立即转换一次
+    window._langConvert(true);
+    // lang-ready揭示
+    document.body.classList.remove('lang-loading');
+    document.body.classList.add('lang-ready');
+  }else{
+    // 繁体=HTML默认，直接揭示
+    document.body.classList.remove('lang-loading');
+    document.body.classList.add('lang-ready');
   }
-
-  // ── 繁→英 DOM轉換（遞歸處理JS硬編碼中文+異步渲染兜底） ──
-    if(l==='en' && typeof window._enReplace==='function'){
-      window._enReplace(document.body);
-      // 異步渲染兜底：延遲再跑3次，確保innerHTML/await後嘅內容都轉到
-      setTimeout(()=>window._enReplace(document.body),100);
-      setTimeout(()=>window._enReplace(document.body),400);
-      setTimeout(()=>window._enReplace(document.body),1000);
-      setTimeout(()=>window._enReplace(document.body),2500);
-      // 最終確認
-      setTimeout(()=>{window._enReplace(document.body);document.body.classList.remove('lang-loading');document.body.classList.add('lang-ready');},1500);
-      // 安全兜底：万一1500ms都未顯示，3秒後強制顯示
-      setTimeout(()=>{document.body.classList.remove('lang-loading');document.body.classList.add('lang-ready');},3000);
-  }
-
-
 }
 function updTitles(){
   // App title
@@ -5850,6 +5817,8 @@ function swLegalTab(tab){
   const tabMap={terms:'terms',disc:'disclaimer',ct:'contact'};
   ['terms','disc','ct'].forEach(t=>document.getElementById('lt-'+t).classList.toggle('active',t===tab));
   document.getElementById('legal-content').textContent=T(map[tab]||'terms_content');
+
+  if(typeof window._langConvert==='function')window._langConvert(false);
 }
 function updLegalLinks(){
   document.querySelectorAll('[data-legal-link]').forEach(a=>{
@@ -6106,6 +6075,8 @@ function admShowTab(name){
  else if(name==='payments') admLoadPayments();
  else if(name==='expired') admLoadExpired();
  else if(name==='audit') admLoadAudit();
+
+  if(typeof window._langConvert==='function')window._langConvert(false);
 }
 
 async function loadAdmin(){
@@ -7763,6 +7734,8 @@ function cellarSwitchTab(tab){
   document.getElementById('ctab-content-cellar').style.display=tab==='cellar'?'':'none';
   document.getElementById('ctab-content-reviews').style.display=tab==='reviews'?'':'none';
   if(tab==='reviews'&&!_rvProvenOnly) loadReviews();
+
+  if(typeof window._langConvert==='function')window._langConvert(false);
 }
 
 function showReviewForm(){
@@ -8758,6 +8731,8 @@ function frMainTab(tab){
   if(tab==='passport')loadPassport();
   if(tab==='stats')loadStats();
   if(tab==='pricing')renderPricingTab();
+
+  if(typeof window._langConvert==='function')window._langConvert(false);
 }
 
 function frShowTab(tab){
@@ -8766,6 +8741,8 @@ function frShowTab(tab){
   const bf=document.getElementById('fr-tab-friends'),bg=document.getElementById('fr-tab-groups');
   if(tab==='friends'){bf.style.borderBottom='2px solid var(--pink)';bf.style.color='var(--pink)';bf.style.fontWeight='700';bg.style.borderBottom='2px solid transparent';bg.style.color='var(--sub)';bg.style.fontWeight='400'}
   else{bg.style.borderBottom='2px solid var(--pink)';bg.style.color='var(--pink)';bg.style.fontWeight='700';bf.style.borderBottom='2px solid transparent';bf.style.color='var(--sub)';bf.style.fontWeight='400';grpLoadMy()}
+
+  if(typeof window._langConvert==='function')window._langConvert(false);
 }
 function grpGetLimits(){
   const lv=typeof memLevel==='function'?memLevel():0;
