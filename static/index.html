@@ -649,7 +649,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
       <input class="input" id="chain-title" placeholder="📋 接龍標題" style="font-size:12px;padding:8px 10px;margin-bottom:4px">
       <div style="display:flex;gap:6px;margin-bottom:6px">
         <input class="input" id="chain-max-slot" type="number" placeholder="人數上限" style="flex:1;font-size:12px;padding:8px 10px">
-        <input class="input" id="chain-note-ipt" placeholder="备註(可選)" style="flex:2;font-size:12px;padding:8px 10px">
+        <input class="input" id="chain-note-ipt" placeholder="備註(可選)" style="flex:2;font-size:12px;padding:8px 10px">
       </div>
       <button class="btn btn-primary btn-sm" onclick="createChainInSection()" data-i18n="chain_submit" style="width:100%;font-size:12px;padding:6px 0">🔗 發起</button>
     </div>
@@ -661,11 +661,11 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 
 <div class="page" id="page-map">
   <div class="card" style="padding:0;overflow:hidden;border:none">
-    <div class="card-header" style="margin-bottom:0">🗺️ <span data-i18n="map_title">飲酒地图</span></div>
+    <div class="card-header" style="margin-bottom:0">🗺️ <span data-i18n="map_title">飲酒地圖</span></div>
     <div id="map-lock-overlay" class="mem-lock-overlay" style="display:none;position:absolute;z-index:10;width:100%;height:100%;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;color:#fff">
       <div>
         <div style="font-size:48px;filter:grayscale(1);opacity:0.7">🗺️</div>
-        <div style="font-size:15px;margin-top:8px;font-weight:700">🔒 <span data-i18n="toast_map_locked">打卡地图需升級</span></div>
+        <div style="font-size:15px;margin-top:8px;font-weight:700">🔒 <span data-i18n="toast_map_locked">打卡地圖需升級</span></div>
         <div style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.7)">睇到全城飲友打卡热點</div>
         <button class="btn btn-primary" style="margin-top:12px" onclick="showPay()">🥉 <span data-i18n="mem_upgrade_cta">升級解鎖</span></button>
       </div>
@@ -839,7 +839,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🧧 <span>每月優惠券</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">1張</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3張</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">5張</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏙️ <span>酒吧VIP</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>年度報告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span>打卡地图</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">浏览</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span>打卡地圖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">浏览</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🤖 <span>AI酒單推荐</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3條</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅全部</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+畫像</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🍷 <span>我的酒柜</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">5款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>群聊投票</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">投票</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
@@ -1267,10 +1267,10 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <textarea class="textarea" id="post-content" data-i18n-placeholder="post_placeholder" style="margin-bottom:8px;min-height:60px"></textarea>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--amber);border-radius:12px;font-size:13px;color:var(--amber);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      📷 上传图片<input type="file" aria-label="Upload Image" data-i18n-attr="aria-label:upload_img" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
+      📷 上傳圖片<input type="file" aria-label="Upload Image" data-i18n-attr="aria-label:upload_img" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
      </label>
      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--purple);border-radius:12px;font-size:13px;color:var(--purple);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      🎬 上传影片<input type="file" aria-label="Upload Video" data-i18n-attr="aria-label:upload_vid" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
+      🎬 上傳影片<input type="file" aria-label="Upload Video" data-i18n-attr="aria-label:upload_vid" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
      </label>
      <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
      <div id="post-vid-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
@@ -2157,7 +2157,7 @@ function _ugCompareTable(){
     ['🚫 去廣告','✗','✓','✓','✓'],
     ['🔖 收藏酒品',3,50,500,'∞'],
     ['🔍 每日掃碼',3,30,200,'∞'],
-    ['🗺️ 打卡地图','3日','7日','朋友','全域'],
+    ['🗺️ 打卡地圖','3日','7日','朋友','全域'],
     ['🧧 每月券',1,1,3,5],
     ['🌈 炫彩昵稱','✗','✗','✗','✓'],
   ];
@@ -2483,7 +2483,7 @@ const L={
   tab_member:'會員',
   tab_dice:'骰盅',
   tab_shop:'商鋪',
-  map_title:'飲酒地图',
+  map_title:'飲酒地圖',
   parties:'🎯 酒局',
   cmp_shop_discount:'商鋪折扣',
   cmp_scan_limit:'掃碼驗真',
@@ -2536,8 +2536,8 @@ const L={
   contact_link:'聯络我們',
   post_title:'📸 發朋友圈',
   post_placeholder:'分享飲酒心得...',
-  upload_img:'📷 上传图片',
-  upload_vid:'🎬 上传影片',
+  upload_img:'📷 上傳圖片',
+  upload_vid:'🎬 上傳影片',
   publish_btn:'📱 發佈',
   no_posts:'還沒發過帖 📝',
   delete_post:'删除',
@@ -2979,7 +2979,7 @@ const L={
   toast_post_limit:'📝 今日發帖額满！升級發更多～',
   toast_friend_limit:'👫 好友數量已满！升級加更多～',
   toast_party_limit:'🎉 本月酒局已满！升級開更多～',
-  toast_map_locked:'🗺️ 飲酒地图是酒友專屬！升級解鎖～',
+  toast_map_locked:'🗺️ 飲酒地圖是酒友專屬！升級解鎖～',
   toast_fav_locked:'🔖 收藏酒品要升級酒友！',
   toast_coupon_locked:'🧧 優惠券要升級才有！',
   toast_dice_locked:'🎲 想搖更多骰？升級啦！',
@@ -2988,10 +2988,10 @@ const L={
   mem_jaugwai_label:'酒鬼',
   mem_jausan_label:'酒神',
   confirm_del_fav:'確定删除此收藏？',
-  fav_deleted:'已删除',
+  fav_deleted:'已刪除',
   fav_added:'已收藏入酒柜🔖',
   net_err:'網络错误',
-  fav_del_fail:'删除失败',
+  fav_del_fail:'Remove failed',
   fav_add_fail:'收藏失败',
   inv_copied:'邀請碼已復制📤',
   inv_copied_alt:'已復制📤',
@@ -3004,14 +3004,14 @@ const L={
   bar_none:'🏙️ 暫無合作酒吧～持續拓展中！',
   no_friends:'還沒有酒友 🥲',
   no_checkins:'還沒報到過 🍺',
-  admin_name:'管理员',
-  admin_saved:'已更新',
+  admin_name:'管理員',
+  admin_saved:'Updated',
   admin_fail:'失败',
   admin_set_fail:'設置失败',
   admin_set_done:'已設置',
   admin_confirm_admin:'確定將「{u}」設烏管理员？',
   admin_remove_admin:'確定取消「{u}」的管理员權限？',
-  admin_cancel_fail:'取消失败',
+  admin_cancel_fail:'Cancel failed',
   admin_removed:'已取消管理员',
   admin_del_user:'⚠️ 確定删除用戶「{u}」？\n此操作將删除该用戶及其所有報到記錄，不可撤销！',
   admin_renew_all:'確定將所有到期會員續期30日？',
@@ -3025,14 +3025,14 @@ const L={
   dice_round:'第',
   dice_round_suffix:'轮',
   btn_edit:'編辑',
-  btn_delete:'删除',
+  btn_delete:'刪除',
   btn_save:'儲存',
   btn_cancel:'取消',
   confirm_del_checkin:'確認删除此局態？',
   confirm_del_party:'確認删除此酒局？',
   confirm_del_post:'確認删除此帖子？',
   confirm_remove_friend:'確認移除這位酒友？',
-  shop_submit_fail:'提交失败',
+  shop_submit_fail:'Submit failed',
   cellar_saved:'✅ 已更新',
   cellar_save_fail:'❌ 更新失败',
   confirm_del_cellar:'删除此收藏？',
@@ -3198,8 +3198,8 @@ const L={
   contact_link:'联系我们',
   post_title:'📸 发朋友圈',
   post_placeholder:'分享喝酒心得...',
-  upload_img:'📷 上传图片',
-  upload_vid:'🎬 上传影片',
+  upload_img:'📷 上傳圖片',
+  upload_vid:'🎬 上傳影片',
   publish_btn:'📱 发布',
   no_posts:'暂无帖子 📝',
   delete_post:'删除',
@@ -3715,7 +3715,7 @@ const L={
   mem_jaugwai_monthly:'🥈酒鬼 ¥19.9/月',
   mem_jausan_monthly:'🥇酒神 ¥49.9/月',
   expires_on:'到期：',
-  mem_free_label:'免费',
+  mem_free_label:'🆓免费',
   mem_limit_today:'今日剩余扫码',
   ship_need_addr:'请填写详细地址',
   shop_reselect:'请重新选择商品',
@@ -3879,7 +3879,7 @@ const L={
   video_upload_fail:'Video upload failed',
   login_to_view:'Please login to view',
   no_timeline:'No activity yet',
-  load_fail:'加载失败',
+  load_fail:'Load failed',
   no_comments:'No comments yet',
   select_video_file:'Please select a video file',
   publish_fail:'Post failed',
@@ -4045,7 +4045,7 @@ const L={
   adm_change_pwd:'🔑 Change Pwd',
   adm_members:'Members',
   adm_payments:'Payments',
-  adm_expired:'已过期',
+  adm_expired:'Expired',
   adm_audit:'Audit',
   adm_config:'Config',
   adm_posts:'📸 Posts',
@@ -4295,10 +4295,10 @@ const L={
   mem_title_2:'Tasting Pro',
   mem_title_3:'Drinking Legend',
   mem_upgrade_to:'Upgrade needed:',
-  expired:'已过期',
-  countdown_hm:'{h}时{m}分{s}秒',
+  expired:'Expired',
+  countdown_hm:'{h}h {m}m {s}s',
   mem_free:'Free Member',
-  mem_upgrade_cta:'升级解锁全部功能',
+  mem_upgrade_cta:'Upgrade to unlock all features',
   toast_scan_limit:'Daily scans used up! Upgrade!',
   toast_post_limit:'Daily posts full! Upgrade!',
   toast_friend_limit:'Friends full! Upgrade for more!',
@@ -4308,68 +4308,68 @@ const L={
   toast_coupon_locked:'Coupons require upgrade!',
   toast_dice_locked:'Want more dice? Upgrade!',
   toast_room_locked:'Rooms need Jaugwai level!',
-  mem_jiuyau_label:'酒友',
-  mem_jaugwai_label:'酒鬼',
-  mem_jausan_label:'酒神',
-  confirm_del_fav:'确定删除呢个收藏？',
-  fav_deleted:'已删除',
+  mem_jiuyau_label:'Drinker',
+  mem_jaugwai_label:'Boozer',
+  mem_jausan_label:'Drunkard',
+  confirm_del_fav:'Remove this favorite?',
+  fav_deleted:'Removed',
   fav_added:'Added to cellar',
-  net_err:'网络错误',
-  fav_del_fail:'删除失败',
-  fav_add_fail:'添加失败',
+  net_err:'Network error',
+  fav_del_fail:'Remove failed',
+  fav_add_fail:'Add failed',
   inv_copied:'Invite code copied',
   inv_copied_alt:'Copied',
-  inv_input:'输入邀请码',
+  inv_input:'Enter invite code',
   inv_friend_free:'Friend gets 7 days free Jiuyau!',
   inv_used:'Invite code used',
-  inv_fail:'兑换失败',
+  inv_fail:'Redemption failed',
   coupon_none:'No coupons yet - upgrade for monthly coupons!',
   coupon_count:'coupons',
   bar_none:'No partner bars yet',
   no_friends:'No friends yet',
   no_checkins:'No check-ins yet',
-  admin_name:'管理员',
-  admin_saved:'已更新',
-  admin_fail:'操作失败',
-  admin_set_fail:'设置失败',
-  admin_set_done:'已设置',
+  admin_name:'Admin',
+  admin_saved:'Updated',
+  admin_fail:'Operation failed',
+  admin_set_fail:'Setting failed',
+  admin_set_done:'Set',
   admin_confirm_admin:'Confirm set {u} as admin?',
   admin_remove_admin:'Remove admin rights from {u}?',
-  admin_cancel_fail:'取消失败',
-  admin_removed:'管理员已移除',
+  admin_cancel_fail:'Cancel failed',
+  admin_removed:'Admin removed',
   admin_del_user:'Delete user {u}? This cannot be undone!',
-  admin_renew_all:'确认续期所有过期会员30日？',
-  admin_downgrade_all:'确认将所有过期会员降级为免费？',
-  dice_select_hint:'选择骰数',
+  admin_renew_all:'Renew all expired members for 30 days?',
+  admin_downgrade_all:'Downgrade all expired members to Free?',
+  dice_select_hint:'Select dice count',
   dice_max:'Max',
-  dice_rolling:'摇紧...',
-  dice_result:'已摇出',
+  dice_rolling:'Rolling...',
+  dice_result:'Rolled',
   dice_pts:'pts',
   dice_again:'🍻 Roll Again!',
-  dice_round:'第',
+  dice_round:'Rd ',
   dice_round_suffix:'',
-  btn_edit:'编辑',
-  btn_delete:'删除',
-  btn_save:'保存',
-  btn_cancel:'取消',
-  confirm_del_checkin:'确定删除呢次报到？',
-  confirm_del_party:'确定删除呢个酒局？',
-  confirm_del_post:'确定删除呢个帖子？',
-  confirm_remove_friend:'确定移除呢个酒友？',
-  shop_submit_fail:'提交失败',
+  btn_edit:'Edit',
+  btn_delete:'Delete',
+  btn_save:'Save',
+  btn_cancel:'Cancel',
+  confirm_del_checkin:'Delete this check-in?',
+  confirm_del_party:'Delete this party?',
+  confirm_del_post:'Delete this post?',
+  confirm_remove_friend:'Remove this friend?',
+  shop_submit_fail:'Submit failed',
   cellar_saved:'Saved',
   cellar_save_fail:'Save failed',
-  confirm_del_cellar:'确定从酒柜删除？',
+  confirm_del_cellar:'Remove from cellar?',
   cellar_del_done:'Deleted',
   cellar_del_fail:'Delete failed',
-  shop_load_err:'加载失败',
-  shop_need_login:'请先登录',
+  shop_load_err:'Load failed',
+  shop_need_login:'Please login first',
   shop_loading:'Loading products...',
   ship_title:'Shipping Info',
-  ship_need_name:'请填写收件人姓名',
-  ship_need_phone:'请填写电话号码',
-  ship_need_city:'请填写城市',
-  opt_select:'-- 请选择 --',
+  ship_need_name:'Please enter recipient name',
+  ship_need_phone:'Please enter phone number',
+  ship_need_city:'Please enter city',
+  opt_select:'-- Select --',
   mem_jiuyau_yearly:'Jiuyau 77/yr',
   mem_jaugwai_yearly:'Jaugwai 155/yr',
   mem_jausan_yearly:'Jausan 233/yr',
@@ -4377,7 +4377,7 @@ const L={
   mem_jaugwai_monthly:'Jaugwai 19.9/mo',
   mem_jausan_monthly:'Jausan 29.9/mo',
   expires_on:'Expires',
-  mem_free_label:'免费',
+  mem_free_label:'Free',
   mem_limit_today:'Daily scans left',
   ship_need_addr:'Fill in detailed address',
   shop_reselect:'Please reselect product',
