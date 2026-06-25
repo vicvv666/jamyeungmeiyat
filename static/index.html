@@ -564,9 +564,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <button class="tab" data-page="timeline" onclick="showPage('timeline')"><span class="tab-icon">🌐</span><span id="tab-timeline" data-i18n="tab_timeline">動態</span></button>
   <button class="tab" data-page="friends" onclick="showPage('friends')"><span class="tab-icon">👫</span><span id="tab-friends" data-i18n="tab_friends">酒友</span></button>
   <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party" data-i18n="tab_party">酒局</span></button>
-  <button class="tab" data-page="map" onclick="showPage('map')"><span class="tab-icon">🗺️</span><span id="tab-map" data-i18n="tab_map">地图</span></button>
+  <button class="tab" data-page="map" onclick="showPage('map')"><span class="tab-icon">🗺️</span><span id="tab-map" data-i18n="tab_map">地圖</span></button>
   <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice" data-i18n="tab_dice">骰盅</span></button>
-  <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member" data-i18n="tab_member">會员</span></button>
+  <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member" data-i18n="tab_member">會員</span></button>
   <button class="tab" data-page="shop" onclick="showPage('shop')"><span class="tab-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="filter:drop-shadow(0 2px 3px rgba(245,158,11,0.5))"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><circle cx="17" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><path d="M6.5 12h11l1.5-6H7.2" stroke="url(#cartGrad)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="cartGrad" x1="6" y1="9" x2="20" y2="9"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#F59E0B"/></linearGradient></defs></svg></span><span id="tab-shop" data-i18n="tab_shop">商鋪</span></button>
 </div>
 
@@ -793,12 +793,12 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_friends" data-i18n="stats_friends">酒友</div><div style="font-weight:700;font-size:18px;color:var(--pink)" id="mem-frd-count">0</div></div>
     <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_posts" data-i18n="stats_posts">帖子</div><div style="font-weight:700;font-size:18px;color:var(--purple)" id="mem-post-count">0</div></div>
   </div>
-  <!-- 我的酒柜入口 -->
+  <!-- 我嘅酒柜入口 -->
   <div class="card" style="margin-top:8px;padding:0;overflow:hidden;cursor:pointer" onclick="openCellar()">
     <div style="padding:12px 14px;display:flex;align-items:center;gap:10px">
       <div style="font-size:28px">🍷</div>
       <div style="flex:1">
-        <div style="font-weight:700;font-size:14px" id="cellar-entry-title">我的酒柜</div>
+        <div style="font-weight:700;font-size:14px" id="cellar-entry-title">我嘅酒柜</div>
         <div style="font-size:11px;color:var(--sub)" id="cellar-entry-sub">收藏、評分、品飲記錄</div>
       </div>
       <div style="text-align:right">
@@ -841,7 +841,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>年度報告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span>打卡地圖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">浏览</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🤖 <span>AI酒單推荐</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3條</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅全部</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+畫像</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🍷 <span>我的酒柜</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">5款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🍷 <span>我嘅酒柜</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">5款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>群聊投票</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">投票</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🔗 <span>接龍報名</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">加入</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">📝 <span>酒評認證</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">看評</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅寫評</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅認證</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
@@ -959,7 +959,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div style="position:sticky;top:0;z-index:2;background:var(--card);padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
       <div style="font-size:20px">🍷</div>
       <div style="display:flex;gap:4px;flex:1">
-        <button class="btn btn-sm cellar-tab-btn active-scene" data-tab="cellar" onclick="cellarSwitchTab('cellar')" id="ctab-cellar" style="font-size:12px;padding:4px 12px" data-i18n="cellar_title">我的酒柜</button>
+        <button class="btn btn-sm cellar-tab-btn active-scene" data-tab="cellar" onclick="cellarSwitchTab('cellar')" id="ctab-cellar" style="font-size:12px;padding:4px 12px" data-i18n="cellar_title">我嘅酒柜</button>
         <button class="btn btn-sm cellar-tab-btn" data-tab="reviews" onclick="cellarSwitchTab('reviews')" id="ctab-reviews" style="font-size:12px;padding:4px 12px" data-i18n="rv_tab">📝 酒評</button>
       </div>
       <button class="btn btn-sm btn-outline" onclick="closeCellar()" style="padding:4px 12px">✕</button>
@@ -1169,9 +1169,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     </div>
     <div id="scan-result" style="display:none"></div>
   </div>
-  <!-- 我的订單 -->
+  <!-- 我嘅订單 -->
   <div class="card" style="margin-top:12px;border:2px solid var(--purple);background:rgba(139,92,246,0.04)">
-    <div class="card-header" style="border:none;padding:8px 0;cursor:pointer" onclick="shopToggleMyOrders()">📦 我的订單 <span id="shop-order-count" style="font-size:11px;color:var(--sub)"></span></div>
+    <div class="card-header" style="border:none;padding:8px 0;cursor:pointer" onclick="shopToggleMyOrders()">📦 我嘅订單 <span id="shop-order-count" style="font-size:11px;color:var(--sub)"></span></div>
     <div id="shop-my-orders" style="display:none"></div>
   </div>
 </div>
@@ -2824,7 +2824,7 @@ const L={
   grp_explore:'🔍 發現群組',
   grp_tab_friends:'好友',
   grp_tab_groups:'群組',
-  grp_my_groups:'我的群組',
+  grp_my_groups:'我嘅群組',
   grp_name:'群組名稱',
   grp_desc:'群組描述',
   grp_avatar:'頭像URL',
@@ -2857,7 +2857,7 @@ const L={
   ai_rec_upgrade:'升級解鎖',
   ai_rec_limited:'酒友僅看3條 · 升級酒鬼看全部',
   ai_taste_label:'🧬 你的口味畫像',
-  cellar_title:'我的酒柜',
+  cellar_title:'我嘅酒柜',
   cellar_sub:'收藏、評分、品飲記錄',
   cellar_empty:'酒柜空空如也',
   cellar_empty_hint:'🔖 酒柜空空如也～掃碼後收藏心水酒品！',
@@ -3190,9 +3190,9 @@ const L={
   download_hint:'在手机安装 App 体验更佳！',
   download_btn:'下载',
   download_mirror:'备用下载',
-  mem_my_checkins:'我的报到',
-  mem_my_friends:'我的酒友',
-  mem_my_posts:'我的帖子',
+  mem_my_checkins:'我嘅报到',
+  mem_my_friends:'我嘅酒友',
+  mem_my_posts:'我嘅帖子',
   terms_link:'使用条款',
   disc_link:'免责声明',
   contact_link:'联系我们',
@@ -3351,7 +3351,7 @@ const L={
   admin_key:'管理员密匙',
   enter_admin_key:'输入管理员密匙',
   pending_requests:'📨 待处理请求',
-  my_friends:'🤝 我的酒友',
+  my_friends:'🤝 我嘅酒友',
   suggest_friends:'🔍 推荐酒友',
   party_total:'酒局总数：',
   comment_placeholder:'留言...',
@@ -3486,7 +3486,7 @@ const L={
   grp_explore:'🔍 发现群组',
   grp_tab_friends:'好友',
   grp_tab_groups:'群组',
-  grp_my_groups:'我的群组',
+  grp_my_groups:'我嘅群组',
   grp_name:'群组名称',
   grp_desc:'群组描述',
   grp_avatar:'头像URL',
@@ -3519,7 +3519,7 @@ const L={
   ai_rec_upgrade:'升级解锁',
   ai_rec_limited:'酒友仅看3条 · 升级酒鬼看全部',
   ai_taste_label:'🧬 你的口味画像',
-  cellar_title:'我的酒柜',
+  cellar_title:'我嘅酒柜',
   cellar_sub:'收藏、评分、品饮记录',
   cellar_empty:'酒柜空空如也',
   cellar_empty_hint:'🔖 酒柜空无一物~ 扫码加入收藏！',
@@ -4428,9 +4428,10 @@ const L={
 function T(k){return (L[lang]||L['zh-HK'])[k]||k}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
-const _t2e={'管理員':'Admin','免費':'Free','永久':'Permanent','升級成功':'Upgraded!','升級失敗':'Upgrade failed','升級享受完整功能':'Upgrade for full features','立即升級':'Upgrade Now','升級解鎖':'Unlock with Upgrade','需要升級至':'Upgrade required: ','掃碼付款':'Scan to Pay','去廣告':'Ad-Free','專屬徽章':'Exclusive Badge','開趴約飲':'Host Parties','已結束':'Ended','結束投票':'End Vote','確認':'Confirm','拒絕':'Reject','移除':'Remove','加酒友':'Add Friend','搜索失敗':'Search failed','冇結果':'No results','冇數據':'No data','加載失敗，請重試':'Load failed, retry','未找到匹配酒品':'No matching liquors found','酒友':'Drinker','酒鬼':'Boozer','酒神':'Drunkard','好友已升級':'friends upgraded','載入地圖SDK...':'Loading Map SDK...','地圖已載入，點擊下方按鈕查看打卡點':'Map loaded, tap below for check-in spots','地圖載入失敗':'Map load failed','定位中...':'Locating...','已定位':'Located','定位失敗，請確認浏览器已授權位置':'Location failed, allow browser access','載入打卡點...':'Loading check-in spots...','個打卡點':' check-in spots','載入酒吧...':'Loading bars...','間合作酒吧':' partner bars','會員折扣':'Member Discount','載入热力足跡...':'Loading heatmap...','打卡數據不足，多啲帶定位打卡啦！':'Check in more with location!','你的足跡热力圖':'Your heatmap','次定位打卡':' location check-ins','個熱點':' hotspots','累計打卡':'Total Check-ins','品過酒款':'Liquors Tried','連飲食數':'Drink Streak','打卡城市':'Cities Checked In','酒柜':'Cellar','飲酒月報':'Monthly Drink Report','年度飲酒報告':'Annual Drink Report','打卡一次即獲第一個稱號':'First check-in earns your first title!','初嘗者':'First Sip','常客':'Regular','品酒师':'Connoisseur','鑒賞家':'Master','商鋪折扣':'Shop Discount','酒品':'Liquor','編辑商品':'Edit Product','新增商品':'Add Product','編辑酒品':'Edit Liquor','新增酒品':'Add Liquor','名稱':'Name','英文名稱':'English Name','分類':'Category','子分類':'Subcategory','描述':'Description','價格':'Price','貨幣':'Currency','庫存':'Stock','無限':'Unlimited','排序':'Sort','圖片URL':'Image URL','檔案URL':'File URL','上架':'On Sale','保存':'Save','想試':'Want to Try','試過':'Tried','收藏':'Collection','未知酒款':'Unknown Liquor','載入失敗':'Load Failed','所有會員都係有效嘅':'All members are valid','暫無用戶':'No users yet','暫無付款紀錄':'No payment records','暫無操作紀錄':'No operation logs','選項':'Option','投票':'Vote','顯示':'Show','搜索':'Search','續期':'Renew','設定新密碼（至少4位）：':'Set new password (min 4 chars): ','酒友快滿啦！升級解鎖更多位':'Friends limit reached! Upgrade for more','好友酒柜？升酒友即開':'Friend cellar? Upgrade to unlock','排行榜？升酒友解鎖':'Leaderboard? Upgrade to unlock','飲杯都要升級？升酒友解鎖啦':'Upgrade to Drinker to unlock','想玩盡啲？升酒鬼先得':'Upgrade to Boozer for full access','最高享受，酒神先配有':'Best experience, Drunkard exclusive','報到':'Check-in','帖子':'Posts','品鑒酒款':'Liquors Rated','本月打卡':'Monthly Check-ins','飲酒天數':'Drinking Days','狀態分佈':'Status Distribution','均分':'Avg Score','有效期至':'Valid until','方式':'Method','今晚飲咗未':'Drunk Tonight?','飲酒地圖':'Drink Map','打卡地圖':'Check-in Map','免費僅':'Free only ','升級擴大地圖':'Upgrade for expanded map','原價':'Original ','首月體驗':'1st month trial','已售':' sold','品牌':'Brand','產地':'Origin','註冊':'Registered','滿':' over ','酒品真偽驗證':'Liquor Authenticity Check','掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品詳情':'Scan barcode to verify authenticity & details','詳情':'Details','接龍':'Chain Order','人數':'People','備註(可選)':'Note (optional)','聊天':'Chat'};
+const _t2e={'我嘅':'My','我的':'My','管理員':'Admin','免費':'Free','永久':'Permanent','升級成功':'Upgraded!','升級失敗':'Upgrade failed','升級享受完整功能':'Upgrade for full features','立即升級':'Upgrade Now','升級解鎖':'Unlock with Upgrade','需要升級至':'Upgrade required: ','掃碼付款':'Scan to Pay','去廣告':'Ad-Free','專屬徽章':'Exclusive Badge','開趴約飲':'Host Parties','已結束':'Ended','結束投票':'End Vote','確認':'Confirm','拒絕':'Reject','移除':'Remove','加酒友':'Add Friend','搜索失敗':'Search failed','冇結果':'No results','冇數據':'No data','加載失敗，請重試':'Load failed, retry','未找到匹配酒品':'No matching liquors found','酒友':'Drinker','酒鬼':'Boozer','酒神':'Drunkard','好友已升級':'friends upgraded','載入地圖SDK...':'Loading Map SDK...','地圖已載入，點擊下方按鈕查看打卡點':'Map loaded, tap below for check-in spots','地圖載入失敗':'Map load failed','定位中...':'Locating...','已定位':'Located','定位失敗，請確認浏览器已授權位置':'Location failed, allow browser access','載入打卡點...':'Loading check-in spots...','個打卡點':' check-in spots','載入酒吧...':'Loading bars...','間合作酒吧':' partner bars','會員折扣':'Member Discount','載入热力足跡...':'Loading heatmap...','打卡數據不足，多啲帶定位打卡啦！':'Check in more with location!','你的足跡热力圖':'Your heatmap','次定位打卡':' location check-ins','個熱點':' hotspots','累計打卡':'Total Check-ins','品過酒款':'Liquors Tried','連飲食數':'Drink Streak','打卡城市':'Cities Checked In','酒柜':'Cellar','飲酒月報':'Monthly Drink Report','年度飲酒報告':'Annual Drink Report','打卡一次即獲第一個稱號':'First check-in earns your first title!','初嘗者':'First Sip','常客':'Regular','品酒师':'Connoisseur','鑒賞家':'Master','商鋪折扣':'Shop Discount','酒品':'Liquor','編辑商品':'Edit Product','新增商品':'Add Product','編辑酒品':'Edit Liquor','新增酒品':'Add Liquor','名稱':'Name','英文名稱':'English Name','分類':'Category','子分類':'Subcategory','描述':'Description','價格':'Price','貨幣':'Currency','庫存':'Stock','無限':'Unlimited','排序':'Sort','圖片URL':'Image URL','檔案URL':'File URL','上架':'On Sale','保存':'Save','想試':'Want to Try','試過':'Tried','收藏':'Collection','未知酒款':'Unknown Liquor','載入失敗':'Load Failed','所有會員都係有效嘅':'All members are valid','暫無用戶':'No users yet','暫無付款紀錄':'No payment records','暫無操作紀錄':'No operation logs','選項':'Option','投票':'Vote','顯示':'Show','搜索':'Search','續期':'Renew','設定新密碼（至少4位）：':'Set new password (min 4 chars): ','酒友快滿啦！升級解鎖更多位':'Friends limit reached! Upgrade for more','好友酒柜？升酒友即開':'Friend cellar? Upgrade to unlock','排行榜？升酒友解鎖':'Leaderboard? Upgrade to unlock','飲杯都要升級？升酒友解鎖啦':'Upgrade to Drinker to unlock','想玩盡啲？升酒鬼先得':'Upgrade to Boozer for full access','最高享受，酒神先配有':'Best experience, Drunkard exclusive','報到':'Check-in','帖子':'Posts','品鑒酒款':'Liquors Rated','本月打卡':'Monthly Check-ins','飲酒天數':'Drinking Days','狀態分佈':'Status Distribution','均分':'Avg Score','有效期至':'Valid until','方式':'Method','今晚飲咗未':'Drunk Tonight?','飲酒地圖':'Drink Map','打卡地圖':'Check-in Map','免費僅':'Free only ','升級擴大地圖':'Upgrade for expanded map','原價':'Original ','首月體驗':'1st month trial','已售':' sold','品牌':'Brand','產地':'Origin','註冊':'Registered','滿':' over ','酒品真偽驗證':'Liquor Authenticity Check','掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品詳情':'Scan barcode to verify authenticity & details','詳情':'Details','接龍':'Chain Order','人數':'People','備註(可選)':'Note (optional)','聊天':'Chat'};
 function switchLang(l){
   lang=l;
+  document.documentElement.lang=l;
   document.getElementById('lang-switch').value=l;
   if(me&&token){api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{})}
   updTitles();
