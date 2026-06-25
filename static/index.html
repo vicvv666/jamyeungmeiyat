@@ -532,9 +532,12 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 /* Admin tabs */
 .adm-tab.active{color:var(--amber)!important;border-bottom-color:var(--amber)!important}
 .adm-page{display:none}.adm-page.active{display:block}
+/* Prevent flash of wrong language */
+body.lang-loading{visibility:hidden!important}
+body.lang-ready{visibility:visible}
 </style>
 </head>
-<body>
+<body class="lang-loading"><script>try{var _sl=JSON.parse(localStorage.getItem('__jymy_s__')||'{}');if(_sl.lang==='en')document.body.className='lang-loading';else document.body.className='lang-ready';}catch(e){document.body.className='lang-ready';}</script>
 
 <nav class="nav" role="navigation" aria-label="Main Navigation" data-i18n-attr="aria-label:nav_label">
   <div class="nav-title" id="nav-title" ontouchstart="admLongPressStart()" ontouchend="admLongPressCancel()" onmousedown="admLongPressStart()" onmouseup="admLongPressCancel()" onmouseleave="admLongPressCancel()" onclick="admTitleTap()">🍺 今晚飲咗未</div>
@@ -4486,9 +4489,18 @@ function switchLang(l){
     }
   }
 
-  // ── 繁→英 DOM轉換（遞歸處理JS硬編碼中文） ──
+  // ── 繁→英 DOM轉換（遞歸處理JS硬編碼中文+異步渲染兜底） ──
     if(l==='en' && typeof window._enReplace==='function'){
       window._enReplace(document.body);
+      // 異步渲染兜底：延遲再跑3次，確保innerHTML/await後嘅內容都轉到
+      setTimeout(()=>window._enReplace(document.body),100);
+      setTimeout(()=>window._enReplace(document.body),400);
+      setTimeout(()=>window._enReplace(document.body),1000);
+      setTimeout(()=>window._enReplace(document.body),2500);
+      // 最終確認
+      setTimeout(()=>{window._enReplace(document.body);document.body.classList.remove('lang-loading');document.body.classList.add('lang-ready');},1500);
+      // 安全兜底：万一1500ms都未顯示，3秒後強制顯示
+      setTimeout(()=>{document.body.classList.remove('lang-loading');document.body.classList.add('lang-ready');},3000);
   }
 
 
