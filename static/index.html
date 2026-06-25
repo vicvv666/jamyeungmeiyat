@@ -4774,7 +4774,7 @@ async function _getAMapKey(){
   return AMAP_KEY;
 }
 
-function _loadAMapSDK(){
+async function _loadAMapSDK(){
   return new Promise(async(resolve,reject)=>{
     if(window.AMap)return resolve();
     if(_amapLoading){let t=setInterval(()=>{if(window.AMap){clearInterval(t);resolve()}},200);return}
@@ -6498,7 +6498,7 @@ function admClearExpired(){
  }).catch(e=>toast('❌ '+e.message,1));
 }
 
-function admSendNotify(){
+async function admSendNotify(){
  _adminModal('📢 推送通知',[
   {id:'pn-title',label:'標題',type:'text',value:''},
   {id:'pn-body',label:'內容',type:'textarea',value:''},
@@ -7240,7 +7240,7 @@ function _adminModal(title,fields,onSave){
  ov.onclick=(e)=>{if(e.target===ov){ov.style.display='none';e.stopPropagation()}};
 }
 
-function admEditCheckin(id,status,note){
+async function admEditCheckin(id,status,note){
  _adminModal('編辑報到 #'+id,[
   {id:'ec-status',label:'狀態',type:'select',value:status,options:_statusOpts()},
   {id:'ec-note',label:'備註',type:'text',value:note}
@@ -7248,7 +7248,7 @@ function admEditCheckin(id,status,note){
   try{await api('/api/admin/edit-checkin',{method:'POST',body:{checkin_id:id,status:parseInt(document.getElementById('ec-status').value),note:document.getElementById('ec-note').value}});admLoadCheckins();toast(T('admin_saved'))}catch(e){alert('更新失敗:'+e.message)}
  })
 }
-function admEditParty(id,title,location,meetTime,status,desc,maxMem){
+async function admEditParty(id,title,location,meetTime,status,desc,maxMem){
  _adminModal('編辑酒局 #'+id,[
   {id:'ep-title',label:'標題',type:'text',value:title},
   {id:'ep-loc',label:'地點',type:'text',value:location},
@@ -7260,7 +7260,7 @@ function admEditParty(id,title,location,meetTime,status,desc,maxMem){
   try{await api('/api/admin/edit-party',{method:'POST',body:{pid:id,title:document.getElementById('ep-title').value,location:document.getElementById('ep-loc').value,meet_time:document.getElementById('ep-time').value,status:document.getElementById('ep-status').value,description:document.getElementById('ep-desc').value,max_members:parseInt(document.getElementById('ep-max').value)||0}});admLoadParties();toast(T('admin_saved'))}catch(e){alert('更新失敗:'+e.message)}
  })
 }
-function admEditPost(id,content,imageUrl){
+async function admEditPost(id,content,imageUrl){
  _adminModal('編辑帖子 #'+id,[
   {id:'epc-content',label:'內容',type:'textarea',value:content},
   {id:'epc-img',label:'圖片URL',type:'text',value:imageUrl}
