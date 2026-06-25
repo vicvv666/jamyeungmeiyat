@@ -2651,7 +2651,7 @@ def api_submit_payment():
     amount = float(d.get('amount', 0) or 0)
     plan_amounts = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 49.9}
     plan_amounts_quarterly = {'jiuyau': 25, 'jaugwai': 50, 'jausan': 76}
-    plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 349}
+    plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 233}
     billing = d.get('billing', 'monthly')  # monthly or quarterly or annual
     if plan not in plan_amounts:
         return jsonify({'error':'無效方案'}), 400
@@ -2697,7 +2697,7 @@ def api_admin_confirm_payment():
         # Upgrade user membership — auto-detect annual vs monthly by amount
         plan = pmt['plan']
         plan_amounts_monthly = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 49.9}
-        plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 349}
+        plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 233}
         paid = pmt['amount'] or 0
         # If amount >= annual price * 0.9, treat as annual
         is_annual = paid >= plan_amounts_annual.get(plan, 999) * 0.9
