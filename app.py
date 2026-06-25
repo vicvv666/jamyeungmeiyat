@@ -530,6 +530,11 @@ CREATE TABLE IF NOT EXISTS users (
     except: pass
     try: db.execute('ALTER TABLE orders ADD COLUMN download_expires TEXT DEFAULT ""')
     except: pass
+    # trial_pending: 1=trial activated but not yet paid, auto-downgrade after 72h
+    try: db.execute('ALTER TABLE users ADD COLUMN trial_pending INTEGER DEFAULT 0')
+    except: pass
+    try: db.execute('ALTER TABLE users ADD COLUMN trial_start TEXT DEFAULT ""')
+    except: pass
     # Products table delivery_type (for existing DBs)
     try: db.execute('ALTER TABLE products ADD COLUMN delivery_type TEXT DEFAULT "physical"')
     except: pass
@@ -980,12 +985,12 @@ def _mem_photo_max(level):
     return {0:1, 1:4, 2:9, 3:20}.get(level, 1)
 
 def _mem_friends_max(level):
-    """Max friends per membership level"""
-    return {0:50, 1:200, 2:999, 3:9999}.get(level, 50)
+    """Max friends per membership level — free=20 to drive upgrade friction"""
+    return {0:20, 1:200, 2:999, 3:9999}.get(level, 20)
 
 def _mem_daily_posts(level):
-    """Max posts per day per membership level"""
-    return {0:5, 1:15, 2:999, 3:999}.get(level, 5)
+    """Max posts per day per membership level — free=3 to create daily friction"""
+    return {0:3, 1:15, 2:999, 3:999}.get(level, 3)
 
 def _mem_post_images_max(level):
     """Max images per post per membership level"""
@@ -996,24 +1001,24 @@ def _mem_post_chars_max(level):
     return {0:500, 1:1000, 2:2000, 3:5000}.get(level, 500)
 
 def _mem_parties_max(level):
-    """Max parties user can create per month per membership level"""
-    return {0:1, 1:3, 2:5, 3:999}.get(level, 1)
+    """Max parties user can create per month per membership level — free=0 to drive upgrade"""
+    return {0:0, 1:3, 2:5, 3:999}.get(level, 0)
 
 def _mem_scan_daily(level):
-    """Max barcode scans per day per membership level"""
-    return {0:2, 1:30, 2:200, 3:-1}.get(level, 2)
+    """Max barcode scans per day per membership level — free=3 (experience then paywall)"""
+    return {0:3, 1:30, 2:200, 3:-1}.get(level, 3)
 
 def _mem_favorites_max(level):
-    """Max liquor favorites per membership level"""
-    return {0:0, 1:50, 2:500, 3:-1}.get(level, 0)
+    """Max liquor favorites per membership level — free=3 (taste then upgrade)"""
+    return {0:3, 1:50, 2:500, 3:-1}.get(level, 3)
 
 def _mem_checkin_map(level):
-    """Checkin map access per membership: none/self/friends/global"""
-    return {0:'none', 1:'self', 2:'friends', 3:'global'}.get(level, 'none')
+    """Checkin map access per membership: self_3d/self_7d/friends/global"""
+    return {0:'self_3d', 1:'self_7d', 2:'friends', 3:'global'}.get(level, 'self_3d')
 
 def _mem_coupons_month(level):
-    """Monthly coupons per membership level"""
-    return {0:0, 1:1, 2:3, 3:5}.get(level, 0)
+    """Monthly coupons per membership level — free=1 first month taste"""
+    return {0:1, 1:1, 2:3, 3:5}.get(level, 1)
 
 # ═══════════════════ Barcode Verification (辨真助手) ═══════════════════
 _EAN13_COUNTRY = {
@@ -1094,11 +1099,35 @@ def _cron_check_expired():
     """, (today,)).fetchall()
     count = 0
     for u in expired:
-        db.execute("UPDATE users SET membership='free', member_expires='' WHERE id=?", (u['id'],))
+        db.execute("UPDATE users SET membership='free', member_expires='', trial_pending=0, trial_start='' WHERE id=?", (u['id'],))
         count += 1
     if count:
         db.commit()
         log.info('🔄 Auto-downgraded %d expired members', count)
+    return count
+
+def _cron_check_trial_expired():
+    """Auto-downgrade trial users who haven't paid within 72h. Call periodically."""
+    db = get_db()
+    now = datetime.now()
+    rows = db.execute("""
+        SELECT id, membership, trial_start FROM users
+        WHERE trial_pending = 1
+        AND trial_start != ''
+        AND membership NOT IN ('free', '', 'admin')
+    """).fetchall()
+    count = 0
+    for u in rows:
+        try:
+            trial_start = datetime.fromisoformat(u['trial_start'])
+            if (now - trial_start).total_seconds() > 72 * 3600:
+                db.execute("UPDATE users SET membership='free', member_expires='', trial_pending=0, trial_start='' WHERE id=?", (u['id'],))
+                count += 1
+        except:
+            pass
+    if count:
+        db.commit()
+        log.info('⏰ Auto-downgraded %d trial-expired users (72h unpaid)', count)
     return count
 
 def _admin_guard():
@@ -1254,10 +1283,10 @@ def api_plans():
         {'key':'favorites','label':'酒品收藏','icon':'🔖'},
         {'key':'coupons_month','label':'每月優惠券','icon':'🧧'},
     ], 'unlocks': {
-        0: {'checkin_map':'❌','verify_auth':'❌','badge':'❌','annual_report':'❌','bar_vip':'❌'},
-        1: {'checkin_map':'自己足跡','verify_auth':'基礎比價','badge':'🥉銅框','annual_report':'❌','bar_vip':'❌'},
-        2: {'checkin_map':'朋友足跡','verify_auth':'辨真提示','badge':'🥈紫框','annual_report':'❌','bar_vip':'❌'},
-        3: {'checkin_map':'全域熱點','verify_auth':'完整報告','badge':'🥇金框','annual_report':'✔PDF','bar_vip':'✔'},
+        0: {'checkin_map':'3日足跡','verify_auth':'基礎辨別','badge':'❌','annual_report':'❌','bar_vip':'❌','favorites':'3款','coupons':'1張/首月'},
+        1: {'checkin_map':'7日足跡','verify_auth':'基礎比價','badge':'🥉銅框','annual_report':'❌','bar_vip':'❌','favorites':'50款','coupons':'1張/月'},
+        2: {'checkin_map':'朋友足跡','verify_auth':'辨真提示','badge':'🥈紫框','annual_report':'❌','bar_vip':'❌','favorites':'500款','coupons':'3張/月'},
+        3: {'checkin_map':'全域熱點','verify_auth':'完整報告','badge':'🥇金框','annual_report':'✔PDF','bar_vip':'✔','favorites':'無限','coupons':'5張/月'},
     }})
 
 @app.route('/api/me')
@@ -2494,14 +2523,28 @@ def api_upgrade():
     d = request.get_json(force=True) or {}
     plan = d.get('plan','jiuyau')  # jiuyau / jaugwai / jausan
     billing = d.get('billing', 'monthly')  # monthly or annual
+    mode = d.get('mode', 'normal')  # 'trial' or 'normal'
     from datetime import timedelta
-    days = 365 if billing == 'annual' else 30
-    exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
     db = get_db()
-    db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',
-               (plan, exp_date, g.uid))
-    db.commit()
-    return jsonify({'ok':True, 'membership':plan, 'expires':exp_date, 'billing':billing})
+    if mode == 'trial':
+        # Trust-first: instant activation, 72h window to pay
+        trial_hours = 72
+        exp_date = (datetime.now() + timedelta(hours=trial_hours)).strftime('%Y-%m-%d %H:%M:%S')
+        now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        db.execute('UPDATE users SET membership=?, member_expires=?, trial_pending=1, trial_start=? WHERE id=?',
+                   (plan, exp_date, now_str, g.uid))
+        db.commit()
+        return jsonify({'ok':True, 'membership':plan, 'expires':exp_date,
+                        'billing':'trial', 'mode':'trial', 'trial_hours':trial_hours,
+                        'msg':'體驗已即時生效！72小時內付款即可轉為正式會員'})
+    else:
+        days = 365 if billing == 'annual' else 30
+        exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
+        # Clear trial flags on normal upgrade (payment confirmed)
+        db.execute('UPDATE users SET membership=?, member_expires=?, trial_pending=0, trial_start="" WHERE id=?',
+                   (plan, exp_date, g.uid))
+        db.commit()
+        return jsonify({'ok':True, 'membership':plan, 'expires':exp_date, 'billing':billing, 'mode':'normal'})
 
 # ═══════════════════ Payment Records ═════════════════════
 @app.route('/api/payments', methods=['GET'])
@@ -2971,6 +3014,10 @@ def dice_heartbeat():
             _cron_check_expired()
         except Exception as e:
             log.warning('Expiry cron failed: %s', e)
+        try:
+            _cron_check_trial_expired()
+        except Exception as e:
+            log.warning('Trial expiry cron failed: %s', e)
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # upsert heartbeat
     db.execute('INSERT OR REPLACE INTO dice_heartbeat (user_id, room_id, last_seen) VALUES (?, ?, ?)',
@@ -4623,14 +4670,24 @@ def api_annual_report():
 @app.route('/api/map/checkins')
 @auth_required
 def api_map_checkins():
-    """返回所有带坐标的打卡记录（酒友+可查看，免费用户需升级）"""
+    """返回打卡记录 — 免费用户看自己3天, 酒友看自己7天, 酒鬼看好友, 酒神看全局"""
     db = get_db()
     plan, mem_level, mem_exp = _get_membership(g.uid)
-    if mem_level < 1:
-        return jsonify({'error':'🗺️ 打卡地圖係酒友專屬功能！升級🥉酒友即可解鎖', 'min_level':1}), 403
+    map_access = _mem_checkin_map(mem_level)
+    # Determine days filter based on access level
+    if map_access == 'self_3d':
+        days = 3
+    elif map_access == 'self_7d':
+        days = 7
+    elif map_access in ('friends', 'global'):
+        days = 30
+    else:
+        days = 3
     # 可选参数: bounds (sw_lat,sw_lng,ne_lat,ne_lng), limit, days
     limit = min(int(request.args.get('limit',200)), 500)
-    days = int(request.args.get('days',30))
+    # Free/self users: override days with max allowed
+    req_days = int(request.args.get('days', days))
+    days = min(req_days, days)
     sw_lat = request.args.get('sw_lat')
     sw_lng = request.args.get('sw_lng')
     ne_lat = request.args.get('ne_lat')
@@ -4642,6 +4699,18 @@ def api_map_checkins():
            WHERE c.lat!=0 AND c.lng!=0 AND c.created_at >= datetime('now','localtime','-%d days')
            """ % days
     params = []
+    # Free/self users: only see their own checkins
+    if map_access in ('self_3d', 'self_7d'):
+        q += " AND c.user_id=?"
+        params.append(g.uid)
+    elif map_access == 'friends':
+        # Friends + self
+        friend_ids = [r['friend_id'] for r in db.execute(
+            'SELECT friend_id FROM friendships WHERE user_id=?', (g.uid,)).fetchall()]
+        ids = [g.uid] + friend_ids[:999]
+        q += " AND c.user_id IN (%s)" % ','.join('?' * len(ids))
+        params += ids
+    # global: no user filter
     if sw_lat and ne_lat:
         q += " AND c.lat BETWEEN ? AND ? AND c.lng BETWEEN ? AND ?"
         params += [float(sw_lat), float(ne_lat), float(sw_lng), float(ne_lng)]
@@ -4657,7 +4726,7 @@ def api_map_checkins():
             'avatar':r['avatar'] if r['avatar'] and not r['avatar'].startswith('emoji:') else '',
             'ml':r['ml']
         })
-    return jsonify({'checkins':items, 'count':len(items)})
+    return jsonify({'checkins':items, 'count':len(items), 'map_access':map_access})
 
 @app.route('/api/map/my-heatmap')
 @auth_required
