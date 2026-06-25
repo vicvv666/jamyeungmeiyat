@@ -1698,6 +1698,90 @@ def api_friends_pending():
         WHERE f.friend_id=? AND f.status='pending' ORDER BY f.rowid DESC""", (g.uid,)).fetchall()
     return jsonify({'pending':[dict(r) for r in rows]})
 
+# ═══════════════════ Social Proof ══════════════════════════
+@app.route('/api/friends/membership-stats')
+@auth_required
+def api_friends_membership_stats():
+    """好友会员等级分布 — 社交对比卡片数据"""
+    db = get_db()
+    rows = db.execute("""SELECT 
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as lv,
+        COUNT(*) as cnt
+        FROM friends f JOIN users u ON 
+        (CASE WHEN f.user_id=? THEN f.friend_id ELSE f.user_id END)=u.id
+        WHERE (f.user_id=? OR f.friend_id=?) AND f.status='accepted'
+        GROUP BY lv ORDER BY lv DESC""", (g.uid,g.uid,g.uid)).fetchall()
+    stats = {0:0, 1:0, 2:0, 3:0}
+    for r in rows:
+        stats[r['lv']] = r['cnt']
+    total = sum(stats.values()) or 1
+    # 找最高级别好友的昵称
+    top_friend = db.execute("""SELECT u.nickname, 
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as lv
+        FROM friends f JOIN users u ON 
+        (CASE WHEN f.user_id=? THEN f.friend_id ELSE f.user_id END)=u.id
+        WHERE (f.user_id=? OR f.friend_id=?) AND f.status='accepted' AND u.membership != 'free'
+        ORDER BY lv DESC LIMIT 1""", (g.uid,g.uid,g.uid)).fetchone()
+    paid_pct = round((stats[1]+stats[2]+stats[3])/total*100)
+    return jsonify({'stats':stats, 'total':total, 'paid_pct':paid_pct,
+                    'top_friend':dict(top_friend) if top_friend else None})
+
+@app.route('/api/checkin/passport')
+@auth_required
+def api_checkin_passport():
+    """饮酒护照 — 打卡集章 + 称号解锁"""
+    db = get_db()
+    # 统计打卡数据
+    total_checkins = db.execute("SELECT COUNT(*) FROM checkins WHERE user_id=?", (g.uid,)).fetchone()[0]
+    # 不同酒品打卡数
+    unique_liquors = db.execute("SELECT COUNT(DISTINCT liquor_id) FROM checkins WHERE user_id=? AND liquor_id IS NOT NULL", (g.uid,)).fetchone()[0]
+    # 连续打卡天数
+    streak = db.execute("""SELECT COUNT(*) FROM (
+        SELECT DISTINCT date(created_at) as d FROM checkins WHERE user_id=?
+        ORDER BY d DESC LIMIT 30)""", (g.uid,)).fetchone()[0]
+    # 打卡城市数
+    cities = db.execute("SELECT COUNT(DISTINCT location) FROM checkins WHERE user_id=? AND location IS NOT NULL AND location!=''", (g.uid,)).fetchone()[0]
+    # 称号系统
+    titles = []
+    if total_checkins >= 1: titles.append({'id':'first_sip','name':'初嘗者','icon':'🍺','desc':'首次打卡'})
+    if total_checkins >= 10: titles.append({'id':'regular','name':'常客','icon':'🍻','desc':'打卡10次'})
+    if total_checkins >= 50: titles.append({'id':'connoisseur','name':'品酒師','icon':'🥃','desc':'打卡50次'})
+    if total_checkins >= 200: titles.append({'id':'master','name':'酒豪','icon':'🏆','desc':'打卡200次'})
+    if total_checkins >= 500: titles.append({'id':'legend','name':'酒仙','icon':'🀄','desc':'打卡500次'})
+    if unique_liquors >= 10: titles.append({'id':'explorer','name':'探險家','icon':'🗺️','desc':'嘗過10款酒'})
+    if unique_liquors >= 50: titles.append({'id':'collector','name':'藏酒家','icon':'🗝️','desc':'嘗過50款酒'})
+    if cities >= 3: titles.append({'id':'traveler','name':'浪客','icon':'✈️','desc':'3個城市打卡'})
+    if cities >= 10: titles.append({'id':'nomad','name':'遊俠','icon':'🌍','desc':'10個城市打卡'})
+    if streak >= 7: titles.append({'id':'streak7','name':'連飲達人','icon':'🔥','desc':'連續7天打卡'})
+    if streak >= 30: titles.append({'id':'streak30','name':'月飲宗師','icon':'⚡','desc':'連續30天打卡'})
+    # 徽章进度
+    badges = [
+        {'id':'first_sip','cur':min(total_checkins,1),'max':1},
+        {'id':'regular','cur':min(total_checkins,10),'max':10},
+        {'id':'connoisseur','cur':min(total_checkins,50),'max':50},
+        {'id':'master','cur':min(total_checkins,200),'max':200},
+        {'id':'explorer','cur':min(unique_liquors,10),'max':10},
+        {'id':'collector','cur':min(unique_liquors,50),'max':50},
+        {'id':'traveler','cur':min(cities,3),'max':3},
+        {'id':'streak7','cur':min(streak,7),'max':7},
+    ]
+    return jsonify({'total_checkins':total_checkins,'unique_liquors':unique_liquors,
+                    'streak':streak,'cities':cities,'titles':titles,'badges':badges})
+
+@app.route('/api/social/upgrade-feed')
+@auth_required
+def api_upgrade_feed():
+    """升级炫耀动态流"""
+    db = get_db()
+    rows = db.execute("""SELECT u.nickname, u.avatar,
+        CASE u.membership WHEN 'jausan' THEN 3 WHEN 'jaugwai' THEN 2 WHEN 'jiuyau' THEN 1 ELSE 0 END as lv,
+        u.member_since
+        FROM friends f JOIN users u ON 
+        (CASE WHEN f.user_id=? THEN f.friend_id ELSE f.user_id END)=u.id
+        WHERE (f.user_id=? OR f.friend_id=?) AND f.status='accepted' AND u.membership != 'free' AND u.member_since > date('now','-7 days')
+        ORDER BY u.member_since DESC LIMIT 5""", (g.uid,g.uid,g.uid)).fetchall()
+    return jsonify({'upgrades':[dict(r) for r in rows]})
+
 # ═══════════ Private Messages ═══════════
 @app.route('/api/messages/<int:peer_id>')
 @auth_required
@@ -2538,7 +2622,7 @@ def api_upgrade():
                         'billing':'trial', 'mode':'trial', 'trial_hours':trial_hours,
                         'msg':'體驗已即時生效！72小時內付款即可轉為正式會員'})
     else:
-        days = 365 if billing == 'annual' else 30
+        days = 365 if billing == 'annual' else 90 if billing == 'quarterly' else 30
         exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
         # Clear trial flags on normal upgrade (payment confirmed)
         db.execute('UPDATE users SET membership=?, member_expires=?, trial_pending=0, trial_start="" WHERE id=?',
@@ -2566,12 +2650,15 @@ def api_submit_payment():
     receipt = d.get('receipt', '')[:500]
     amount = float(d.get('amount', 0) or 0)
     plan_amounts = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 49.9}
+    plan_amounts_quarterly = {'jiuyau': 25, 'jaugwai': 50, 'jausan': 76}
     plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 349}
-    billing = d.get('billing', 'monthly')  # monthly or annual
+    billing = d.get('billing', 'monthly')  # monthly or quarterly or annual
     if plan not in plan_amounts:
         return jsonify({'error':'無效方案'}), 400
     if billing == 'annual':
         amount = amount or plan_amounts_annual.get(plan, 0)
+    elif billing == 'quarterly':
+        amount = amount or plan_amounts_quarterly.get(plan, 0)
     else:
         amount = amount or plan_amounts[plan]
     db = get_db()

@@ -565,6 +565,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
   <button class="tab" data-page="friends" onclick="showPage('friends')"><span class="tab-icon">👫</span><span id="tab-friends">酒友</span></button>
   <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party">酒局</span></button>
   <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
+  <button class="tab" data-page="passport" onclick="showPage('passport')"><span class="tab-icon">🛂</span><span id="tab-passport">護照</span></button>
   <button class="tab" data-page="map" onclick="showPage('map')"><span class="tab-icon">🗺️</span><span id="tab-map">地圖</span></button>
    <button class="tab" data-page="dice" onclick="showPage('dice')"><span class="tab-icon">🎲</span><span id="tab-dice">骰盅</span></button>
    <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
@@ -666,6 +667,17 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
     <div><div class="stat-num" id="st-week">0</div><div class="stat-label" data-i18n="stats_weekly">本週</div></div>
     <div><div class="stat-num" id="st-today">0</div><div class="stat-label" data-i18n="stats_today">今日</div></div></div>
   </div><div id="st-dist"></div>
+</div>
+
+<div class="page" id="page-passport">
+  <div class="card" style="border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.05),rgba(139,92,246,0.05))">
+    <div class="card-header">🛂 飲酒護照 <span id="pp-level-badge" style="float:right"></span></div>
+    <div id="pp-summary" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"></div>
+  </div>
+  <div class="card"><div class="card-header">🏅 稱號牆</div><div id="pp-titles"></div></div>
+  <div class="card"><div class="card-header">⭐ 徽章進度</div><div id="pp-badges"></div></div>
+  <div class="card" id="pp-social-card" style="display:none;border:2px solid var(--pink)"><div class="card-header">👫 好友會員對比</div><div id="pp-social"></div></div>
+  <div class="card" id="pp-upgrade-feed" style="display:none;border:2px solid var(--purple)"><div class="card-header">🔥 升級動態</div><div id="pp-feed"></div></div>
 </div>
 
 <div class="page" id="page-map">
@@ -2031,15 +2043,11 @@ function showUpgradeModal(requiredLv){
     h+='<div style="padding:4px 0;font-size:12px;color:var(--text)">✅ <span style="color:var(--green)">'+parts[0]+'</span>'+(parts[1]?' <span style="color:var(--sub);font-size:11px">'+parts[1]+'</span>':'')+'</div>'
   });
   h+='</div>';
-  // billing toggle
+  // billing toggle — 月付/季付/年付 三档
   h+='<div style="text-align:center;margin:6px 0 10px;font-size:12px">';
-  h+='<span style="color:var(--sub)" onclick="ugSetBilling(\'monthly\')" id="ug-m-label">月付</span>';
-  h+='<label style="position:relative;display:inline-block;width:40px;height:20px;margin:0 6px;vertical-align:middle;cursor:pointer">';
-  h+='<input type="checkbox" id="ug-bill-cb" onchange="ugToggleBilling()" style="opacity:0;width:0;height:0">';
-  h+='<span style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#555;border-radius:20px;transition:.3s" id="ug-bill-bg"></span>';
-  h+='<span style="position:absolute;height:14px;width:14px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s" id="ug-bill-sl"></span>';
-  h+='</label>';
-  h+='<span style="color:var(--amber);font-weight:700" id="ug-a-label">年付 省35%</span>';
+  h+='<span style="color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px" onclick="ugSetBilling(\'monthly\')" id="ug-m-label">月付</span>';
+  h+='<span style="color:var(--amber);cursor:pointer;padding:4px 8px;border-radius:8px;font-weight:700;border:1px solid var(--amber);background:rgba(245,158,11,0.1)" onclick="ugSetBilling(\'quarterly\')" id="ug-q-label">季付 省15%</span>';
+  h+='<span style="color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px" onclick="ugSetBilling(\'annual\')" id="ug-a-label">年付 省35%</span>';
   h+='</div>';
   [1,2,3].forEach(lv=>{
     const sel=lv===requiredLv?'border:2px solid var(--amber);background:rgba(245,158,11,0.1)':'border:1px solid var(--border)';
@@ -2047,7 +2055,7 @@ function showUpgradeModal(requiredLv){
     h+='<b>'+names[lv]+'</b><span style="color:var(--amber);font-weight:700" id="ug-price-'+lv+'">'+pricesM[lv]+'</span></div>';
   });
   h+='<input type="hidden" id="ug-lv" value="'+requiredLv+'">';
-  h+='<input type="hidden" id="ug-billing" value="monthly">';
+  h+='<input type="hidden" id="ug-billing" value="quarterly">';
   // Trial button
   const trialPrices={1:'¥1',2:'¥3',3:'¥5'};
   h+='<button class="btn" style="width:100%;margin-top:8px;font-size:14px;font-weight:700;padding:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 16px rgba(16,185,129,.3)" onclick="doUpgrade(\'trial\')">⚡ 0秒體驗 '+trialPrices[requiredLv]+' → 72小時內付款</button>';
@@ -2122,20 +2130,27 @@ function _ugCompareTable(){
   h+='<div style="text-align:center;margin-top:10px"><button class="btn btn-pink" style="padding:8px 20px;font-size:13px;font-weight:700" onclick="ugTab(\'quick\')">🚀 選擇方案升級</button></div>';
   return h;
 }
-function ugToggleBilling(){
-  const cb=document.getElementById('ug-bill-cb');
-  const isAnnual=cb.checked;
-  document.getElementById('ug-billing').value=isAnnual?'annual':'monthly';
-  const sl=document.getElementById('ug-bill-sl');
-  if(sl)sl.style.transform=isAnnual?'translateX(20px)':'translateX(0)';
-  const bg=document.getElementById('ug-bill-bg');
-  if(bg)bg.style.background=isAnnual?'var(--amber)':'#555';
+function ugSetBilling(type){
+  const bilEl=document.getElementById('ug-billing');if(bilEl)bilEl.value=type;
+  // highlight selected tab
+  ['m','q','a'].forEach(k=>{
+    const lbl=document.getElementById('ug-'+k+'-label');
+    if(!lbl)return;
+    if((k==='m'&&type==='monthly')||(k==='q'&&type==='quarterly')||(k==='a'&&type==='annual')){
+      lbl.style.color='var(--amber)';lbl.style.fontWeight='700';lbl.style.border='1px solid var(--amber)';lbl.style.background='rgba(245,158,11,0.1)';
+    }else{
+      lbl.style.color='var(--sub)';lbl.style.fontWeight='400';lbl.style.border='none';lbl.style.background='transparent';
+    }
+  });
+  // update prices
   const names={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
   const pricesM={1:'¥9.9/月',2:'¥19.9/月',3:'¥29.9/月'};
+  const pricesQ={1:'¥25/季',2:'¥50/季',3:'¥76/季'};
   const pricesA={1:'¥77/年',2:'¥155/年',3:'¥233/年'};
+  const prices={monthly:pricesM,quarterly:pricesQ,annual:pricesA}[type]||pricesM;
   [1,2,3].forEach(lv=>{
     const el=document.getElementById('ug-price-'+lv);
-    if(el)el.textContent=isAnnual?pricesA[lv]:pricesM[lv];
+    if(el)el.textContent=prices[lv];
   });
 }
 async function doUpgrade(mode){
@@ -2314,7 +2329,7 @@ function showPage(name){
   window.scrollTo({top:0,behavior:'smooth'});
   // Close any open modal overlays when switching pages
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
-  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='map')initMap();if(name==='party'){loadParties();populatePartySelects();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
+  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts()}if(name==='stats')loadStats();if(name==='passport')loadPassport();if(name==='map')initMap();if(name==='party'){loadParties();populatePartySelects();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
 }
 
 // ═══════ SWIPE GESTURE SUPPORT ═══════
@@ -4967,6 +4982,64 @@ function selectChainParty(pid){
   var sel=document.getElementById('chain-party-select');
   if(sel){sel.value=pid;chainPartyChanged();}
   document.getElementById('chain-section').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ═══════ PASSPORT ═══════
+async function loadPassport(){
+  const lvNames=['免費','酒友','酒鬼','酒神'];
+  const lvColors=['var(--sub)','#f59e0b','#8b5cf6','#ef4444'];
+  const lv=memLevel();
+  document.getElementById('pp-level-badge').innerHTML='<span style="background:'+lvColors[lv]+';color:#fff;padding:2px 10px;border-radius:10px;font-size:12px">'+lvNames[lv]+'</span>';
+  // passport data
+  fetch('/api/checkin/passport',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}}).then(r=>r.json()).then(d=>{
+    if(d.error){document.getElementById('pp-summary').innerHTML='<p style="color:var(--sub)">載入失敗</p>';return}
+    const s=document.getElementById('pp-summary');
+    s.innerHTML=[
+      ['🍺','累計打卡',d.total_checkins],
+      ['🍷','品過酒款',d.unique_liquors],
+      ['🔥','連飲天數',d.streak],
+      ['✈️','打卡城市',d.cities]
+    ].map(([icon,label,val])=>'<div style="text-align:center;padding:10px;background:rgba(245,158,11,0.08);border-radius:12px"><div style="font-size:28px">'+icon+'</div><div style="font-size:24px;font-weight:800;color:var(--amber)">'+val+'</div><div style="font-size:12px;color:var(--sub)">'+label+'</div></div>').join('');
+    // titles wall
+    const tw=document.getElementById('pp-titles');
+    if(d.titles&&d.titles.length){
+      tw.innerHTML=d.titles.map(t=>'<div style="display:inline-flex;align-items:center;gap:6px;margin:4px;padding:6px 12px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(139,92,246,0.08));border:1px solid rgba(245,158,11,0.3);border-radius:20px"><span style="font-size:20px">'+t.icon+'</span><div><div style="font-weight:700;font-size:13px">'+t.name+'</div><div style="font-size:10px;color:var(--sub)">'+t.desc+'</div></div></div>').join('');
+    }else{tw.innerHTML='<p style="color:var(--sub);text-align:center;padding:20px">打卡一次即獲第一個稱號 🍺</p>'}
+    // badge progress
+    const bp=document.getElementById('pp-badges');
+    bp.innerHTML=d.badges.map(b=>{
+      const pct=Math.round(b.cur/b.max*100);
+      const done=b.cur>=b.max;
+      const titlesMap={'first_sip':'初嘗者','regular':'常客','connoisseur':'品酒師','master':'酒豪','explorer':'探險家','collector':'藏酒家','traveler':'浪客','streak7':'連飲達人'};
+      return '<div style="margin:6px 0"><div style="display:flex;justify-content:space-between;font-size:12px"><span>'+titlesMap[b.id]+'</span><span style="color:'+(done?'var(--amber)':'var(--sub)')+'">'+b.cur+'/'+b.max+(done?' ✅':'')+'</span></div><div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(done?'var(--amber)':'linear-gradient(90deg,var(--amber),var(--purple))')+';border-radius:3px;transition:width .5s"></div></div></div>';
+    }).join('');
+  }).catch(()=>{});
+  // social comparison
+  fetch('/api/friends/membership-stats',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}}).then(r=>r.json()).then(d=>{
+    if(d.error)return;
+    const sc=document.getElementById('pp-social-card');sc.style.display='';
+    const total=d.total||1;
+    const lvNames=['免費','酒友','酒鬼','酒神'];
+    const lvEmojis=['🆓','🥉','🥈','🥇'];
+    const lvColors=['var(--sub)','#f59e0b','#8b5cf6','#ef4444'];
+    let h='<div style="margin-bottom:8px"><span style="font-size:28px;font-weight:800;color:var(--pink)">'+d.paid_pct+'%</span> 好友已升級</div>';
+    h+='<div style="display:flex;gap:4px;height:24px;border-radius:12px;overflow:hidden;margin-bottom:12px">';
+    for(let i=3;i>=0;i--){const pct=Math.round((d.stats[i]||0)/total*100);if(pct>0)h+='<div style="width:'+pct+'%;background:'+lvColors[i]+';opacity:0.8" title="'+lvEmojis[i]+' '+lvNames[i]+': '+(d.stats[i]||0)+'人"></div>';}
+    h+='</div><div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;text-align:center;font-size:11px">';
+    for(let i=0;i<4;i++)h+='<div><span style="font-size:16px">'+lvEmojis[i]+'</span><br>'+lvNames[i]+'<br><b>'+(d.stats[i]||0)+'</b></div>';
+    h+='</div>';
+    if(d.top_friend&&memLevel()<(d.top_friend.lv||0)){
+      h+='<div style="margin-top:10px;padding:10px;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(239,68,68,0.1));border-radius:12px;font-size:13px">💡 你嘅好友 <b>'+d.top_friend.nickname+'</b> 已經係<'+lvNames[d.top_friend.lv]+'>喇！仲唔升級？</div>';
+    }
+    document.getElementById('pp-social').innerHTML=h;
+  }).catch(()=>{});
+  // upgrade feed
+  fetch('/api/social/upgrade-feed',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}}).then(r=>r.json()).then(d=>{
+    if(!d.upgrades||!d.upgrades.length)return;
+    document.getElementById('pp-upgrade-feed').style.display='';
+    const lvNames=['','酒友','酒鬼','酒神'];
+    document.getElementById('pp-feed').innerHTML=d.upgrades.map(u=>'<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:rgba(139,92,246,0.06);border-radius:10px"><img src="/api/avatar/'+u.id+'" style="width:32px;height:32px;border-radius:50%" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><rect fill=%22%23333%22 width=%2232%22 height=%2232%22 rx=%2216%22/><text fill=%22%23F59E0B%22 x=%2216%22 y=%2222%22 text-anchor=%22middle%22 font-size=%2216%22>👤</text></svg>\'"><div><b>'+u.nickname+'</b> 成為了 <span style="color:var(--purple);font-weight:700">'+lvNames[u.lv]+'</span> 🎉</div></div>').join('');
+  }).catch(()=>{});
 }
 
 // ═══════ STATS ═══════
