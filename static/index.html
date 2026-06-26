@@ -883,12 +883,12 @@ body.lang-ready{visibility:visible}
       </table>
     </div>
   </div>
-  <div style="display:flex;gap:0;justify-content:center;margin:8px 0 4px;border:1px solid var(--border);border-radius:10px;overflow:hidden">
-    <button id="mb-m" onclick="memBilling('m')" style="padding:8px 16px;background:none;border:none;color:var(--pink);font-weight:700;font-size:12px;cursor:pointer;border-bottom:2px solid var(--pink)"><span data-i18n="pay_monthly">月付</span></button>
-    <button id="mb-q" onclick="memBilling('q')" style="padding:8px 16px;background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;border-bottom:2px solid transparent" data-i18n="cmp_quarterly">季付 <span style="color:var(--amber);font-size:10px"><span data-i18n="save_15pct">省15%</span></span></button>
-    <button id="mb-a" onclick="memBilling('a')" style="padding:8px 16px;background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;border-bottom:2px solid transparent" data-i18n="cmp_annual_pay">年付 <span style="color:var(--amber);font-size:10px"><span data-i18n="save_42pct">省42%</span></span></button>
+  <div style="display:flex;gap:0;justify-content:center;margin:16px 0 16px;border:1px solid var(--border);border-radius:12px;overflow:hidden">
+    <button id="mb-m" onclick="memBilling('m')" style="padding:12px 20px;background:none;border:none;color:var(--pink);font-weight:700;font-size:14px;cursor:pointer;border-bottom:2px solid var(--pink)"><span data-i18n="pay_monthly">月付</span></button>
+    <button id="mb-q" onclick="memBilling('q')" style="padding:12px 20px;background:none;border:none;color:var(--sub);font-size:14px;cursor:pointer;border-bottom:2px solid transparent" data-i18n="cmp_quarterly">季付 <span style="color:var(--amber);font-size:10px"><span data-i18n="save_15pct">省15%</span></span></button>
+    <button id="mb-a" onclick="memBilling('a')" style="padding:12px 20px;background:none;border:none;color:var(--sub);font-size:14px;cursor:pointer;border-bottom:2px solid transparent" data-i18n="cmp_annual_pay">年付 <span style="color:var(--amber);font-size:10px"><span data-i18n="save_42pct">省42%</span></span></button>
   </div>
-  <div class="plans-row">
+  <div class="plans-row" style="margin-top:8px">
     <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name" data-i18n="member_jiuyau">🥉 酒友</div><div class="plan-price" id="price-jiuyau">¥9.9</div><div class="plan-feat" id="feat-jiuyau" data-i18n="per_month">月費</div></div>
     <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')" style="position:relative;border-color:#6366f1;background:rgba(99,102,241,0.08)"><div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:9px;padding:2px 8px;border-radius:8px;white-space:nowrap" data-i18n="most_popular">🔥 最受歡迎</div><div class="plan-name" data-i18n="member_jaugwai">🥈 酒鬼</div><div class="plan-price" id="price-jaugwai">¥19.9</div><div class="plan-feat" id="feat-jaugwai" data-i18n="per_month">月費</div></div>
     <div class="plan-card" id="plan-jausan" onclick="selP('jausan')" style="position:relative"><div class="plan-name" data-i18n="member_jausan">🥇 酒神</div><div class="plan-price" id="price-jausan">¥49.9</div><div class="plan-feat" id="feat-jausan" data-i18n="per_month">月費</div></div>
@@ -2679,7 +2679,7 @@ const L={
   cmp_daily:'每日發帖',
   cmp_party:'月建酒局',
   cmp_room:'開房約戰',
-  billing_monthly:'月付',
+  billing_monthly:'月付',pay_monthly:'月付',
   billing_annual:'年付 省35%',
   per_month:'月費',
   cmp_noad:'去廠告',
@@ -3257,7 +3257,7 @@ const L={
   cmp_read_rv:'看評',cmp_wr_rv:'✅寫評',cmp_cert_rv:'✅認證',
   cmp_orig:'原價',cmp_95off:'95折',cmp_90off:'9折',cmp_85off:'85折',
   cmp_2scan:'2次/日',cmp_30scan:'30次/日',cmp_100scan:'100次/日',
-  cmp_quarterly:'季付',cmp_annual_pay:'年付',
+  cmp_quarterly:'季付',save_15pct:'省15%',save_42pct:'省42%',save_15pct:'省15%',save_42pct:'省42%',cmp_annual_pay:'年付',
   liquor_db_title:'🍾 數據庫',
   my_orders:'📦 我嘅订單',
   exp_days_left:'仲有{dl}日到期！',
@@ -3577,7 +3577,7 @@ const L={
   cmp_daily:'每日发帖',
   cmp_party:'月建酒局',
   cmp_room:'开房约战',
-  billing_monthly:'月付',
+  billing_monthly:'月付',pay_monthly:'月付',
   billing_annual:'年付 省35%',
   per_month:'月费',
   cmp_noad:'去广告',
@@ -4475,7 +4475,7 @@ const L={
   cmp_daily:'Daily Posts',
   cmp_party:'Monthly Parties',
   cmp_room:'Room & Challenge',
-  billing_monthly:'Monthly',
+  billing_monthly:'Monthly',pay_monthly:'Monthly',
   billing_annual:'Annual Save 40%',
   per_month:'/mo',
   cmp_noad:'Ad-free',
@@ -5053,7 +5053,7 @@ const L={
   cmp_read_rv:'Read',cmp_wr_rv:'✅Write',cmp_cert_rv:'✅Certified',
   cmp_orig:'Original',cmp_95off:'5% off',cmp_90off:'10% off',cmp_85off:'15% off',
   cmp_2scan:'2/day',cmp_30scan:'30/day',cmp_100scan:'100/day',
-  cmp_quarterly:'Quarterly',cmp_annual_pay:'Annual',
+  cmp_quarterly:'Quarterly',save_15pct:'Save 15%',save_42pct:'Save 42%',cmp_annual_pay:'Annual',
   liquor_db_title:'🍾 Database',
   my_orders:'📦 My Orders',
   exp_days_left:'{dl} days left until expiry!',
