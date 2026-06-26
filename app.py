@@ -73,7 +73,7 @@ _STATIC_EXTS = {'.png','.jpg','.jpeg','.gif','.webp','.svg','.ico','.js','.css',
 @app.before_request
 def _security_check():
     # IP blacklist
-    ip = request.remote_addr or request.headers.get('X-Forwarded-For','').split(',')[-1].strip() or '0'
+    ip = _get_real_ip()
     if ip in _IP_BLACKLIST:
         return jsonify({'error':'禁止訪問'}), 403
     # Skip rate limit for static assets
@@ -1167,6 +1167,13 @@ def auth_required(f):
 
 # ─── Rate Limiter (in-memory) ────────────────────────
 _register_attempts = {}
+def _get_real_ip():
+    """Get client real IP from X-Forwarded-For (nginx proxy) or fallback to remote_addr."""
+    xff = request.headers.get('X-Forwarded-For', '')
+    if xff:
+        return xff.split(',')[0].strip()
+    return request.remote_addr or 'unknown'
+
 def _check_rate_limit(ip, limit=5, window=3600):
     """Simple in-memory rate limiter: max `limit` requests per `window` seconds per IP."""
     now = time.time()
@@ -1193,7 +1200,7 @@ def _check_rate_limit(ip, limit=5, window=3600):
 @app.route('/api/register', methods=['POST'])
 def api_register():
     # Rate limit: 5 registrations per hour per IP
-    ip = request.remote_addr or request.headers.get('X-Forwarded-For', 'unknown')
+    ip = _get_real_ip()
     if not _check_rate_limit(ip, limit=5, window=3600):
         return jsonify({'error':'註冊太頻繁，請一小時後再試'}), 429
 
@@ -1231,8 +1238,8 @@ def api_login():
     pw = d.get('password','')
     db = get_db()
     # Rate limit login attempts (5 per hour per IP)
-    ip = request.remote_addr or 'unknown'
-    if not _check_rate_limit(ip, limit=5, window=3600):
+    ip = _get_real_ip()
+    if not _check_rate_limit(ip, limit=20, window=3600):
         return jsonify({'error':'登入嘗試過於頻繁，請一小時後再試'}), 429
     u = db.execute('SELECT * FROM users WHERE username=?',(username,)).fetchone()
     if not u:
@@ -2087,8 +2094,8 @@ def _check_admin():
 def api_admin_login():
     """Login with independent admin account + key (or legacy user account)."""
     # Rate limit admin login (3 per hour per IP — stricter than user login)
-    ip = request.remote_addr or 'unknown'
-    if not _check_rate_limit(ip, limit=3, window=3600):
+    ip = _get_real_ip()
+    if not _check_rate_limit(ip, limit=10, window=3600):
         return jsonify({'error':'管理員登入嘗試過於頻繁'}), 429
     d = request.get_json(force=True) or {}
     admin_user = d.get('admin_user', '').strip()
