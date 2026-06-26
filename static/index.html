@@ -3134,6 +3134,7 @@ const L={
   feat_gold:'好友∞,開趴∞,發帖∞,收藏∞,掃碼∞,AI品酒笔記,每月5券,群組∞,優先客服',
   lb_cups:'杯',lb_load_failed:'載入失敗',lb_loading:'載入中...',lb_guest:'酒客',
   amap_sdk_load_err:'地圖SDK載入失敗',amap_load_failed:'地圖載入失敗',amap_loaded:'地圖已載入，點擊下方按鈕查看打卡點',
+  retry:'重試',
   // 收費
   pt_monthly:'月付',pt_quarterly:'季付',pt_annual:'年付',
   pt_yr_save_max:'💡 年付最高省42%！季付省15%',pt_current:'當前',pt_upgrade_now:'💪 立即升級',
@@ -3834,6 +3835,7 @@ const L={
   feat_gold:'好友∞,开趴∞,发帖∞,收藏∞,扫码∞,AI品酒笔记,每月5券,群组∞,优先客服',
   lb_cups:'杯',lb_load_failed:'载入失败',lb_loading:'载入中...',lb_guest:'酒客',
   amap_sdk_load_err:'地图SDK载入失败',amap_load_failed:'地图载入失败',amap_loaded:'地图已载入，点击下方按钮查看打卡点',
+  retry:'重试',
   // 收费
   pt_monthly:'月付',pt_quarterly:'季付',pt_annual:'年付',
   pt_yr_save_max:'💡 年付最高省42%！季付省15%',pt_current:'当前',pt_upgrade_now:'💪 立即升级',
@@ -4534,6 +4536,7 @@ const L={
   feat_gold:'∞ friends,∞ parties,∞ posts,∞ favs,∞ scans,AI Tasting,5 coupons/mo,∞ groups,Priority support',
   lb_cups:'cups',lb_load_failed:'Load Failed',lb_loading:'Loading...',lb_guest:'Guest',
   amap_sdk_load_err:'Map SDK load failed',amap_load_failed:'Map load failed',amap_loaded:'Map loaded, tap below for check-in spots',
+  retry:'Retry',
   // Pricing
   pt_monthly:'Monthly',pt_quarterly:'Quarterly',pt_annual:'Annual',
   pt_yr_save_max:'💡 Save up to 42% yearly! 15% quarterly',pt_current:'Current',pt_upgrade_now:'💪 Upgrade Now',
@@ -5027,7 +5030,7 @@ async function loadTL(){
  c.innerHTML=h;
  // P0-3: 非會員timeline插廣告
  if(memLevel()===0)loadAdBanner(c);
-}catch(e){console.error('loadTL error:',e);c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="loadTL()">🔄 重試</button><div style="font-size:11px;color:var(--sub);margin-top:4px">'+esc(e.message)+'</div></div>'}
+}catch(e){console.error('loadTL error:',e);c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="loadTL()">🔄 '+T('retry')+'</button><div style="font-size:11px;color:var(--sub);margin-top:4px">'+esc(e.message)+'</div></div>'}
 finally{_loadTLPending=false}
 }
 async function doRe(cid,emoji){
@@ -5072,7 +5075,7 @@ async function createParty(){
  d=document.getElementById('pa-date').value,tm=document.getElementById('pa-time').value;
  if(!title)return toast(T("enter_name"),1);if(!d)return toast(T('toast_select_date'),1);
  try{
- await api('/api/party',{method:'POST',body:{title,location:loc,event_date:d+(tm?'T'+tm:'')}})
+ await api('/api/party',{method:'POST',body:{title,location:loc,meet_time:d+(tm?'T'+tm:'')}})
  document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';await loadParties();toast(T("party_created"));
  }catch(e){toast('❌ '+e.message,1)}
 }
