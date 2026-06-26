@@ -2397,6 +2397,11 @@ function showPage(name){
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
   const ugOv=document.getElementById('upgrade-overlay');if(ugOv){ugOv.remove();if(window._ugCdTimer)clearInterval(window._ugCdTimer);}
   const payM=document.getElementById('pay-mod');if(payM)payM.style.display='none';
+  // Reset friend sub-tabs: hide pricing/passport/stats sections, show circle
+  if(name!=='friends'){
+    ['passport','stats','pricing'].forEach(k=>{const el=document.getElementById('fr-section-'+k);if(el)el.style.display='none'});
+    const fc=document.getElementById('fr-section-circle');if(fc)fc.style.display='';
+  }
   if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts();}if(name==='map')initMap();if(name==='party'){loadParties();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
   // 切tab后触发 debounced 语言转换
   if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
@@ -5174,6 +5179,8 @@ async function loadTL(){
  try{
  let items=[];
   const d=await api('/api/timeline?limit=30&lang='+lang);
+  if(d.status===401){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>'+T('login_to_view')+'<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="showPage(\'checkin\')">'+T('back_to_login','返回')+'</button></div>';_loadTLPending=false;return}
+  if(!d.ok&&!d.timeline){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+(d.error||T('load_fail'))+'<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="loadTL()">🔄 '+T('retry')+'</button></div>';_loadTLPending=false;return}
   items=(d.timeline||[]);
  let h='';
  items.forEach(item=>{
@@ -5245,7 +5252,9 @@ async function loadParties(){
  if(!me)return;
  try{
  let parties=[];
-  const d=await api('/api/parties');parties=d.parties||[];
+  const d=await api('/api/parties');
+  if(d.status===401)return; // not logged in, silent
+  parties=d.parties||[];
   window._parties=parties;
   populatePartySelects();
  let h='';
