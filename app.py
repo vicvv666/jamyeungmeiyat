@@ -35,7 +35,15 @@ for d in [DB_PATH.parent, UPLOAD_DIR, OUTPUT_DIR]:
 
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY', uuid.uuid4().hex + uuid.uuid4().hex)
-app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024  # 50MB max upload (video support)
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+# ── Secure cookie settings (HTTP-only, SameSite, Secure in production) ──
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['REMEMBER_COOKIE_HTTPONLY'] = True
+app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
+if os.environ.get('FLASK_ENV') == 'production':
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['REMEMBER_COOKIE_SECURE'] = True  # 50MB max upload (video support)
 
 # ─── Matchmaking queue (in-memory) ──────────────────
 _matchmaking_queue = []  # [{uid, dice, rounds, joined_at, room_created}, ...]
