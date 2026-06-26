@@ -3104,6 +3104,7 @@ const L={
   empty_cellar_full:'🥲 酒櫃空空如也～掃碼後收藏心水酒品！',
   empty_no_product:'暫無商品',
   empty_no_order:'暫無订单',
+  empty_no_liquor:'暫無酒品',
   empty_no_audit:'暫無審計日誌',
   empty_no_checkins:'暫無報到',
   empty_no_parties:'暫無酒局',
@@ -3852,6 +3853,7 @@ const L={
   empty_cellar_full:'🥲 酒柜空空如也～扫码后收藏心水酒品！',
   empty_no_product:'暂无商品',
   empty_no_order:'暂无订单',
+  empty_no_liquor:'暂无酒品',
   empty_no_audit:'暂无审计日志',
   empty_no_checkins:'暂无报到',
   empty_no_parties:'暂无酒局',
@@ -4600,6 +4602,7 @@ const L={
   empty_cellar_full:'Cellar empty - scan to add!',
   empty_no_product:'No products yet',
   empty_no_order:'No orders yet',
+  empty_no_liquor:'No liquors yet',
   empty_no_audit:'No audit logs',
   empty_no_checkins:'No check-ins',
   empty_no_parties:'No parties',
@@ -4807,6 +4810,10 @@ function switchLang(l){
   if(typeof updMem==='function')updMem();
   if(typeof updDiceLabels==='function')updDiceLabels();
   if(typeof _renderShopCats==='function')_renderShopCats();
+  // Re-render dynamic friend sub-tabs if visible
+  if(typeof renderPricingTab==='function')renderPricingTab();
+  if(typeof loadPassport==='function')loadPassport();
+  if(typeof renderStatsTab==='function')renderStatsTab();
   // 3) 全局DOM转换+延迟兜底
   if(l!=='zh-HK' && typeof window._langConvert==='function'){
     // 立即转换一次
@@ -5599,7 +5606,7 @@ function renderPricingTab(){
     {id:3,name:'🥇 '+T('lv_gold'),m:T('pricing_gold_m'),q:T('pricing_gold_q'),a:T('pricing_gold_a'),qSave:'15%',aSave:'36%',color:'linear-gradient(90deg,#f59e0b,#ec4899,#8b5cf6)',features:T('feat_gold').split(',')}
   ];
   let h='<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;font-size:12px">';
-  [T('pricing_monthly'),T('pricing_quarterly'),T('pricing_yearly')].forEach((lb,i)=>{
+  [T('pt_monthly'),T('pt_quarterly'),T('pt_annual')].forEach((lb,i)=>{
     const keys=['m','q','a'];const act=i===0?'font-weight:700;color:var(--pink);border-bottom:2px solid var(--pink)':'color:var(--sub)';
     h+='<span id="fr-pt-'+keys[i]+'" onclick="frPricingBilling(\''+keys[i]+'\')" style="cursor:pointer;padding:4px 12px;border-radius:8px;'+act+'">'+lb+'</span>';
   });
