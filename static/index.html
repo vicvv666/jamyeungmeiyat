@@ -3280,7 +3280,7 @@ const L={
   ship_need_name2:'請填寫收貨人姓名',
   grp_name_updated:'已更新',
   grp_no_msg:'仲未有對話，講聲嗨啦！',
-  cellar_scan_to_save:'掃碼辨酒後可收藏到酒柜',
+  cellar_scan_to_save:'掃碼辨酒後可收藏到酒柜',upgrade_expand:'升級擴容',avg_score:'均分',
   trial_14days_left:'🎉 14天免費體驗 · 剩餘{dl}天',
   // ── 酒友TAB子TAB i18n ──
   fr_circle:'好友圈',fr_passport_tab:'護照',fr_stats_tab:'統計',fr_pricing_tab:'收費',
@@ -4178,7 +4178,7 @@ const L={
   ship_need_name2:'请填写收货人姓名',
   grp_name_updated:'已更新',
   grp_no_msg:'还没有对话，说声嗨吧！',
-  cellar_scan_to_save:'扫码辨酒后可收藏到酒柜',
+  cellar_scan_to_save:'扫码辨酒后可收藏到酒柜',upgrade_expand:'升级扩容',avg_score:'均分',
   trial_14days_left:'🎉 14天免费体验 · 剩余{dl}天',
   // ── 酒友TAB子TAB i18n ──
   fr_circle:'好友圈',fr_passport_tab:'护照',fr_stats_tab:'统计',fr_pricing_tab:'收费',
@@ -4931,7 +4931,7 @@ const L={
   shop_search_ph:'🔍 Search products...',
   ug_first_month_special:'1st month special · auto-renew at standard price',
   adm_load_fail:'Load failed',
-  cellar_not_friend:'Not friends — cannot view cellar',cellar_need_upgrade:'Upgrade to view friend\'s cellar',
+  cellar_not_friend:'Not friends — cannot view cellar',cellar_need_upgrade:'Upgrade to view friend cellar',
   cellar_empty:'Cellar is empty 🏚️',
   bar_vip:'Bar VIP',
   my_annual_report:'My Annual Report',
@@ -5076,7 +5076,7 @@ const L={
   ship_need_name2:'Fill in recipient name',
   grp_name_updated:'Updated',
   grp_no_msg:'No messages yet, say hi!',
-  cellar_scan_to_save:'Scan to identify & save to cellar',
+  cellar_scan_to_save:'Scan to identify & save to cellar',upgrade_expand:'Upgrade for more',avg_score:'Avg',
   trial_14days_left:'🎉 14-day free trial · {dl} days left',
   // ── Friends TAB sub-TAB i18n ──
   fr_circle:'Friends',fr_passport_tab:'Passport',fr_stats_tab:'Stats',fr_pricing_tab:'Pricing',
@@ -8590,10 +8590,10 @@ async function loadCellar(){
     _cellarData=r;
     // 統計條
     const sb=document.getElementById('cellar-stats-bar');
-    const tagLabels={want:'🤤 想飲',tried:'✅ 飲過',collect:'💎 收藏'};
-    sb.innerHTML='<div class="cellar-stat-chip">📦 <b>'+r.total+'</b>/'+r.max+'款</div>'
+    const tagLabels={want:T('cellar_want'),tried:T('cellar_tried'),collect:T('cellar_collect')};
+    sb.innerHTML='<div class="cellar-stat-chip">📦 <b>'+r.total+'</b>/'+r.max+T('cellar_unit')+'</div>'
       +['want','tried','collect'].map(t=>'<div class="cellar-stat-chip">'+tagLabels[t]+' <b>'+r.tag_counts[t]+'</b></div>').join('')
-      +(r.avg_rating?'<div class="cellar-stat-chip">⭐ 均分<b>'+r.avg_rating+'</b></div>':'');
+      +(r.avg_rating?'<div class="cellar-stat-chip">⭐ '+T('avg_score')+'<b>'+r.avg_rating+'</b></div>':'');
     // 入口數字
     const ec=document.getElementById('cellar-entry-count');
     if(ec) ec.textContent=r.total;
@@ -8604,7 +8604,7 @@ async function loadCellar(){
       return;
     }
     const catIcons={'酱香型白酒':'🫗','威士忌':'🥃','白葡萄酒':'🥂','紅葡萄酒':'🍷','清酒':'🍶','啤酒':'🍺','龍舌兰':'🍹','幹邑白兰地':'🥃','白兰地':'🥃','梅酒':'🫗','果酒':'🫗','氣泡酒':'🥂'};
-    const tagNames={want:'想飲',tried:'飲過',collect:'收藏'};
+    const tagNames={want:T('cellar_want_tag'),tried:T('cellar_tried_tag'),collect:T('cellar_collect_tag')};
     let h='';
     items.forEach((it,i)=>{
       const icon=catIcons[it.category]||'🍾';
@@ -8629,7 +8629,7 @@ async function loadCellar(){
         +'</div></div></div>';
     });
     if(r.is_limited){
-      h+='<div style="text-align:center;padding:8px;font-size:11px;color:var(--sub)">🔒 收藏已滿 · <span style="color:#8b5cf6;cursor:pointer" onclick="closeCellar();showPay()">升級擴容</span></div>';
+      h+='<div style="text-align:center;padding:8px;font-size:11px;color:var(--sub)">🔒 '+T('cellar_full')+' · <span style="color:#8b5cf6;cursor:pointer" onclick="closeCellar();showPay()">'+T('upgrade_expand')+'</span></div>';
     }
     list.innerHTML=h;
   }catch(e){
