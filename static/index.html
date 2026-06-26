@@ -801,7 +801,7 @@ body.lang-ready{visibility:visible}
     <div style="padding:12px 14px;display:flex;align-items:center;gap:10px">
       <div style="font-size:28px">🍷</div>
       <div style="flex:1">
-        <div style="font-weight:700;font-size:14px" id="cellar-entry-title">我嘅酒柜</div>
+        <div style="font-weight:700;font-size:14px" id="cellar-entry-title" data-i18n="my_cellar">我嘅酒柜</div>
         <div style="font-size:11px;color:var(--sub)" id="cellar-entry-sub" data-i18n="cellar_sub">收藏、評分、品飲記錄</div>
       </div>
       <div style="text-align:right">
@@ -1340,16 +1340,16 @@ body.lang-ready{visibility:visible}
     </div>
     <div id="chat-msgs" style="flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-height:200px;max-height:55vh"></div>
     <div style="display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--card)">
-      <input id="chat-inp" placeholder="講嘢..." style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-size:14px;outline:none" onkeydown="if(event.key==='Enter')sendChat()" onfocus="this.style.borderColor='var(--amber)'" onblur="this.style.borderColor='var(--border)'">
+      <input id="chat-inp" placeholder="" data-i18n-ph="chat_placeholder" style="flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:12px;background:var(--bg);color:var(--text);font-size:14px;outline:none" onkeydown="if(event.key==='Enter')sendChat()" onfocus="this.style.borderColor='var(--amber)'" onblur="this.style.borderColor='var(--border)'">
       <button onclick="sendChat()" style="padding:10px 18px;border:none;border-radius:12px;background:linear-gradient(135deg,var(--amber),#e67e22);color:#fff;font-weight:700;cursor:pointer;font-size:14px;transition:transform 0.1s" onmousedown="this.style.transform='scale(0.95)'" onmouseup="this.style.transform=''">📤</button>
     </div>
   </div>
 </div>
 <!-- Admin Panel (獨立弹窗) -->
 <div class="modal-overlay" id="admin-mod" onclick="if(event.target===this)admClose()">
- <div class="modal" style="max-width:min(95vw,720px);width:100%;max-height:92dvh;overflow-y:auto">
+ <div class="modal" style="max-width:min(98vw,960px);width:100%;max-height:96dvh;overflow-y:auto;border-radius:20px">
    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-    <h3 style="color:var(--pink);margin:0" data-i18n="admin_panel">🔧 管理員麵板</h3>
+    <h3 style="color:var(--pink);margin:0;font-size:20px" data-i18n="admin_panel">🔧 管理員麵板</h3>
     <div style="display:flex;align-items:center;gap:8px">
     <span style="font-size:11px;color:var(--sub)" id="adm-admin-name" data-i18n="admin_label">管理員</span>
     <button class="btn btn-outline btn-sm" onclick="admShowChangePw()" style="font-size:10px;padding:4px 8px" data-i18n="adm_change_pwd">🔑 改密</button>
@@ -1358,20 +1358,20 @@ body.lang-ready{visibility:visible}
    </div>
   <!-- Admin Tabs -->
   <div id="adm-content">
-   <div style="display:flex;gap:2px;margin-bottom:12px;border-bottom:1px solid var(--border);flex-wrap:wrap;padding-bottom:2px">
-    <button class="adm-tab active" data-adm="stats" data-i18n="stats" onclick="admShowTab('stats')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📊 概覽</button>
-    <button class="adm-tab" data-adm="members" data-i18n="adm_members" onclick="admShowTab('members');admLoadMembers()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 會員</button>
-    <button class="adm-tab" data-adm="payments" data-i18n="adm_payments" onclick="admShowTab('payments');admLoadPayments()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">💳 付款</button>
-    <button class="adm-tab" data-adm="expired" data-i18n="adm_expired" onclick="admShowTab('expired');admLoadExpired()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚠️ 到期</button>
-    <button class="adm-tab" data-adm="audit" data-i18n="adm_audit" onclick="admShowTab('audit');admLoadAudit()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📋 日誌</button>
-    <button class="adm-tab" data-adm="config" data-i18n="adm_config" onclick="admShowTab('config')" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">⚙️ 設定</button>
-    <button class="adm-tab" data-adm="checkins" data-i18n="checkins" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🌐 動態</button>
-    <button class="adm-tab" data-adm="parties" data-i18n="parties" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🎯 酒局</button>
-    <button class="adm-tab" data-adm="posts" data-i18n="adm_posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📸 圈子</button>
-    <button class="adm-tab" data-adm="shop" data-i18n="adm_shop" onclick="admShowTab('shop');admLoadShopProducts()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🛒 商鋪</button>
-    <button class="adm-tab" data-adm="orders" data-i18n="adm_orders" onclick="admShowTab('orders');admLoadShopOrders()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">📦 订單</button>
-    <button class="adm-tab" data-adm="liquor" data-i18n="adm_liquor" onclick="admShowTab('liquor');admLoadLiquorDB()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">🍾 酒品</button>
-    <button class="adm-tab" data-adm="groups" data-i18n="adm_groups" onclick="admShowTab('groups');admLoadGroups()" style="flex:1;padding:8px 4px;font-size:11px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent">👥 群組</button>
+   <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:2px solid var(--border);flex-wrap:wrap;padding-bottom:4px">
+    <button class="adm-tab active" data-adm="stats" data-i18n="stats" onclick="admShowTab('stats')" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">📊 概覽</button>
+    <button class="adm-tab" data-adm="members" data-i18n="adm_members" onclick="admShowTab('members');admLoadMembers()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">👥 會員</button>
+    <button class="adm-tab" data-adm="payments" data-i18n="adm_payments" onclick="admShowTab('payments');admLoadPayments()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">💳 付款</button>
+    <button class="adm-tab" data-adm="expired" data-i18n="adm_expired" onclick="admShowTab('expired');admLoadExpired()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">⚠️ 到期</button>
+    <button class="adm-tab" data-adm="audit" data-i18n="adm_audit" onclick="admShowTab('audit');admLoadAudit()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">📋 日誌</button>
+    <button class="adm-tab" data-adm="config" data-i18n="adm_config" onclick="admShowTab('config')" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">⚙️ 設定</button>
+    <button class="adm-tab" data-adm="checkins" data-i18n="checkins" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">🌐 動態</button>
+    <button class="adm-tab" data-adm="parties" data-i18n="parties" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">🎯 酒局</button>
+    <button class="adm-tab" data-adm="posts" data-i18n="adm_posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">📸 圈子</button>
+    <button class="adm-tab" data-adm="shop" data-i18n="adm_shop" onclick="admShowTab('shop');admLoadShopProducts()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">🛒 商鋪</button>
+    <button class="adm-tab" data-adm="orders" data-i18n="adm_orders" onclick="admShowTab('orders');admLoadShopOrders()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">📦 订單</button>
+    <button class="adm-tab" data-adm="liquor" data-i18n="adm_liquor" onclick="admShowTab('liquor');admLoadLiquorDB()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">🍾 酒品</button>
+    <button class="adm-tab" data-adm="groups" data-i18n="adm_groups" onclick="admShowTab('groups');admLoadGroups()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">👥 群組</button>
    </div>
    <!-- Stats page -->
    <div class="adm-page active" id="adm-stats">
@@ -1427,13 +1427,19 @@ body.lang-ready{visibility:visible}
    </div>
    <!-- Parties page -->
    <div class="adm-page" id="adm-parties">
-    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadParties()" style="border-color:var(--purple);color:var(--purple)" data-i18n="refresh">🔄 刷新</button></div>
-    <div id="adm-party-list" style="font-size:12px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-weight:700;font-size:15px;color:var(--purple)">🎯 <span data-i18n="parties">酒局</span> <span id="adm-party-count" style="font-size:12px;color:var(--sub)"></span></span>
+      <button class="btn btn-outline btn-sm" onclick="admLoadParties()" style="border-color:var(--purple);color:var(--purple)" data-i18n="refresh">🔄 刷新</button>
+    </div>
+    <div id="adm-party-list" style="font-size:13px"></div>
    </div>
    <!-- Posts page -->
    <div class="adm-page" id="adm-posts">
-    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadAdmPosts()" style="border-color:var(--pink);color:var(--pink)" data-i18n="refresh">🔄 刷新</button></div>
-    <div id="adm-post-list" style="font-size:12px"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <span style="font-weight:700;font-size:15px;color:var(--pink)">📸 <span data-i18n="adm_posts">圈子</span> <span id="adm-post-count" style="font-size:12px;color:var(--sub)"></span></span>
+      <button class="btn btn-outline btn-sm" onclick="admLoadAdmPosts()" style="border-color:var(--pink);color:var(--pink)" data-i18n="refresh">🔄 刷新</button>
+    </div>
+    <div id="adm-post-list" style="font-size:13px"></div>
    </div>
    <!-- Admin: Shop Products -->
    <div class="adm-page" id="adm-shop">
@@ -1538,7 +1544,7 @@ body.lang-ready{visibility:visible}
   <div id="grp-chat-area" style="flex:1;display:flex;flex-direction:column;min-height:0;border-top:1px solid var(--border)">
    <div id="grp-chat-msgs" style="flex:1;overflow-y:auto;padding:8px 12px;font-size:13px"></div>
    <div id="grp-chat-input-bar" style="flex-shrink:0;padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:6px">
-    <input id="grp-chat-input" type="text" placeholder="輸入消息…" maxlength="500" style="flex:1;padding:8px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')grpChatSend()">
+    <input id="grp-chat-input" type="text" placeholder="" data-i18n-ph="grp_chat_placeholder" maxlength="500" style="flex:1;padding:8px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:13px;outline:none" onkeydown="if(event.key==='Enter')grpChatSend()">
     onclick="grpChatSend()" class="btn btn-pink" style="border-radius:20px;padding:8px 16px;font-size:12px;font-weight:600" data-i18n="send_btn">發送
    </div>
   </div>
@@ -2749,6 +2755,7 @@ const L={
   adm_members:'會員',
   adm_payments:'付款',
   adm_expired:'到期',
+  adm_creator:'創建者',adm_location:'地點',adm_time:'時間',adm_status:'狀態',adm_desc:'描述',adm_max_ppl:'人數上限',adm_created:'創建於',adm_content:'內容',adm_image:'圖片',adm_no_title:'無標題',adm_del_fail:'删除失敗',adm_photos:'相片',adm_note:'備註',adm_party:'酒局',adm_title:'標題',adm_upcoming:'即將',adm_ongoing:'進行中',adm_ended:'已結束',chat_placeholder:'講嘢...',grp_chat_placeholder:'輸入消息…',
   adm_audit:'審計',
   adm_config:'設定',
   adm_posts:'📸 圈子',
@@ -2888,6 +2895,8 @@ const L={
   cellar_sub:'收藏、評分、品飲記錄',
   cellar_empty:'酒柜空空如也',
   cellar_empty_hint:'🔖 酒柜空空如也～掃碼後收藏心水酒品！',
+  cellar_of:'{n} 嘅酒柜',
+  cellar_want_tag:'想試',cellar_tried_tag:'試過',cellar_collect_tag:'收藏',
   rv_tab:'📝 酒評',
   rv_create:'✏️ 寫酒評',
   rv_proven_list:'🏅 認證酒評',
@@ -3644,6 +3653,7 @@ const L={
   adm_members:'会员',
   adm_payments:'付款',
   adm_expired:'到期',
+  adm_creator:'创建者',adm_location:'地点',adm_status:'状态',adm_desc:'描述',adm_max_ppl:'人数上限',adm_created:'创建于',adm_content:'内容',adm_image:'图片',adm_no_title:'无标题',adm_del_fail:'删除失败',adm_photos:'相片',adm_note:'备注',adm_party:'酒局',adm_title:'标题',adm_upcoming:'即将',adm_ongoing:'进行中',adm_ended:'已结束',chat_placeholder:'讲嘢...',grp_chat_placeholder:'输入消息…',adm_time:'时间',
   adm_audit:'审计',
   adm_config:'设定',
   adm_posts:'📸 圈子',
@@ -3783,6 +3793,8 @@ const L={
   cellar_sub:'收藏、评分、品饮记录',
   cellar_empty:'酒柜空空如也',
   cellar_empty_hint:'🔖 酒柜空无一物~ 扫码加入收藏！',
+  cellar_of:'{n} 的酒柜',
+  cellar_want_tag:'想试',cellar_tried_tag:'试过',cellar_collect_tag:'收藏',
   rv_tab:'📝 酒评',
   rv_create:'✏️ 写酒评',
   rv_proven_list:'🏅 认证酒评',
@@ -4539,6 +4551,7 @@ const L={
   adm_members:'Members',
   adm_payments:'Payments',
   adm_expired:'Expired',
+  adm_creator:"Creator",adm_location:"Location",adm_status:"Status",adm_desc:"Description",adm_max_ppl:"Max Members",adm_created:"Created",adm_content:"Content",adm_image:"Image",adm_no_title:"No Title",adm_del_fail:"Delete failed",adm_photos:"Photos",adm_note:"Note",adm_party:"Party",adm_title:"Title",adm_upcoming:"Upcoming",adm_ongoing:"Ongoing",adm_ended:"Ended",chat_placeholder:"Say something...",grp_chat_placeholder:"Type a message...",adm_time:"Time",
   adm_audit:'Audit',
   adm_config:'Config',
   adm_posts:'📸 Posts',
@@ -4678,6 +4691,8 @@ const L={
   cellar_sub:'Favorites, ratings & tasting notes',
   cellar_empty:'Your cellar is empty',
   cellar_empty_hint:'Cellar empty - scan to add!',
+  cellar_of:"{n}\u2019s Cellar",
+  cellar_want_tag:'Want to Try',cellar_tried_tag:'Tried',cellar_collect_tag:'Collection',
   rv_tab:'📝 Reviews',
   rv_create:'✏️ Write Review',
   rv_proven_list:'🏅 Certified',
@@ -5905,8 +5920,8 @@ async function showCellarShowcase(uid,nickname){
   if(memLevel()<1){memLocked(1,'cellar');return}
   let h='<div id="cellar-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this)this.remove()">';
   h+='<div style="width:90%;max-width:500px;max-height:80vh;overflow-y:auto;background:var(--bg);border-radius:16px;padding:20px">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="margin:0;color:var(--amber)">🍷 '+nickname+' 嘅酒柜</h3><span style="cursor:pointer;font-size:20px;color:var(--sub)" onclick="document.getElementById(\'cellar-overlay\').remove()">✕</span></div>';
-  h+='<div id="cellar-items" style="text-align:center;padding:20px;color:var(--sub)">載入中...</div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="margin:0;color:var(--amber)">🍷 '+T('cellar_of',{n:nickname})</h3><span style="cursor:pointer;font-size:20px;color:var(--sub)" onclick="document.getElementById(\'cellar-overlay\').remove()">✕</span></div>';
+  h+='<div id="cellar-items" style="text-align:center;padding:20px;color:var(--sub)">'+T('loading')+'</div>';
   h+='</div></div>';
   document.body.insertAdjacentHTML('beforeend',h);
   try{
@@ -5915,12 +5930,12 @@ async function showCellarShowcase(uid,nickname){
     if(d.error){document.getElementById('cellar-items').innerHTML='<p style="color:var(--pink)">'+(d.error==='not_friend'?T('cellar_not_friend'):T('cellar_need_upgrade'))+'</p>';return}
     const items=d.items||[];
     if(!items.length){document.getElementById('cellar-items').innerHTML='<p style="color:var(--sub)">'+T('cellar_empty')+'</p>';return}
-    const tagEmoji={'want':'💛想試','tried':'✅試過','collect':'💎收藏','':''};
+    const tagEmoji={'want':'💛'+T('cellar_want_tag'),'tried':'✅'+T('cellar_tried_tag'),'collect':'💎'+T('cellar_collect_tag'),'':''};
     let ih='<div style="display:grid;gap:8px">';
     items.forEach(it=>{
       ih+='<div style="display:flex;gap:10px;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:10px">';
       if(it.image_url)ih+='<img src="'+it.image_url+'" style="width:48px;height:48px;border-radius:8px;object-fit:cover" onerror="this.style.display=\'none\'">';
-      ih+='<div style="flex:1"><div style="font-weight:700;font-size:14px;color:var(--text)">'+(it.name||'未知酒款')+'</div>';
+      ih+='<div style="flex:1"><div style="font-weight:700;font-size:14px;color:var(--text)">'+(it.name||T('unknown_liquor'))+'</div>';
       if(it.brand)ih+='<div style="font-size:11px;color:var(--sub)">'+it.brand+'</div>';
       ih+='<div style="display:flex;gap:8px;margin-top:4px;font-size:11px">';
       if(it.rating)ih+='<span style="color:var(--amber)">⭐'+it.rating+'</span>';
@@ -6310,7 +6325,7 @@ async function loadMyFavorites(){
   cnt.textContent=(d.favorites||[]).length+'/'+d.max;
   if(!d.favorites||!d.favorites.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('cellar_empty_hint')+'</div>';return}
   list.innerHTML=d.favorites.map(function(f){
-   var name=f.name||f.name_en||'未知酒品';
+   var name=f.name||f.name_en||T('unknown_liquor');
    var brand=f.brand||'';
    var cat=f.category||'';
    var memo=f.memo||'';
@@ -7762,7 +7777,7 @@ const _statusMapCN={0:'酒鬼',1:'微醺',2:'清醒',4:'報到',5:'想飲',10:'�
 function _statusMap(){return (document.documentElement.lang||'zh-HK').startsWith('zh-CN')?_statusMapCN:_statusMapHK}
 function _statusOpts(){return Object.entries(_statusMap()).map(([k,v])=>[Number(k),v])}
 function _admCardRow(label,val,color){
- const d=document.createElement('div');d.style.cssText='display:flex;gap:6px;font-size:12px;line-height:1.6';
+ const d=document.createElement('div');d.style.cssText='display:flex;gap:8px;font-size:14px;line-height:1.8';
  const lb=document.createElement('span');lb.style.cssText='color:var(--sub);min-width:50px';lb.textContent=label;
  const vl=document.createElement('span');vl.style.cssText='color:'+(color||'var(--fg)');vl.textContent=val||'-';
  d.appendChild(lb);d.appendChild(vl);return d;
@@ -7774,21 +7789,21 @@ async function admLoadCheckins(){
   if(!_admCheckins.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">'+T('empty_no_checkins')+'</div>';return}
   el.innerHTML='';
   _admCheckins.forEach((c,i)=>{
-   const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
-   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
+   const card=document.createElement('div');card.style.cssText='padding:14px 16px;border-bottom:1px solid var(--border);margin-bottom:4px;background:var(--card);border-radius:10px';
+   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:6px';
    const name=document.createElement('span');name.style.cssText='color:var(--amber);font-weight:700;font-size:13px';name.textContent='@'+(c.username||c.nickname);
    const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+c.id;
    const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
    const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-ci';eb.style.cssText='padding:2px 8px;border:1px solid var(--amber);border-radius:6px;background:none;color:var(--amber);cursor:pointer;font-size:10px';eb.textContent=T('btn_edit');
-   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-ci';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent=T('btn_delete');
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-ci';db_.style.cssText='padding:6px 14px;border:1px solid var(--red);border-radius:8px;background:none;color:var(--red);cursor:pointer;font-size:12px;font-weight:600';db_.textContent=T('btn_delete');
    btns.appendChild(eb);btns.appendChild(db_);
    head.appendChild(name);head.appendChild(id);head.appendChild(btns);
    card.appendChild(head);
-   card.appendChild(_admCardRow('狀態',_statusMap()[c.status]||'報到','var(--amber)'));
-   card.appendChild(_admCardRow('備註',c.note));
-   if(c.photo)card.appendChild(_admCardRow('相片',c.photo));
-   if(c.party_id)card.appendChild(_admCardRow('酒局','#'+c.party_id));
-   card.appendChild(_admCardRow('時間',c.created_at));
+   card.appendChild(_admCardRow(T('adm_status'),_statusMap()[c.status]||'報到','var(--amber)'));
+   card.appendChild(_admCardRow(T('adm_note'),c.note));
+   if(c.photo)card.appendChild(_admCardRow(T('adm_photos'),c.photo));
+   if(c.party_id)card.appendChild(_admCardRow(T('adm_party'),'#'+c.party_id));
+   card.appendChild(_admCardRow(T('adm_time'),c.created_at));
    el.appendChild(card);
   })
  }catch(e){console.error('admLoadCheckins',e)}
@@ -7796,26 +7811,27 @@ async function admLoadCheckins(){
 async function admLoadParties(){
  try{const d=await api('/api/admin/parties');const el=document.getElementById('adm-party-list');
   _admParties=d.parties||[];
-  if(!_admParties.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">'+T('empty_no_parties')+'</div>';return}
+  var pc=document.getElementById('adm-party-count');if(pc)pc.textContent='('+_admParties.length+')';
+  if(!_admParties.length){el.innerHTML='<div style="text-align:center;color:var(--sub);padding:20px">'+T('empty_no_parties')+'</div>';return}
   el.innerHTML='';
   _admParties.forEach((p,i)=>{
-   const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
-   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
-   const title=document.createElement('span');title.style.cssText='color:var(--purple);font-weight:700;font-size:13px';title.textContent=(p.title||'無標題');
+   const card=document.createElement('div');card.style.cssText='padding:14px 16px;border-bottom:1px solid var(--border);margin-bottom:4px;background:var(--card);border-radius:10px';
+   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:6px';
+   const title=document.createElement('span');title.style.cssText='color:var(--purple);font-weight:700;font-size:15px';title.textContent=(p.title||T('adm_no_title'));
    const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+p.id;
    const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
-   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-py';eb.style.cssText='padding:2px 8px;border:1px solid var(--purple);border-radius:6px;background:none;color:var(--purple);cursor:pointer;font-size:10px';eb.textContent=T('btn_edit');
-   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-py';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent=T('btn_delete');
+   const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-py';eb.style.cssText='padding:6px 14px;border:1px solid var(--purple);border-radius:8px;background:none;color:var(--purple);cursor:pointer;font-size:12px;font-weight:600';eb.textContent=T('btn_edit');
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-py';db_.style.cssText='padding:6px 14px;border:1px solid var(--red);border-radius:8px;background:none;color:var(--red);cursor:pointer;font-size:12px;font-weight:600';db_.textContent=T('btn_delete');
    btns.appendChild(eb);btns.appendChild(db_);
    head.appendChild(title);head.appendChild(id);head.appendChild(btns);
    card.appendChild(head);
-   card.appendChild(_admCardRow('創建者','@'+(p.username||p.nickname)));
-   card.appendChild(_admCardRow('地點',p.location));
-   card.appendChild(_admCardRow('時間',p.meet_time));
-   card.appendChild(_admCardRow('狀態',p.status,p.status==='upcoming'?'var(--amber)':'var(--green)'));
-   if(p.description)card.appendChild(_admCardRow('描述',p.description));
-   if(p.max_members)card.appendChild(_admCardRow('人數上限',p.max_members));
-   card.appendChild(_admCardRow('創建於',p.created_at));
+   card.appendChild(_admCardRow(T('adm_creator'),'@'+(p.username||p.nickname)));
+   card.appendChild(_admCardRow(T('adm_location'),p.location));
+   card.appendChild(_admCardRow(T('adm_time'),p.meet_time));
+   card.appendChild(_admCardRow(T('adm_status'),p.status,(p.status==='upcoming'||p.status==='ongoing')?'var(--amber)':'var(--green)'));
+   if(p.description)card.appendChild(_admCardRow(T('adm_desc'),p.description));
+   if(p.max_members)card.appendChild(_admCardRow(T('adm_max_ppl'),p.max_members));
+   card.appendChild(_admCardRow(T('adm_created'),p.created_at));
    el.appendChild(card);
   })
  }catch(e){console.error('admLoadParties',e)}
@@ -7823,22 +7839,23 @@ async function admLoadParties(){
 async function admLoadAdmPosts(){
  try{const d=await api('/api/admin/posts');const el=document.getElementById('adm-post-list');
   _admPosts=d.posts||[];
-  if(!_admPosts.length){el.innerHTML='<div style="text-align:center;color:var(--sub)">'+T('empty_no_posts_admin')+'</div>';return}
+  var ppc=document.getElementById('adm-post-count');if(ppc)ppc.textContent='('+_admPosts.length+')';
+  if(!_admPosts.length){el.innerHTML='<div style="text-align:center;color:var(--sub);padding:20px">'+T('empty_no_posts_admin')+'</div>';return}
   el.innerHTML='';
   _admPosts.forEach((p,i)=>{
-   const card=document.createElement('div');card.style.cssText='padding:10px;border-bottom:1px solid var(--border)';
-   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:4px';
-   const name=document.createElement('span');name.style.cssText='color:var(--pink);font-weight:700;font-size:13px';name.textContent='@'+(p.username||p.nickname);
+   const card=document.createElement('div');card.style.cssText='padding:14px 16px;border-bottom:1px solid var(--border);margin-bottom:4px;background:var(--card);border-radius:10px';
+   const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;align-items:center;margin-bottom:6px';
+   const name=document.createElement('span');name.style.cssText='color:var(--pink);font-weight:700;font-size:15px';name.textContent='@'+(p.username||p.nickname);
    const id=document.createElement('span');id.style.cssText='color:var(--sub);font-size:10px;margin-left:8px';id.textContent='#'+p.id;
    const btns=document.createElement('div');btns.style.cssText='display:flex;gap:4px';
    const eb=document.createElement('button');eb.dataset.idx=String(i);eb.dataset.act='edit-po';eb.style.cssText='padding:2px 8px;border:1px solid var(--pink);border-radius:6px;background:none;color:var(--pink);cursor:pointer;font-size:10px';eb.textContent=T('btn_edit');
-   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-po';db_.style.cssText='padding:2px 8px;border:1px solid var(--red);border-radius:6px;background:none;color:var(--red);cursor:pointer;font-size:10px';db_.textContent=T('btn_delete');
+   const db_=document.createElement('button');db_.dataset.idx=String(i);db_.dataset.act='del-po';db_.style.cssText='padding:6px 14px;border:1px solid var(--red);border-radius:8px;background:none;color:var(--red);cursor:pointer;font-size:12px;font-weight:600';db_.textContent=T('btn_delete');
    btns.appendChild(eb);btns.appendChild(db_);
    head.appendChild(name);head.appendChild(id);head.appendChild(btns);
    card.appendChild(head);
-   card.appendChild(_admCardRow('內容',p.content));
-   if(p.image_url)card.appendChild(_admCardRow('圖片',p.image_url));
-   card.appendChild(_admCardRow('時間',p.created_at));
+   card.appendChild(_admCardRow(T('adm_content'),p.content));
+   if(p.image_url)card.appendChild(_admCardRow(T('adm_image'),p.image_url));
+   card.appendChild(_admCardRow(T('adm_time'),p.created_at));
    el.appendChild(card);
   })
  }catch(e){console.error('admLoadAdmPosts',e)}
@@ -7872,15 +7889,15 @@ document.addEventListener('click',function(e){
 });
 async function admDeleteCheckin(cid){
  if(!confirm(T('confirm_del_checkin')))return;
- try{await api('/api/admin/delete-checkin',{method:'POST',body:{checkin_id:cid}});admLoadCheckins()}catch(e){alert('删除失敗')}
+ try{await api('/api/admin/delete-checkin',{method:'POST',body:{checkin_id:cid}});admLoadCheckins()}catch(e){alert(T('adm_del_fail'))}
 }
 async function admDeleteParty(pid){
  if(!confirm(T('confirm_del_party')))return;
- try{await api('/api/admin/delete-party',{method:'POST',body:{pid:pid}});admLoadParties()}catch(e){alert('删除失敗')}
+ try{await api('/api/admin/delete-party',{method:'POST',body:{pid:pid}});admLoadParties()}catch(e){alert(T('adm_del_fail'))}
 }
 async function admDeletePost(pid){
  if(!confirm(T('confirm_del_post')))return;
- try{await api('/api/admin/delete-post',{method:'POST',body:{pid:pid}});admLoadAdmPosts()}catch(e){alert('删除失敗')}
+ try{await api('/api/admin/delete-post',{method:'POST',body:{pid:pid}});admLoadAdmPosts()}catch(e){alert(T('adm_del_fail'))}
 }
 
 // ═══════════ ADMIN EDIT FUNCTIONS ═══════════
