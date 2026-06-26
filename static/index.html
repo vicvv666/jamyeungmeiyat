@@ -5920,7 +5920,7 @@ async function showCellarShowcase(uid,nickname){
   if(memLevel()<1){memLocked(1,'cellar');return}
   let h='<div id="cellar-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center" onclick="if(event.target===this)this.remove()">';
   h+='<div style="width:90%;max-width:500px;max-height:80vh;overflow-y:auto;background:var(--bg);border-radius:16px;padding:20px">';
-  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="margin:0;color:var(--amber)">🍷 '+T('cellar_of',{n:nickname})</h3><span style="cursor:pointer;font-size:20px;color:var(--sub)" onclick="document.getElementById(\'cellar-overlay\').remove()">✕</span></div>';
+  h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><h3 style="margin:0;color:var(--amber)">🍷 '+T('cellar_of',{n:nickname})+'</h3><span style="cursor:pointer;font-size:20px;color:var(--sub)" onclick="document.getElementById(\'cellar-overlay\').remove()">✕</span></div>';
   h+='<div id="cellar-items" style="text-align:center;padding:20px;color:var(--sub)">'+T('loading')+'</div>';
   h+='</div></div>';
   document.body.insertAdjacentHTML('beforeend',h);
