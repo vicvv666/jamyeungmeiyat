@@ -1978,23 +1978,23 @@ function memLocked(requiredLv,action){
   const names={1:T('mem_jiuyau_label'),2:T('mem_jaugwai_label'),3:T('mem_jausan_label')};
   let hint='',extra='';
   if(action==='favorites'){
-    hint='🔖 你嘅酒櫃快滿喇！升級收藏更多！';
+    hint=T('ug_hint_favs');
     try{const favs=JSON.parse(localStorage.getItem('jymy_favs')||'[]');if(favs.length>0)extra='<div style="margin-top:8px;padding:8px;background:rgba(245,158,11,0.08);border-radius:10px;font-size:11px">'+favs.slice(0,3).map(f=>'<span style="margin:2px;padding:2px 6px;background:rgba(245,158,11,0.15);border-radius:6px">🍶'+(f.name||f)+'</span>').join('')+'</div>';}catch(e){}
   }else if(action==='party'){
-    hint='🎉 想約朋友飲杯？升級開趴啦！';
-    extra='<div style="margin-top:8px;padding:8px;background:rgba(139,92,246,0.08);border-radius:10px;text-align:center;font-size:12px"><div style="font-size:32px;margin-bottom:4px">🏠</div>預览：開趴約飲 · 骰盅遊戲 · 專屬房間<div style="color:var(--amber);margin-top:4px">升級即刻開房！</div></div>';
+    hint=T('ug_hint_party');
+    extra='<div style="margin-top:8px;padding:8px;background:rgba(139,92,246,0.08);border-radius:10px;text-align:center;font-size:12px"><div style="font-size:32px;margin-bottom:4px">🏠</div>'+T('ug_preview_party')+'<div style="color:var(--amber);margin-top:4px">'+T('ug_upgrade_open_room')+'</div></div>';
   }else if(action==='friends'){
     const fc=(window._friendCount||0);
-    hint='👫 好友位快滿喇！升級加位繼續飲！'+(fc>0?' ('+fc+'/20)':'');
-  }else if(action==='posts'){hint='📝 今日講夠喇？升級繼續吹水！';}
-  else if(action==='scan'){hint='🔍 想再掃多支？升級解鎖更多掃碼！';}
-  else if(action==='map'){hint='🗺️ 想睇更多足跡？升級擴大地圖！';}
-  else if(action==='coupon'){hint='🧧 想拎多張券？升級每個月更多優惠！';}
-  else if(action==='cellar'){hint='🍷 想睇好友酒柜？升酒友即開！';}
-  else if(action==='ai_note'){hint='🧠 AI品酒分析？酒神先配有！';}
-  else if(action==='leaderboard'){hint='🏆 想睇排行榜？升酒友解鎖！邊個飲得最多？';}
-  else if(action==='report'){hint='📊 飲酒月報？酒鬼升級即有！';}
-  else{const generic={1:'🍺 飲杯都要升級？升酒友解鎖啦！',2:'🍻 想玩盡啲？升酒鬼先得！',3:'💎 最高享受，酒神先配有！'};hint=generic[requiredLv]||('🔒 '+action+' 需要升級至'+names[requiredLv]+' 💎');}
+    hint=T('ug_hint_friends')+(fc>0?' ('+fc+'/20)':'');
+  }else if(action==='posts'){hint=T('ug_hint_posts');}
+  else if(action==='scan'){hint=T('ug_hint_scan');}
+  else if(action==='map'){hint=T('ug_hint_map');}
+  else if(action==='coupon'){hint=T('ug_hint_coupon');}
+  else if(action==='cellar'){hint=T('ug_hint_cellar');}
+  else if(action==='ai_note'){hint=T('ug_hint_ai_note');}
+  else if(action==='leaderboard'){hint=T('ug_hint_leaderboard');}
+  else if(action==='report'){hint=T('ug_hint_report');}
+  else{const generic={1:T('ug_generic_1'),2:T('ug_generic_2'),3:T('ug_generic_3')};hint=generic[requiredLv]||('🔒 '+action+' '+T('ug_need_upgrade_to')+' '+names[requiredLv]+' 💎');}
   toast(hint,1);
   showUpgradeModal(requiredLv);
   setTimeout(()=>{const ov=document.getElementById('upgrade-overlay');if(ov&&extra){const panel=ov.querySelector('[style*="position:relative;padding:20px"]');if(panel){const ex=document.createElement('div');ex.innerHTML=extra;panel.appendChild(ex);}}},100);
@@ -2017,12 +2017,12 @@ function showUsageBars(){
   var h='';
   items.forEach(function(it){
     if(it.isStatic){
-      h+='<div class="ug-bar-wrap"><div class="ug-bar-label"><span>'+it.label+'</span><span>'+it.cur+'/'+it.max+' <span class="ug-bar-upg" onclick="showUpgradeModal('+(lv+1)+')">↗升級'+it.upg+'</span></span></div></div>';
+      h+='<div class="ug-bar-wrap"><div class="ug-bar-label"><span>'+it.label+'</span><span>'+it.cur+'/'+it.max+' <span class="ug-bar-upg" onclick="showUpgradeModal('+(lv+1)+')">↗'+T('ug_upgrade_short')+it.upg+'</span></span></div></div>';
       return;
     }
     var pct=it.max>0?Math.min(100,Math.round(it.cur/it.max*100)):0;
     var cls=pct>=100?'red':pct>=80?'orange':'green';
-    h+='<div class="ug-bar-wrap"><div class="ug-bar-label"><span>'+it.label+'</span><span>'+it.cur+'/'+it.max+(pct>=80?' <span class="ug-bar-upg" onclick="showUpgradeModal('+(lv+1)+')">↗升級'+it.upg+'</span>':'')+'</span></div><div class="ug-bar-track"><div class="ug-bar-fill '+cls+'" style="width:'+pct+'%"></div></div></div>';
+    h+='<div class="ug-bar-wrap"><div class="ug-bar-label"><span>'+it.label+'</span><span>'+it.cur+'/'+it.max+(pct>=80?' <span class="ug-bar-upg" onclick="showUpgradeModal('+(lv+1)+')">↗'+T('ug_upgrade_short')+it.upg+'</span>':'')+'</span></div><div class="ug-bar-track"><div class="ug-bar-fill '+cls+'" style="width:'+pct+'%"></div></div></div>';
   });
   c.innerHTML=h;
 }
@@ -2046,7 +2046,8 @@ function renderInlineHints(){
   if(lv===0){
     cta.innerHTML='<div onclick="showUpgradeModal(1)" style="background:linear-gradient(135deg,#ef4444,#f59e0b);color:#fff;border-radius:12px;padding:12px;font-weight:800;font-size:15px;text-align:center;cursor:pointer;margin-bottom:8px;animation:ctaBounce 2s ease-in-out infinite">🚀 '+T('mem_upgrade_cta')+'</div>';
   }else if(lv>0&&lv<3){
-    cta.innerHTML='<div onclick="showUpgradeModal('+(lv+1)+')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:12px;padding:10px;font-weight:700;font-size:13px;text-align:center;cursor:pointer;margin-bottom:8px">💎 升級至'+{1:'🥈酒鬼',2:'🥇酒神'}[lv+1]+' 解鎖更多</div>';
+    var lvMap={1:'🥈'+T('lv_silver'),2:'🥇'+T('lv_gold')};
+    cta.innerHTML='<div onclick="showUpgradeModal('+(lv+1)+')" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border-radius:12px;padding:10px;font-weight:700;font-size:13px;text-align:center;cursor:pointer;margin-bottom:8px">💎 '+T('ug_upgrade_to')+(lvMap[lv+1]||'')+' '+T('ug_unlock_more')+'</div>';
   }else{cta.innerHTML=''}
 }
 async function loadAdBanner(container){
@@ -2064,10 +2065,13 @@ async function loadAdBanner(container){
 
 // ─── Upgrade Modal (Enhanced Visual) ───
 function showUpgradeModal(requiredLv){
-  const names={1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
-  const pricesM={1:'¥9.9/月',2:'¥19.9/月',3:'¥49.9/月'};
-  const pricesA={1:'¥69/年',2:'¥149/年',3:'¥233/年'};
-  const freeVs={1:['3粒骰 ← 免費僅2粒','5張打卡相 ← 免費僅1張','500字筆記 ← 免費僅200字','200酒友 ← 免費僅20','每日15帖 ← 免費僅3','可建3群 ← 免費0','7日足跡 ← 免費僅3日','收藏50款 ← 免費僅3','掃碼30次/日 ← 免費僅3','開趴約飲','去廣告','專屬徽章'],2:['4粒骰 ← 免費僅2粒','9張打卡相 ← 免費僅1張','1000字筆記 ← 免費僅200字','999酒友 ← 免費僅20','每日無限帖 ← 免費僅3','可建5群 ← 免費0','朋友足跡 ← 免費僅3日','收藏500款 ← 免費僅3','掃碼200次/日 ← 免費僅3','每月5酒局 ← 免費0','開趴+約戰','去廣告','專屬徽章'],3:['5粒骰 ← 免費僅2粒','9張打卡相 ← 免費僅1張','3000字筆記 ← 免費僅200字','無限酒友 ← 免費僅20','每日無限帖 ← 免費僅3','建群不限 ← 免費0','全域熱點 ← 免費僅3日','收藏無限 ← 免費僅3','掃碼無限 ← 免費僅3','無限酒局 ← 免費0','開趴+約戰','去廣告','專屬徽章','🌈 炫彩昵稱','⚡ 優先匹配','🔥 酒神專屬特效']};
+  const names={1:'🥉'+T('lv_bronze'),2:'🥈'+T('lv_silver'),3:'🥇'+T('lv_gold')};
+  const pricesM={1:T('pricing_bronze_m'),2:T('pricing_silver_m'),3:T('pricing_gold_m')};
+  const pricesA={1:T('pricing_bronze_a'),2:T('pricing_silver_a'),3:T('pricing_gold_a')};
+  const freeVs={
+    1:[T('ug_b1_dice'),T('ug_b1_photos'),T('ug_b1_notes'),T('ug_b1_friends'),T('ug_b1_posts'),T('ug_b1_groups'),T('ug_b1_footprint'),T('ug_b1_favs'),T('ug_b1_scans'),T('ug_party'),T('ug_no_ads'),T('ug_badge')],
+    2:[T('ug_b2_dice'),T('ug_b2_photos'),T('ug_b2_notes'),T('ug_b2_friends'),T('ug_b2_posts'),T('ug_b2_groups'),T('ug_b2_footprint'),T('ug_b2_favs'),T('ug_b2_scans'),T('ug_b2_parties'),T('ug_party_battle'),T('ug_no_ads'),T('ug_badge')],
+    3:[T('ug_b3_dice'),T('ug_b3_photos'),T('ug_b3_notes'),T('ug_b3_friends'),T('ug_b3_posts'),T('ug_b3_groups'),T('ug_b3_footprint'),T('ug_b3_favs'),T('ug_b3_scans'),T('ug_b3_parties'),T('ug_party_battle'),T('ug_no_ads'),T('ug_badge'),T('ug_rainbow_name'),T('ug_priority'),T('ug_fx')]
   // 限時倒計時
   var cdKey='jymy_ug_cd_start',cdStart=localStorage.getItem(cdKey);
   if(!cdStart){localStorage.setItem(cdKey,Date.now());cdStart=Date.now()}
@@ -2076,12 +2080,14 @@ function showUpgradeModal(requiredLv){
   var cdShow=cdLeft>0;
   let h='<div id="upgrade-overlay" onclick="if(event.target===this){this.remove();clearInterval(window._ugCdTimer)}" style="position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;display:flex;align-items:center;justify-content:center">';
   h+='<div style="position:relative;background:var(--card);border-radius:20px;padding:0;max-width:420px;width:94%;box-shadow:0 8px 32px rgba(0,0,0,.3);max-height:88vh;overflow-y:auto;animation:ugGlow 3s ease-in-out infinite">';
+  // Close button (X)
+  h+='<button onclick="document.getElementById(\'upgrade-overlay\').remove();clearInterval(window._ugCdTimer)" style="position:absolute;top:12px;right:12px;z-index:10;width:32px;height:32px;border:none;border-radius:50%;background:rgba(255,255,255,0.15);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)">✕</button>';
   // 粒子背景
   h+='<div style="position:absolute;inset:0;overflow:hidden;border-radius:20px;pointer-events:none">';
   for(var pi=0;pi<12;pi++){var px=Math.random()*100,py=Math.random()*100,ps=2+Math.random()*3,pa=1+Math.floor(Math.random()*5);h+='<div style="position:absolute;left:'+px+'%;top:'+py+'%;width:'+ps+'px;height:'+ps+'px;border-radius:50%;background:'+(pi%2?'var(--amber)':'var(--purple)')+';animation:ugParticle '+(2+pi%3)+'s ease-in-out '+(pi*.3)+'s infinite"></div>'}
   h+='</div>';
   // 限時5折横幅
-  if(cdShow)h+='<div style="background:linear-gradient(90deg,#dc2626,#ef4444);color:#fff;text-align:center;padding:8px 12px;border-radius:20px 20px 0 0;font-size:13px;font-weight:800;animation:flashBanner 1.5s ease-in-out infinite">🔥 限時體驗：首月 ¥1/¥3/¥5！<span id="ug-cd" style="margin-left:8px;font-variant-numeric:tabular-nums">'+cdH+'時'+String(cdM).padStart(2,'0')+'分'+String(cdS).padStart(2,'0')+'秒</span></div>';
+  if(cdShow)h+='<div style="background:linear-gradient(90deg,#dc2626,#ef4444);color:#fff;text-align:center;padding:8px 12px;border-radius:20px 20px 0 0;font-size:13px;font-weight:800;animation:flashBanner 1.5s ease-in-out infinite">🔥 '+T('ug_limited_offer')+' <span id="ug-cd" style="margin-left:8px;font-variant-numeric:tabular-nums">'+cdH+T('ug_hour')+String(cdM).padStart(2,'0')+T('ug_min')+String(cdS).padStart(2,'0')+T('ug_sec')+'</span></div>';
   else h+='<div style="height:8px;border-radius:20px 20px 0 0"></div>';
   h+='<div style="position:relative;padding:20px">';
   // 大钻石動畫
@@ -2089,8 +2095,8 @@ function showUpgradeModal(requiredLv){
   h+='<div style="font-size:20px;font-weight:800;text-align:center;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px">'+T('mem_upgrade_cta')+'</div>';
   // Tab: quick / compare
   h+='<div style="display:flex;gap:4px;margin-bottom:12px">';
-  h+='<button id="ug-tab-quick" onclick="ugTab(\'quick\')" style="flex:1;padding:6px;font-size:12px;font-weight:700;border:none;border-radius:8px 8px 0 0;background:var(--amber);color:#fff;cursor:pointer">🚀 快速升級</button>';
-  h+='<button id="ug-tab-compare" onclick="ugTab(\'compare\')" style="flex:1;padding:6px;font-size:12px;font-weight:700;border:none;border-radius:8px 8px 0 0;background:var(--bg2);color:var(--sub);cursor:pointer">📊 權益對比</button>';
+  h+='<button id="ug-tab-quick" onclick="ugTab(\'quick\')" style="flex:1;padding:6px;font-size:12px;font-weight:700;border:none;border-radius:8px 8px 0 0;background:var(--amber);color:#fff;cursor:pointer">🚀 '+T('ug_quick_upgrade')+'</button>';
+  h+='<button id="ug-tab-compare" onclick="ugTab(\'compare\')" style="flex:1;padding:6px;font-size:12px;font-weight:700;border:none;border-radius:8px 8px 0 0;background:var(--bg2);color:var(--sub);cursor:pointer">📊 '+T('ug_compare')+'</button>';
   h+='</div>';
   // Quick panel
   h+='<div id="ug-panel-quick">';
@@ -2102,9 +2108,9 @@ function showUpgradeModal(requiredLv){
   h+='</div>';
   // billing toggle — 月付/季付/年付 三檔
   h+='<div style="text-align:center;margin:6px 0 10px;font-size:12px">';
-  h+='<span style="color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px" onclick="ugSetBilling(\'monthly\')" id="ug-m-label">月付</span>';
-  h+='<span style="color:var(--amber);cursor:pointer;padding:4px 8px;border-radius:8px;font-weight:700;border:1px solid var(--amber);background:rgba(245,158,11,0.1)" onclick="ugSetBilling(\'quarterly\')" id="ug-q-label">季付 省15%</span>';
-  h+='<span style="color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px" onclick="ugSetBilling(\'annual\')" id="ug-a-label">年付 省35%</span>';
+  h+='<span style="color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px" onclick="ugSetBilling(\'monthly\')" id="ug-m-label">'+T('ug_monthly')+'</span>';
+  h+='<span style="color:var(--amber);cursor:pointer;padding:4px 8px;border-radius:8px;font-weight:700;border:1px solid var(--amber);background:rgba(245,158,11,0.1)" onclick="ugSetBilling(\'quarterly\')" id="ug-q-label">'+T('ug_quarterly')+'</span>';
+  h+='<span style="color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px" onclick="ugSetBilling(\'annual\')" id="ug-a-label">'+T('ug_annual')+'</span>';
   h+='</div>';
   [1,2,3].forEach(lv=>{
     const sel=lv===requiredLv?'border:2px solid var(--amber);background:rgba(245,158,11,0.1)':'border:1px solid var(--border)';
@@ -2115,15 +2121,15 @@ function showUpgradeModal(requiredLv){
   h+='<input type="hidden" id="ug-billing" value="quarterly">';
   // Trial button
   const trialPrices={1:'¥1',2:'¥3',3:'¥5'};
-  h+='<button class="btn" style="width:100%;margin-top:8px;font-size:14px;font-weight:700;padding:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 16px rgba(16,185,129,.3)" onclick="doUpgrade(\'trial\')">⚡ 0秒體驗 '+trialPrices[requiredLv]+' → 72小時內付款</button>';
+  h+='<button class="btn" style="width:100%;margin-top:8px;font-size:14px;font-weight:700;padding:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:12px;box-shadow:0 4px 16px rgba(16,185,129,.3)" onclick="doUpgrade(\'trial\')">⚡ '+T('ug_trial_btn')+'</button>';
   // Gradient + pulse button
-  h+='<button class="btn btn-primary" style="width:100%;margin-top:12px;font-size:18px;font-weight:800;padding:14px;background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);box-shadow:0 4px 20px rgba(245,158,11,.4);animation:ugBtnPulse 2s ease-in-out infinite" onclick="doUpgrade()">🚀 立即升級</button>';
+  h+='<button class="btn btn-primary" style="width:100%;margin-top:12px;font-size:18px;font-weight:800;padding:14px;background:linear-gradient(135deg,#f59e0b,#ef4444,#8b5cf6);box-shadow:0 4px 20px rgba(245,158,11,.4);animation:ugBtnPulse 2s ease-in-out infinite" onclick="doUpgrade()">🚀 '+T('pricing_upgrade_now')+'</button>';
   h+='</div>';
   // Compare panel (hidden by default)
   h+='<div id="ug-panel-compare" style="display:none">';
   h+=_ugCompareTable();
   h+='</div>';
-  h+='<div style="text-align:center;margin-top:8px"><a href="#" onclick="event.preventDefault();document.getElementById(\'upgrade-overlay\').remove();clearInterval(window._ugCdTimer)" style="font-size:12px;color:var(--sub)">下次再講</a></div>';
+  h+='<div style="text-align:center;margin-top:8px"><a href="#" onclick="event.preventDefault();document.getElementById(\'upgrade-overlay\').remove();clearInterval(window._ugCdTimer)" style="font-size:12px;color:var(--sub)">'+T('ug_later')+'</a></div>';
   h+='</div></div></div>';
   document.body.insertAdjacentHTML('beforeend',h);
   // 倒計時更新
@@ -2133,7 +2139,7 @@ function showUpgradeModal(requiredLv){
     var e=document.getElementById('ug-cd');
     if(!e||left<=0){if(e)e.textContent=T('expired');clearInterval(window._ugCdTimer);return}
     var hh=Math.floor(left/3600000),mm=Math.floor((left%3600000)/60000),ss=Math.floor((left%60000)/1000);
-    e.textContent=hh+'h '+String(mm).padStart(2,'0')+'m '+String(ss).padStart(2,'0')+'s';
+    e.textContent=hh+T('ug_hour')+String(mm).padStart(2,'0')+T('ug_min')+String(ss).padStart(2,'0')+T('ug_sec');
   },1000)}
 }
 function ugTab(t){
@@ -2146,32 +2152,32 @@ function ugTab(t){
   if(typeof window._langConvert==='function')window._langConvert(false);
 }
 function _ugCompareTable(){
-  const L={0:{t:'免費',icon:'🆓'},1:{t:'🥉酒友',icon:'🥉'},2:{t:'🥈酒鬼',icon:'🥈'},3:{t:'🥇酒神',icon:'🥇'}};
+  const L={0:{t:T('lv_free'),icon:'🆓'},1:{t:'🥉'+T('lv_bronze'),icon:'🥉'},2:{t:'🥈'+T('lv_silver'),icon:'🥈'},3:{t:'🥇'+T('lv_gold'),icon:'🥇'}};
   const F=[
-    ['🎲 骰子',2,3,4,5],
-    ['📸 打卡照',1,5,9,9],
-    ['📝 筆記字數',200,500,1000,3000],
-    ['👫 好友',20,200,999,'∞'],
-    ['📢 每日帖',3,15,'∞','∞'],
-    ['🎉 每月酒局',0,3,5,'∞'],
-    ['✍️ 帖字上限',500,1000,2000,5000],
-    ['🏗️ 建群',0,3,10,'∞'],
-    ['👨‍👩‍👧‍👦 群上限人',10,30,100,500],
-    ['💬 每時聊天',10,'∞','∞','∞'],
-    ['📜 聊天記錄',20,'∞','∞','∞'],
-    ['🚫 去廣告','✗','✓','✓','✓'],
-    ['🔖 收藏酒品',3,50,500,'∞'],
-    ['🔍 每日掃碼',3,30,200,'∞'],
-    ['🗺️ 打卡地圖','3日','7日','朋友','全域'],
-    ['🧧 每月券',1,1,3,5],
-    ['🌈 炫彩昵稱','✗','✗','✗','✓'],
+    ['🎲 '+T('cmp_dice'),2,3,4,5],
+    ['📸 '+T('cmp_photos'),1,5,9,9],
+    ['📝 '+T('cmp_notes'),200,500,1000,3000],
+    ['👫 '+T('cmp_friends'),20,200,999,'∞'],
+    ['📢 '+T('cmp_daily_posts'),3,15,'∞','∞'],
+    ['🎉 '+T('cmp_monthly_party'),0,3,5,'∞'],
+    ['✍️ '+T('cmp_post_limit'),500,1000,2000,5000],
+    ['🏗️ '+T('cmp_groups'),0,3,10,'∞'],
+    ['👨‍👩‍👧‍👦 '+T('cmp_group_limit'),10,30,100,500],
+    ['💬 '+T('cmp_hourly_chat'),10,'∞','∞','∞'],
+    ['📜 '+T('cmp_chat_history'),20,'∞','∞','∞'],
+    ['🚫 '+T('ug_no_ads'),'✗','✓','✓','✓'],
+    ['🔖 '+T('cmp_favs'),3,50,500,'∞'],
+    ['🔍 '+T('cmp_daily_scans'),3,30,200,'∞'],
+    ['🗺️ '+T('cmp_map'),'3'+T('cmp_day_unit'),'7'+T('cmp_day_unit'),T('cmp_friends'),T('cmp_global')],
+    ['🧧 '+T('cmp_monthly_coupons'),1,1,3,5],
+    ['🌈 '+T('ug_rainbow_name'),'✗','✗','✗','✓'],
   ];
   const curLv=memLevel();
   let h='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="width:100%;border-collapse:collapse;font-size:11px">';
   h+='<tr style="border-bottom:2px solid var(--border)"><td style="padding:6px 4px;color:var(--sub)"></td>';
-  [0,1,2,3].forEach(lv=>{const c=lv===curLv?'color:var(--pink);font-weight:700':'color:var(--text)';const tag=lv===curLv?' (你)':'';h+='<td style="padding:6px 4px;text-align:center;'+c+'">'+L[lv].t+tag+'</td>'});
+  [0,1,2,3].forEach(lv=>{const c=lv===curLv?'color:var(--pink);font-weight:700':'color:var(--text)';const tag=lv===curLv?' ('+T('cmp_you')+')':'';h+='<td style="padding:6px 4px;text-align:center;'+c+'">'+L[lv].t+tag+'</td>'});
   h+='</tr>';
-  h+='<tr style="border-bottom:1px solid var(--border)"><td></td><td style="text-align:center;color:var(--sub);font-size:10px;padding:4px">免費</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥9.9/月</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥19.9/月</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">¥49.9/月</td></tr>';
+  h+='<tr style="border-bottom:1px solid var(--border)"><td></td><td style="text-align:center;color:var(--sub);font-size:10px;padding:4px">'+T('lv_free')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_bronze_m')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_silver_m')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_gold_m')+'</td></tr>';
   F.forEach(row=>{
     h+='<tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 4px;white-space:nowrap;color:var(--text)">'+row[0]+'</td>';
     for(let i=1;i<=4;i++){
@@ -2186,7 +2192,7 @@ function _ugCompareTable(){
     h+='</tr>';
   });
   h+='</table></div>';
-  h+='<div style="text-align:center;margin-top:10px"><button class="btn btn-pink" style="padding:8px 20px;font-size:13px;font-weight:700" onclick="ugTab(\'quick\')">🚀 選擇方案升級</button></div>';
+  h+='<div style="text-align:center;margin-top:10px"><button class="btn btn-pink" style="padding:8px 20px;font-size:13px;font-weight:700" onclick="ugTab(\'quick\')">🚀 '+T('ug_select_plan')+'</button></div>';
   return h;
 }
 function ugSetBilling(type){
@@ -2229,8 +2235,8 @@ async function doUpgrade(mode){
         if(me){me.membership=d.membership;me.member_expires=d.expires}
         // Show trial countdown + pay QR
         showTrialCountdown(d.expires,plan);
-      }else{toast(d.msg||d.error||'升級失敗',1)}
-    }catch(e){toast('網络錯誤',1)}
+      }else{toast(d.msg||d.error||T('ug_upgrade_failed'),1)}
+    }catch(e){toast(T('network_error'),1)}
     return;
   }
   // Normal upgrade: sync billing, open payment QR
@@ -2388,6 +2394,7 @@ function showPage(name){
   window.scrollTo({top:0,behavior:'smooth'});
   // Close any open modal overlays when switching pages
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
+  const ugOv=document.getElementById('upgrade-overlay');if(ugOv){ugOv.remove();if(window._ugCdTimer)clearInterval(window._ugCdTimer);}
   if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts();}if(name==='map')initMap();if(name==='party'){loadParties();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
   // 切tab后触发 debounced 语言转换
   if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
@@ -3129,6 +3136,53 @@ const L={
   pricing_silver_m:'¥19.9/月',pricing_silver_q:'¥50/季',pricing_silver_a:'¥149/年',
   pricing_gold_m:'¥49.9/月',pricing_gold_q:'¥76/季',pricing_gold_a:'¥233/年',
   pricing_save_tip:'年付最高省42%！季付省15%',pricing_current:'當前',pricing_upgrade_now:'立即升級',
+  ug_close:'關閉',
+  ug_limited_offer:'限時體驗：首月 ¥1/¥3/¥5！',ug_hour:'時',ug_min:'分',ug_sec:'秒',
+  ug_quick_upgrade:'快速升級',ug_compare:'權益對比',
+  ug_monthly:'月付',ug_quarterly:'季付 省15%',ug_annual:'年付 省35%',
+  ug_trial_btn:'0秒體驗 → 72小時內付款',ug_later:'下次再講',
+  ug_upgrade_to:'升級至',ug_unlock_more:'解鎖更多',ug_select_plan:'選擇方案升級',
+  ug_upgrade_short:'升級',ug_upgrade_failed:'升級失敗',ug_need_upgrade_to:'需要升級至',
+  ug_party:'開趴約飲',ug_party_battle:'開趴+約戰',ug_no_ads:'去廣告',ug_badge:'專屬徽章',
+  ug_rainbow_name:'🌈 炫彩昵稱',ug_priority:'⚡ 優先匹配',ug_fx:'🔥 酒神專屬特效',
+  ug_b1_dice:'3粒骰 ← 免費僅2粒',ug_b1_photos:'5張打卡相 ← 免費僅1張',
+  ug_b1_notes:'500字筆記 ← 免費僅200字',ug_b1_friends:'200酒友 ← 免費僅20',
+  ug_b1_posts:'每日15帖 ← 免費僅3',ug_b1_groups:'可建3群 ← 免費0',
+  ug_b1_footprint:'7日足跡 ← 免費僅3日',ug_b1_favs:'收藏50款 ← 免費僅3',
+  ug_b1_scans:'掃碼30次/日 ← 免費僅3',
+  ug_b2_dice:'4粒骰 ← 免費僅2粒',ug_b2_photos:'9張打卡相 ← 免費僅1張',
+  ug_b2_notes:'1000字筆記 ← 免費僅200字',ug_b2_friends:'999酒友 ← 免費僅20',
+  ug_b2_posts:'每日無限帖 ← 免費僅3',ug_b2_groups:'可建5群 ← 免費0',
+  ug_b2_footprint:'朋友足跡 ← 免費僅3日',ug_b2_favs:'收藏500款 ← 免費僅3',
+  ug_b2_scans:'掃碼200次/日 ← 免費僅3',ug_b2_parties:'每月5酒局 ← 免費0',
+  ug_b3_dice:'5粒骰 ← 免費僅2粒',ug_b3_photos:'9張打卡相 ← 免費僅1張',
+  ug_b3_notes:'3000字筆記 ← 免費僅200字',ug_b3_friends:'無限酒友 ← 免費僅20',
+  ug_b3_posts:'每日無限帖 ← 免費僅3',ug_b3_groups:'建群不限 ← 免費0',
+  ug_b3_footprint:'全域熱點 ← 免費僅3日',ug_b3_favs:'收藏無限 ← 免費僅3',
+  ug_b3_scans:'掃碼無限 ← 免費僅3',ug_b3_parties:'無限酒局 ← 免費0',
+  cmp_dice:'骰子',cmp_photos:'打卡照',cmp_notes:'筆記字數',cmp_friends:'好友',
+  cmp_daily_posts:'每日帖',cmp_monthly_party:'每月酒局',cmp_post_limit:'帖字上限',
+  cmp_groups:'建群',cmp_group_limit:'群上限人',cmp_hourly_chat:'每時聊天',
+  cmp_chat_history:'聊天記錄',cmp_favs:'收藏酒品',cmp_daily_scans:'每日掃碼',
+  cmp_map:'打卡地圖',cmp_day_unit:'日',cmp_friends:'朋友',cmp_global:'全域',
+  cmp_monthly_coupons:'每月券',cmp_you:'你',
+  ug_hint_favs:'🔖 你嘅酒櫃快滿喇！升級收藏更多！',
+  ug_hint_party:'🎉 想約朋友飲杯？升級開趴啦！',
+  ug_hint_friends:'👫 好友位快滿喇！升級加位繼續飲！',
+  ug_hint_posts:'📝 今日講夠喇？升級繼續吹水！',
+  ug_hint_scan:'🔍 想再掃多支？升級解鎖更多掃碼！',
+  ug_hint_map:'🗺️ 想睇更多足跡？升級擴大地圖！',
+  ug_hint_coupon:'🧧 想拎多張券？升級每個月更多優惠！',
+  ug_hint_cellar:'🍷 想睇好友酒柜？升酒友即開！',
+  ug_hint_ai_note:'🧠 AI品酒分析？酒神先配有！',
+  ug_hint_leaderboard:'🏆 想睇排行榜？升酒友解鎖！邊個飲得最多？',
+  ug_hint_report:'📊 飲酒月報？酒鬼升級即有！',
+  ug_preview_party:'預览：開趴約飲 · 骰盅遊戲 · 專屬房間',
+  ug_upgrade_open_room:'升級即刻開房！',
+  ug_generic_1:'🍺 飲杯都要升級？升酒友解鎖啦！',
+  ug_generic_2:'🍻 想玩盡啲？升酒鬼先得！',
+  ug_generic_3:'💎 最高享受，酒神先配有！',
+  network_error:'網络錯誤',
   feat_bronze:'好友50人,開趴3次/月,發帖10/日,收藏50,掃碼20/日,地图全功能,酒柜展示,每月1券',
   feat_silver:'好友200人,開趴10次/月,發帖30/日,收藏200,掃碼50/日,飲酒月報,每月3券,群組10個',
   feat_gold:'好友∞,開趴∞,發帖∞,收藏∞,掃碼∞,AI品酒笔記,每月5券,群組∞,優先客服',
@@ -3830,6 +3884,53 @@ const L={
   pricing_silver_m:'¥19.9/月',pricing_silver_q:'¥50/季',pricing_silver_a:'¥149/年',
   pricing_gold_m:'¥49.9/月',pricing_gold_q:'¥76/季',pricing_gold_a:'¥233/年',
   pricing_save_tip:'年付最高省42%！季付省15%',pricing_current:'当前',pricing_upgrade_now:'立即升级',
+  ug_close:'关闭',
+  ug_limited_offer:'限时体验：首月 ¥1/¥3/¥5！',ug_hour:'时',ug_min:'分',ug_sec:'秒',
+  ug_quick_upgrade:'快速升级',ug_compare:'权益对比',
+  ug_monthly:'月付',ug_quarterly:'季付 省15%',ug_annual:'年付 省35%',
+  ug_trial_btn:'0秒体验 → 72小时内付款',ug_later:'下次再说',
+  ug_upgrade_to:'升级至',ug_unlock_more:'解锁更多',ug_select_plan:'选择方案升级',
+  ug_upgrade_short:'升级',ug_upgrade_failed:'升级失败',ug_need_upgrade_to:'需要升级至',
+  ug_party:'开趴约饮',ug_party_battle:'开趴+约战',ug_no_ads:'去广告',ug_badge:'专属徽章',
+  ug_rainbow_name:'🌈 炫彩昵称',ug_priority:'⚡ 优先匹配',ug_fx:'🔥 酒神专属特效',
+  ug_b1_dice:'3粒骰 ← 免费仅2粒',ug_b1_photos:'5张打卡照 ← 免费仅1张',
+  ug_b1_notes:'500字笔记 ← 免费仅200字',ug_b1_friends:'200酒友 ← 免费仅20',
+  ug_b1_posts:'每日15帖 ← 免费仅3',ug_b1_groups:'可建3群 ← 免费0',
+  ug_b1_footprint:'7日足印 ← 免费仅3日',ug_b1_favs:'收藏50款 ← 免费仅3',
+  ug_b1_scans:'扫码30次/日 ← 免费仅3',
+  ug_b2_dice:'4粒骰 ← 免费仅2粒',ug_b2_photos:'9张打卡照 ← 免费仅1张',
+  ug_b2_notes:'1000字笔记 ← 免费仅200字',ug_b2_friends:'999酒友 ← 免费仅20',
+  ug_b2_posts:'每日无限帖 ← 免费仅3',ug_b2_groups:'可建5群 ← 免费0',
+  ug_b2_footprint:'朋友足印 ← 免费仅3日',ug_b2_favs:'收藏500款 ← 免费仅3',
+  ug_b2_scans:'扫码200次/日 ← 免费仅3',ug_b2_parties:'每月5酒局 ← 免费0',
+  ug_b3_dice:'5粒骰 ← 免费仅2粒',ug_b3_photos:'9张打卡照 ← 免费仅1张',
+  ug_b3_notes:'3000字笔记 ← 免费仅200字',ug_b3_friends:'无限酒友 ← 免费仅20',
+  ug_b3_posts:'每日无限帖 ← 免费仅3',ug_b3_groups:'建群不限 ← 免费0',
+  ug_b3_footprint:'全域热点 ← 免费仅3日',ug_b3_favs:'收藏无限 ← 免费仅3',
+  ug_b3_scans:'扫码无限 ← 免费仅3',ug_b3_parties:'无限酒局 ← 免费0',
+  cmp_dice:'骰子',cmp_photos:'打卡照',cmp_notes:'笔记字数',cmp_friends:'好友',
+  cmp_daily_posts:'每日帖',cmp_monthly_party:'每月酒局',cmp_post_limit:'帖字上限',
+  cmp_groups:'建群',cmp_group_limit:'群上限人',cmp_hourly_chat:'每时聊天',
+  cmp_chat_history:'聊天记录',cmp_favs:'收藏酒品',cmp_daily_scans:'每日扫码',
+  cmp_map:'打卡地图',cmp_day_unit:'日',cmp_friends:'朋友',cmp_global:'全域',
+  cmp_monthly_coupons:'每月券',cmp_you:'你',
+  ug_hint_favs:'🔖 你的酒柜快满啦！升级收藏更多！',
+  ug_hint_party:'🎉 想约朋友喝杯？升级开趴啦！',
+  ug_hint_friends:'👫 好友位快满啦！升级加位继续饮！',
+  ug_hint_posts:'📝 今天讲够了？升级继续吹水！',
+  ug_hint_scan:'🔍 想再扫多支？升级解锁更多扫码！',
+  ug_hint_map:'🗺️ 想看更多足迹？升级扩大地图！',
+  ug_hint_coupon:'🧧 想拿多张券？升级每个月更多优惠！',
+  ug_hint_cellar:'🍷 想看好友酒柜？升级酒友即开！',
+  ug_hint_ai_note:'🧠 AI品酒分析？酒神才配有！',
+  ug_hint_leaderboard:'🏆 想看排行榜？升级酒友解锁！谁饮得最多？',
+  ug_hint_report:'📊 饮酒月报？酒鬼升级即有！',
+  ug_preview_party:'预览：开趴约饮 · 骰盅游戏 · 专属房间',
+  ug_upgrade_open_room:'升级即刻开房！',
+  ug_generic_1:'🍺 饮杯都要升级？升级酒友解锁啦！',
+  ug_generic_2:'🍻 想玩尽点？升级酒鬼先得！',
+  ug_generic_3:'💎 最高享受，酒神才配有！',
+  network_error:'网络错误',
   feat_bronze:'好友50人,开趴3次/月,发帖10/日,收藏50,扫码20/日,地图全功能,酒柜展示,每月1券',
   feat_silver:'好友200人,开趴10次/月,发帖30/日,收藏200,扫码50/日,饮酒月报,每月3券,群组10个',
   feat_gold:'好友∞,开趴∞,发帖∞,收藏∞,扫码∞,AI品酒笔记,每月5券,群组∞,优先客服',
@@ -4531,6 +4632,53 @@ const L={
   pricing_silver_m:'¥19.9/mo',pricing_silver_q:'¥50/qtr',pricing_silver_a:'¥149/yr',
   pricing_gold_m:'¥49.9/mo',pricing_gold_q:'¥76/qtr',pricing_gold_a:'¥233/yr',
   pricing_save_tip:'Save up to 42% yearly! 15% quarterly',pricing_current:'Current',pricing_upgrade_now:'Upgrade Now',
+  ug_close:'Close',
+  ug_limited_offer:'Limited offer: 1st month ¥1/¥3/¥5!',ug_hour:'h ',ug_min:'m ',ug_sec:'s',
+  ug_quick_upgrade:'Quick Upgrade',ug_compare:'Compare Plans',
+  ug_monthly:'Monthly',ug_quarterly:'Quarterly Save 15%',ug_annual:'Annual Save 35%',
+  ug_trial_btn:'0-sec trial → Pay within 72hrs',ug_later:'Maybe Later',
+  ug_upgrade_to:'Upgrade to',ug_unlock_more:'Unlock more',ug_select_plan:'Select a plan',
+  ug_upgrade_short:'Upgrade ',ug_upgrade_failed:'Upgrade failed',ug_need_upgrade_to:'requires upgrade to',
+  ug_party:'Host parties',ug_party_battle:'Party + Battle',ug_no_ads:'No ads',ug_badge:'Exclusive badge',
+  ug_rainbow_name:'🌈 Rainbow name',ug_priority:'⚡ Priority matching',ug_fx:'🔥 God-tier effects',
+  ug_b1_dice:'3 dice ← free 2 only',ug_b1_photos:'5 check-in photos ← free 1 only',
+  ug_b1_notes:'500-char notes ← free 200 only',ug_b1_friends:'200 friends ← free 20 only',
+  ug_b1_posts:'15 posts/day ← free 3 only',ug_b1_groups:'3 groups ← free 0',
+  ug_b1_footprint:'7-day footprint ← free 3 days',ug_b1_favs:'50 favorites ← free 3 only',
+  ug_b1_scans:'30 scans/day ← free 3 only',
+  ug_b2_dice:'4 dice ← free 2 only',ug_b2_photos:'9 check-in photos ← free 1 only',
+  ug_b2_notes:'1000-char notes ← free 200 only',ug_b2_friends:'999 friends ← free 20 only',
+  ug_b2_posts:'Unlimited posts ← free 3 only',ug_b2_groups:'5 groups ← free 0',
+  ug_b2_footprint:'Friends footprint ← free 3 days',ug_b2_favs:'500 favorites ← free 3 only',
+  ug_b2_scans:'200 scans/day ← free 3 only',ug_b2_parties:'5 parties/mo ← free 0',
+  ug_b3_dice:'5 dice ← free 2 only',ug_b3_photos:'9 check-in photos ← free 1 only',
+  ug_b3_notes:'3000-char notes ← free 200 only',ug_b3_friends:'Unlimited friends ← free 20 only',
+  ug_b3_posts:'Unlimited posts ← free 3 only',ug_b3_groups:'Unlimited groups ← free 0',
+  ug_b3_footprint:'Global hotspots ← free 3 days',ug_b3_favs:'Unlimited favorites ← free 3 only',
+  ug_b3_scans:'Unlimited scans ← free 3 only',ug_b3_parties:'Unlimited parties ← free 0',
+  cmp_dice:'Dice',cmp_photos:'Check-in photos',cmp_notes:'Notes chars',cmp_friends:'Friends',
+  cmp_daily_posts:'Daily posts',cmp_monthly_party:'Monthly parties',cmp_post_limit:'Post char limit',
+  cmp_groups:'Groups',cmp_group_limit:'Group limit',cmp_hourly_chat:'Hourly chat',
+  cmp_chat_history:'Chat history',cmp_favs:'Favorites',cmp_daily_scans:'Daily scans',
+  cmp_map:'Check-in map',cmp_day_unit:'d',cmp_friends:'Friends',cmp_global:'Global',
+  cmp_monthly_coupons:'Monthly coupons',cmp_you:'You',
+  ug_hint_favs:'🔖 Cabinet almost full! Upgrade for more!',
+  ug_hint_party:'🎉 Want to host? Upgrade to unlock!',
+  ug_hint_friends:'👫 Friends limit reached! Upgrade for more!',
+  ug_hint_posts:'📝 Posted enough today? Upgrade for more!',
+  ug_hint_scan:'🔍 Want more scans? Upgrade to unlock!',
+  ug_hint_map:'🗺️ Want more footprints? Upgrade for a bigger map!',
+  ug_hint_coupon:'🧧 Want more coupons? Upgrade for monthly perks!',
+  ug_hint_cellar:'🍷 Want to see friend\'s cellar? Upgrade!',
+  ug_hint_ai_note:'🧠 AI tasting notes? God-tier only!',
+  ug_hint_leaderboard:'🏆 Want the leaderboard? Upgrade to unlock! Who drinks the most?',
+  ug_hint_report:'📊 Drinking report? Upgrade to Silver!',
+  ug_preview_party:'Preview: Host parties · Dice battles · Private rooms',
+  ug_upgrade_open_room:'Upgrade to open a room now!',
+  ug_generic_1:'🍺 Need to upgrade? Unlock with Bronze!',
+  ug_generic_2:'🍻 Want full access? Upgrade to Silver!',
+  ug_generic_3:'💎 The ultimate experience — God-tier only!',
+  network_error:'Network error',
   feat_bronze:'50 friends,3 parties/mo,10 posts/day,50 favs,20 scans/day,Full map,Cellar display,1 coupon/mo',
   feat_silver:'200 friends,10 parties/mo,30 posts/day,200 favs,50 scans/day,Monthly report,3 coupons/mo,10 groups',
   feat_gold:'∞ friends,∞ parties,∞ posts,∞ favs,∞ scans,AI Tasting,5 coupons/mo,∞ groups,Priority support',
@@ -8785,6 +8933,8 @@ function admDelLiquor(lid){
 const GRP_LIMITS={0:{create:1,members:10,label:'免費用戶'},1:{create:3,members:30,label:'🥉酒友'},2:{create:10,members:100,label:'🥈酒鬼'},3:{create:999,members:500,label:'🥇酒神'}};
 
 function frMainTab(tab){
+  // Close any upgrade overlay when switching tabs
+  const ugOv=document.getElementById('upgrade-overlay');if(ugOv){ugOv.remove();if(window._ugCdTimer)clearInterval(window._ugCdTimer);}
   ['circle','passport','stats','pricing'].forEach(k=>{
     const el=document.getElementById('fr-section-'+k);if(el)el.style.display=k===tab?'':'none';
     const btn=document.getElementById('fr-main-tab-'+k);
