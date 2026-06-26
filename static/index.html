@@ -4814,7 +4814,10 @@ function switchLang(l){
   // Re-render dynamic friend sub-tabs if visible
   if(typeof renderPricingTab==='function')renderPricingTab();
   if(typeof loadPassport==='function')loadPassport();
-  if(typeof renderStatsTab==='function')renderStatsTab();
+  if(typeof loadStats==='function')loadStats();
+  if(typeof grpLoadMy==='function')grpLoadMy();
+  if(typeof loadFriendsAll==='function')loadFriendsAll();
+  if(typeof loadLeaderboard==='function')loadLeaderboard();
   // 3) 全局DOM转换+延迟兜底
   if(l!=='zh-HK' && typeof window._langConvert==='function'){
     // 立即转换一次
@@ -5164,6 +5167,7 @@ async function mapLoadHeatmap(){
 let _loadTLPending=false;
 async function loadTL(){
  if(_loadTLPending)return;_loadTLPending=true;
+ const _tlTimer=setTimeout(()=>{_loadTLPending=false;},15000);
  const c=document.getElementById('tl-container');
  if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>'+T('login_to_view')+'</div>';_loadTLPending=false;return}
  showLoader('tl-container');
@@ -5188,7 +5192,7 @@ async function loadTL(){
  // P0-3: 非會員timeline插廣告
  if(memLevel()===0)loadAdBanner(c);
 }catch(e){console.error('loadTL error:',e);c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="loadTL()">🔄 '+T('retry')+'</button><div style="font-size:11px;color:var(--sub);margin-top:4px">'+esc(e.message)+'</div></div>'}
-finally{_loadTLPending=false}
+finally{clearTimeout(_tlTimer);_loadTLPending=false}
 }
 async function doRe(cid,emoji){
  try{
@@ -5228,6 +5232,7 @@ async function doCmt(){
 // ═══════ PARTY ═══════
 async function createParty(){
  if(!me)return toast(T('please_login'),1);
+ if(memLevel()<1){toast(T('grp_free_no_create'),'error');memLocked(1,'party');return;}
  const title=document.getElementById('pa-title').value.trim(),loc=document.getElementById('pa-loc').value.trim(),
  d=document.getElementById('pa-date').value,tm=document.getElementById('pa-time').value;
  if(!title)return toast(T("enter_name"),1);if(!d)return toast(T('toast_select_date'),1);
@@ -5310,6 +5315,7 @@ function addPollOption(){
 
 async function createPollInSection(){
   if(!_pollPartyId){toast(T('party_title')+'!',1);return}
+  if(memLevel()<1){toast(T('grp_free_no_create'),'error');memLocked(1,'party');return;}
   var q=document.getElementById('poll-q').value.trim();
   var inputs=document.querySelectorAll('#poll-section-create .poll-opt-input');
   var opts=[];inputs.forEach(function(i){var v=i.value.trim();if(v)opts.push(v)});
@@ -5364,6 +5370,7 @@ async function closePoll(pollId){
 
 async function createChainInSection(){
   if(!_chainPartyId){toast(T('party_title')+'!',1);return}
+  if(memLevel()<1){toast(T('grp_free_no_create'),'error');memLocked(1,'party');return;}
   var title=document.getElementById('chain-title').value.trim();
   var max=parseInt(document.getElementById('chain-max-slot').value)||0;
   var note=document.getElementById('chain-note-ipt').value.trim();
