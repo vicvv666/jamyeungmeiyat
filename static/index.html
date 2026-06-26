@@ -625,16 +625,16 @@ body.lang-ready{visibility:visible}
     <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
       <span>📊 <span data-i18n="poll_title">投票</span></span>
       <select id="poll-party-select" style="padding:4px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:11px" onchange="pollPartyChanged()">
-        <option value="">-- 選擇酒局 --</option>
+        <option value="" data-i18n="select_party">-- 選擇酒局 --</option>
       </select>
     </div>
     <div id="poll-section-create" style="margin-bottom:8px">
-      <input class="input" id="poll-q" placeholder="❓ 投票問題" style="font-size:12px;padding:8px 10px;margin-bottom:6px">
+      <input class="input" id="poll-q" placeholder="" data-i18n-ph="poll_question_ph" style="font-size:12px;padding:8px 10px;margin-bottom:6px">
       <div id="poll-opts-wrap">
-        <input class="input poll-opt-input" placeholder="A. 選項1" style="font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%">
-        <input class="input poll-opt-input" placeholder="B. 選項2" style="font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%">
+        <input class="input poll-opt-input" placeholder="" data-i18n-ph="poll_opt_a" style="font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%">
+        <input class="input poll-opt-input" placeholder="" data-i18n-ph="poll_opt_b" style="font-size:12px;padding:8px 10px;margin-bottom:4px;width:100%">
       </div>
-      <button class="btn btn-outline btn-sm" onclick="addPollOption()" style="font-size:11px;padding:3px 10px;margin-bottom:6px">+ 選項</button>
+      <button class="btn btn-outline btn-sm" onclick="addPollOption()" style="font-size:11px;padding:3px 10px;margin-bottom:6px" data-i18n="poll_add_opt">+ 選項</button>
       <button class="btn btn-primary btn-sm" onclick="createPollInSection()" data-i18n="poll_create" style="width:100%;font-size:12px;padding:6px 0">➕ 發起投票</button>
     </div>
     <div id="poll-section-list" style="max-height:300px;overflow-y:auto"></div>
@@ -645,14 +645,14 @@ body.lang-ready{visibility:visible}
     <div class="card-header" style="display:flex;align-items:center;justify-content:space-between">
       <span>🔗 <span data-i18n="chain_title">接龍報名</span></span>
       <select id="chain-party-select" style="padding:4px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:11px" onchange="chainPartyChanged()">
-        <option value="">-- 選擇酒局 --</option>
+        <option value="" data-i18n="select_party">-- 選擇酒局 --</option>
       </select>
     </div>
     <div id="chain-section-create" style="margin-bottom:8px">
-      <input class="input" id="chain-title" placeholder="📋 接龍標題" style="font-size:12px;padding:8px 10px;margin-bottom:4px">
+      <input class="input" id="chain-title" placeholder="" data-i18n-ph="chain_title_ph" style="font-size:12px;padding:8px 10px;margin-bottom:4px">
       <div style="display:flex;gap:6px;margin-bottom:6px">
-        <input class="input" id="chain-max-slot" type="number" placeholder="人數上限" style="flex:1;font-size:12px;padding:8px 10px">
-        <input class="input" id="chain-note-ipt" placeholder="備註(可選)" style="flex:2;font-size:12px;padding:8px 10px">
+        <input class="input" id="chain-max-slot" type="number" placeholder="" data-i18n-ph="chain_max_ph" style="flex:1;font-size:12px;padding:8px 10px">
+        <input class="input" id="chain-note-ipt" placeholder="" data-i18n-ph="chain_note_ph" style="flex:2;font-size:12px;padding:8px 10px">
       </div>
       <button class="btn btn-primary btn-sm" onclick="createChainInSection()" data-i18n="chain_submit" style="width:100%;font-size:12px;padding:6px 0">🔗 發起</button>
     </div>
@@ -669,7 +669,7 @@ body.lang-ready{visibility:visible}
       <div>
         <div style="font-size:48px;filter:grayscale(1);opacity:0.7">🗺️</div>
         <div style="font-size:15px;margin-top:8px;font-weight:700">🔒 <span data-i18n="toast_map_locked">打卡地圖需升級</span></div>
-        <div style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.7)">睇到全城飲友打卡热點</div>
+        <div style="font-size:12px;margin-top:6px;color:rgba(255,255,255,0.7)"><span data-i18n="map_lock_sub">睇到全城飲友打卡热點</span></div>
         <button class="btn btn-primary" style="margin-top:12px" onclick="showPay()">🥉 <span data-i18n="mem_upgrade_cta">升級解鎖</span></button>
       </div>
     </div>
@@ -677,15 +677,15 @@ body.lang-ready{visibility:visible}
   </div>
   <div class="card" style="margin-top:8px">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-      <button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="mapLocateMe()" id="btn-map-locate">📍 我嘅位置</button>
-      <button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="mapLoadCheckins()" id="btn-map-checkins">🍺 打卡點</button>
-      <button class="btn btn-outline btn-sm" style="border-color:#22c55e;color:#22c55e" onclick="mapLoadVenues()" id="btn-map-venues">🏙️ 酒吧VIP</button>
-      <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red)" onclick="mapLoadHeatmap()" id="btn-map-heatmap">🔥 热力足迹</button>
+      <button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="mapLocateMe()" id="btn-map-locate" data-i18n="map_my_loc">📍 我嘅位置</button>
+      <button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="mapLoadCheckins()" id="btn-map-checkins" data-i18n="map_checkins">🍺 打卡點</button>
+      <button class="btn btn-outline btn-sm" style="border-color:#22c55e;color:#22c55e" onclick="mapLoadVenues()" id="btn-map-venues" data-i18n="map_bar_vip">🏙️ 酒吧VIP</button>
+      <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red)" onclick="mapLoadHeatmap()" id="btn-map-heatmap" data-i18n="map_heatmap">🔥 热力足迹</button>
       <select id="map-days" style="padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px">
-        <option value="7">近7日</option>
-        <option value="30" selected>近30日</option>
-        <option value="90">近90日</option>
-        <option value="365">近一年</option>
+        <option value="7" data-i18n="map_7d">近7日</option>
+        <option value="30" selected data-i18n="map_30d">近30日</option>
+        <option value="90" data-i18n="map_90d">近90日</option>
+        <option value="365" data-i18n="map_365d">近一年</option>
       </select>
     </div>
     <div id="map-info" style="margin-top:8px;font-size:12px;color:var(--sub)"></div>
@@ -736,8 +736,8 @@ body.lang-ready{visibility:visible}
 <div id="challenge-notify" style="display:none;position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:200;background:linear-gradient(135deg,rgba(236,72,153,0.95),rgba(239,68,68,0.95));color:#fff;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:700;box-shadow:0 8px 32px rgba(236,72,153,0.4);max-width:90vw;text-align:center">
  <div id="challenge-notify-text"></div>
  <div style="display:flex;gap:8px;margin-top:8px;justify-content:center">
-  <button onclick="respondChallenge(true)" style="background:var(--green);color:#fff;border:none;padding:6px 20px;border-radius:8px;font-weight:700;cursor:pointer">✓ 接受</button>
-  <button onclick="respondChallenge(false)" style="background:var(--red);color:#fff;border:none;padding:6px 20px;border-radius:8px;font-weight:700;cursor:pointer">✕ 拒絕</button>
+  <button onclick="respondChallenge(true)" style="background:var(--green);color:#fff;border:none;padding:6px 20px;border-radius:8px;font-weight:700;cursor:pointer">✓ <span data-i18n="fr_accept">接受</span></button>
+  <button onclick="respondChallenge(false)" style="background:var(--red);color:#fff;border:none;padding:6px 20px;border-radius:8px;font-weight:700;cursor:pointer">✕ <span data-i18n="fr_reject">拒絕</span></button>
  </div>
 </div>
 <div class="card" id="room-detail" style="display:none">
@@ -776,7 +776,7 @@ body.lang-ready{visibility:visible}
   <!-- 個人資料卡 -->
   <div id="mem-profile-card" class="card" style="text-align:center;border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(236,72,153,0.04));padding:20px 16px">
     <div id="exp-warn" style="display:none;background:rgba(245,158,11,0.12);border:1px solid var(--amber);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--amber)"></div>
-    <div class="card-header" style="border:none;padding:0;margin-bottom:12px">👤 個人資料</div>
+    <div class="card-header" style="border:none;padding:0;margin-bottom:12px">👤 <span data-i18n="profile_title">個人資料</span></div>
     <div id="mem-avatar-wrap" style="margin:0 auto 10px;width:72px;height:72px;border-radius:50%;overflow:hidden;border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:36px;background:var(--card);position:relative;cursor:pointer" onclick="openProfile()">👤</div>
     <div style="font-weight:700;font-size:17px;color:var(--text)" id="mem-nick">-</div>
     <div id="mem-title-display" style="margin-top:2px"></div>
@@ -802,11 +802,11 @@ body.lang-ready{visibility:visible}
       <div style="font-size:28px">🍷</div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:14px" id="cellar-entry-title">我嘅酒柜</div>
-        <div style="font-size:11px;color:var(--sub)" id="cellar-entry-sub">收藏、評分、品飲記錄</div>
+        <div style="font-size:11px;color:var(--sub)" id="cellar-entry-sub" data-i18n="cellar_sub">收藏、評分、品飲記錄</div>
       </div>
       <div style="text-align:right">
         <div style="font-weight:700;font-size:18px;color:var(--amber)" id="cellar-entry-count">-</div>
-        <div style="font-size:10px;color:var(--sub)">款</div>
+        <div style="font-size:10px;color:var(--sub)"><span data-i18n="cellar_unit">款</span></div>
       </div>
       <div style="color:var(--sub);font-size:16px">›</div>
     </div>
@@ -837,17 +837,17 @@ body.lang-ready{visibility:visible}
           <tr><td style="padding:6px;border-top:1px solid var(--border)">👫 <span data-i18n="cmp_friends">酒友數</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">200</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">500</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🍺 <span data-i18n="cmp_daily">每日發帖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">5</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">15</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">∞</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🎯 <span data-i18n="cmp_party">月建酒局</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">1</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">5</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔖 <span>酒品收藏</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔍 <span>辨真助手</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🧧 <span>每月優惠券</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">1張</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3張</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">5張</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🏙️ <span>酒吧VIP</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>年度報告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span>打卡地圖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">浏览</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🤖 <span>AI酒單推荐</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3條</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅全部</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+畫像</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🍷 <span>我嘅酒柜</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">5款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span>群聊投票</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">投票</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔗 <span>接龍報名</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">加入</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
-          <tr><td style="padding:6px;border-top:1px solid var(--border)">📝 <span>酒評認證</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">看評</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅寫評</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅認證</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔖 <span data-i18n="cmp_cellar">酒品收藏</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔍 <span data-i18n="cmp_verify">辨真助手</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🧧 <span data-i18n="cmp_coupon">每月優惠券</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">1張</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3張</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">5張</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🏙️ <span data-i18n="cmp_bar_vip">酒吧VIP</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span data-i18n="cmp_annual">年度報告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🗺️ <span data-i18n="cmp_map">打卡地圖</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">浏览</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅+酒吧</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+熱力</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🤖 <span data-i18n="cmp_ai_rec">AI酒單推荐</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">3條</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅全部</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅+畫像</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🍷 <span data-i18n="cmp_cellar2">我嘅酒柜</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">5款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">50款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">500款</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">∞</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">📊 <span data-i18n="cmp_vote">群聊投票</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">投票</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">🔗 <span data-i18n="cmp_chain">接龍報名</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">加入</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
+          <tr><td style="padding:6px;border-top:1px solid var(--border)">📝 <span data-i18n="cmp_review">酒評認證</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">看評</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅寫評</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#6366f1">✅認證</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🏠 <span data-i18n="cmp_room">開房約戰</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">🚫 <span data-i18n="cmp_noad">去廣告</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
           <tr><td style="padding:6px;border-top:1px solid var(--border)">⭐ <span data-i18n="cmp_badge">專屬徽章</span></td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);color:var(--sub)">—</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border)">✅</td><td style="padding:6px;text-align:center;border-top:1px solid var(--border);font-weight:700;color:#dc2626">✅</td></tr>
@@ -861,9 +861,9 @@ body.lang-ready{visibility:visible}
     </div>
   </div>
   <div style="display:flex;gap:0;justify-content:center;margin:8px 0 4px;border:1px solid var(--border);border-radius:10px;overflow:hidden">
-    <button id="mb-m" onclick="memBilling('m')" style="padding:8px 16px;background:none;border:none;color:var(--pink);font-weight:700;font-size:12px;cursor:pointer;border-bottom:2px solid var(--pink)">月付</button>
-    <button id="mb-q" onclick="memBilling('q')" style="padding:8px 16px;background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;border-bottom:2px solid transparent">季付 <span style="color:var(--amber);font-size:10px">省15%</span></button>
-    <button id="mb-a" onclick="memBilling('a')" style="padding:8px 16px;background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;border-bottom:2px solid transparent">年付 <span style="color:var(--amber);font-size:10px">省42%</span></button>
+    <button id="mb-m" onclick="memBilling('m')" style="padding:8px 16px;background:none;border:none;color:var(--pink);font-weight:700;font-size:12px;cursor:pointer;border-bottom:2px solid var(--pink)"><span data-i18n="pay_monthly">月付</span></button>
+    <button id="mb-q" onclick="memBilling('q')" style="padding:8px 16px;background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;border-bottom:2px solid transparent">季付 <span style="color:var(--amber);font-size:10px"><span data-i18n="save_15pct">省15%</span></span></button>
+    <button id="mb-a" onclick="memBilling('a')" style="padding:8px 16px;background:none;border:none;color:var(--sub);font-size:12px;cursor:pointer;border-bottom:2px solid transparent">年付 <span style="color:var(--amber);font-size:10px"><span data-i18n="save_42pct">省42%</span></span></button>
   </div>
   <div class="plans-row">
     <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name" data-i18n="member_jiuyau">🥉 酒友</div><div class="plan-price" id="price-jiuyau">¥9.9</div><div class="plan-feat" id="feat-jiuyau" data-i18n="per_month">月費</div></div>
@@ -876,30 +876,30 @@ body.lang-ready{visibility:visible}
     <div style="font-size:28px;margin-bottom:6px">📱</div>
     <div style="font-weight:700;font-size:14px;margin-bottom:4px" data-i18n="apk_download_title">下載 Android App</div>
     <div style="font-size:11px;color:var(--sub);margin-bottom:10px" data-i18n="apk_download_desc">更好體驗 · 離線打卡 · 推送通知</div>
-    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download>🚀 下載 APK v2.4.0</a>
+    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download><span data-i18n="dl_apk">🚀 下載 APK</span> <span id="apk-ver">v2.4.0</span></a>
     <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a> · Android 5.0+</div>
   </div>
   <!-- My Checkins -->
   <div class="card" style="margin-top:8px;border:1.5px solid var(--amber);background:rgba(245,158,11,0.04)">
     <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-chk-sec')">🍺 <span data-i18n="mem_my_checkins">我嘅報到</span> <span id="mem-chk-arr" style="float:right">▼</span></div>
-    <div id="mem-chk-sec" style="max-height:300px;overflow-y:auto;display:none"><div id="mem-chk-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div></div>
+    <div id="mem-chk-sec" style="max-height:300px;overflow-y:auto;display:none"><div id="mem-chk-list" style="font-size:12px;color:var(--sub);padding:4px 0" data-i18n="loading">載入中...</div></div>
   </div>
   <!-- My Friends -->
   <div class="card" style="margin-top:8px;border:1.5px solid var(--pink);background:rgba(236,72,153,0.04)">
     <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-frd-sec')">👫 <span data-i18n="mem_my_friends">我嘅酒友</span> <span id="mem-frd-arr" style="float:right">▼</span></div>
-    <div id="mem-frd-sec" style="max-height:300px;overflow-y:auto;display:none"><div id="mem-frd-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div></div>
+    <div id="mem-frd-sec" style="max-height:300px;overflow-y:auto;display:none"><div id="mem-frd-list" style="font-size:12px;color:var(--sub);padding:4px 0" data-i18n="loading">載入中...</div></div>
   </div>
   <!-- My Posts -->
   <div class="card" style="margin-top:8px;border:1.5px solid var(--purple);background:rgba(139,92,246,0.04)">
     <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-post-sec')">📸 <span data-i18n="mem_my_posts">我嘅帖子</span> <span id="mem-post-arr" style="float:right">▼</span></div>
-    <div id="mem-post-sec" style="max-height:400px;overflow-y:auto;display:none"><div id="mem-post-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div></div>
+    <div id="mem-post-sec" style="max-height:400px;overflow-y:auto;display:none"><div id="mem-post-list" style="font-size:12px;color:var(--sub);padding:4px 0" data-i18n="loading">載入中...</div></div>
   </div>
   <!-- 🔖 My Favorites (酒品收藏) -->
   <!-- 🔖 Favorites (酒品收藏) -->
   <div class="card mem-feat-card" id="mem-fav-card" data-min-lv="1" style="margin-top:8px;border:1.5px solid #22c55e;background:rgba(34,197,94,0.04)">
-    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-fav-sec')">🔖 <span>我嘅酒櫃</span> <span id="mem-fav-arr" style="float:right">▼</span> <span id="mem-fav-count" style="float:right;font-size:11px;color:var(--sub);margin-right:8px"></span></div>
+    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-fav-sec')">🔖 <span data-i18n="my_cellar">我嘅酒櫃</span> <span id="mem-fav-arr" style="float:right">▼</span> <span id="mem-fav-count" style="float:right;font-size:11px;color:var(--sub);margin-right:8px"></span></div>
     <div id="mem-fav-sec" style="max-height:400px;overflow-y:auto;display:none">
-      <div id="mem-fav-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div>
+      <div id="mem-fav-list" style="font-size:12px;color:var(--sub);padding:4px 0" data-i18n="loading">載入中...</div>
     </div>
     <div class="mem-lock-overlay" style="display:none;text-align:center;padding:16px;color:var(--sub)">
       <div style="font-size:32px;filter:grayscale(1);opacity:0.5">🔖</div>
@@ -908,9 +908,9 @@ body.lang-ready{visibility:visible}
   </div>
   <!-- 🧧 My Coupons (優惠券) -->
   <div class="card mem-feat-card" id="mem-cpn-card" data-min-lv="1" style="margin-top:8px;border:1.5px solid #ef4444;background:rgba(239,68,68,0.04)">
-    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-cpn-sec')">🧧 <span>我嘅優惠券</span> <span id="mem-cpn-arr" style="float:right">▼</span> <span id="mem-cpn-count" style="float:right;font-size:11px;color:var(--sub);margin-right:8px"></span></div>
+    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-cpn-sec')">🧧 <span><span data-i18n="my_coupons">我嘅優惠券</span></span> <span id="mem-cpn-arr" style="float:right">▼</span> <span id="mem-cpn-count" style="float:right;font-size:11px;color:var(--sub);margin-right:8px"></span></div>
     <div id="mem-cpn-sec" style="max-height:300px;overflow-y:auto;display:none">
-      <div id="mem-cpn-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div>
+      <div id="mem-cpn-list" style="font-size:12px;color:var(--sub);padding:4px 0" data-i18n="loading">載入中...</div>
     </div>
     <div class="mem-lock-overlay" style="display:none;text-align:center;padding:16px;color:var(--sub)">
       <div style="font-size:32px;filter:grayscale(1);opacity:0.5">🧧</div>
@@ -919,25 +919,25 @@ body.lang-ready{visibility:visible}
   </div>
   <!-- 🎫 Invite Code (邀請碼) -->
   <div class="card" style="margin-top:8px;border:1.5px solid #f59e0b;background:rgba(245,158,11,0.04)">
-    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-inv-sec')">🎫 <span>邀請好友</span> <span id="mem-inv-arr" style="float:right">▼</span></div>
+    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-inv-sec')">🎫 <span data-i18n="invite_friends">邀請好友</span> <span id="mem-inv-arr" style="float:right">▼</span></div>
     <div id="mem-inv-sec" style="display:none;padding:12px 0">
       <div style="text-align:center;margin-bottom:12px">
-        <div style="font-size:12px;color:var(--sub);margin-bottom:6px">你嘅專屬邀請碼</div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:6px"><span data-i18n="invite_code_label">你嘅專屬邀請碼</span></div>
         <div id="my-invite-code" style="font-size:24px;font-weight:800;letter-spacing:4px;color:var(--amber);background:rgba(245,158,11,0.08);padding:10px 16px;border-radius:10px;display:inline-block;cursor:pointer" onclick="copyInviteCode()">—</div>
-        <div style="font-size:11px;color:var(--sub);margin-top:6px">📤 點擊復制 · 每3位好友升級送7日🥉酒友</div>
-        <div style="font-size:12px;color:var(--text);margin-top:8px">已邀請: <strong id="my-invited-count">0</strong> 人</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:6px">📤 <span data-i18n="click_copy">點擊復制</span> · <span data-i18n="invite_bonus">每3位好友升級送7日🥉酒友</span></div>
+        <div style="font-size:12px;color:var(--text);margin-top:8px"><span data-i18n="invited_label">已邀請:</span> <strong id="my-invited-count">0</strong> <span data-i18n="ppl_unit">人</span></div>
       </div>
       <div style="display:flex;gap:6px;padding:0 8px">
-        <input class="input" id="claim-invite-input" placeholder="輸入好友邀請碼" style="flex:1;margin-bottom:0;font-size:13px">
-        <button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="claimInviteCode()">使用</button>
+        <input class="input" id="claim-invite-input" placeholder="" data-i18n-ph="invite_input_ph" style="flex:1;margin-bottom:0;font-size:13px">
+        <button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="claimInviteCode()" data-i18n="use_btn">使用</button>
       </div>
     </div>
   </div>
   <!-- 🏙️ Partner Venues (合作酒吧VIP) -->
   <div class="card mem-feat-card" id="mem-venue-card" data-min-lv="2" style="margin-top:8px;border:1.5px solid #8b5cf6;background:rgba(139,92,246,0.04)">
-    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-venue-sec')">🏙️ <span>酒吧VIP</span> <span id="mem-venue-arr" style="float:right">▼</span></div>
+    <div class="card-header" style="cursor:pointer" onclick="toggleMemSection('mem-venue-sec')">🏙️ <span data-i18n="bar_vip">酒吧VIP</span> <span id="mem-venue-arr" style="float:right">▼</span></div>
     <div id="mem-venue-sec" style="max-height:400px;overflow-y:auto;display:none">
-      <div id="mem-venue-list" style="font-size:12px;color:var(--sub);padding:4px 0">載入中...</div>
+      <div id="mem-venue-list" style="font-size:12px;color:var(--sub);padding:4px 0" data-i18n="loading">載入中...</div>
     </div>
     <div class="mem-lock-overlay" style="display:none;text-align:center;padding:16px;color:var(--sub)">
       <div style="font-size:32px;filter:grayscale(1);opacity:0.5">🏙️</div>
@@ -946,7 +946,7 @@ body.lang-ready{visibility:visible}
   </div>
   <!-- 📊 Annual Report (年度報告) -->
   <div class="card mem-feat-card" id="mem-annual-card" data-min-lv="3" style="margin-top:8px;border:1.5px solid #dc2626;background:linear-gradient(135deg,rgba(220,38,38,0.06),rgba(245,158,11,0.04))">
-    <div class="card-header" style="cursor:pointer" onclick="loadAnnualReport()">📊 <span>我嘅年度報告</span></div>
+    <div class="card-header" style="cursor:pointer" onclick="loadAnnualReport()">📊 <span data-i18n="my_annual_report">我嘅年度報告</span></div>
     <div id="mem-annual-body" style="padding:8px 0;display:none"></div>
     <div class="mem-lock-overlay" style="display:none;text-align:center;padding:16px;color:var(--sub)">
       <div style="font-size:32px;filter:grayscale(1);opacity:0.5">📊</div>
@@ -971,13 +971,13 @@ body.lang-ready{visibility:visible}
     <div id="ctab-content-cellar">
     <div style="padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap" id="cellar-stats-bar"></div>
     <div style="padding:4px 16px 8px;display:flex;gap:6px" id="cellar-tag-btns">
-      <button class="btn btn-sm cellar-tag-btn active-scene" data-tag="" onclick="cellarFilterTag('')" style="font-size:11px;padding:4px 12px">全部</button>
-      <button class="btn btn-sm cellar-tag-btn" data-tag="want" onclick="cellarFilterTag('want')" style="font-size:11px;padding:4px 12px">🤤 想飲</button>
-      <button class="btn btn-sm cellar-tag-btn" data-tag="tried" onclick="cellarFilterTag('tried')" style="font-size:11px;padding:4px 12px">✅ 飲過</button>
-      <button class="btn btn-sm cellar-tag-btn" data-tag="collect" onclick="cellarFilterTag('collect')" style="font-size:11px;padding:4px 12px">💎 收藏</button>
+      <button class="btn btn-sm cellar-tag-btn active-scene" data-tag="" onclick="cellarFilterTag('')" style="font-size:11px;padding:4px 12px" data-i18n="cellar_all">全部</button>
+      <button class="btn btn-sm cellar-tag-btn" data-tag="want" onclick="cellarFilterTag('want')" style="font-size:11px;padding:4px 12px" data-i18n="cellar_want">🤤 想飲</button>
+      <button class="btn btn-sm cellar-tag-btn" data-tag="tried" onclick="cellarFilterTag('tried')" style="font-size:11px;padding:4px 12px" data-i18n="cellar_tried">✅ 飲過</button>
+      <button class="btn btn-sm cellar-tag-btn" data-tag="collect" onclick="cellarFilterTag('collect')" style="font-size:11px;padding:4px 12px" data-i18n="cellar_collect">💎 收藏</button>
     </div>
     <div style="padding:0 16px 8px">
-      <input class="input" id="cellar-search" placeholder="🔍 搜索酒品..." style="width:100%;font-size:12px;padding:8px 10px" onkeydown="if(event.key==='Enter')loadCellar()">
+      <input class="input" id="cellar-search" placeholder="" data-i18n-ph="cellar_search_ph" style="width:100%;font-size:12px;padding:8px 10px" onkeydown="if(event.key==='Enter')loadCellar()">
     </div>
     <div id="cellar-list" style="padding:0 16px 16px"></div>
     </div>
@@ -990,24 +990,24 @@ body.lang-ready{visibility:visible}
       <!-- 寫酒評表單 -->
       <div id="review-form-wrap" style="display:none;padding:0 16px 12px">
         <div style="border:1px solid var(--border);border-radius:10px;padding:12px;background:var(--bg)">
-          <input class="input" id="rv-brand" placeholder="品牌(必填)" style="width:100%;font-size:12px;margin-bottom:6px;padding:8px 10px">
-          <input class="input" id="rv-name" placeholder="酒款名稱" style="width:100%;font-size:12px;margin-bottom:6px;padding:8px 10px">
+          <input class="input" id="rv-brand" placeholder="" data-i18n-ph="rv_brand_ph" style="width:100%;font-size:12px;margin-bottom:6px;padding:8px 10px">
+          <input class="input" id="rv-name" placeholder="" data-i18n-ph="rv_name_ph" style="width:100%;font-size:12px;margin-bottom:6px;padding:8px 10px">
           <div style="display:flex;gap:6px;margin-bottom:6px">
-            <input class="input" id="rv-appearance" placeholder="👀 外观" style="flex:1;font-size:12px;padding:8px 10px">
-            <input class="input" id="rv-aroma" placeholder="👃 香氣" style="flex:1;font-size:12px;padding:8px 10px">
+            <input class="input" id="rv-appearance" placeholder="" data-i18n-ph="rv_appearance_ph" style="flex:1;font-size:12px;padding:8px 10px">
+            <input class="input" id="rv-aroma" placeholder="" data-i18n-ph="rv_aroma_ph" style="flex:1;font-size:12px;padding:8px 10px">
           </div>
           <div style="display:flex;gap:6px;margin-bottom:6px">
-            <input class="input" id="rv-palate" placeholder="👅 口感" style="flex:1;font-size:12px;padding:8px 10px">
-            <input class="input" id="rv-finish" placeholder="🎬 餘韻" style="flex:1;font-size:12px;padding:8px 10px">
+            <input class="input" id="rv-palate" placeholder="" data-i18n-ph="rv_palate_ph" style="flex:1;font-size:12px;padding:8px 10px">
+            <input class="input" id="rv-finish" placeholder="" data-i18n-ph="rv_finish_ph" style="flex:1;font-size:12px;padding:8px 10px">
           </div>
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-            <span style="font-size:12px;color:var(--sub)">總評</span>
+            <span style="font-size:12px;color:var(--sub)" data-i18n="rv_overall">總評</span>
             <div id="rv-stars" style="display:flex;gap:2px"></div>
             <span id="rv-score-txt" style="font-size:12px;color:var(--amber);font-weight:700">0</span>
           </div>
           <div style="display:flex;gap:6px">
-            <button class="btn btn-sm btn-primary" onclick="submitReview()" style="font-size:12px;padding:6px 16px">發布酒評</button>
-            <button class="btn btn-sm btn-outline" onclick="hideReviewForm()" style="font-size:12px;padding:6px 16px">取消</button>
+            <button class="btn btn-sm btn-primary" onclick="submitReview()" style="font-size:12px;padding:6px 16px" data-i18n="rv_submit">發布酒評</button>
+            <button class="btn btn-sm btn-outline" onclick="hideReviewForm()" style="font-size:12px;padding:6px 16px" data-i18n="cancel">取消</button>
           </div>
         </div>
       </div>
@@ -1023,42 +1023,42 @@ body.lang-ready{visibility:visible}
   <div class="card" style="border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(139,92,246,0.08));text-align:center;padding:24px 16px;position:relative;overflow:hidden">
     <div style="position:absolute;top:-20px;right:-20px;width:80px;height:80px;background:radial-gradient(circle,rgba(245,158,11,0.15),transparent);border-radius:50%"></div>
     <div style="font-size:32px;margin-bottom:8px;filter:drop-shadow(0 3px 6px rgba(245,158,11,0.4))"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><circle cx="17" cy="20" r="1.8" fill="#F59E0B" stroke="#D97706" stroke-width="0.5"/><path d="M6.5 12h11l1.5-6H7.2" stroke="url(#cartGrad2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="cartGrad2" x1="6" y1="9" x2="20" y2="9"><stop offset="0%" stop-color="#FBBF24"/><stop offset="100%" stop-color="#D97706"/></linearGradient></defs></svg></div>
-    <div style="font-size:18px;font-weight:700;color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,0.1)">今晚飲咗未 · 商鋪</div>
-    <div style="font-size:12px;color:var(--sub);margin-top:4px">舞曲 · 酒品 · 消費券</div>
+    <div style="font-size:18px;font-weight:700;color:var(--text);text-shadow:0 1px 2px rgba(0,0,0,0.1)" data-i18n="shop_title">今晚飲咗未 · 商鋪</div>
+    <div style="font-size:12px;color:var(--sub);margin-top:4px" data-i18n="shop_subtitle">舞曲 · 酒品 · 消費券</div>
   </div>
   <!-- 分類切換 -->
   <div style="display:flex;gap:8px;margin:10px 0;overflow-x:auto;padding-bottom:4px" id="shop-cats">
   </div>
   <!-- 搜索 -->
   <div style="display:flex;gap:6px;margin-bottom:10px">
-    <input class="input" id="shop-search" placeholder="🔍 搜索商品..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')shopLoadProducts(shopCurrentCat)">
-    <button class="btn btn-outline btn-sm" onclick="shopLoadProducts(shopCurrentCat)">搜索</button>
+    <input class="input" id="shop-search" placeholder="" data-i18n-ph="shop_search_ph" style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')shopLoadProducts(shopCurrentCat)">
+    <button class="btn btn-outline btn-sm" onclick="shopLoadProducts(shopCurrentCat)" data-i18n="shop_search">搜索</button>
   </div>
   <!-- 🤖 AI 酒單推荐 -->
   <div id="ai-rec-section" class="card" style="border:2px solid #8b5cf6;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.04));padding:16px;display:none">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
       <span style="font-size:20px">🤖</span>
-      <div style="font-weight:700;font-size:15px;color:var(--text)">AI 酒單推荐</div>
+      <div style="font-weight:700;font-size:15px;color:var(--text)" data-i18n="ai_rec_title">AI 酒單推荐</div>
       <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:rgba(139,92,246,0.15);color:#a78bfa">BETA</span>
     </div>
     <!-- 場景選擇 -->
     <div id="ai-scene-btns" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
-      <button class="btn btn-outline btn-sm ai-scene-btn active-scene" onclick="aiSelectScene('solo')" data-scene="solo">🌙 獨飲微醺</button>
-      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('party')" data-scene="party">🎉 聚會開瓶</button>
-      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('dining')" data-scene="dining">🍽️ 配餐佳釀</button>
-      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('gift')" data-scene="gift">🎁 送禮首選</button>
+      <button class="btn btn-outline btn-sm ai-scene-btn active-scene" onclick="aiSelectScene('solo')" data-scene="solo" data-i18n="ai_scene_solo">🌙 獨飲微醺</button>
+      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('party')" data-scene="party" data-i18n="ai_scene_party">🎉 聚會開瓶</button>
+      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('dining')" data-scene="dining" data-i18n="ai_scene_dining">🍽️ 配餐佳釀</button>
+      <button class="btn btn-outline btn-sm ai-scene-btn" onclick="aiSelectScene('gift')" data-scene="gift" data-i18n="ai_scene_gift">🎁 送禮首選</button>
     </div>
     <!-- 推荐結果 -->
     <div id="ai-rec-results" style="display:grid;gap:8px"></div>
     <!-- 口味畫像 -->
     <div id="ai-taste-bar" style="margin-top:12px;display:none">
-      <div style="font-size:12px;color:var(--sub);margin-bottom:6px">🧬 你的口味畫像</div>
+      <div style="font-size:12px;color:var(--sub);margin-bottom:6px" data-i18n="ai_taste_label">🧬 你的口味畫像</div>
       <div id="ai-taste-tags" style="display:flex;gap:4px;flex-wrap:wrap"></div>
     </div>
     <!-- 鎖定提示 -->
     <div id="ai-rec-lock" style="display:none;text-align:center;padding:24px 0">
       <div style="font-size:40px;margin-bottom:8px">🔒</div>
-      <div style="font-size:13px;color:var(--sub)">AI 酒單推荐為 <b style="color:#CD7F32">酒友</b> 及以上專屬</div>
+      <div style="font-size:13px;color:var(--sub)" data-i18n="ai_rec_locked">AI 酒單推荐為 <b style="color:#CD7F32">酒友</b> 及以上專屬</div>
       <button class="btn btn-sm" onclick="showUpgradeModal(1)" style="margin-top:10px;background:linear-gradient(135deg,#CD7F32,#B87333)">💎 <span data-i18n="ai_rec_upgrade">升級解鎖</span></button>
     </div>
   </div>
@@ -1083,57 +1083,57 @@ body.lang-ready{visibility:visible}
           <div id="ck-step3-dot" style="width:8px;height:8px;border-radius:50%;background:var(--border)"></div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-          <div id="ck-title" style="font-weight:700;font-size:16px;color:var(--text)">💳 確認付款</div>
+          <div id="ck-title" style="font-weight:700;font-size:16px;color:var(--text)" data-i18n="ck_confirm_pay">💳 確認付款</div>
           <button onclick="checkoutClose()" style="background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer">✕</button>
         </div>
         <div id="checkout-product-info" style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--border)"></div>
         <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
-          <div style="font-size:12px;color:var(--sub);margin-bottom:8px">💰 付款金額</div>
+          <div style="font-size:12px;color:var(--sub);margin-bottom:8px">💰 <span data-i18n="ck_amount_label">付款金額</span></div>
           <div id="checkout-amount" style="font-size:28px;font-weight:800;color:var(--amber)"></div>
           <div id="checkout-discount" style="font-size:12px;color:#22c55e;margin-top:4px;display:none"></div>
         </div>
         <!-- Step 1: 選支付方式 -->
         <div id="ck-step1">
           <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:16px;border:1px solid var(--border)">
-            <div style="font-size:12px;color:var(--sub);margin-bottom:10px">📱 選擇支付方式</div>
+            <div style="font-size:12px;color:var(--sub);margin-bottom:10px">📱 <span data-i18n="ck_select_method">選擇支付方式</span></div>
             <div style="display:flex;flex-direction:column;gap:8px" id="checkout-methods">
               <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--amber);cursor:pointer;background:rgba(245,158,11,0.06)">
-                <input type="radio" name="pay-method" value="wechat" checked style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">💚</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">微信支付</div><div style="font-size:11px;color:var(--sub)">WeChat Pay</div></div>
+                <input type="radio" name="pay-method" value="wechat" checked style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">💚</span><div><div style="font-weight:700;font-size:14px;color:var(--text)" data-i18n="ck_wechat_pay">微信支付</div><div style="font-size:11px;color:var(--sub)" data-i18n="ck_wechat_pay_en">WeChat Pay</div></div>
               </label>
               <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:border-color .2s">
-                <input type="radio" name="pay-method" value="alipay" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">🔵</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">支付寶</div><div style="font-size:11px;color:var(--sub)">Alipay</div></div>
+                <input type="radio" name="pay-method" value="alipay" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">🔵</span><div><div style="font-weight:700;font-size:14px;color:var(--text)" data-i18n="ck_alipay">支付寶</div><div style="font-size:11px;color:var(--sub)" data-i18n="ck_alipay_en">Alipay</div></div>
               </label>
               <label class="checkout-method" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;border:2px solid var(--border);cursor:pointer;transition:border-color .2s">
-                <input type="radio" name="pay-method" value="paypal" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">🟡</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">PayPal</div><div style="font-size:11px;color:var(--sub)">海外付款</div></div>
+                <input type="radio" name="pay-method" value="paypal" style="accent-color:var(--amber);width:18px;height:18px"><span style="font-size:24px">🟡</span><div><div style="font-weight:700;font-size:14px;color:var(--text)">PayPal</div><div style="font-size:11px;color:var(--sub)" data-i18n="ck_overseas_pay">海外付款</div></div>
               </label>
             </div>
           </div>
-          <button onclick="checkoutGoStep2()" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)">下一步</button>
+          <button onclick="checkoutGoStep2()" style="width:100%;padding:14px;border-radius:12px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)" data-i18n="ck_next_step">下一步</button>
         </div>
         <!-- Step 2: 收貨地址 -->
         <div id="ck-step2" style="display:none">
           <div style="background:var(--card);border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid var(--border)">
-            <div style="font-size:12px;color:var(--sub);margin-bottom:10px">📦 收貨信息</div>
-            <div id="ck-delivery-hint" style="font-size:13px;color:var(--amber);margin-bottom:10px;display:none">📥 數碼商品：確認付款後發送一次性下載鏈接（72小時有效）</div>
+            <div style="font-size:12px;color:var(--sub);margin-bottom:10px">📦 <span data-i18n="ck_shipping_info">收貨信息</span></div>
+            <div id="ck-delivery-hint" style="font-size:13px;color:var(--amber);margin-bottom:10px;display:none">📥 <span data-i18n="ck_digital_hint">數碼商品：確認付款後發送一次性下載鏈接（72小時有效）</span></div>
             <div id="ck-address-form">
               <div style="display:flex;gap:8px;margin-bottom:8px">
-                <input class="input" id="ck-ship-name" placeholder="收貨人姓名" style="flex:1;margin-bottom:0;font-size:13px">
-                <input class="input" id="ck-ship-phone" placeholder="手機號碼" style="flex:1;margin-bottom:0;font-size:13px">
+                <input class="input" id="ck-ship-name" placeholder="" data-i18n-ph="ck_ph_name" style="flex:1;margin-bottom:0;font-size:13px">
+                <input class="input" id="ck-ship-phone" placeholder="" data-i18n-ph="ck_ph_phone" style="flex:1;margin-bottom:0;font-size:13px">
               </div>
               <div id="ck-physical-addr" style="display:block">
                 <div style="display:flex;gap:8px;margin-bottom:8px">
-                  <input class="input" id="ck-addr-city" placeholder="城市" style="flex:1;margin-bottom:0;font-size:13px">
-                  <input class="input" id="ck-addr-district" placeholder="區/縣" style="flex:1;margin-bottom:0;font-size:13px">
+                  <input class="input" id="ck-addr-city" placeholder="" data-i18n-ph="ck_ph_city" style="flex:1;margin-bottom:0;font-size:13px">
+                  <input class="input" id="ck-addr-district" placeholder="" data-i18n-ph="ck_ph_district" style="flex:1;margin-bottom:0;font-size:13px">
                 </div>
-                <input class="input" id="ck-addr-detail" placeholder="详細地址（街道、門牌號）" style="width:100%;margin-bottom:8px;font-size:13px">
-                <input class="input" id="ck-addr-zip" placeholder="郵政編碼（選填）" style="width:100%;font-size:13px">
+                <input class="input" id="ck-addr-detail" placeholder="" data-i18n-ph="ck_ph_addr_detail" style="width:100%;margin-bottom:8px;font-size:13px">
+                <input class="input" id="ck-addr-zip" placeholder="" data-i18n-ph="ck_ph_zip" style="width:100%;font-size:13px">
               </div>
             </div>
-            <div id="ck-saved-addr-hint" style="font-size:11px;color:var(--sub);margin-top:6px;display:none">📌 地址將保存到你嘅會员資料，下次自動填入</div>
+            <div id="ck-saved-addr-hint" style="font-size:11px;color:var(--sub);margin-top:6px;display:none">📌 <span data-i18n="ck_addr_save_hint">地址將保存到你嘅會员資料，下次自動填入</span></div>
           </div>
           <div style="display:flex;gap:8px">
-            <button onclick="checkoutGoStep1()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer">返回</button>
-            <button onclick="checkoutGoStep3()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)">下一步 · 掃碼付款</button>
+            <button onclick="checkoutGoStep1()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer" data-i18n="ck_back">返回</button>
+            <button onclick="checkoutGoStep3()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(245,158,11,0.3)" data-i18n="ck_next_scan_pay">下一步 · 掃碼付款</button>
           </div>
         </div>
         <!-- Step 3: 掃碼付款+確認 -->
@@ -1144,15 +1144,15 @@ body.lang-ready{visibility:visible}
               <img id="ck-qr-img" src="" alt="收款碼" style="width:180px;height:180px;display:block;border-radius:8px;object-fit:contain">
             </div>
             <div id="ck-qr-brand" style="display:inline-flex;align-items:center;gap:4px;margin-top:10px;padding:4px 10px;border-radius:8px;font-size:12px;font-weight:700"></div>
-            <div style="font-size:12px;color:var(--sub);margin-top:8px">長按保存收款碼 → 打開支付App掃碼</div>
+            <div style="font-size:12px;color:var(--sub);margin-top:8px"><span data-i18n="ck_longpress_scan">長按保存收款碼 → 打開支付App掃碼</span></div>
           </div>
           <div style="background:rgba(245,158,11,0.08);border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:8px;border:1px solid rgba(245,158,11,0.2)">
             <span style="font-size:16px">⚠️</span>
-            <span style="font-size:12px;color:var(--text);line-height:1.5">請先掃碼付款，確認到賬後再點「我已付款」，系統將人工審核</span>
+            <span style="font-size:12px;color:var(--text);line-height:1.5"><span data-i18n="ck_scan_first_hint">請先掃碼付款，確認到賬後再點「我已付款」，系統將人工審核</span></span>
           </div>
           <div style="display:flex;gap:8px">
-            <button onclick="checkoutGoStep2From3()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer">返回</button>
-            <button id="checkout-confirm-btn" onclick="confirmCheckout()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,197,94,0.3)">✅ 我已付款</button>
+            <button onclick="checkoutGoStep2From3()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer" data-i18n="ck_back">返回</button>
+            <button id="checkout-confirm-btn" onclick="confirmCheckout()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,197,94,0.3)" data-i18n="ck_i_paid">✅ 我已付款</button>
           </div>
         </div>
       </div>
@@ -1160,21 +1160,21 @@ body.lang-ready{visibility:visible}
   </div>
   <!-- 掃碼區域 -->
   <div class="card" style="border:2px solid #22c55e;background:linear-gradient(135deg,rgba(34,197,94,0.06),rgba(245,158,11,0.04));margin-top:12px">
-    <div class="card-header" style="border:none;padding:8px 0">🔍 酒品真偽驗證</div>
-    <div style="font-size:12px;color:var(--sub);margin-bottom:10px">掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品详情</div>
+    <div class="card-header" style="border:none;padding:8px 0">🔍 <span data-i18n="shop_auth_verify">酒品真偽驗證</span></div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:10px"><span data-i18n="shop_auth_verify_desc">掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品详情</span></div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
-      <input class="input" id="scan-barcode-input" placeholder="📦 輸入條碼..." style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')scanBarcode()">
-      <button class="btn btn-primary btn-sm" onclick="scanBarcode()">驗證</button>
+      <input class="input" id="scan-barcode-input" placeholder="" data-i18n-ph="ck_ph_barcode" style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')scanBarcode()">
+      <button class="btn btn-primary btn-sm" onclick="scanBarcode()" data-i18n="ck_verify">驗證</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
-      <button class="btn btn-outline btn-sm" onclick="openScanner()" style="flex:1">📷 掃碼驗證</button>
-      <button class="btn btn-outline btn-sm" onclick="showScanHistory()" style="flex:1">📜 掃碼記錄</button>
+      <button class="btn btn-outline btn-sm" onclick="openScanner()" style="flex:1" data-i18n="scan_verify_btn">📷 掃碼驗證</button>
+      <button class="btn btn-outline btn-sm" onclick="showScanHistory()" style="flex:1" data-i18n="scan_history_btn">📜 掃碼記錄</button>
     </div>
     <div id="scan-result" style="display:none"></div>
   </div>
   <!-- 我嘅订單 -->
   <div class="card" style="margin-top:12px;border:2px solid var(--purple);background:rgba(139,92,246,0.04)">
-    <div class="card-header" style="border:none;padding:8px 0;cursor:pointer" onclick="shopToggleMyOrders()">📦 我嘅订單 <span id="shop-order-count" style="font-size:11px;color:var(--sub)"></span></div>
+    <div class="card-header" style="border:none;padding:8px 0;cursor:pointer" onclick="shopToggleMyOrders()" data-i18n="my_orders">📦 我嘅订單 <span id="shop-order-count" style="font-size:11px;color:var(--sub)"></span></div>
     <div id="shop-my-orders" style="display:none"></div>
   </div>
 </div>
@@ -1183,7 +1183,7 @@ body.lang-ready{visibility:visible}
 <div id="scanner-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeScanner()">
   <div class="modal" style="max-width:400px">
     <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border)">
-      <div style="font-weight:700">📷 掃碼驗證</div>
+      <div style="font-weight:700" data-i18n="scan_verify_title">📷 掃碼驗證</div>
       <button onclick="closeScanner()" style="background:none;border:none;color:var(--sub);font-size:18px;cursor:pointer">✕</button>
     </div>
     <div style="padding:12px;text-align:center">
@@ -1191,10 +1191,10 @@ body.lang-ready{visibility:visible}
       <div id="scanner-fallback" style="display:none">
         <video id="scanner-video" style="width:100%;border-radius:12px;background:#000" autoplay playsinline></video>
       </div>
-      <div style="margin-top:8px;font-size:12px;color:var(--sub)">將條碼對準鏡頭，自動識别...</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--sub)"><span data-i18n="scan_hint">將條碼對準鏡頭，自動識别...</span></div>
       <div id="scanner-manual" style="margin-top:8px;display:flex;gap:6px">
-        <input class="input" id="scanner-input" placeholder="手動輸入條碼" style="flex:1;margin-bottom:0">
-        <button class="btn btn-primary btn-sm" onclick="scanBarcode(document.getElementById('scanner-input').value);closeScanner()">驗證</button>
+        <input class="input" id="scanner-input" placeholder="" data-i18n-ph="scan_manual_ph" style="flex:1;margin-bottom:0">
+        <button class="btn btn-primary btn-sm" onclick="scanBarcode(document.getElementById('scanner-input').value);closeScanner()" data-i18n="verify_btn">驗證</button>
       </div>
     </div>
   </div>
@@ -1232,8 +1232,8 @@ body.lang-ready{visibility:visible}
     <!-- 群組區 -->
     <div id="fr-section-groups" style="display:none">
      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
-      <button class="btn btn-pink btn-sm" onclick="grpShowCreate()" style="font-size:12px">＋ 創建群組</button>
-      <button class="btn btn-outline btn-sm" onclick="grpShowExplore()" style="font-size:12px">🔍 發現群組</button>
+      <button class="btn btn-pink btn-sm" onclick="grpShowCreate()" style="font-size:12px" data-i18n="grp_create_btn">＋ 創建群組</button>
+      <button class="btn btn-outline btn-sm" onclick="grpShowExplore()" style="font-size:12px" data-i18n="grp_explore_btn">🔍 發現群組</button>
      </div>
      <div style="font-size:12px;color:var(--sub);margin-bottom:6px" id="grp-limit-hint"></div>
      <div id="grp-my-list"></div>
@@ -1270,10 +1270,10 @@ body.lang-ready{visibility:visible}
     <textarea class="textarea" id="post-content" data-i18n-placeholder="post_placeholder" style="margin-bottom:8px;min-height:60px"></textarea>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--amber);border-radius:12px;font-size:13px;color:var(--amber);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      📷 上傳圖片<input type="file" aria-label="Upload Image" data-i18n-attr="aria-label:upload_img" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
+      📷 <span data-i18n="upload_img">上傳圖片</span><input type="file" aria-label="Upload Image" data-i18n-attr="aria-label:upload_img" id="post-img-input" accept="image/*" multiple style="display:none" onchange="previewPostImgs(event)">
      </label>
      <label style="cursor:pointer;display:flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,rgba(139,92,246,0.12),rgba(236,72,153,0.08));border:1.5px solid var(--purple);border-radius:12px;font-size:13px;color:var(--purple);font-weight:600;transition:all .2s" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-      🎬 上傳影片<input type="file" aria-label="Upload Video" data-i18n-attr="aria-label:upload_vid" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
+      🎬 <span data-i18n="upload_vid">上傳影片</span><input type="file" aria-label="Upload Video" data-i18n-attr="aria-label:upload_vid" id="post-vid-input" accept="video/mp4,video/quicktime,video/x-msvideo,video/webm,video/*" style="display:none" onchange="previewPostVid(event)">
      </label>
      <div id="post-img-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
      <div id="post-vid-preview" style="display:flex;gap:4px;flex-wrap:wrap"></div>
@@ -1310,7 +1310,7 @@ body.lang-ready{visibility:visible}
     <div class="card-header" data-i18n="lb_title">🏆 飲酒排行榜</div>
     <div id="lb-preview" style="text-align:center;padding:16px">
       <div style="font-size:36px;margin-bottom:8px">🏆</div>
-      <div id="lb-subtitle" style="color:var(--sub);font-size:13px">邊個飲得最多？邊款酒最Hit？</div>
+      <div id="lb-subtitle" style="color:var(--sub);font-size:13px" data-i18n="lb_subtitle">邊個飲得最多？邊款酒最Hit？</div>
       <button class="btn btn-primary" style="margin-top:10px;font-size:13px" onclick="if(memLocked(1,'leaderboard'))return;loadLeaderboard()">👀 <span data-i18n="lb_view">查看排行榜</span></button>
       </div>
     </div>
@@ -1422,34 +1422,34 @@ body.lang-ready{visibility:visible}
    </div>
    <!-- Checkins page -->
    <div class="adm-page" id="adm-checkins">
-    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadCheckins()" style="border-color:var(--amber);color:var(--amber)">🔄 刷新</button></div>
+    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadCheckins()" style="border-color:var(--amber);color:var(--amber)" data-i18n="refresh">🔄 刷新</button></div>
     <div id="adm-checkin-list" style="font-size:12px"></div>
    </div>
    <!-- Parties page -->
    <div class="adm-page" id="adm-parties">
-    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadParties()" style="border-color:var(--purple);color:var(--purple)">🔄 刷新</button></div>
+    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadParties()" style="border-color:var(--purple);color:var(--purple)" data-i18n="refresh">🔄 刷新</button></div>
     <div id="adm-party-list" style="font-size:12px"></div>
    </div>
    <!-- Posts page -->
    <div class="adm-page" id="adm-posts">
-    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadAdmPosts()" style="border-color:var(--pink);color:var(--pink)">🔄 刷新</button></div>
+    <div style="margin-bottom:8px;text-align:right"><button class="btn btn-outline btn-sm" onclick="admLoadAdmPosts()" style="border-color:var(--pink);color:var(--pink)" data-i18n="refresh">🔄 刷新</button></div>
     <div id="adm-post-list" style="font-size:12px"></div>
    </div>
    <!-- Admin: Shop Products -->
    <div class="adm-page" id="adm-shop">
     <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;font-size:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;filter:drop-shadow(0 1px 2px rgba(245,158,11,0.4))"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.6" fill="#F59E0B"/><circle cx="17" cy="20" r="1.6" fill="#F59E0B"/></svg> 商品管理</span>
-      <button class="btn btn-primary btn-sm" onclick="admProductForm()">➕ 新增商品</button>
+      <span style="font-weight:700;font-size:14px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:4px;filter:drop-shadow(0 1px 2px rgba(245,158,11,0.4))"><path d="M3 3h2l1.5 9h11L20 6H7" stroke="#F59E0B" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.6" fill="#F59E0B"/><circle cx="17" cy="20" r="1.6" fill="#F59E0B"/></svg> <span data-i18n="adm_products">商品管理</span></span>
+      <button class="btn btn-primary btn-sm" onclick="admProductForm()" data-i18n="adm_add_product">➕ 新增商品</button>
     </div>
     <div id="adm-product-list" style="font-size:12px"></div>
    </div>
    <!-- Admin: Orders -->
    <div class="adm-page" id="adm-orders">
     <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;font-size:14px">📦 订單管理</span>
+      <span style="font-weight:700;font-size:14px">📦 <span data-i18n="adm_orders">订單管理</span></span>
       <div style="display:flex;gap:4px">
         <select id="adm-order-filter" class="input" style="margin-bottom:0;padding:4px 8px;font-size:11px" onchange="admLoadShopOrders(this.value)">
-          <option value="">全部</option><option value="pending">待處理</option><option value="paid">已付款</option><option value="shipped">已發貨</option><option value="delivered">已送達</option><option value="cancelled">已取消</option>
+          <option value="" data-i18n="all">全部</option><option value="pending" data-i18n="ord_pending">待處理</option><option value="paid" data-i18n="ord_paid">已付款</option><option value="shipped" data-i18n="ord_shipped">已發貨</option><option value="delivered" data-i18n="ord_delivered">已送達</option><option value="cancelled" data-i18n="ord_cancelled">已取消</option>
         </select>
         <button class="btn btn-outline btn-sm" onclick="admLoadShopOrders()">🔄</button>
       </div>
@@ -1459,10 +1459,10 @@ body.lang-ready{visibility:visible}
    <!-- Admin: Liquor DB -->
    <div class="adm-page" id="adm-liquor">
     <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;font-size:14px">🍾 '+T('shop_liquor')+'數據庫</span>
+      <span style="font-weight:700;font-size:14px">🍾 '+T('shop_liquor')+T('liquor_db_title')+'</span>
       <div style="display:flex;gap:4px">
-        <input class="input" id="adm-liquor-search" placeholder="搜索條碼/名稱..." style="margin-bottom:0;padding:4px 8px;font-size:11px;max-width:150px" onkeydown="if(event.key==='Enter')admLoadLiquorDB(this.value)">
-        <button class="btn btn-primary btn-sm" onclick="admLiquorForm()">➕ 新增</button>
+        <input class="input" id="adm-liquor-search" placeholder="" data-i18n-ph="adm_liquor_search_ph" style="margin-bottom:0;padding:4px 8px;font-size:11px;max-width:150px" onkeydown="if(event.key==='Enter')admLoadLiquorDB(this.value)">
+        <button class="btn btn-primary btn-sm" onclick="admLiquorForm()" data-i18n="adm_add">➕ 新增</button>
       </div>
     </div>
     <div id="adm-liquor-list" style="font-size:12px"></div>
@@ -1470,10 +1470,10 @@ body.lang-ready{visibility:visible}
    <!-- Groups page -->
    <div class="adm-page" id="adm-groups">
     <div style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
-      <span style="font-weight:700;font-size:14px">👥 群組管理</span>
+      <span style="font-weight:700;font-size:14px">👥 <span data-i18n="adm_groups">群組管理</span></span>
       <div style="display:flex;gap:4px">
-        <input class="input" id="adm-groups-search" placeholder="搜索群名..." style="margin-bottom:0;padding:4px 8px;font-size:11px;max-width:150px" onkeydown="if(event.key==='Enter')admLoadGroups(this.value)">
-        <button class="btn btn-primary btn-sm" onclick="admLoadGroups()">🔄 刷新</button>
+        <input class="input" id="adm-groups-search" placeholder="" data-i18n-ph="adm_group_search_ph" style="margin-bottom:0;padding:4px 8px;font-size:11px;max-width:150px" onkeydown="if(event.key==='Enter')admLoadGroups(this.value)">
+        <button class="btn btn-primary btn-sm" onclick="admLoadGroups()" data-i18n="refresh">🔄 刷新</button>
       </div>
     </div>
     <div id="adm-groups-list" style="font-size:12px"></div>
@@ -1492,11 +1492,11 @@ body.lang-ready{visibility:visible}
         <div style="font-size:11px;color:var(--sub);margin-top:4px" data-i18n="auth_login">登入</div>
       </div>
       <input class="input" id="l-user" data-i18n-placeholder="username" autocomplete="username">
-      <input class="input" id="l-pass" type="password" aria-label="" data-i18n-attr="aria-label:password" placeholder="密碼" autocomplete="current-password">
+      <input class="input" id="l-pass" type="password" aria-label="" data-i18n-attr="aria-label:password" placeholder="" data-i18n-ph="password_ph" autocomplete="current-password">
       <button class="btn btn-primary" onclick="doLogin()" data-i18n="login_btn">登入</button>
       <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showReg()"><span data-i18n="no_account_register">未有账號？註冊</span> →</div>
       <div class="ad-email">📧 vichoo2020@gmail.com</div>
-      <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px">聯络我們</a></div>
+      <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-i18n="legal_terms">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-i18n="legal_disclaimer">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-i18n="legal_contact">聯络我們</a></div>
     </div>
     <div id="reg-form" style="display:none">
       <div style="text-align:center;margin-bottom:20px">
@@ -1512,7 +1512,7 @@ body.lang-ready{visibility:visible}
       <button class="btn btn-primary" onclick="doRegister()" data-i18n="auth_register">註冊</button>
       <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showLogin()"><span data-i18n="back_to_login">← 返回登入</span></div>
       <div class="ad-email">📧 vichoo2020@gmail.com</div>
-      <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px">聯络我們</a></div>
+      <div style="text-align:center;margin-top:8px;font-size:11px"><a href="javascript:void(0)" onclick="openLegal('terms')" data-legal-link="terms" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-i18n="legal_terms">使用條款</a><a href="javascript:void(0)" onclick="openLegal('disc')" data-legal-link="disclaimer" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-i18n="legal_disclaimer">免責聲明</a><a href="javascript:void(0)" onclick="openLegal('ct')" data-legal-link="contact" style="color:var(--amber);text-decoration:underline;margin:0 6px" data-i18n="legal_contact">聯络我們</a></div>
     </div>
   </div>
 </div>
@@ -2058,7 +2058,7 @@ async function loadAdBanner(container){
     const ad=d.ads[Math.floor(Math.random()*d.ads.length)];
     const el=document.createElement('div');
     el.className='card';el.style.cssText='margin:8px 0;padding:10px;background:rgba(245,158,11,0.08);border:1px dashed var(--amber);text-align:center;font-size:12px;position:relative';
-    el.innerHTML='<span style="color:var(--amber);font-size:10px;position:absolute;top:4px;right:8px">AD</span><div style="font-weight:600">'+esc(ad.title||'')+'</div><div style="color:var(--sub);margin:4px 0">'+esc(ad.body||'')+'</div>'+(ad.link?'<a href="'+esc(ad.link)+'" target="_blank" rel="noopener" style="color:var(--amber);font-size:11px">了解更多 →</a>':'');
+    el.innerHTML='<span style="color:var(--amber);font-size:10px;position:absolute;top:4px;right:8px">AD</span><div style="font-weight:600">'+esc(ad.title||'')+'</div><div style="color:var(--sub);margin:4px 0">'+esc(ad.body||'')+'</div>'+(ad.link?'<a href="'+esc(ad.link)+'" target="_blank" rel="noopener" style="color:var(--amber);font-size:11px">'+T('learn_more')+'</a>':'');
     container.appendChild(el);
   }catch(e){}
 }
@@ -2341,7 +2341,7 @@ function updateNav(){
     else if(av&&av.startsWith('emoji:')){trig.textContent=av.replace('emoji:','')}
     else{trig.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
     const ms=document.getElementById('dd-mem'),ex=document.getElementById('dd-exp');
-    if(me.membership&&me.membership!=='free'){ms.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');ex.textContent=T('expires_label')+(me.member_expires||'永久')}
+    if(me.membership&&me.membership!=='free'){ms.textContent='💎 '+({jiuyau:T('mem_jiuyau_label'),jaugwai:T('mem_jaugwai_label'),jausan:T('mem_jausan_label')}[me.membership]||'VIP');ex.textContent=T('expires_label')+(me.member_expires||T('permanent','永久'))}
     else{ms.textContent=T('free_member');ex.textContent=T('upgrade_prompt')}
   }else{btn.style.display='inline-flex';menu.style.display='none'}
 }
@@ -3083,7 +3083,131 @@ const L={
   mem_free_label:'免費',
   mem_limit_today:'今日剩餘掃碼',
   ship_need_addr:'請填寫详細地址',
+  shop_title:'今晚飲咗未 · 商鋪',shop_subtitle:'舞曲 · 酒品 · 消費券',
   shop_reselect:'請重新選擇商品',
+  shop_search:'搜索',
+  order_pending:'待處理',order_paid:'已付款',order_shipped:'已發貨',order_delivered:'已送達',order_cancelled:'已取消',order_refunded:'已退款',
+  download_digital:'📥 下載數碼商品',
+  ai_rec_no_match:'未找到匹配酒品，試試其他場景？',
+  ai_rec_load_fail:'加載失敗，請重試',
+  ai_rec_limited:'酒友僅看3條',
+  ai_rec_upgrade_all:'升級酒鬼看全部',
+  shop_discount_info:'原價¥{orig} · {disc} · 省¥{save}',
+  discount_jiuyau:'酒友9折',discount_jaugwai:'酒鬼85折',discount_jausan:'酒神75折',
+  close_btn:'關閉',
+  ck_confirm_pay:'💳 確認付款',
+  ck_amount_label:'付款金額',
+  ck_select_method:'選擇支付方式',
+  ck_wechat_pay:'微信支付',ck_wechat_pay_en:'WeChat Pay',
+  ck_alipay:'支付寶',ck_alipay_en:'Alipay',
+  ck_overseas_pay:'海外付款',
+  ck_next_step:'下一步',
+  ck_shipping_info:'收貨信息',
+  ck_digital_hint:'數碼商品：確認付款後發送一次性下載鏈接（72小時有效）',
+  ck_ph_name:'收貨人姓名',ck_ph_phone:'手機號碼',
+  ck_ph_city:'城市',ck_ph_district:'區/縣',
+  ck_ph_addr_detail:'详細地址（街道、門牌號）',ck_ph_zip:'郵政編碼（選填）',
+  ck_addr_save_hint:'地址將保存到你嘅會员資料，下次自動填入',
+  ck_back:'返回',
+  ck_next_scan_pay:'下一步 · 掃碼付款',
+  ck_longpress_scan:'長按保存收款碼 → 打開支付App掃碼',
+  ck_scan_first_hint:'請先掃碼付款，確認到賬後再點「我已付款」，系統將人工審核',
+  ck_i_paid:'✅ 我已付款',
+  shop_auth_verify:'酒品真偽驗證',
+  shop_auth_verify_desc:'掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品详情',
+  ck_ph_barcode:'📦 輸入條碼...',
+  ck_verify:'驗證',
+  shop_load_err:'加載失敗',
+  ai_rec_loading:'AI 分析中...',
+  ai_rec_no_data:'暫無推薦數據',
+  liquor_db_title:'數據庫',
+  exp_days_left:'仲有{dl}日到期！',
+  learn_more:'了解更多 →',
+  shop_search_ph:'🔍 搜索商品...',
+  ug_first_month_special:'首月特價 · 次月原價續費',
+  adm_load_fail:'加載失敗',
+  cellar_not_friend:'唔係好友唔可以睇酒柜',cellar_need_upgrade:'需要升級先可以睇好友酒柜',
+  cellar_empty:'酒柜空空如也 🏚️',
+  bar_vip:'酒吧VIP',
+  my_annual_report:'我嘅年度報告',
+  map_lock_sub:'睇到全城飲友打卡热點',
+  map_my_loc:'📍 我嘅位置',
+  map_checkins:'🍺 打卡點',
+  map_bar_vip:'🏙️ 酒吧VIP',
+  map_heatmap:'🔥 热力足迹',
+  map_7d:'近7日',
+  map_30d:'近30日',
+  map_90d:'近90日',
+  map_365d:'近一年',
+  fr_accept:'接受',
+  fr_reject:'拒絕',
+  profile_title:'個人資料',
+  cellar_unit:'款',
+  cellar_sub:'收藏、評分、品飲記錄',
+  my_coupons:'我嘅優惠券',
+  invite_friends:'邀請好友',
+  invite_bonus:'每3位好友升級送7日🥉酒友',
+  ppl_unit:'人',
+  invite_input_ph:'輸入好友邀請碼',
+  use_btn:'使用',
+  cellar_all:'全部',
+  cellar_want:'🤤 想飲',
+  cellar_tried:'✅ 飲過',
+  cellar_collect:'💎 收藏',
+  cellar_search_ph:'🔍 搜索酒品...',
+  rv_brand_ph:'品牌(必填)',
+  rv_name_ph:'酒款名稱',
+  rv_appearance_ph:'👀 外观',
+  rv_aroma_ph:'👃 香氣',
+  rv_palate_ph:'👅 口感',
+  rv_finish_ph:'🎬 餘韻',
+  rv_overall:'總評',
+  rv_submit:'發布酒評',
+  cancel:'取消',
+  scan_verify_btn:'📷 掃碼驗證',
+  scan_history_btn:'📜 掃碼記錄',
+  my_orders:'📦 我嘅订單',
+  scan_verify_title:'📷 掃碼驗證',
+  scan_hint:'將條碼對準鏡頭，自動識别...',
+  scan_manual_ph:'手動輸入條碼',
+  verify_btn:'驗證',
+  lb_subtitle:'邊個飲得最多？邊款酒最Hit？',
+  refresh:'🔄 刷新',
+  adm_products:'商品管理',
+  adm_add_product:'➕ 新增商品',
+  adm_orders:'订單管理',
+  all:'全部',
+  ord_pending:'待處理',
+  ord_paid:'已付款',
+  ord_shipped:'已發貨',
+  ord_delivered:'已送達',
+  ord_cancelled:'已取消',
+  adm_liquor_search_ph:'搜索條碼/名稱...',
+  adm_add:'➕ 新增',
+  adm_groups:'群組管理',
+  adm_group_search_ph:'搜索群名...',
+  legal_terms:'使用條款',
+  legal_disclaimer:'免責聲明',
+  legal_contact:'聯络我們',
+  password_ph:'密碼',
+  cmp_cellar:'酒品收藏',
+  cmp_verify:'辨真助手',
+  cmp_coupon:'每月優惠券',
+  cmp_bar_vip:'酒吧VIP',
+  cmp_annual:'年度報告',
+  cmp_map:'打卡地圖',
+  cmp_ai_rec:'AI酒單推荐',
+  cmp_cellar2:'我嘅酒柜',
+  cmp_vote:'群聊投票',
+  cmp_chain:'接龍報名',
+  cmp_review:'酒評認證',
+  shop_search_ph:'🔍 搜索商品...',
+  grp_create_btn:'＋ 創建群組',grp_explore_btn:'🔍 發現群組',upload_img:'上傳圖片',upload_vid:'上傳影片',select_party:'選擇酒局',poll_question_ph:'❓ 投票問題',poll_opt_a:'A. 選項1',poll_opt_b:'B. 選項2',poll_add_opt:'+ 選項',chain_title_ph:'📋 接龍標題',chain_max_ph:'人數上限',chain_note_ph:'備註(可選)',ck_shipping_info:'收貨信息',ck_amount_label:'付款金額',ck_select_method:'選擇支付方式',ck_wechat_pay:'微信支付',ck_alipay:'支付寶',ck_overseas_pay:'海外付款',ck_back:'返回',ck_next:'下一步',ck_i_paid:'我已付款',ck_verify:'驗證',ck_ph_name:'收貨人姓名',ck_ph_phone:'手機號碼',ck_ph_city:'城市',ck_ph_district:'區/縣',ck_ph_addr_detail:'详細地址（街道、門牌號）',ck_ph_zip:'郵政編碼',ck_ph_note:'訂單備註（可選）',
+  scan_history:'📜 掃碼記錄',
+  liquor_db_title:'🍾 數據庫',
+  my_orders:'📦 我嘅订單',
+  exp_days_left:'仲有{dl}日到期！',
+  learn_more:'了解更多 →',
   pay_scan_title:'📱 掃碼付款',
   pay_confirm_again:'⚠️ 再按一次確認',
   submitting:'提交中...',
@@ -3147,11 +3271,11 @@ const L={
   pricing_bronze_m:'¥9.9/月',pricing_bronze_q:'¥25/季',pricing_bronze_a:'¥69/年',
   pricing_silver_m:'¥19.9/月',pricing_silver_q:'¥50/季',pricing_silver_a:'¥149/年',
   pricing_gold_m:'¥49.9/月',pricing_gold_q:'¥76/季',pricing_gold_a:'¥233/年',
-  pricing_save_tip:'年付最高省42%！季付省15%',pricing_current:'當前',pricing_upgrade_now:'立即升級',
+  pricing_save_tip:'年付最高<span data-i18n="save_42pct">省42%</span>！季付<span data-i18n="save_15pct">省15%</span>',pricing_current:'當前',pricing_upgrade_now:'立即升級',
   ug_close:'關閉',
   ug_limited_offer:'限時體驗：首月 ¥1/¥3/¥5！',ug_hour:'時',ug_min:'分',ug_sec:'秒',
   ug_quick_upgrade:'快速升級',ug_compare:'權益對比',
-  ug_monthly:'月付',ug_quarterly:'季付 省15%',ug_annual:'年付 省35%',
+  ug_monthly:'月付',ug_quarterly:'季付 <span data-i18n="save_15pct">省15%</span>',ug_annual:'年付 省35%',
   ug_trial_btn:'0秒體驗 → 72小時內付款',ug_later:'下次再講',
   ug_upgrade_to:'升級至',ug_unlock_more:'解鎖更多',ug_select_plan:'選擇方案升級',
   ug_upgrade_short:'升級',ug_upgrade_failed:'升級失敗',ug_need_upgrade_to:'需要升級至',
@@ -3203,7 +3327,7 @@ const L={
   retry:'重試',
   // 收費
   pt_monthly:'月付',pt_quarterly:'季付',pt_annual:'年付',
-  pt_yr_save_max:'💡 年付最高省42%！季付省15%',pt_current:'當前',pt_upgrade_now:'💪 立即升級',
+  pt_yr_save_max:'💡 年付最高<span data-i18n="save_42pct">省42%</span>！季付<span data-i18n="save_15pct">省15%</span>',pt_current:'當前',pt_upgrade_now:'💪 立即升級',
   grp_owner:'群主',grp_admin:'管理',grp_member:'成員',
   grp_create_failed:'創建失敗',grp_search_failed:'搜索失敗',grp_no_found:'搵唔到群組',
   grp_joined_label:'已加入',grp_join_btn:'加入',grp_load_failed:'加載失敗',
@@ -3832,7 +3956,131 @@ const L={
   mem_free_label:'🆓免费',
   mem_limit_today:'今日剩余扫码',
   ship_need_addr:'请填写详细地址',
+  shop_title:'今晚饮咗未 · 商铺',shop_subtitle:'舞曲 · 酒品 · 消费券',
   shop_reselect:'请重新选择商品',
+  shop_search:'搜索',
+  order_pending:'待处理',order_paid:'已付款',order_shipped:'已发货',order_delivered:'已送达',order_cancelled:'已取消',order_refunded:'已退款',
+  download_digital:'📥 下载数码商品',
+  ai_rec_no_match:'未找到匹配酒品，试试其他场景？',
+  ai_rec_load_fail:'加载失败，请重试',
+  ai_rec_limited:'酒友仅看3条',
+  ai_rec_upgrade_all:'升级酒鬼看全部',
+  shop_discount_info:'原价¥{orig} · {disc} · 省¥{save}',
+  discount_jiuyau:'酒友9折',discount_jaugwai:'酒鬼85折',discount_jausan:'酒神75折',
+  close_btn:'关闭',
+  ck_confirm_pay:'💳 确认付款',
+  ck_amount_label:'付款金额',
+  ck_select_method:'选择支付方式',
+  ck_wechat_pay:'微信支付',ck_wechat_pay_en:'WeChat Pay',
+  ck_alipay:'支付宝',ck_alipay_en:'Alipay',
+  ck_overseas_pay:'海外付款',
+  ck_next_step:'下一步',
+  ck_shipping_info:'收货信息',
+  ck_digital_hint:'数码商品：确认付款后发送一次性下载链接（72小时有效）',
+  ck_ph_name:'收货人姓名',ck_ph_phone:'手机号码',
+  ck_ph_city:'城市',ck_ph_district:'区/县',
+  ck_ph_addr_detail:'详细地址（街道、门牌号）',ck_ph_zip:'邮政编码（选填）',
+  ck_addr_save_hint:'地址将保存到你的会员资料，下次自动填入',
+  ck_back:'返回',
+  ck_next_scan_pay:'下一步 · 扫码付款',
+  ck_longpress_scan:'长按保存收款码 → 打开支付App扫码',
+  ck_scan_first_hint:'请先扫码付款，确认到账后再点「我已付款」，系统将人工审核',
+  ck_i_paid:'✅ 我已付款',
+  shop_auth_verify:'酒品真伪验证',
+  shop_auth_verify_desc:'扫描或输入酒瓶条码，即时验证真伪同查看酒品详情',
+  ck_ph_barcode:'📦 输入条码...',
+  ck_verify:'验证',
+  shop_load_err:'加载失败',
+  ai_rec_loading:'AI 分析中...',
+  ai_rec_no_data:'暂无推荐数据',
+  liquor_db_title:'数据库',
+  exp_days_left:'还有{dl}日到期！',
+  learn_more:'了解更多 →',
+  shop_search_ph:'🔍 搜索商品...',
+  ug_first_month_special:'首月特价 · 次月原价续费',
+  adm_load_fail:'加载失败',
+  cellar_not_friend:'不是好友不可以看酒柜',cellar_need_upgrade:'需要升级才可以看好友酒柜',
+  cellar_empty:'酒柜空空如也 🏚️',
+  bar_vip:'酒吧VIP',
+  my_annual_report:'我的年度报告',
+  map_lock_sub:'看到全城饮友打卡热点',
+  map_my_loc:'📍 我的位置',
+  map_checkins:'🍺 打卡点',
+  map_bar_vip:'🏙️ 酒吧VIP',
+  map_heatmap:'🔥 热力足迹',
+  map_7d:'近7日',
+  map_30d:'近30日',
+  map_90d:'近90日',
+  map_365d:'近一年',
+  fr_accept:'接受',
+  fr_reject:'拒绝',
+  profile_title:'个人资料',
+  cellar_unit:'款',
+  cellar_sub:'收藏、评分、品饮记录',
+  my_coupons:'我的优惠券',
+  invite_friends:'邀请好友',
+  invite_bonus:'每3位好友升级送7日🥉酒友',
+  ppl_unit:'人',
+  invite_input_ph:'输入好友邀请码',
+  use_btn:'使用',
+  cellar_all:'全部',
+  cellar_want:'🤤 想饮',
+  cellar_tried:'✅ 饮过',
+  cellar_collect:'💎 收藏',
+  cellar_search_ph:'🔍 搜索酒品...',
+  rv_brand_ph:'品牌(必填)',
+  rv_name_ph:'酒款名称',
+  rv_appearance_ph:'👀 外观',
+  rv_aroma_ph:'👃 香气',
+  rv_palate_ph:'👅 口感',
+  rv_finish_ph:'🎬 余韵',
+  rv_overall:'总评',
+  rv_submit:'发布酒评',
+  cancel:'取消',
+  scan_verify_btn:'📷 扫码验证',
+  scan_history_btn:'📜 扫码记录',
+  my_orders:'📦 我的订单',
+  scan_verify_title:'📷 扫码验证',
+  scan_hint:'将条码对准镜头，自动识别...',
+  scan_manual_ph:'手动输入条码',
+  verify_btn:'验证',
+  lb_subtitle:'边个饮得最多？边款酒最Hit？',
+  refresh:'🔄 刷新',
+  adm_products:'商品管理',
+  adm_add_product:'➕ 新增商品',
+  adm_orders:'订单管理',
+  all:'全部',
+  ord_pending:'待处理',
+  ord_paid:'已付款',
+  ord_shipped:'已发货',
+  ord_delivered:'已送达',
+  ord_cancelled:'已取消',
+  adm_liquor_search_ph:'搜索条码/名称...',
+  adm_add:'➕ 新增',
+  adm_groups:'群组管理',
+  adm_group_search_ph:'搜索群名...',
+  legal_terms:'使用条款',
+  legal_disclaimer:'免责声明',
+  legal_contact:'联系我们',
+  password_ph:'密码',
+  cmp_cellar:'酒品收藏',
+  cmp_verify:'辨真助手',
+  cmp_coupon:'每月优惠券',
+  cmp_bar_vip:'酒吧VIP',
+  cmp_annual:'年度报告',
+  cmp_map:'打卡地图',
+  cmp_ai_rec:'AI酒单推荐',
+  cmp_cellar2:'我的酒柜',
+  cmp_vote:'群聊投票',
+  cmp_chain:'接龙报名',
+  cmp_review:'酒评认证',
+  shop_search_ph:'🔍 搜索商品...',
+  grp_create_btn:'＋ 创建群组',grp_explore_btn:'🔍 发现群组',upload_img:'上传图片',upload_vid:'上传影片',select_party:'选择酒局',poll_question_ph:'❓ 投票问题',poll_opt_a:'A. 选项1',poll_opt_b:'B. 选项2',poll_add_opt:'+ 选项',chain_title_ph:'📋 接龙标题',chain_max_ph:'人数上限',chain_note_ph:'备注(可选)',ck_shipping_info:'收货信息',ck_amount_label:'付款金额',ck_select_method:'选择支付方式',ck_wechat_pay:'微信支付',ck_alipay:'支付宝',ck_overseas_pay:'海外付款',ck_back:'返回',ck_next:'下一步',ck_i_paid:'我已付款',ck_verify:'验证',ck_ph_name:'收货人姓名',ck_ph_phone:'手机号码',ck_ph_city:'城市',ck_ph_district:'区/县',ck_ph_addr_detail:'详细地址（街道、门牌号）',ck_ph_zip:'邮政编码',ck_ph_note:'订单备注（可选）',
+  scan_history:'📜 扫码记录',
+  liquor_db_title:'🍾 数据库',
+  my_orders:'📦 我的订单',
+  exp_days_left:'还有{dl}天到期！',
+  learn_more:'了解更多 →',
   pay_scan_title:'📱 扫码付款',
   pay_confirm_again:'⚠️ 再按一次确认',
   submitting:'提交中...',
@@ -3896,11 +4144,11 @@ const L={
   pricing_bronze_m:'¥9.9/月',pricing_bronze_q:'¥25/季',pricing_bronze_a:'¥69/年',
   pricing_silver_m:'¥19.9/月',pricing_silver_q:'¥50/季',pricing_silver_a:'¥149/年',
   pricing_gold_m:'¥49.9/月',pricing_gold_q:'¥76/季',pricing_gold_a:'¥233/年',
-  pricing_save_tip:'年付最高省42%！季付省15%',pricing_current:'当前',pricing_upgrade_now:'立即升级',
+  pricing_save_tip:'年付最高<span data-i18n="save_42pct">省42%</span>！季付<span data-i18n="save_15pct">省15%</span>',pricing_current:'当前',pricing_upgrade_now:'立即升级',
   ug_close:'关闭',
   ug_limited_offer:'限时体验：首月 ¥1/¥3/¥5！',ug_hour:'时',ug_min:'分',ug_sec:'秒',
   ug_quick_upgrade:'快速升级',ug_compare:'权益对比',
-  ug_monthly:'月付',ug_quarterly:'季付 省15%',ug_annual:'年付 省35%',
+  ug_monthly:'月付',ug_quarterly:'季付 <span data-i18n="save_15pct">省15%</span>',ug_annual:'年付 省35%',
   ug_trial_btn:'0秒体验 → 72小时内付款',ug_later:'下次再说',
   ug_upgrade_to:'升级至',ug_unlock_more:'解锁更多',ug_select_plan:'选择方案升级',
   ug_upgrade_short:'升级',ug_upgrade_failed:'升级失败',ug_need_upgrade_to:'需要升级至',
@@ -3952,7 +4200,7 @@ const L={
   retry:'重试',
   // 收费
   pt_monthly:'月付',pt_quarterly:'季付',pt_annual:'年付',
-  pt_yr_save_max:'💡 年付最高省42%！季付省15%',pt_current:'当前',pt_upgrade_now:'💪 立即升级',
+  pt_yr_save_max:'💡 年付最高<span data-i18n="save_42pct">省42%</span>！季付<span data-i18n="save_15pct">省15%</span>',pt_current:'当前',pt_upgrade_now:'💪 立即升级',
   grp_owner:'群主',grp_admin:'管理',grp_member:'成员',
   grp_create_failed:'创建失败',grp_search_failed:'搜索失败',grp_no_found:'找不到群组',
   grp_joined_label:'已加入',grp_join_btn:'加入',grp_load_failed:'加载失败',
@@ -4581,7 +4829,131 @@ const L={
   mem_free_label:'Free',
   mem_limit_today:'Daily scans left',
   ship_need_addr:'Fill in detailed address',
+  shop_title:'Drunk Tonight? · Shop',shop_subtitle:'Music · Spirits · Vouchers',
   shop_reselect:'Please reselect product',
+  shop_search:'Search',
+  order_pending:'Pending',order_paid:'Paid',order_shipped:'Shipped',order_delivered:'Delivered',order_cancelled:'Cancelled',order_refunded:'Refunded',
+  download_digital:'📥 Download Digital',
+  ai_rec_no_match:'No matching spirits found. Try another scene?',
+  ai_rec_load_fail:'Load failed, please retry',
+  ai_rec_limited:'VIPs see 3 only',
+  ai_rec_upgrade_all:'Upgrade to Boozer for all',
+  shop_discount_info:'Original ¥{orig} · {disc} · Save ¥{save}',
+  discount_jiuyau:'VIP 10% off',discount_jaugwai:'Boozer 15% off',discount_jausan:'Drunksan 25% off',
+  close_btn:'Close',
+  ck_confirm_pay:'💳 Confirm Payment',
+  ck_amount_label:'Payment Amount',
+  ck_select_method:'Select Payment Method',
+  ck_wechat_pay:'WeChat Pay',ck_wechat_pay_en:'WeChat Pay',
+  ck_alipay:'Alipay',ck_alipay_en:'Alipay',
+  ck_overseas_pay:'Overseas Pay',
+  ck_next_step:'Next',
+  ck_shipping_info:'Shipping Info',
+  ck_digital_hint:'Digital product: one-time download link sent after payment (valid 72h)',
+  ck_ph_name:'Recipient Name',ck_ph_phone:'Phone Number',
+  ck_ph_city:'City',ck_ph_district:'District',
+  ck_ph_addr_detail:'Detailed Address (street, number)',ck_ph_zip:'Zip Code (optional)',
+  ck_addr_save_hint:'Address will be saved to your profile for auto-fill next time',
+  ck_back:'Back',
+  ck_next_scan_pay:'Next · Scan to Pay',
+  ck_longpress_scan:'Long press to save QR → Open payment app to scan',
+  ck_scan_first_hint:'Please scan & pay first, then tap "I\'ve Paid". Manual review follows.',
+  ck_i_paid:'✅ I\'ve Paid',
+  shop_auth_verify:'Liquor Authenticity Check',
+  shop_auth_verify_desc:'Scan or enter bottle barcode to verify & view details',
+  ck_ph_barcode:'📦 Enter barcode...',
+  ck_verify:'Verify',
+  shop_load_err:'Load failed',
+  ai_rec_loading:'AI analyzing...',
+  ai_rec_no_data:'No recommendation data yet',
+  liquor_db_title:'Database',
+  exp_days_left:'{dl} days left!',
+  learn_more:'Learn more →',
+  shop_search_ph:'🔍 Search products...',
+  ug_first_month_special:'1st month special · auto-renew at standard price',
+  adm_load_fail:'Load failed',
+  cellar_not_friend:'Not friends — cannot view cellar',cellar_need_upgrade:'Upgrade to view friend\'s cellar',
+  cellar_empty:'Cellar is empty 🏚️',
+  bar_vip:'Bar VIP',
+  my_annual_report:'My Annual Report',
+  map_lock_sub:'View drinking friends' check-in hotspots citywide',
+  map_my_loc:'📍 My Location',
+  map_checkins:'🍺 Check-ins',
+  map_bar_vip:'🏙️ Bar VIP',
+  map_heatmap:'🔥 Heatmap',
+  map_7d:'Last 7 Days',
+  map_30d:'Last 30 Days',
+  map_90d:'Last 90 Days',
+  map_365d:'Last Year',
+  fr_accept:'Accept',
+  fr_reject:'Reject',
+  profile_title:'Profile',
+  cellar_unit:'items',
+  cellar_sub:'Collection, Ratings, Tasting Notes',
+  my_coupons:'My Coupons',
+  invite_friends:'Invite Friends',
+  invite_bonus:'Every 3 friends = 7 days free upgrade',
+  ppl_unit:'ppl',
+  invite_input_ph:'Enter friend invite code',
+  use_btn:'Use',
+  cellar_all:'All',
+  cellar_want:'🤤 Want to Try',
+  cellar_tried:'✅ Tried',
+  cellar_collect:'💎 Collection',
+  cellar_search_ph:'🔍 Search liquor...',
+  rv_brand_ph:'Brand (required)',
+  rv_name_ph:'Liquor Name',
+  rv_appearance_ph:'👀 Appearance',
+  rv_aroma_ph:'👃 Aroma',
+  rv_palate_ph:'👅 Palate',
+  rv_finish_ph:'🎬 Finish',
+  rv_overall:'Overall',
+  rv_submit:'Submit Review',
+  cancel:'Cancel',
+  scan_verify_btn:'📷 Scan & Verify',
+  scan_history_btn:'📜 Scan History',
+  my_orders:'📦 My Orders',
+  scan_verify_title:'📷 Scan & Verify',
+  scan_hint:'Point barcode at camera, auto-detect...',
+  scan_manual_ph:'Enter barcode manually',
+  verify_btn:'Verify',
+  lb_subtitle:'Who drinks the most? Which liquor is hottest?',
+  refresh:'🔄 Refresh',
+  adm_products:'Product Management',
+  adm_add_product:'➕ Add Product',
+  adm_orders:'Order Management',
+  all:'All',
+  ord_pending:'Pending',
+  ord_paid:'Paid',
+  ord_shipped:'Shipped',
+  ord_delivered:'Delivered',
+  ord_cancelled:'Cancelled',
+  adm_liquor_search_ph:'Search barcode/name...',
+  adm_add:'➕ Add',
+  adm_groups:'Group Management',
+  adm_group_search_ph:'Search group name...',
+  legal_terms:'Terms of Use',
+  legal_disclaimer:'Disclaimer',
+  legal_contact:'Contact Us',
+  password_ph:'Password',
+  cmp_cellar:'Liquor Collection',
+  cmp_verify:'Auth Helper',
+  cmp_coupon:'Monthly Coupons',
+  cmp_bar_vip:'Bar VIP',
+  cmp_annual:'Annual Report',
+  cmp_map:'Check-in Map',
+  cmp_ai_rec:'AI Recommendations',
+  cmp_cellar2:'My Cellar',
+  cmp_vote:'Group Polls',
+  cmp_chain:'Chain Sign-up',
+  cmp_review:'Review Certification',
+  shop_search_ph:'🔍 Search products...',
+  grp_create_btn:'＋ Create Group',grp_explore_btn:'🔍 Discover Groups',upload_img:'Upload Image',upload_vid:'Upload Video',select_party:'Select Party',poll_question_ph:'❓ Poll question',poll_opt_a:'A. Option 1',poll_opt_b:'B. Option 2',poll_add_opt:'+ Option',chain_title_ph:'📋 Chain title',chain_max_ph:'Max slots',chain_note_ph:'Note (optional)',ck_shipping_info:'Shipping Info',ck_amount_label:'Payment Amount',ck_select_method:'Select Payment Method',ck_wechat_pay:'WeChat Pay',ck_alipay:'Alipay',ck_overseas_pay:'Overseas Payment',ck_back:'Back',ck_next:'Next',ck_i_paid:'I've Paid',ck_verify:'Verify',ck_ph_name:'Recipient name',ck_ph_phone:'Phone number',ck_ph_city:'City',ck_ph_district:'District',ck_ph_addr_detail:'Detail address (street, building)',ck_ph_zip:'Postal code',ck_ph_note:'Order note (optional)',
+  scan_history:'📜 Scan History',
+  liquor_db_title:'🍾 Database',
+  my_orders:'📦 My Orders',
+  exp_days_left:'{dl} days left until expiry!',
+  learn_more:'Learn more →',
   pay_scan_title:'Scan to Pay',
   pay_confirm_again:'Press again to confirm',
   submitting:'Submitting...',
@@ -4713,10 +5085,10 @@ const L={
   grp_chat_load_failed:'Cannot load chat',grp_send_failed:'Send failed',
 }
 };
-function T(k){return (L[lang]||L['zh-HK'])[k]||k}
+function T(k,params){let s=(L[lang]||L['zh-HK'])[k]||k;if(params){Object.entries(params).forEach(([k2,v])=>{s=s.replace(new RegExp('\\{'+k2+'\\}','g'),v)});}return s}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 
-const _t2e={'我嘅':'My','我的':'My','管理員':'Admin','免費':'Free','永久':'Permanent','升級成功':'Upgraded!','升級失敗':'Upgrade failed','升級享受完整功能':'Upgrade for full features','立即升級':'Upgrade Now','升級解鎖':'Unlock with Upgrade','需要升級至':'Upgrade required: ','掃碼付款':'Scan to Pay','去廣告':'Ad-Free','專屬徽章':'Badge','開趴約飲':'Host Parties','已結束':'Ended','結束投票':'End Vote','確認':'Confirm','拒絕':'Reject','移除':'Remove','加酒友':'Add Friend','搜索失敗':'Search failed','冇結果':'No results','冇數據':'No data','加載失敗，請重試':'Load failed, retry','未找到匹配酒品':'No matching liquors found','酒友':'Drinker','酒鬼':'Boozer','酒神':'Drunkard','好友已升級':'friends upgraded','載入地圖SDK...':'Loading Map SDK...','地圖已載入，點擊下方按鈕查看打卡點':'Map loaded, tap below for check-in spots','地圖載入失敗':'Map load failed','定位中...':'Locating...','已定位':'Located','定位失敗，請確認浏览器已授權位置':'Location failed, allow browser access','載入打卡點...':'Loading check-in spots...','個打卡點':' check-in spots','載入酒吧...':'Loading bars...','間合作酒吧':' partner bars','會員折扣':'Member Discount','載入热力足跡...':'Loading heatmap...','打卡數據不足，多啲帶定位打卡啦！':'Check in more with location!','你的足跡热力圖':'Your heatmap','次定位打卡':' location check-ins','個熱點':' hotspots','累計打卡':'Total Check-ins','品過酒款':'Liquors Tried','連飲食數':'Drink Streak','打卡城市':'Cities Checked In','酒柜':'Cellar','飲酒月報':'Monthly Drink Report','年度飲酒報告':'Annual Drink Report','打卡一次即獲第一個稱號':'First check-in earns your first title!','初嘗者':'First Sip','常客':'Regular','品酒师':'Connoisseur','鑒賞家':'Master','商鋪折扣':'Shop Discount','酒品':'Liquor','編辑商品':'Edit Product','新增商品':'Add Product','編辑酒品':'Edit Liquor','新增酒品':'Add Liquor','名稱':'Name','英文名稱':'English Name','分類':'Category','子分類':'Subcategory','描述':'Description','價格':'Price','貨幣':'Currency','庫存':'Stock','無限':'Unlimited','排序':'Sort','圖片URL':'Image URL','檔案URL':'File URL','上架':'On Sale','保存':'Save','想試':'Want to Try','試過':'Tried','收藏':'Collection','未知酒款':'Unknown Liquor','載入失敗':'Load Failed','所有會員都係有效嘅':'All members are valid','暫無用戶':'No users yet','暫無付款紀錄':'No payment records','暫無操作紀錄':'No operation logs','選項':'Option','投票':'Vote','顯示':'Show','搜索':'Search','續期':'Renew','設定新密碼（至少4位）：':'Set new password (min 4 chars): ','酒友快滿啦！升級解鎖更多位':'Friends limit reached! Upgrade for more','好友酒柜？升酒友即開':'Friend cellar? Upgrade to unlock','排行榜？升酒友解鎖':'Leaderboard? Upgrade to unlock','飲杯都要升級？升酒友解鎖啦':'Upgrade to Drinker to unlock','想玩盡啲？升酒鬼先得':'Upgrade to Boozer for full access','最高享受，酒神先配有':'Best experience, Drunkard exclusive','報到':'Check-in','帖子':'Posts','品鑒酒款':'Liquors Rated','本月打卡':'Monthly Check-ins','飲酒天數':'Drinking Days','狀態分佈':'Status Distribution','均分':'Avg Score','有效期至':'Valid until','方式':'Method','今晚飲咗未':'Drunk Tonight?','飲酒地圖':'Drink Map','打卡地圖':'Check-in Map','免費僅':'Free only','升級擴大地圖':'Upgrade for expanded map','原價':'Original ','首月體驗':'1st month trial','已售':' sold','品牌':'Brand','產地':'Origin','註冊':'Registered','滿':' over ','酒品真偽驗證':'Liquor Authenticity Check','掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品詳情':'Scan barcode to verify & view details','詳情':'Details','接龍':'Chain Order','人數':'People','備註(可選)':'Note (optional)','聊天':'Chat','AI酒單':'AI Menu','酒單推薦':'Menu Picks','酒單':'Menu','真偽驗證':'Auth Check','掃碼驗證':'Scan Verify','掃碼記錄':'Scan Log','掃碼':'Scan','我嘅訂單':'My Orders','訂單':'Orders','酒柜展示':'Cellar Display','優惠劵':'Coupons','優惠':'Discount','邀請好友':'Invite Friends','邀請':'Invite','個人資料':'Profile','位置':'Location','打卡點':'Check-in Spots','酒吧':'Bars','勢力足跡':'Footprint','足跡':'Footprint','热力圖':'Heatmap','上傳圖片':'Upload Image','上傳影片':'Upload Video','上傳':'Upload','好友圈':'Friend Circle','護照':'Passport','統計':'Stats','收費':'Pricing','對比':'Compare','功能對比':'Feature Compare','清醒':'Sober','微醺':'Tipsy','想飲':'Wanna Drink','到咗':'Arrived','開咗':'Started','飲緊':'Drinking','繼續':'Continue','加酒':'Add Booze','暢飲':'Drink Up','醉緊':'Getting Drunk','好醉':'Very Drunk','陶醉':'Blissed','飄飄':'Floating','斷片':'Blackout','想嘔':'Wanna Puke','暈暈':'Dizzy','趴低':'Passed Out','轉場':'Bar Hopping','溝酒':'Mix Drinks','猜枚':'Finger Guess','直落':'All Night','醒晒':'Sober Now','返歸':'Going Home','聽日':'Tomorrow','起手':'Starting','爆咗':'Busted','收尾':'Finishing','👨 男':'👨 M','👩 女':'👩 F','🧑 其他':'🧑 Other','🇭🇰 香港':'🇭🇰 HK','🇲🇴 澳門':'🇲🇴 Macau','🇨🇳 廣東':'🇨🇳 Guangdong','🇨🇳 廣西':'🇨🇳 Guangxi','🇨🇳 北京':'🇨🇳 Beijing','🇨🇳 上海':'🇨🇳 Shanghai','🇨🇳 福建':'🇨🇳 Fujian','🇨🇳 浙江':'🇨🇳 Zhejiang','🇨🇳 其他':'🇨🇳 Other CN','🇹🇼 台灣':'🇹🇼 Taiwan','🇸🇬 新加坡':'🇸🇬 Singapore','🇯🇵 日本':'🇯🇵 Japan','🇦🇺 澳洲':'🇦🇺 Australia','🇲🇾 馬來西亞':'🇲🇾 Malaysia','🇰🇷 韓國':'🇰🇷 Korea','🇺🇸 美國':'🇺🇸 USA','🇬🇧 英國':'🇬🇧 UK','🌍 其他':'🌍 Other','取消':'Cancel','退出':'Exit','登入':'Login','登出':'Logout','删除':'Delete','已删除':'Deleted','删除失敗':'Delete failed','已更新':'Updated','更新失敗:':'Update failed:','操作失敗':'Operation failed','保存失敗':'Save failed','加載失敗':'Load failed','加载失败':'Load failed','加載失败':'Load failed','網络錯誤':'Network error','確定':'OK','返回':'Back','提交':'Submit','待處理':'Pending','已發貨':'Shipped','已送達':'Delivered','已付款':'Paid','已取消':'Cancelled','免費會員':'Free Member','月費':'Monthly','月付':'Monthly','季付 省15%':'Quarterly Save 15%','年付 省35%':'Yearly Save 35%','年付 省38%':'Yearly Save 38%','年付 省42%':'Yearly Save 42%','年付 省36%':'Yearly Save 36%','時間':'Time','地點':'Location','內容':'Content','成員':'Members','到期：':'Expires:','動態':'Feed','骰盅':'Dice','骰子':'Dice','酒局':'Party','暫無酒局':'No parties yet','酒局名稱':'Party Name','日期':'Date','今日':'Today','匹配中...':'Matching...','匹配成功！':'Matched!','取消匹配':'Cancel Match','接受':'Accept','發送':'Send','加入':'Join','等待中':'Waiting','選擇骰數':'Select Dice Count','花名':'Nickname','頭像':'Avatar','打卡相':'Check-in Photos','月建酒局':'Monthly Parties','每月/打卡':'Monthly/Check-in','每年/徽章':'Yearly/Badge','使用條款':'Terms','免責聲明':'Disclaimer','聯络我們':'Contact Us','推送通知':'Push Notifications','已加酒友':'Friend Added','請先登入':'Please login first','商品已更新':'Product updated','商品已新增':'Product added','酒品已更新':'Liquor updated','酒品已新增':'Liquor added','商品描述...':'Product description...','筆記字數':'Note Limit','粒骰':' dice','張打卡相':' check-in photos','字筆記':' char note','酒友位':' friend slots','每日帖':' daily posts','可建':'Can create','群':' groups','日足跡':'-day heatmap','款':' items','次/日':' per day','開趴+約戰':'Party+Match','炫彩昵稱':'Color Nickname','AI品酒':'AI Tasting','月報':'Monthly Report','年度報告':'Annual Report','我嘅酒友':'My Friends','我嘅帖子':'My Posts','名':'Name','價':'Price','類':'Type','留言':'Comment','讚':'Like','分享':'Share','收藏夾':'Favorites','搜尋':'Search','飲':'Drink','酒':'Wine','我嘅位置':'My Location','場所':'Venues','熱力圖':'Heatmap','場所標記':'Venue Markers'};
+const _t2e={'我嘅':'My','我的':'My','管理員':'Admin','免費':'Free','永久':'Permanent','升級成功':'Upgraded!','升級失敗':'Upgrade failed','升級享受完整功能':'Upgrade for full features','立即升級':'Upgrade Now','升級解鎖':'Unlock with Upgrade','需要升級至':'Upgrade required: ','掃碼付款':'Scan to Pay','去廣告':'Ad-Free','專屬徽章':'Badge','開趴約飲':'Host Parties','已結束':'Ended','結束投票':'End Vote','確認':'Confirm','拒絕':'Reject','移除':'Remove','加酒友':'Add Friend','搜索失敗':'Search failed','冇結果':'No results','冇數據':'No data','加載失敗，請重試':'Load failed, retry','未找到匹配酒品':'No matching liquors found','酒友':'Drinker','酒鬼':'Boozer','酒神':'Drunkard','好友已升級':'friends upgraded','載入地圖SDK...':'Loading Map SDK...','地圖已載入，點擊下方按鈕查看打卡點':'Map loaded, tap below for check-in spots','地圖載入失敗':'Map load failed','定位中...':'Locating...','已定位':'Located','定位失敗，請確認浏览器已授權位置':'Location failed, allow browser access','載入打卡點...':'Loading check-in spots...','個打卡點':' check-in spots','載入酒吧...':'Loading bars...','間合作酒吧':' partner bars','會員折扣':'Member Discount','載入热力足跡...':'Loading heatmap...','打卡數據不足，多啲帶定位打卡啦！':'Check in more with location!','你的足跡热力圖':'Your heatmap','次定位打卡':' location check-ins','個熱點':' hotspots','累計打卡':'Total Check-ins','品過酒款':'Liquors Tried','連飲食數':'Drink Streak','打卡城市':'Cities Checked In','酒柜':'Cellar','飲酒月報':'Monthly Drink Report','年度飲酒報告':'Annual Drink Report','打卡一次即獲第一個稱號':'First check-in earns your first title!','初嘗者':'First Sip','常客':'Regular','品酒师':'Connoisseur','鑒賞家':'Master','商鋪折扣':'Shop Discount','酒品':'Liquor','編辑商品':'Edit Product','新增商品':'Add Product','編辑酒品':'Edit Liquor','新增酒品':'Add Liquor','名稱':'Name','英文名稱':'English Name','分類':'Category','子分類':'Subcategory','描述':'Description','價格':'Price','貨幣':'Currency','庫存':'Stock','無限':'Unlimited','排序':'Sort','圖片URL':'Image URL','檔案URL':'File URL','上架':'On Sale','保存':'Save','想試':'Want to Try','試過':'Tried','收藏':'Collection','未知酒款':'Unknown Liquor','載入失敗':'Load Failed','所有會員都係有效嘅':'All members are valid','暫無用戶':'No users yet','暫無付款紀錄':'No payment records','暫無操作紀錄':'No operation logs','選項':'Option','投票':'Vote','顯示':'Show','搜索':'Search','續期':'Renew','設定新密碼（至少4位）：':'Set new password (min 4 chars): ','酒友快滿啦！升級解鎖更多位':'Friends limit reached! Upgrade for more','好友酒柜？升酒友即開':'Friend cellar? Upgrade to unlock','排行榜？升酒友解鎖':'Leaderboard? Upgrade to unlock','飲杯都要升級？升酒友解鎖啦':'Upgrade to Drinker to unlock','想玩盡啲？升酒鬼先得':'Upgrade to Boozer for full access','最高享受，酒神先配有':'Best experience, Drunkard exclusive','報到':'Check-in','帖子':'Posts','品鑒酒款':'Liquors Rated','本月打卡':'Monthly Check-ins','飲酒天數':'Drinking Days','狀態分佈':'Status Distribution','均分':'Avg Score','有效期至':'Valid until','方式':'Method','今晚飲咗未':'Drunk Tonight?','飲酒地圖':'Drink Map','打卡地圖':'Check-in Map','免費僅':'Free only','升級擴大地圖':'Upgrade for expanded map','原價':'Original ','首月體驗':'1st month trial','已售':' sold','品牌':'Brand','產地':'Origin','註冊':'Registered','滿':' over ','酒品真偽驗證':'Liquor Authenticity Check','掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品詳情':'Scan barcode to verify & view details','詳情':'Details','接龍':'Chain Order','人數':'People','備註(可選)':'Note (optional)','聊天':'Chat','AI酒單':'AI Menu','酒單推薦':'Menu Picks','酒單':'Menu','真偽驗證':'Auth Check','掃碼驗證':'Scan Verify','掃碼記錄':'Scan Log','掃碼':'Scan','我嘅訂單':'My Orders','訂單':'Orders','酒柜展示':'Cellar Display','優惠劵':'Coupons','優惠':'Discount','邀請好友':'Invite Friends','邀請':'Invite','個人資料':'Profile','位置':'Location','打卡點':'Check-in Spots','酒吧':'Bars','勢力足跡':'Footprint','足跡':'Footprint','热力圖':'Heatmap','上傳圖片':'Upload Image','上傳影片':'Upload Video','上傳':'Upload','好友圈':'Friend Circle','護照':'Passport','統計':'Stats','收費':'Pricing','對比':'Compare','功能對比':'Feature Compare','清醒':'Sober','微醺':'Tipsy','想飲':'Wanna Drink','到咗':'Arrived','開咗':'Started','飲緊':'Drinking','繼續':'Continue','加酒':'Add Booze','暢飲':'Drink Up','醉緊':'Getting Drunk','好醉':'Very Drunk','陶醉':'Blissed','飄飄':'Floating','斷片':'Blackout','想嘔':'Wanna Puke','暈暈':'Dizzy','趴低':'Passed Out','轉場':'Bar Hopping','溝酒':'Mix Drinks','猜枚':'Finger Guess','直落':'All Night','醒晒':'Sober Now','返歸':'Going Home','聽日':'Tomorrow','起手':'Starting','爆咗':'Busted','收尾':'Finishing','👨 男':'👨 M','👩 女':'👩 F','🧑 其他':'🧑 Other','🇭🇰 香港':'🇭🇰 HK','🇲🇴 澳門':'🇲🇴 Macau','🇨🇳 廣東':'🇨🇳 Guangdong','🇨🇳 廣西':'🇨🇳 Guangxi','🇨🇳 北京':'🇨🇳 Beijing','🇨🇳 上海':'🇨🇳 Shanghai','🇨🇳 福建':'🇨🇳 Fujian','🇨🇳 浙江':'🇨🇳 Zhejiang','🇨🇳 其他':'🇨🇳 Other CN','🇹🇼 台灣':'🇹🇼 Taiwan','🇸🇬 新加坡':'🇸🇬 Singapore','🇯🇵 日本':'🇯🇵 Japan','🇦🇺 澳洲':'🇦🇺 Australia','🇲🇾 馬來西亞':'🇲🇾 Malaysia','🇰🇷 韓國':'🇰🇷 Korea','🇺🇸 美國':'🇺🇸 USA','🇬🇧 英國':'🇬🇧 UK','🌍 其他':'🌍 Other','取消':'Cancel','退出':'Exit','登入':'Login','登出':'Logout','删除':'Delete','已删除':'Deleted','删除失敗':'Delete failed','已更新':'Updated','更新失敗:':'Update failed:','操作失敗':'Operation failed','保存失敗':'Save failed','加載失敗':'Load failed','加载失败':'Load failed','加載失败':'Load failed','網络錯誤':'Network error','確定':'OK','返回':'Back','提交':'Submit','待處理':'Pending','已發貨':'Shipped','已送達':'Delivered','已付款':'Paid','已取消':'Cancelled','免費會員':'Free Member','月費':'Monthly','月付':'Monthly','季付 <span data-i18n="save_15pct">省15%</span>':'Quarterly Save 15%','年付 省35%':'Yearly Save 35%','年付 省38%':'Yearly Save 38%','年付 <span data-i18n="save_42pct">省42%</span>':'Yearly Save 42%','年付 省36%':'Yearly Save 36%','時間':'Time','地點':'Location','內容':'Content','成員':'Members','到期：':'Expires:','動態':'Feed','骰盅':'Dice','骰子':'Dice','酒局':'Party','暫無酒局':'No parties yet','酒局名稱':'Party Name','日期':'Date','今日':'Today','匹配中...':'Matching...','匹配成功！':'Matched!','取消匹配':'Cancel Match','接受':'Accept','發送':'Send','加入':'Join','等待中':'Waiting','選擇骰數':'Select Dice Count','花名':'Nickname','頭像':'Avatar','打卡相':'Check-in Photos','月建酒局':'Monthly Parties','每月/打卡':'Monthly/Check-in','每年/徽章':'Yearly/Badge','使用條款':'Terms','免責聲明':'Disclaimer','聯络我們':'Contact Us','推送通知':'Push Notifications','已加酒友':'Friend Added','請先登入':'Please login first','商品已更新':'Product updated','商品已新增':'Product added','酒品已更新':'Liquor updated','酒品已新增':'Liquor added','商品描述...':'Product description...','筆記字數':'Note Limit','粒骰':' dice','張打卡相':' check-in photos','字筆記':' char note','酒友位':' friend slots','每日帖':' daily posts','可建':'Can create','群':' groups','日足跡':'-day heatmap','款':' items','次/日':' per day','開趴+約戰':'Party+Match','炫彩昵稱':'Color Nickname','AI品酒':'AI Tasting','月報':'Monthly Report','年度報告':'Annual Report','我嘅酒友':'My Friends','我嘅帖子':'My Posts','名':'Name','價':'Price','類':'Type','留言':'Comment','讚':'Like','分享':'Share','收藏夾':'Favorites','搜尋':'Search','飲':'Drink','酒':'Wine','我嘅位置':'My Location','場所':'Venues','熱力圖':'Heatmap','場所標記':'Venue Markers'};
 // ── 全局语言转换（Debounce） ──
 window._langConvert = (function(){
   var _timer = null;
@@ -4820,6 +5192,7 @@ function switchLang(l){
   if(typeof updMem==='function')updMem();
   if(typeof updDiceLabels==='function')updDiceLabels();
   if(typeof _renderShopCats==='function')_renderShopCats();
+  if(typeof loadShopProducts==='function' && document.getElementById('page-shop')?.classList.contains('active'))loadShopProducts();
   // Re-render dynamic friend sub-tabs if visible
   if(typeof renderPricingTab==='function')renderPricingTab();
   if(typeof loadPassport==='function')loadPassport();
@@ -4845,14 +5218,29 @@ function updTitles(){
   document.getElementById('nav-title').textContent='🍺 '+T('app_title');
   // Tabs
   ['checkin','timeline','party','stats','member','map','shop'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T('tab_'+k)});const tf=document.getElementById('tab-friends');if(tf)tf.textContent=T('tab_friends');const td=document.getElementById('tab-dice');if(td)td.textContent=T('tab_dice');
-  // Refresh all data-i18n elements
+  // Refresh all data-i18n elements - only update leaf text nodes to preserve DOM structure
   document.querySelectorAll('[data-i18n]').forEach(el=>{
     const k=el.getAttribute('data-i18n');
-    el.textContent=T(k);
+    // If element has child elements with data-i18n, skip (let children handle themselves)
+    if(el.querySelector('[data-i18n]')) return;
+    // If element has only text content (no child elements), safe to set textContent
+    if(!el.children.length || el.tagName==='OPTION' || el.tagName==='BUTTON'){
+      el.textContent=T(k);
+    } else {
+      // Has mixed content - find and update direct text nodes only
+      for(let n of el.childNodes){
+        if(n.nodeType===3 && n.textContent.trim()) n.textContent=T(k);
+      }
+    }
   });
   // Refresh data-i18n-placeholder
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
     const k=el.getAttribute('data-i18n-placeholder');
+    el.placeholder=T(k);
+  });
+  // Refresh data-i18n-ph (shorthand)
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const k=el.getAttribute('data-i18n-ph');
     el.placeholder=T(k);
   });
   // Refresh data-i18n-attr
@@ -5458,9 +5846,9 @@ async function showCellarShowcase(uid,nickname){
   try{
     const r=await fetch('/api/cellar/showcase/'+uid,{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}});
     const d=await r.json();
-    if(d.error){document.getElementById('cellar-items').innerHTML='<p style="color:var(--pink)">'+(d.error==='not_friend'?'唔係好友唔可以睇酒柜':'需要升級先可以睇好友酒柜')+'</p>';return}
+    if(d.error){document.getElementById('cellar-items').innerHTML='<p style="color:var(--pink)">'+(d.error==='not_friend'?T('cellar_not_friend'):T('cellar_need_upgrade'))+'</p>';return}
     const items=d.items||[];
-    if(!items.length){document.getElementById('cellar-items').innerHTML='<p style="color:var(--sub)">酒柜空空如也 🏚️</p>';return}
+    if(!items.length){document.getElementById('cellar-items').innerHTML='<p style="color:var(--sub)">'+T('cellar_empty')+'</p>';return}
     const tagEmoji={'want':'💛想試','tried':'✅試過','collect':'💎收藏','':''};
     let ih='<div style="display:grid;gap:8px">';
     items.forEach(it=>{
@@ -5773,7 +6161,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
       var rw=document.getElementById('mem-renew-warn');
       if(!rw){rw=document.createElement('div');rw.id='mem-renew-warn';rw.style.cssText='margin:8px 0;padding:10px;background:linear-gradient(90deg,rgba(220,38,38,0.1),rgba(245,158,11,0.1));border:1px solid var(--amber);border-radius:12px;text-align:center;font-size:13px';
       var _pEl=e.parentElement;if(_pEl)_pEl.insertBefore(rw,e.nextSibling);}
-      rw.innerHTML='⏰ 仲有<b>'+_dl2+'</b>日到期！<button onclick="showPay()" style="margin-left:8px;padding:4px 12px;border:none;border-radius:8px;background:var(--amber);color:#fff;font-size:12px;cursor:pointer">💪 一鍵續費</button>';
+      rw.innerHTML='⏰ '+T('exp_days_left',{dl:'<b>'+_dl2+'</b>'})+' <button onclick="showPay()" style="margin-left:8px;padding:4px 12px;border:none;border-radius:8px;background:var(--amber);color:#fff;font-size:12px;cursor:pointer">💪 '+T('exp_renew')+'</button>';
     }
   }
   }else{s.textContent=T('mem_free');e.textContent=T('mem_upgrade_cta')}
@@ -5805,7 +6193,7 @@ function memBilling(type){
   });
   const prices=type==='m'?PAY_M:type==='q'?PAY_Q:PAY_A;
   const labels=type==='m'?{'jiuyau':'¥9.9','jaugwai':'¥19.9','jausan':'¥49.9'}:type==='q'?{'jiuyau':'¥25/季','jaugwai':'¥50/季','jausan':'¥76/季'}:{'jiuyau':'¥69/年','jaugwai':'¥149/年','jausan':'¥233/年'};
-  const feats=type==='m'?{'jiuyau':'月費','jaugwai':'月費','jausan':'月費'}:type==='q'?{'jiuyau':'季付 省15%','jaugwai':'季付 省15%','jausan':'季付 省15%'}:{'jiuyau':'年付 省42%','jaugwai':'年付 省38%','jausan':'年付 省36%'};
+  const feats=type==='m'?{'jiuyau':'月費','jaugwai':'月費','jausan':'月費'}:type==='q'?{'jiuyau':'季付 <span data-i18n="save_15pct">省15%</span>','jaugwai':'季付 <span data-i18n="save_15pct">省15%</span>','jausan':'季付 <span data-i18n="save_15pct">省15%</span>'}:{'jiuyau':'年付 <span data-i18n="save_42pct">省42%</span>','jaugwai':'年付 省38%','jausan':'年付 省36%'};
   for(const k of ['jiuyau','jaugwai','jausan']){
     const pe=document.getElementById('price-'+k);if(pe)pe.textContent=labels[k];
     const fe=document.getElementById('feat-'+k);if(fe)fe.textContent=feats[k];
@@ -5817,7 +6205,7 @@ function showPay(){if(!me)return toast(T('please_login'),1);var pn=document.getE
   if(selBilling==='trial'){
     const trialLabels={jiuyau:'🎉 首月體驗 🥉酒友 ¥1',jaugwai:'🎉 首月體驗 🥈酒鬼 ¥3',jausan:'🎉 首月體驗 🥇酒神 ¥5'};
     if(pn)pn.textContent=trialLabels[selPlan]||'';
-    if(pu)pu.textContent='首月特價 · 次月原價續費';
+    if(pu)pu.textContent=T('ug_first_month_special');
   }else if(selBilling==='annual'){
     if(pn)pn.textContent={jiuyau:T('mem_jiuyau_yearly'),jaugwai:T('mem_jaugwai_yearly'),jausan:T('mem_jausan_yearly')}[selPlan]||'';
     if(pu)pu.textContent='≈ $'+PAY_U_ANNUAL[selPlan]+' USD';
@@ -5868,7 +6256,7 @@ async function loadMyFavorites(){
     (memo?'<div style="font-size:11px;color:var(--amber);margin-top:2px">📝 '+esc(memo)+'</div>':'')+
     '</div><button onclick="removeFav('+f.id+')" style="background:none;border:none;color:#ef4444;font-size:16px;cursor:pointer;padding:4px 8px;flex-shrink:0">✕</button></div>';
   }).join('');
- }catch(e){list.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||'加載失败')+'</div>'}
+ }catch(e){list.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||T('adm_load_fail'))+'</div>'}
 }
 async function removeFav(fid){
  if(!confirm(T('confirm_del_fav')))return;
@@ -5902,7 +6290,7 @@ async function loadMyCoupons(){
     +'<div style="font-size:11px;color:var(--sub)">有效期至 '+(c.valid_until||'—')+'</div></div>'
     +'<span style="font-size:11px;color:'+statusColor+';padding:4px 8px;border:1px solid '+statusColor+';border-radius:8px">'+statusText+'</span></div>';
   }).join('');
- }catch(e){list.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||'加載失败')+'</div>'}
+ }catch(e){list.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||T('adm_load_fail'))+'</div>'}
 }
 
 // ═══════ INVITE (邀請碼) ═══════
@@ -5946,7 +6334,7 @@ async function loadVenues(){
     +(v.contact?'<div style="font-size:11px;color:var(--sub);margin-top:2px">📞 '+esc(v.contact)+'</div>':'')
     +'</div>';
   }).join('');
- }catch(e){list.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||'加載失败')+'</div>'}
+ }catch(e){list.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||T('adm_load_fail'))+'</div>'}
 }
 
 // ═══════ ANNUAL REPORT (年度報告) ═══════
@@ -6025,7 +6413,7 @@ function showMemFriend(uid){
  api('/api/user/'+uid).then(d=>{
   renderProfile(d.user||d,false);
  }).catch(()=>{
-  body.innerHTML='<div style="padding:20px;color:var(--red);text-align:center">❌ '+T('load_failed')+'<br><button class="btn" style="margin-top:10px;font-size:12px" onclick="closeFriendProfile()">關閉</button></div>';
+  body.innerHTML='<div style="padding:20px;color:var(--red);text-align:center">❌ '+T('load_failed')+'<br><button class="btn" style="margin-top:10px;font-size:12px" onclick="closeFriendProfile()">'+T('close_btn')+'</button></div>';
  });
 }
 function closeFriendProfile(){var el=document.getElementById('friend-profile-mod');if(el)el.style.display='none'}
@@ -7892,7 +8280,7 @@ function aiSelectScene(scene){
 
 async function loadAIRec(scene){
   const box=document.getElementById('ai-rec-results');
-  box.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)"><span class="spinner"></span> AI 分析中...</div>';
+  box.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)"><span class="spinner"></span> '+T('ai_rec_loading')+'</div>';
   try{
     const r=await(await fetch(API_BASE+'/api/ai/recommend?scene='+scene,{headers:{'Authorization':'Bearer '+token}})).json();
     if(!r.ok){
@@ -7902,12 +8290,12 @@ async function loadAIRec(scene){
         box.style.display='none';
         return;
       }
-      box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">'+T('empty_no_recommend')+'數據</div>';
+      box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">'+T('ai_rec_no_data')+'</div>';
       return;
     }
     const recs=r.recommendations||[];
     if(!recs.length){
-      box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">未找到匹配酒品，試試其他場景？</div>';
+      box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">'+T('ai_rec_no_match')+'</div>';
       return;
     }
     const catIcons={'酱香型白酒':'🫗','威士忌':'🥃','白葡萄酒':'🥂','紅葡萄酒':'🍷','清酒':'🍶','啤酒':'🍺','龍舌兰':'🍹','幹邑白兰地':'🥃','白兰地':'🥃','梅酒':'🫗','果酒':'🫗','氣泡酒':'🥂'};
@@ -7932,7 +8320,7 @@ async function loadAIRec(scene){
         +'</div></div>';
     });
     if(r.is_limited){
-      h+='<div style="text-align:center;padding:8px;font-size:11px;color:var(--sub)">🔒 酒友僅看3條 · <span style="color:#8b5cf6;cursor:pointer" onclick="showUpgradeModal(2)">升級酒鬼看全部</span></div>';
+      h+='<div style="text-align:center;padding:8px;font-size:11px;color:var(--sub)">🔒 '+T('ai_rec_limited')+' · <span style="color:#8b5cf6;cursor:pointer" onclick="showUpgradeModal(2)">'+T('ai_rec_upgrade_all')+'</span></div>';
     }
     box.innerHTML=h;
     /* 口味畫像 */
@@ -7946,7 +8334,7 @@ async function loadAIRec(scene){
       tb.style.display='none';
     }
   }catch(e){
-    box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">加載失敗，請重試</div>';
+    box.innerHTML='<div style="color:var(--sub);text-align:center;padding:16px">'+T('ai_rec_load_fail')+'</div>';
     console.error('AI rec error:',e);
   }
 }
@@ -8231,10 +8619,10 @@ function shopLoadProducts(cat){
   if(cat) url += 'category='+cat+'&';
   if(q) url += 'q='+encodeURIComponent(q)+'&';
   api(url).then(r=>{
-    if(!r.ok){document.getElementById('shop-products').innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">加載失敗</div>';return}
+    if(!r.ok){document.getElementById('shop-products').innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">'+T('shop_load_err')+'</div>';return}
     _shopProducts = r.products||[];
     renderShopProducts(_shopProducts);
-  }).catch(()=>{document.getElementById('shop-products').innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">加載失敗</div>'});
+  }).catch(()=>{document.getElementById('shop-products').innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">'+T('shop_load_err')+'</div>'});
 }
 
 const CAT_ICONS = {music:'🎵', liquor:'🍾', voucher:'🎫'};
@@ -8363,7 +8751,7 @@ function shopBuy(pid){
   const discEl = document.getElementById('checkout-discount');
   if(discountRate<1){
     discEl.style.display='block';
-    discEl.textContent = `原價¥${origPrice.toFixed(2)} · ${lv===3?'酒神75折':lv===2?'酒鬼85折':lv===1?'酒友9折':''} · 省¥${(origPrice-finalPrice).toFixed(2)}`;
+    discEl.textContent = T('shop_discount_info',{orig:origPrice.toFixed(2),disc:lv===3?T('discount_jausan'):lv===2?T('discount_jaugwai'):T('discount_jiuyau'),save:(origPrice-finalPrice).toFixed(2)});
   } else {
     discEl.style.display='none';
   }
@@ -8569,9 +8957,9 @@ function shopToggleMyOrders(){
   if(el.style.display==='none'){
     el.style.display='block';
     api('/api/shop/my-orders').then(r=>{
-      if(!r.ok||!r.orders){el.innerHTML='<div style="padding:8px;color:var(--sub)">加載失敗</div>';return}
+      if(!r.ok||!r.orders){el.innerHTML='<div style="padding:8px;color:var(--sub)">'+T('adm_load_fail')+'</div>';return}
       if(!r.orders.length){el.innerHTML='<div style="padding:8px;color:var(--sub);text-align:center">'+T('empty_no_order')+'</div>';return}
-      const statusMap = {pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
+      const statusMap = {pending:T('order_pending'),paid:T('order_paid'),shipped:T('order_shipped'),delivered:T('order_delivered'),cancelled:T('order_cancelled'),refunded:T('order_refunded')};
       const statusColor = {pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
       el.innerHTML = r.orders.map(o=>{
         const statusText = statusMap[o.status]||o.status;
@@ -8580,7 +8968,7 @@ function shopToggleMyOrders(){
         const digitalItems = (o.items||[]).filter(i=>i.delivery_type==='digital'||i.category==='music'||i.category==='digital');
         let downloadBtn = '';
         if(isPaid && digitalItems.length>0 && o.download_token){
-          downloadBtn = `<button onclick="downloadDigital('${o.download_token}','${o.id}')" style="margin-top:4px;padding:4px 10px;border-radius:8px;border:1px solid #8b5cf6;background:rgba(139,92,246,0.08);color:#8b5cf6;font-size:11px;font-weight:600;cursor:pointer">📥 下載數碼商品</button>`;
+          downloadBtn = `<button onclick="downloadDigital('${o.download_token}','${o.id}')" style="margin-top:4px;padding:4px 10px;border-radius:8px;border:1px solid #8b5cf6;background:rgba(139,92,246,0.08);color:#8b5cf6;font-size:11px;font-weight:600;cursor:pointer">${T('download_digital')}</button>`;
         }
         return `<div style="padding:8px;border-bottom:1px solid var(--border)">
           <div style="display:flex;justify-content:space-between;align-items:center">
@@ -8596,7 +8984,7 @@ function shopToggleMyOrders(){
         </div>`;
       }).join('');
       document.getElementById('shop-order-count').textContent = '('+r.orders.length+')';
-    }).catch(()=>{el.innerHTML='<div style="padding:8px;color:var(--sub)">加載失敗</div>'});
+    }).catch(()=>{el.innerHTML='<div style="padding:8px;color:var(--sub)">'+T('adm_load_fail')+'</div>'});
   } else el.style.display='none';
 }
 
@@ -8777,7 +9165,7 @@ function admLoadShopProducts(){
         <button class="btn btn-outline btn-sm" onclick="admDelProduct(${p.id})" style="font-size:10px;padding:2px 8px;color:var(--danger);border-color:var(--danger)">🗑️</button>
       </div>`;
     }).join('');
-  }).catch(()=>document.getElementById('adm-product-list').innerHTML='加載失敗');
+  }).catch(()=>document.getElementById('adm-product-list').innerHTML=T('adm_load_fail'));
 }
 
 function admProductForm(pid){
@@ -8870,7 +9258,7 @@ function admLoadShopOrders(status){
       </div>
       <div style="font-size:10px;color:var(--sub)">${o.created_at||''}</div>
     </div>`).join('');
-  }).catch(()=>document.getElementById('adm-order-list').innerHTML='加載失敗');
+  }).catch(()=>document.getElementById('adm-order-list').innerHTML=T('adm_load_fail'));
 }
 
 function admUpdateOrder(oid,status){
@@ -8896,7 +9284,7 @@ function admLoadLiquorDB(q){
       <button class="btn btn-outline btn-sm" onclick="admLiquorForm(${l.id})" style="font-size:10px;padding:2px 8px">✏️</button>
       <button class="btn btn-outline btn-sm" onclick="admDelLiquor(${l.id})" style="font-size:10px;padding:2px 8px;color:var(--danger);border-color:var(--danger)">🗑️</button>
     </div>`).join('');
-  }).catch(()=>document.getElementById('adm-liquor-list').innerHTML='加載失敗');
+  }).catch(()=>document.getElementById('adm-liquor-list').innerHTML=T('adm_load_fail'));
 }
 
 function admLiquorForm(lid){
