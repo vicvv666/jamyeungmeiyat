@@ -550,7 +550,7 @@ body.lang-ready{visibility:visible}
         <div class="dd-item" id="dd-mem"></div><div class="dd-item" id="dd-exp" style="font-size:10px;color:var(--sub)"></div>
         <div class="dd-divider"></div>
         <div class="dd-item" onclick="showPage('member');toggleUM()" data-i18n="member_center">💎 會員中心</div>
-        <div class="dd-item" onclick="openProfile()" data-i18n="my_profile" data-i18n="profile_card" data-i18n="profile_card">👤 個人資料</div>
+        <div class="dd-item" onclick="openProfile()" data-i18n="profile_card">👤 個人資料</div>
         <div class="dd-item" id="dd-admin" onclick="admOpen();toggleUM()" data-i18n="admin_panel" style="display:none">🔧 管理麵板</div>
         <div class="dd-divider"></div>
         <div class="dd-item" onclick="doLogout()" data-i18n="logout_btn">🚪 登出</div>
@@ -792,9 +792,9 @@ body.lang-ready{visibility:visible}
   </div>
   <!-- 統計卡 -->
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:8px 0">
-    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_checkins" data-i18n="stats_checkins" data-i18n="checkin">報到</div><div style="font-weight:700;font-size:18px;color:var(--amber)" id="mem-chk-count">0</div></div>
-    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_friends" data-i18n="stats_friends">酒友</div><div style="font-weight:700;font-size:18px;color:var(--pink)" id="mem-frd-count">0</div></div>
-    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_posts" data-i18n="stats_posts">帖子</div><div style="font-weight:700;font-size:18px;color:var(--purple)" id="mem-post-count">0</div></div>
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="checkin">報到</div><div style="font-weight:700;font-size:18px;color:var(--amber)" id="mem-chk-count">0</div></div>
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_friends">酒友</div><div style="font-weight:700;font-size:18px;color:var(--pink)" id="mem-frd-count">0</div></div>
+    <div class="card" style="text-align:center;padding:10px 6px"><div style="font-size:11px;color:var(--sub)" data-i18n="stats_posts">帖子</div><div style="font-weight:700;font-size:18px;color:var(--purple)" id="mem-post-count">0</div></div>
   </div>
   <!-- 我嘅酒柜入口 -->
   <div class="card" style="margin-top:8px;padding:0;overflow:hidden;cursor:pointer" onclick="openCellar()">
@@ -1488,7 +1488,7 @@ body.lang-ready{visibility:visible}
     <div id="auth-form">
       <div style="text-align:center;margin-bottom:20px">
         <div style="font-size:48px;margin-bottom:8px">🍺</div>
-        <h3 style="color:var(--amber);font-size:20px;margin:0" data-i18n="app_title" data-i18n="app_title" data-i18n="app_title">今晚飲咗未</h3>
+        <h3 style="color:var(--amber);font-size:20px;margin:0" data-i18n="app_title">今晚飲咗未</h3>
         <div style="font-size:11px;color:var(--sub);margin-top:4px" data-i18n="auth_login">登入</div>
       </div>
       <input class="input" id="l-user" data-i18n-placeholder="username" autocomplete="username">
