@@ -2397,10 +2397,14 @@ function showPage(name){
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
   const ugOv=document.getElementById('upgrade-overlay');if(ugOv){ugOv.remove();if(window._ugCdTimer)clearInterval(window._ugCdTimer);}
   const payM=document.getElementById('pay-mod');if(payM)payM.style.display='none';
-  // Reset friend sub-tabs: hide pricing/passport/stats sections, show circle
+  // Reset friend sub-tabs: hide pricing/passport/stats sections, show circle + reset buttons
   if(name!=='friends'){
-    ['passport','stats','pricing'].forEach(k=>{const el=document.getElementById('fr-section-'+k);if(el)el.style.display='none'});
+    ['passport','stats','pricing'].forEach(k=>{
+      const el=document.getElementById('fr-section-'+k);if(el)el.style.display='none';
+      const btn=document.getElementById('fr-main-tab-'+k);if(btn){btn.style.borderBottom='2px solid transparent';btn.style.color='var(--sub)';btn.style.fontWeight='400';}
+    });
     const fc=document.getElementById('fr-section-circle');if(fc)fc.style.display='';
+    const cb=document.getElementById('fr-main-tab-circle');if(cb){cb.style.borderBottom='2px solid var(--pink)';cb.style.color='var(--pink)';cb.style.fontWeight='700';}
   }
   if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts();}if(name==='map')initMap();if(name==='party'){loadParties();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
   // 切tab后触发 debounced 语言转换
@@ -5169,9 +5173,10 @@ async function mapLoadHeatmap(){
 }
 
 // ═══════ TIMELINE ═══════
-let _loadTLPending=false;
+let _loadTLPending=false,_loadTLWaiters=0;
 async function loadTL(){
- if(_loadTLPending)return;_loadTLPending=true;
+ if(_loadTLPending){_loadTLWaiters++;return}
+ _loadTLPending=true;_loadTLWaiters=0;
  const _tlTimer=setTimeout(()=>{_loadTLPending=false;},15000);
  const c=document.getElementById('tl-container');
  if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>'+T('login_to_view')+'</div>';_loadTLPending=false;return}
@@ -5199,7 +5204,7 @@ async function loadTL(){
  // P0-3: 非會員timeline插廣告
  if(memLevel()===0)loadAdBanner(c);
 }catch(e){console.error('loadTL error:',e);c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>'+T('load_fail')+'<br><button class="btn btn-primary btn-sm" style="margin-top:8px" onclick="loadTL()">🔄 '+T('retry')+'</button><div style="font-size:11px;color:var(--sub);margin-top:4px">'+esc(e.message)+'</div></div>'}
-finally{clearTimeout(_tlTimer);_loadTLPending=false}
+finally{clearTimeout(_tlTimer);_loadTLPending=false;if(_loadTLWaiters>0)setTimeout(loadTL,100)}
 }
 async function doRe(cid,emoji){
  try{
