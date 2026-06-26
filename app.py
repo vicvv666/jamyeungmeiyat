@@ -4223,7 +4223,7 @@ def admin_self_update():
     BASE = '/opt/jamyeungmeiyat'
     BRANCH = 'master'
     REPO = 'vicvv666/jamyeungmeiyat'
-    files_to_pull = ['app.py', 'static/index.html']
+    files_to_pull = ['app.py', 'static/index.html', 'static/sw.js']
     results = []
     for f in files_to_pull:
         url = f'https://raw.githubusercontent.com/{REPO}/{BRANCH}/{f}'
