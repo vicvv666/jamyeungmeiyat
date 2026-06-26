@@ -2396,6 +2396,7 @@ function showPage(name){
   // Close any open modal overlays when switching pages
   document.querySelectorAll('.modal-overlay').forEach(m=>{if(m.style.display!=='none')m.style.display='none'});
   const ugOv=document.getElementById('upgrade-overlay');if(ugOv){ugOv.remove();if(window._ugCdTimer)clearInterval(window._ugCdTimer);}
+  const payM=document.getElementById('pay-mod');if(payM)payM.style.display='none';
   if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts();}if(name==='map')initMap();if(name==='party'){loadParties();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
   // 切tab后触发 debounced 语言转换
   if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
@@ -8943,6 +8944,7 @@ const GRP_LIMITS={0:{create:1,members:10,label:'免費用戶'},1:{create:3,membe
 function frMainTab(tab){
   // Close any upgrade overlay when switching tabs
   const ugOv=document.getElementById('upgrade-overlay');if(ugOv){ugOv.remove();if(window._ugCdTimer)clearInterval(window._ugCdTimer);}
+  const payM=document.getElementById('pay-mod');if(payM)payM.style.display='none';
   ['circle','passport','stats','pricing'].forEach(k=>{
     const el=document.getElementById('fr-section-'+k);if(el)el.style.display=k===tab?'':'none';
     const btn=document.getElementById('fr-main-tab-'+k);
