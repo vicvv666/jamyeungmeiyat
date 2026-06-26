@@ -2891,7 +2891,7 @@ const L={
   ai_rec_upgrade:'升級解鎖',
   ai_rec_limited:'酒友僅看3條 · 升級酒鬼看全部',
   ai_taste_label:'🧬 你的口味畫像',
-  cellar_title:'我嘅酒柜',
+  cellar_title:'我嘅酒柜',my_cellar:'我嘅酒柜',
   cellar_sub:'收藏、評分、品飲記錄',
   cellar_empty:'酒柜空空如也',
   cellar_empty_hint:'🔖 酒柜空空如也～掃碼後收藏心水酒品！',
@@ -3789,7 +3789,7 @@ const L={
   ai_rec_upgrade:'升级解锁',
   ai_rec_limited:'酒友仅看3条 · 升级酒鬼看全部',
   ai_taste_label:'🧬 你的口味画像',
-  cellar_title:'我嘅酒柜',
+  cellar_title:'我的酒柜',my_cellar:'我的酒柜',
   cellar_sub:'收藏、评分、品饮记录',
   cellar_empty:'酒柜空空如也',
   cellar_empty_hint:'🔖 酒柜空无一物~ 扫码加入收藏！',
@@ -4687,7 +4687,7 @@ const L={
   ai_rec_upgrade:'Upgrade to unlock',
   ai_rec_limited:'VIP sees 3 · Upgrade for full list',
   ai_taste_label:'🧬 Your Taste Profile',
-  cellar_title:'My Cellar',
+  cellar_title:'My Cellar',my_cellar:'My Cellar',
   cellar_sub:'Favorites, ratings & tasting notes',
   cellar_empty:'Your cellar is empty',
   cellar_empty_hint:'Cellar empty - scan to add!',
@@ -5168,6 +5168,25 @@ const L={
 };
 function T(k,params){let s=(L[lang]||L['zh-HK'])[k]||k;if(params){Object.entries(params).forEach(([k2,v])=>{s=s.replace(new RegExp('\\{'+k2+'\\}','g'),v)});}return s}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+// Update cellar entry card with current lang
+function updCellarEntry(){
+  var t=document.getElementById('cellar-entry-title');if(t)t.textContent=T('my_cellar');
+  var s=document.getElementById('cellar-entry-sub');if(s)s.textContent=T('cellar_sub');
+  var u=document.querySelector('#cellar-entry-count + div [data-i18n="cellar_unit"]')
+    ||document.querySelector('[data-i18n="cellar_unit"]');if(u)u.textContent=T('cellar_unit');
+}
+// Restore zh-HK text after switching back from en (undo _t2e damage on i18n elements)
+window._rehkI18n=function(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k=el.getAttribute('data-i18n');
+    var v=T(k);if(v!==k)el.textContent=v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var k=el.getAttribute('data-i18n-ph');
+    var v=T(k);if(v!==k)el.placeholder=v;
+  });
+  if(typeof updCellarEntry==='function')updCellarEntry();
+};
 
 const _t2e={'我嘅':'My','我的':'My','管理員':'Admin','免費':'Free','永久':'Permanent','升級成功':'Upgraded!','升級失敗':'Upgrade failed','升級享受完整功能':'Upgrade for full features','立即升級':'Upgrade Now','升級解鎖':'Unlock with Upgrade','需要升級至':'Upgrade required: ','掃碼付款':'Scan to Pay','去廣告':'Ad-Free','專屬徽章':'Badge','開趴約飲':'Host Parties','已結束':'Ended','結束投票':'End Vote','確認':'Confirm','拒絕':'Reject','移除':'Remove','加酒友':'Add Friend','搜索失敗':'Search failed','冇結果':'No results','冇數據':'No data','加載失敗，請重試':'Load failed, retry','未找到匹配酒品':'No matching liquors found','酒友':'Drinker','酒鬼':'Boozer','酒神':'Drunkard','好友已升級':'friends upgraded','載入地圖SDK...':'Loading Map SDK...','地圖已載入，點擊下方按鈕查看打卡點':'Map loaded, tap below for check-in spots','地圖載入失敗':'Map load failed','定位中...':'Locating...','已定位':'Located','定位失敗，請確認浏览器已授權位置':'Location failed, allow browser access','載入打卡點...':'Loading check-in spots...','個打卡點':' check-in spots','載入酒吧...':'Loading bars...','間合作酒吧':' partner bars','會員折扣':'Member Discount','載入热力足跡...':'Loading heatmap...','打卡數據不足，多啲帶定位打卡啦！':'Check in more with location!','你的足跡热力圖':'Your heatmap','次定位打卡':' location check-ins','個熱點':' hotspots','累計打卡':'Total Check-ins','品過酒款':'Liquors Tried','連飲食數':'Drink Streak','打卡城市':'Cities Checked In','酒柜':'Cellar','飲酒月報':'Monthly Drink Report','年度飲酒報告':'Annual Drink Report','打卡一次即獲第一個稱號':'First check-in earns your first title!','初嘗者':'First Sip','常客':'Regular','品酒师':'Connoisseur','鑒賞家':'Master','商鋪折扣':'Shop Discount','酒品':'Liquor','編辑商品':'Edit Product','新增商品':'Add Product','編辑酒品':'Edit Liquor','新增酒品':'Add Liquor','名稱':'Name','英文名稱':'English Name','分類':'Category','子分類':'Subcategory','描述':'Description','價格':'Price','貨幣':'Currency','庫存':'Stock','無限':'Unlimited','排序':'Sort','圖片URL':'Image URL','檔案URL':'File URL','上架':'On Sale','保存':'Save','想試':'Want to Try','試過':'Tried','收藏':'Collection','未知酒款':'Unknown Liquor','載入失敗':'Load Failed','所有會員都係有效嘅':'All members are valid','暫無用戶':'No users yet','暫無付款紀錄':'No payment records','暫無操作紀錄':'No operation logs','選項':'Option','投票':'Vote','顯示':'Show','搜索':'Search','續期':'Renew','設定新密碼（至少4位）：':'Set new password (min 4 chars): ','酒友快滿啦！升級解鎖更多位':'Friends limit reached! Upgrade for more','好友酒柜？升酒友即開':'Friend cellar? Upgrade to unlock','排行榜？升酒友解鎖':'Leaderboard? Upgrade to unlock','飲杯都要升級？升酒友解鎖啦':'Upgrade to Drinker to unlock','想玩盡啲？升酒鬼先得':'Upgrade to Boozer for full access','最高享受，酒神先配有':'Best experience, Drunkard exclusive','報到':'Check-in','帖子':'Posts','品鑒酒款':'Liquors Rated','本月打卡':'Monthly Check-ins','飲酒天數':'Drinking Days','狀態分佈':'Status Distribution','均分':'Avg Score','有效期至':'Valid until','方式':'Method','今晚飲咗未':'Drunk Tonight?','飲酒地圖':'Drink Map','打卡地圖':'Check-in Map','免費僅':'Free only','升級擴大地圖':'Upgrade for expanded map','原價':'Original ','首月體驗':'1st month trial','已售':' sold','品牌':'Brand','產地':'Origin','註冊':'Registered','滿':' over ','酒品真偽驗證':'Liquor Authenticity Check','掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品詳情':'Scan barcode to verify & view details','詳情':'Details','接龍':'Chain Order','人數':'People','備註(可選)':'Note (optional)','聊天':'Chat','AI酒單':'AI Menu','酒單推薦':'Menu Picks','酒單':'Menu','真偽驗證':'Auth Check','掃碼驗證':'Scan Verify','掃碼記錄':'Scan Log','掃碼':'Scan','我嘅訂單':'My Orders','訂單':'Orders','酒柜展示':'Cellar Display','優惠劵':'Coupons','優惠':'Discount','邀請好友':'Invite Friends','邀請':'Invite','個人資料':'Profile','位置':'Location','打卡點':'Check-in Spots','酒吧':'Bars','勢力足跡':'Footprint','足跡':'Footprint','热力圖':'Heatmap','上傳圖片':'Upload Image','上傳影片':'Upload Video','上傳':'Upload','好友圈':'Friend Circle','護照':'Passport','統計':'Stats','收費':'Pricing','對比':'Compare','功能對比':'Feature Compare','清醒':'Sober','微醺':'Tipsy','想飲':'Wanna Drink','到咗':'Arrived','開咗':'Started','飲緊':'Drinking','繼續':'Continue','加酒':'Add Booze','暢飲':'Drink Up','醉緊':'Getting Drunk','好醉':'Very Drunk','陶醉':'Blissed','飄飄':'Floating','斷片':'Blackout','想嘔':'Wanna Puke','暈暈':'Dizzy','趴低':'Passed Out','轉場':'Bar Hopping','溝酒':'Mix Drinks','猜枚':'Finger Guess','直落':'All Night','醒晒':'Sober Now','返歸':'Going Home','聽日':'Tomorrow','起手':'Starting','爆咗':'Busted','收尾':'Finishing','👨 男':'👨 M','👩 女':'👩 F','🧑 其他':'🧑 Other','🇭🇰 香港':'🇭🇰 HK','🇲🇴 澳門':'🇲🇴 Macau','🇨🇳 廣東':'🇨🇳 Guangdong','🇨🇳 廣西':'🇨🇳 Guangxi','🇨🇳 北京':'🇨🇳 Beijing','🇨🇳 上海':'🇨🇳 Shanghai','🇨🇳 福建':'🇨🇳 Fujian','🇨🇳 浙江':'🇨🇳 Zhejiang','🇨🇳 其他':'🇨🇳 Other CN','🇹🇼 台灣':'🇹🇼 Taiwan','🇸🇬 新加坡':'🇸🇬 Singapore','🇯🇵 日本':'🇯🇵 Japan','🇦🇺 澳洲':'🇦🇺 Australia','🇲🇾 馬來西亞':'🇲🇾 Malaysia','🇰🇷 韓國':'🇰🇷 Korea','🇺🇸 美國':'🇺🇸 USA','🇬🇧 英國':'🇬🇧 UK','🌍 其他':'🌍 Other','取消':'Cancel','退出':'Exit','登入':'Login','登出':'Logout','删除':'Delete','已删除':'Deleted','删除失敗':'Delete failed','已更新':'Updated','更新失敗:':'Update failed:','操作失敗':'Operation failed','保存失敗':'Save failed','加載失敗':'Load failed','加载失败':'Load failed','加載失败':'Load failed','網络錯誤':'Network error','確定':'OK','返回':'Back','提交':'Submit','待處理':'Pending','已發貨':'Shipped','已送達':'Delivered','已付款':'Paid','已取消':'Cancelled','免費會員':'Free Member','月費':'Monthly','月付':'Monthly','季付 <span data-i18n="save_15pct">省15%</span>':'Quarterly Save 15%','年付 省35%':'Yearly Save 35%','年付 省38%':'Yearly Save 38%','年付 <span data-i18n="save_42pct">省42%</span>':'Yearly Save 42%','年付 省36%':'Yearly Save 36%','時間':'Time','地點':'Location','內容':'Content','成員':'Members','到期：':'Expires:','動態':'Feed','骰盅':'Dice','骰子':'Dice','酒局':'Party','暫無酒局':'No parties yet','酒局名稱':'Party Name','日期':'Date','今日':'Today','匹配中...':'Matching...','匹配成功！':'Matched!','取消匹配':'Cancel Match','接受':'Accept','發送':'Send','加入':'Join','等待中':'Waiting','選擇骰數':'Select Dice Count','花名':'Nickname','頭像':'Avatar','打卡相':'Check-in Photos','月建酒局':'Monthly Parties','每月/打卡':'Monthly/Check-in','每年/徽章':'Yearly/Badge','使用條款':'Terms','免責聲明':'Disclaimer','聯络我們':'Contact Us','推送通知':'Push Notifications','已加酒友':'Friend Added','請先登入':'Please login first','商品已更新':'Product updated','商品已新增':'Product added','酒品已更新':'Liquor updated','酒品已新增':'Liquor added','商品描述...':'Product description...','筆記字數':'Note Limit','粒骰':' dice','張打卡相':' check-in photos','字筆記':' char note','酒友位':' friend slots','每日帖':' daily posts','可建':'Can create','群':' groups','日足跡':'-day heatmap','款':' items','次/日':' per day','開趴+約戰':'Party+Match','炫彩昵稱':'Color Nickname','AI品酒':'AI Tasting','月報':'Monthly Report','年度報告':'Annual Report','我嘅酒友':'My Friends','我嘅帖子':'My Posts','名':'Name','價':'Price','類':'Type','留言':'Comment','讚':'Like','分享':'Share','收藏夾':'Favorites','搜尋':'Search','飲':'Drink','酒':'Wine','我嘅位置':'My Location','場所':'Venues','熱力圖':'Heatmap','場所標記':'Venue Markers'};
 // ── 全局语言转换（Debounce） ──
@@ -5281,7 +5300,12 @@ function switchLang(l){
   if(typeof grpLoadMy==='function')grpLoadMy();
   if(typeof loadFriendsAll==='function')loadFriendsAll();
   if(typeof loadLeaderboard==='function')loadLeaderboard();
-  // 3) 全局DOM转换+延迟兜底
+  // Re-render cellar entry if visible
+  if(typeof updCellarEntry==='function')updCellarEntry();
+  // 3) if switching TO zh-HK, need to undo _t2e damage by re-rendering i18n elements
+  // For en/zh-CN, _langConvert handles it via _t2e/_cnReplace
+  if(l==='zh-HK' && typeof window._rehkI18n==='function') window._rehkI18n();
+  // 4) 全局DOM转换+延迟兜底
   if(l!=='zh-HK' && typeof window._langConvert==='function'){
     // 立即转换一次
     window._langConvert(true);
