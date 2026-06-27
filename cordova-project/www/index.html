@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<!-- v=b76bbd3d -->
+<!-- v=202606271613 -->
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
 <script src="cordova.js"></script>
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob: gap: https://ssl.gstatic.com; connect-src * https: http:; img-src * file: data: blob: content:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file: gap:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
 <meta name="description" content="今晚飲咗未 - 粤语饮酒社交打卡App，酒友打卡、骰子酒局、酒柜收藏、AI推荐、酒吧VIP，粤语文化社区">
   <meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
   <meta property="og:title" content="今晚飲咗未 🍺">
@@ -1942,29 +1941,32 @@ const DICE_SND=(function(){
   d.body.style.paddingBottom='calc('+(55+navH)+'px + '+sb+'px)';
  }
  function fixBottom(){
-  var sb=0;
+  var sb=0,envOk=false;
   // Method 1: Try CSS env()
   var div=d.createElement('div');
   div.style.cssText='padding-bottom:env(safe-area-inset-bottom,999px);position:fixed;visibility:hidden;pointer-events:none';
   d.body.appendChild(div);
   var pH=parseInt(w.getComputedStyle(div).paddingBottom);
   d.body.removeChild(div);
-  if(pH>0&&pH<900)applySb(pH);
-  // Method 2: Cordova native plugin (async) — most reliable
+  if(pH>0&&pH<900){sb=pH;envOk=true;}
+  // Method 2: Cordova native plugin (async) — most reliable, overrides all
   if(window.JymySafeArea){
    window.JymySafeArea.getSafeAreaBottom(function(v){
     var ns=parseInt(v);
-    if(ns>0)applySb(ns);
+    if(ns>=0)applySb(ns); // allow 0 (no nav bar phones)
    },function(){});
+   return; // wait for plugin result, skip Method 3/4
   }
   // Method 3: Detect nav bar from screen vs window dimension
-  var screenH=w.screen.height,innerH=w.innerHeight;
-  var dpr=w.devicePixelRatio||1;
-  var screenPx=screenH*dpr;
-  var navBarH=Math.round((screenPx-innerH*dpr)/dpr);
-  if(navBarH>20&&navBarH<200)sb=navBarH;
-  // Method 4: Common Android nav bar heights as fallback
-  if(!sb){
+  if(!envOk){
+   var screenH=w.screen.height,innerH=w.innerHeight;
+   var dpr=w.devicePixelRatio||1;
+   var screenPx=screenH*dpr;
+   var navBarH=Math.round((screenPx-innerH*dpr)/dpr);
+   if(navBarH>20&&navBarH<200)sb=navBarH;
+  }
+  // Method 4: Minimal fallback only if nothing detected
+  if(!sb&&!envOk){
    if(dpr>=2.5)sb=48;
    else if(dpr>=1.5)sb=44;
    else sb=40;
@@ -5513,7 +5515,9 @@ async function doLogin(){
   toast(T("admin_login_fail"),1);return;
  }
  try{
-  const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});token=r.token;me=r.user;
+  const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});
+  if(r.ok===false){throw new Error(r.error||'Login failed')}
+  token=r.token;me=r.user;
   lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
  // If user is admin, auto-acquire adminToken via Mode 2
  if(me.admin === 1){
@@ -5535,7 +5539,9 @@ async function doRegister(){
  if(!u||p.length<4)return toast(T("username_pwd_short"),1);if(p!==p2)return toast(T('toast_password_mismatch'),1);
  const ag=document.getElementById('r-agree');if(ag&&!ag.checked)return toast(T("agree_first"),1);
  try{
- const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});token=r.token;me=r.user;
+ const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang:lang}});
+ if(r.ok===false){throw new Error(r.error||'Register failed')}
+ token=r.token;me=r.user;
  adminToken='';localStorage.removeItem('jymy_admin_token');sessionStorage.setItem('jymy_pw',p);
  saveS();toast(T("register_success"));closeAuth();updateNav();buildGrid();updTitles();
  setTimeout(()=>refreshAll(),300);
