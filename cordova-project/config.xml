@@ -37,7 +37,16 @@
         <splash density="xhdpi" src="www/res/splash/android/splash-xhdpi-portrait.png" />
         <splash density="xxhdpi" src="www/res/splash/android/splash-xxhdpi-portrait.png" />
         <splash density="xxxhdpi" src="www/res/splash/android/splash-xxxhdpi-portrait.png" />
+        <!-- Camera permission for barcode scanner -->
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.CAMERA" />
+            <uses-feature android:name="android.hardware.camera" android:required="false" />
+            <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+        </config-file>
     </platform>
+    <!-- Camera permission for barcode scanner -->
+    <plugin name="cordova-plugin-camera" spec="^5.0.0" />
+    <plugin name="cordova-plugin-android-permissions" spec="^1.0.0" />
     <feature name="JymySafeArea">
         <param name="android-package" value="com.vic.jamyeungmeiyat.JymySafeAreaPlugin" />
     </feature>

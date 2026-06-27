@@ -169,7 +169,7 @@ def gzip_response(response):
     if 'X-Frame-Options' not in response.headers:
         response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    response.headers['Permissions-Policy'] = 'geolocation=(), camera=(), microphone=(), document-domain=(), sync-xhr=()'
+    response.headers['Permissions-Policy'] = 'geolocation=(self), camera=(self), microphone=(), document-domain=(), sync-xhr=()'
     response.headers['Strict-Transport-Security'] = 'max-age=63072000; includeSubDomains; preload'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
@@ -4852,9 +4852,6 @@ def api_venues():
     filtered = []
     for v in rows:
         vd = dict(v)
-        if mem_level < v['min_level']:
-            vd['perks'] = '🔒 升級後可見'
-            vd['contact'] = ''
         filtered.append(vd)
     return jsonify({'ok':True,'venues':filtered})
 
@@ -4881,8 +4878,6 @@ def api_admin_venues_add():
 def api_annual_report():
     uid = g.uid
     plan, mem_level, mem_exp = _get_membership(uid)
-    if mem_level < 3:
-        return jsonify({'error':'📊 年度報告係🥇酒神專屬！升級解鎖+酒吧VIP → ¥49.9/月 💎','required_level':3}), 403
     db = get_db()
     year = request.args.get('year', str(datetime.now().year))
     # Total checkins
@@ -5023,8 +5018,8 @@ def api_map_nearby_venues():
 def api_config():
     """公开配置（无需登录）"""
     return jsonify({
-        'amap_key': os.environ.get('AMAP_KEY',''),
-        'amap_secret': os.environ.get('AMAP_SECRET',''),
+        'amap_key': os.environ.get('AMAP_KEY','b2f537f65a3b066f052122367c05c72e'),
+        'amap_secret': os.environ.get('AMAP_SECRET','b62580ce0ec71e3814045a58c9bc4583'),
         'app_name': '今晚飲咗未',
         'version': '2.5.7'
     })
@@ -5035,7 +5030,7 @@ import urllib.request as urllib2
 @app.route('/_AMapService/<path:path>', methods=['GET','POST'])
 def amap_proxy(path):
     """Proxy AMap REST API requests (security mode 2)"""
-    amap_key = os.environ.get('AMAP_KEY','')
+    amap_key = os.environ.get('AMAP_KEY','b2f537f65a3b066f052122367c05c72e')
     qs = request.query_string.decode() if request.query_string else ''
     target = f'https://restapi.amap.com/{path}?{qs}'
     if 'key=' not in target:
@@ -5061,8 +5056,8 @@ def amap_sdk_proxy():
     if hasattr(app, _cache_key) and hasattr(app, _cache_ts_key):
         if _time.time() - getattr(app, _cache_ts_key) < 3600:
             return Response(getattr(app, _cache_key), status=200, content_type='application/javascript; charset=utf-8')
-    amap_key = os.environ.get('AMAP_KEY','')
-    amap_secret = os.environ.get('AMAP_SECRET','')
+    amap_key = os.environ.get('AMAP_KEY','b2f537f65a3b066f052122367c05c72e')
+    amap_secret = os.environ.get('AMAP_SECRET','b62580ce0ec71e3814045a58c9bc4583')
     url = f'https://webapi.amap.com/maps?v=1.4.15&key={amap_key}&plugin=AMap.HeatMap,AMap.MarkerCluster,AMap.Geolocation'
     try:
         req = urllib2.Request(url)
