@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- v=202606271639 -->
+<!-- v=202606272130 -->
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob:; connect-src * https: http:; img-src * file: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob:; connect-src * https: http: file:; img-src * file: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
 <meta name="description" content="今晚飲咗未 - 粤语饮酒社交打卡App，酒友打卡、骰子酒局、酒柜收藏、AI推荐、酒吧VIP，粤语文化社区">
   <meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
   <meta property="og:title" content="今晚飲咗未 🍺">
@@ -300,12 +300,12 @@ var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///an
     errors.push('REJECT: '+(e.reason&&e.reason.message||e.reason));
     // Don't auto-show; only via 5-tap toggle
   });
-  // Capture fetch errors
+  // Capture fetch errors (safely — don't interfere with normal flow)
   var origFetch=window.fetch;
   window.fetch=function(){
+    var url=arguments[0];
     return origFetch.apply(this,arguments).catch(function(e){
-      errors.push('FETCH FAIL: '+arguments[0]+' '+e.message);
-      // Don't auto-show; only via 5-tap toggle
+      errors.push('FETCH FAIL: '+url+' '+(e&&e.message||e));
       throw e;
     });
   };
@@ -327,7 +327,7 @@ var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///an
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0D0D12;--card:#1A1A24;--card-hover:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glass-bg:rgba(13,13,18,0.75);--glass-border:rgba(255,255,255,0.06);--max-width:480px;--fs-base:16px;--fs-sm:14px;--fs-xs:12px;--fs-title:24px;--fs-card:17px;--fs-stat:30px}
-body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:calc(72px + var(--safe-b, env(safe-area-inset-bottom, 0px)));overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:0;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
 /* Responsive: center content on large screens with max 480px */
 .nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
@@ -352,9 +352,9 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .pulse-dot.off{background:var(--sub)}
 .tab::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(0);width:24px;height:3px;border-radius:3px;background:linear-gradient(90deg,var(--amber),var(--purple));transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
 .tab.active::after{transform:translateX(-50%) scaleX(1)}
-.content{margin-top:52px;margin-bottom:68px;padding:16px;max-width:var(--max-width);margin-left:auto;margin-right:auto;min-height:calc(100dvh - 120px)}
+.content{margin-top:52px;margin-bottom:0;padding:16px;max-width:var(--max-width);margin-left:auto;margin-right:auto;min-height:calc(100dvh - 52px)}
 /* Page transitions: slide + fade */
-.page{display:none;animation:none;padding-bottom:70px}
+.page{display:none;animation:none;padding-bottom:calc(60px + var(--safe-b, env(safe-area-inset-bottom, 0px)))}
 .page.active{display:block;animation:pageIn .35s cubic-bezier(.22,1,.36,1) forwards}
 .page.active.slide-left{animation:slideInLeft .35s cubic-bezier(.22,1,.36,1) forwards}
 .page.active.slide-right{animation:slideInRight .35s cubic-bezier(.22,1,.36,1) forwards}
@@ -712,7 +712,7 @@ body.lang-ready{visibility:visible}
   </div>
 </div>
 
-<div class="page" id="page-dice" style="padding-bottom:70px">
+<div class="page" id="page-dice" style="padding-bottom:calc(60px + var(--safe-b, env(safe-area-inset-bottom, 0px)))">
  <div id="dice-ug-hint"></div>
  <div class="card">
   <div class="card-header" data-i18n="dice_title">🎲 骰盅大挑戰</div>
