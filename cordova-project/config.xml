@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.vic.jamyeungmeiyat" version="2.5.7" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.vic.jamyeungmeiyat" version="2.5.8" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>今晚飲咗未</name>
     <description>飲酒社交打卡 App - 今晚飲咗未？</description>
     <author email="vichoo2020@gmail.com">Vic</author>
-    <content src="index.html" />
+    <content src="https://drunk.vic999.com/" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />

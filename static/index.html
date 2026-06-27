@@ -1968,12 +1968,31 @@ const DICE_SND=(function(){
 
 
 // ═══════ Safe-Area Bottom Fix for Android APK ═══════
-// Cordova WebView with StatusBarOverlaysWebView=false already places bottom:0
-// above the system nav bar. We only need CSS env(safe-area-inset-bottom) which
-// Android WebView supports natively. No JS calculation needed.
+// Android WebView does NOT support CSS env(safe-area-inset-bottom).
+// Must read insets from native JymySafeArea plugin and apply via CSS variable.
 (function(){
- if(location.protocol!=='file:')return; // only for APK
- document.documentElement.style.setProperty('--safe-b','env(safe-area-inset-bottom, 0px)');
+ if(typeof cordova==='undefined')return; // only in Cordova APK
+ function applySafeBottom(dp){
+   var px=dp?dp+'px':'0px';
+   document.documentElement.style.setProperty('--safe-b',px);
+   // Directly set padding-bottom on tabs and pages (fallback if CSS var unsupported)
+   var tabs=document.querySelector('.tabs');
+   if(tabs) tabs.style.paddingBottom=px;
+   var pages=document.querySelectorAll('.page');
+   for(var i=0;i<pages.length;i++){
+     var cur=pages[i].style.paddingBottom||'';
+     // Replace any env() with actual value
+     pages[i].style.paddingBottom='calc(56px + '+px+')';
+   }
+ }
+ // Wait for cordova deviceready
+ if(cordova.deviceready){
+   cordova.exec(function(dp){applySafeBottom(dp);},function(err){applySafeBottom(0);},'JymySafeArea','getSafeAreaBottom',[]);
+ } else {
+   document.addEventListener('deviceready',function(){
+     cordova.exec(function(dp){applySafeBottom(dp);},function(err){applySafeBottom(0);},'JymySafeArea','getSafeAreaBottom',[]);
+   },false);
+ }
 })();
 
 // ═══════ API_BASE ═══════
