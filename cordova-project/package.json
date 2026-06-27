@@ -1,7 +1,7 @@
 {
   "name": "com.vic.jamyeungmeiyat",
   "displayName": "今晚飲咗未",
-  "version": "1.0.0",
+  "version": "2.5.0",
   "description": "A sample Apache Cordova application that responds to the deviceready event.",
   "main": "index.js",
   "scripts": {
