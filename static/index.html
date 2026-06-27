@@ -327,7 +327,7 @@ var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///an
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0D0D12;--card:#1A1A24;--card-hover:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glass-bg:rgba(13,13,18,0.75);--glass-border:rgba(255,255,255,0.06);--max-width:480px;--fs-base:16px;--fs-sm:14px;--fs-xs:12px;--fs-title:24px;--fs-card:17px;--fs-stat:30px}
-body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:calc(120px + var(--safe-b, env(safe-area-inset-bottom, 0px)));overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:calc(72px + var(--safe-b, env(safe-area-inset-bottom, 0px)));overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
 /* Responsive: center content on large screens with max 480px */
 .nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
@@ -338,7 +338,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .tab{flex:1 1 0%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0 3px;color:var(--sub);font-size:11px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;white-space:nowrap;overflow:visible;letter-spacing:-0.2px;line-height:1.3}
 .tab .tab-icon{font-size:20px;margin-bottom:1px;transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s ease;display:inline-block;line-height:1}
 .tab .tab-icon svg{transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s ease}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(18,18,26,0.92);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0;padding-bottom:calc(4px + var(--safe-b, env(safe-area-inset-bottom, 0px)));box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(18,18,26,0.92);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0;padding-bottom:var(--safe-b, env(safe-area-inset-bottom, 0px));box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .tabs::-webkit-scrollbar{display:none}
 .tab.active{color:var(--amber)}
 .tab.active .tab-icon svg{filter:drop-shadow(0 2px 4px rgba(245,158,11,0.6));transform:translateY(-2px)}
@@ -354,7 +354,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .tab.active::after{transform:translateX(-50%) scaleX(1)}
 .content{margin-top:52px;margin-bottom:68px;padding:16px;max-width:var(--max-width);margin-left:auto;margin-right:auto;min-height:calc(100dvh - 120px)}
 /* Page transitions: slide + fade */
-.page{display:none;animation:none;padding-bottom:90px}
+.page{display:none;animation:none;padding-bottom:70px}
 .page.active{display:block;animation:pageIn .35s cubic-bezier(.22,1,.36,1) forwards}
 .page.active.slide-left{animation:slideInLeft .35s cubic-bezier(.22,1,.36,1) forwards}
 .page.active.slide-right{animation:slideInRight .35s cubic-bezier(.22,1,.36,1) forwards}
@@ -712,7 +712,7 @@ body.lang-ready{visibility:visible}
   </div>
 </div>
 
-<div class="page" id="page-dice" style="padding-bottom:120px">
+<div class="page" id="page-dice" style="padding-bottom:70px">
  <div id="dice-ug-hint"></div>
  <div class="card">
   <div class="card-header" data-i18n="dice_title">🎲 骰盅大挑戰</div>
@@ -1962,23 +1962,23 @@ const DICE_SND=(function(){
  }
  function fixBottomFallback(envOk,sb){
   // Method 3: Detect nav bar from screen vs window dimension
-  // Only use this if env() didn't work — and cap the value to 48px max
-  // because screen.height-innerHeight includes status bar + nav bar + other insets
+  // Only use this if env() didn't work
   if(!envOk){
    var screenH=w.screen.height,innerH=w.innerHeight;
-   var dpr=w.devicePixelRatio||1;
-   var screenPx=screenH*dpr;
-   var navBarH=Math.round((screenPx-innerH*dpr)/dpr);
-   console.log('[fixBottom] Method3 screenH='+screenH+' innerH='+innerH+' dpr='+dpr+' navBarH='+navBarH);
-   // Most Android phones: 3-button nav=48dp, gesture nav=24dp
-   // Cap at 48 to avoid absurd values from status bar inclusion
-   if(navBarH>12&&navBarH<200)sb=Math.min(navBarH,48);
+   var rawDiff=screenH-innerH; // CSS px — includes status bar + nav bar
+   console.log('[fixBottom] Method3 screenH='+screenH+' innerH='+innerH+' rawDiff='+rawDiff);
+   // StatusBarOverlaysWebView=false → status bar (~26px) is included in rawDiff
+   // Subtract estimated status bar height, then clamp to nav-bar-only range
+   var navBarH=rawDiff-26; // remove status bar estimate
+   if(navBarH>8&&navBarH<=48){sb=navBarH;}
+   else if(navBarH<=8){sb=0;} // no nav bar (fullscreen/gesture-only)
+   else{sb=Math.min(navBarH,32);} // cap unusual values
+   console.log('[fixBottom] Method3 navBarH='+navBarH+' sb='+sb);
   }
-  // Method 4: Gentle fallback — only if nothing else worked
+  // Method 4: fallback — let CSS env() handle it; 0 means no extra padding
   if(!sb&&!envOk){
-   // Modern phones use gesture nav ≈ 24px, not 40-48px
-   sb=24;
-   console.log('[fixBottom] Method4 fallback sb=24');
+   sb=0;
+   console.log('[fixBottom] Method4 fallback sb=0 (let CSS handle)');
   }
   applySb(sb);
  }

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0D0D12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.json">
+<title>今晚飲咗未</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0D0D12;--card:#1A1A24;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(13,13,18,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;justify-content:center;height:52px}
+.nav-title{font-size:22px;font-weight:800;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;z-index:0}
+.nav-right{display:flex;gap:8px;align-items:center;margin-left:auto;z-index:1;flex-shrink:0}
+.nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 12px;border-radius:8px;font-size:13px;cursor:pointer}
+.lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:8px;font-size:12px}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(13,13,18,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:6px 0 env(safe-area-inset-bottom)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:6px 0;color:var(--sub);font-size:10px;cursor:pointer;border:none;background:none}
+.tab.active{color:var(--amber)}.tab-icon{font-size:20px;margin-bottom:2px}
+.content{margin-top:52px;margin-bottom:68px;padding:16px;max-width:600px;margin-left:auto;margin-right:auto;min-height:calc(100dvh - 120px)}
+.page{display:none}.page.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
+.card-header{font-size:16px;font-weight:700;color:var(--amber);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.status-grid{display:flex;flex-direction:column;gap:12px}
+.status-group{display:flex;flex-direction:column;gap:4px}
+.group-label{font-size:11px;color:var(--sub);padding:0 4px}
+.status-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.status-btn{padding:10px 4px;border-radius:12px;border:2px solid transparent;background:var(--card);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;line-height:1.4;min-heigh...[truncated]
+.status-btn:hover{border-color:var(--amber)}.status-btn.selected{border-color:var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.25),rgba(139,92,246,0.25))}
+.input,.textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:8px}
+.input:focus,.textarea:focus{outline:none;border-color:var(--amber)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,var(--amber),var(--purple));color:#fff;width:100%;justify-content:center;margin-top:4px}.btn-primary:active{opacity:0.8}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-sm{padding:6px 12px;font-size:12px}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);z-index:999;background:var(--card);border:1px solid var(--amber);padding:10px 20px;border-radius:12px;font-size:13px;box-shadow:0 4px 20px rgba(0,0,0,0.5);animation:fadeIn .3s;white-space:nowrap}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+.tl-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.tl-avatar{width:44px;height:44px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;overflow:hidden}
+.tl-avatar img{width:100%;height:100%;object-fit:cover}.tl-body{flex:1;min-width:0}
+.tl-name{font-weight:700;font-size:14px}.tl-time{color:var(--sub);font-size:11px}.tl-status{font-size:16px;margin:4px 0}.tl-note{font-size:13px;color:var(--sub)}.tl-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;align-items:center}
+.emoji-btn{padding:4px 8px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;font-size:18px;transition:.2s}
+.modal-overlay{position:fixed!important;top:0!important;left:0!important;right:0!important;bottom:0!important;z-index:200;background:rgba(0,0,0,0.7);display:none!important;align-items:center;justify-content:center;padding:20px;width:100vw;height:100dvh;margin:0!important}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:400px;max-height:80dvh;overflow-y:auto}
+.user-menu{position:relative;display:none}
+.user-trigger{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;overflow:hidden}
+.user-trigger img{width:100%;height:100%;object-fit:cover}
+.user-drop{position:absolute;top:44px;right:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:8px 0;min-width:150px;z-index:150;box-shadow:0 8px 30px rgba(0,0,0,0.5);display:none}
+.dd-item{padding:8px 16px;font-size:13px;cursor:pointer}.dd-item:hover{background:var(--border)}
+.dd-divider{height:1px;background:var(--border);margin:4px 0}
+.pay-modal{position:fixed;top:0;left:0;right:0;bottom:0;z-index:400;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;padding:20px}
+.pay-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:360px;text-align:center}
+.pay-qr-tabs{display:flex;gap:8px;justify-content:center;margin:16px 0}
+.pay-qr-tab{padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);cursor:pointer;font-size:12px}
+.pay-qr-tab.active{border-color:var(--amber);color:var(--amber);background:rgba(245,158,11,0.15)}
+.pay-qr-img{width:200px;height:200px;object-fit:contain;background:#fff;border-radius:12px;margin:12px auto;display:block}
+.plans-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.plan-card{border:1px solid var(--border);border-radius:16px;padding:12px 8px;cursor:pointer;text-align:center}
+.plan-card.selected{border-color:var(--amber);background:rgba(245,158,11,0.1)}
+.plan-price{font-size:24px;font-weight:800;color:var(--amber)}.plan-name{font-size:14px;font-weight:700;margin:2px 0}.plan-feat{font-size:10px;color:var(--sub)}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center}
+.stat-num{font-size:28px;font-weight:800;color:var(--amber)}.stat-label{font-size:11px;color:var(--sub)}
+.empty{padding:40px 0;text-align:center;color:var(--sub)}.empty-icon{font-size:48px;margin-bottom:12px}
+.chk-info{margin-top:4px;font-size:11px;color:var(--sub);text-align:center}
+.ad-banner{background:var(--card);border:1px dashed var(--border);border-radius:8px;padding:10px;text-align:center;font-size:11px;color:var(--sub);margin-top:12px;cursor:pointer}
+.ad-email{font-size:10px;color:var(--sub);text-align:center;margin-top:6px}
+.avatar-preview{width:80px;height:80px;border-radius:50%;background:var(--border);margin:8px auto;display:flex;align-items:center;justify-content:center;font-size:36px;border:3px solid var(--amber);cursor:pointer;overflow:hidden}
+.avatar-preview img{width:100%;height:100%;object-fit:cover}
+.date-input{border:2px solid var(--purple)!important;background:rgba(139,92,246,0.08)!important}
+.attendee-list{max-height:0;overflow:hidden;transition:max-height .3s}.attendee-list.open{max-height:300px;overflow-y:auto}
+.attendee-row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px}
+.clickable{cursor:pointer;color:var(--purple);font-weight:600}
+.comment-item{padding:6px 0;border-bottom:1px solid var(--border);font-size:12px}
+.comment-input-row{display:flex;gap:8px;margin-top:8px}.comment-input-row input{flex:1}
+.journal-item{padding:8px 0;border-bottom:1px solid var(--border);font-size:12px}
+.emoji-picker{display:flex;gap:4px;flex-wrap:wrap;padding:6px 0}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-title" id="nav-title">🍺 今晚飲咗未</div>
+  <div class="nav-right">
+    <select class="lang-select" id="lang-switch" onchange="switchLang(this.value)"><option value="zh-HK">繁</option><option value="zh-CN">简</option><option value="en">EN</option></select>
+    <button class="nav-btn" id="btn-auth" onclick="showAuth()">登入</button>
+    <div class="user-menu" id="user-menu">
+      <div class="user-trigger" id="user-trigger" onclick="toggleUM()">👤</div>
+      <div class="user-drop" id="user-drop">
+        <div class="dd-item" id="dd-mem"></div><div class="dd-item" id="dd-exp" style="font-size:10px;color:var(--sub)"></div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" onclick="showPage('member');toggleUM()">💎 會員中心</div>
+        <div class="dd-item" onclick="openProfile()">👤 個人資料</div>
+        <div class="dd-divider"></div>
+        <div class="dd-item" onclick="doLogout()">🚪 登出</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="tabs">
+  <button class="tab active" data-page="checkin" onclick="showPage('checkin')"><span class="tab-icon">🍺</span><span id="tab-checkin">報到</span></button>
+  <button class="tab" data-page="timeline" onclick="showPage('timeline')"><span class="tab-icon">🌐</span><span id="tab-timeline">動態</span></button>
+  <button class="tab" data-page="party" onclick="showPage('party')"><span class="tab-icon">🎯</span><span id="tab-party">酒局</span></button>
+  <button class="tab" data-page="stats" onclick="showPage('stats')"><span class="tab-icon">📊</span><span id="tab-stats">統計</span></button>
+  <button class="tab" data-page="member" onclick="showPage('member')"><span class="tab-icon">💎</span><span id="tab-member">會員</span></button>
+</div>
+
+<div class="content">
+
+<div class="page active" id="page-checkin">
+  <div class="card"><div class="card-header">📍 狀態報到</div><div id="status-grid"></div>
+    <textarea class="textarea" id="chk-note" placeholder="有咩想講？" style="margin-top:12px"></textarea>
+    <button class="btn btn-primary" onclick="doCheckin()">🍻 報到！</button><div class="chk-info" id="chk-remaining"></div>
+  </div>
+</div>
+
+<div class="page" id="page-timeline"><div id="tl-container"></div></div>
+
+<div class="page" id="page-party">
+  <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
+    <div class="card-header">🎯 發起酒局</div>
+    <input class="input" id="pa-title" placeholder="酒局名稱">
+    <input class="input" id="pa-loc" placeholder="📍 地點">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+      <div><label style="font-size:12px;font-weight:700;color:var(--purple)">📅 日期 *</label><input class="input date-input" id="pa-date" type="date" style="margin-bottom:0;font-size:16px;font-weight:700;padding:10px 8px"></div>
+      <div><label style="font-size:12px;font-weight:700;color:var(--purple)">🕐 時間</label><input class="input date-input" id="pa-time" type="time" style="margin-bottom:0;font-size:16px;font-weight:700;padding:10px 8px"></div>
+    </div>
+    <div style="font-size:12px;color:var(--purple);margin-bottom:8px;text-align:center;font-weight:600">⬆ 點擊紫色框選擇 ⬆</div>
+    <button class="btn btn-primary" onclick="createParty()">📅 發起酒局</button>
+  </div>
+  <div id="party-list"></div>
+</div>
+
+<div class="page" id="page-stats">
+  <div class="card"><div class="card-header">📊 飲酒統計</div>
+    <div class="stats-row"><div><div class="stat-num" id="st-total">0</div><div class="stat-label">累計</div></div>
+    <div><div class="stat-num" id="st-week">0</div><div class="stat-label">本週</div></div>
+    <div><div class="stat-num" id="st-today">0</div><div class="stat-label">今日</div></div></div>
+  </div><div id="st-dist"></div>
+</div>
+
+<div class="page" id="page-member">
+  <div class="card" style="text-align:center"><div style="font-size:40px;margin-bottom:8px">💎</div>
+    <div style="font-weight:700;font-size:16px" id="mem-status">免費會員</div>
+    <div style="font-size:12px;color:var(--sub)" id="mem-exp"></div>
+  </div>
+  <div class="plans-row">
+    <div class="plan-card" id="plan-jiuyau" onclick="selP('jiuyau')"><div class="plan-name">🥉 酒友</div><div class="plan-price">¥8</div><div class="plan-feat">每月/打卡</div></div>
+    <div class="plan-card" id="plan-jaugwai" onclick="selP('jaugwai')"><div class="plan-name">🥈 酒鬼</div><div class="plan-price">¥18</div><div class="plan-feat">每月/導出</div></div>
+    <div class="plan-card" id="plan-jausan" onclick="selP('jausan')"><div class="plan-name">🥇 酒神</div><div class="plan-price">¥198</div><div class="plan-feat">每年/徽章</div></div>
+  </div>
+  <button class="btn btn-primary" onclick="showPay()">💳 升級會員</button>
+  <div class="ad-banner" onclick="location.href='mailto:vichoo2020@gmail.com'">📢 廣告合作<br>vichoo2020@gmail.com</div>
+  <!-- Admin Panel -->
+  <div id="admin-panel" style="display:none;margin-top:16px">
+    <div class="card" style="border:2px solid var(--pink)">
+      <div class="card-header">🔧 管理員面板</div>
+      <div class="stats-row" style="margin-bottom:12px"><div><div class="stat-num" id="adm-users">0</div><div class="stat-label">用戶</div></div>
+        <div><div class="stat-num" id="adm-checkins">0</div><div class="stat-label">報到</div></div>
+        <div><div class="stat-num" id="adm-vips">0</div><div class="stat-label">VIP</div></div></div>
+      <div style="max-height:300px;overflow-y:auto;margin-bottom:8px" id="adm-member-list"></div>
+      <button class="btn btn-primary" onclick="loadAdmin()">🔄 刷新</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- AUTH -->
+<div class="modal-overlay" id="auth-mod" onclick="if(event.target===this)closeAuth()">
+  <div class="modal" style="padding:28px 24px">
+    <div id="auth-form">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:48px;margin-bottom:8px">🍺</div>
+        <h3 style="color:var(--amber);font-size:20px;margin:0">今晚飲咗未</h3>
+        <div style="font-size:11px;color:var(--sub);margin-top:4px">登入</div>
+      </div>
+      <input class="input" id="l-user" placeholder="用戶名" autocomplete="username">
+      <input class="input" id="l-pass" type="password" placeholder="密碼" autocomplete="current-password">
+      <button class="btn btn-primary" onclick="doLogin()">登入</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showReg()">未有帳號？註冊 →</div>
+      <div class="ad-email">📧 vichoo2020@gmail.com</div>
+    </div>
+    <div id="reg-form" style="display:none">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:48px;margin-bottom:8px">🍺</div>
+        <h3 style="color:var(--amber);font-size:20px;margin:0">今晚飲咗未</h3>
+        <div style="font-size:11px;color:var(--sub);margin-top:4px">註冊</div>
+      </div>
+      <input class="input" id="r-user" placeholder="用戶名" autocomplete="username">
+      <input class="input" id="r-nick" placeholder="花名">
+      <input class="input" id="r-pass" type="password" placeholder="密碼（最少4位）" autocomplete="new-password">
+      <input class="input" id="r-pass2" type="password" placeholder="確認密碼" autocomplete="new-password">
+      <button class="btn btn-primary" onclick="doRegister()">註冊</button>
+      <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--sub);cursor:pointer" onclick="showLogin()">← 返回登入</div>
+      <div class="ad-email">📧 vichoo2020@gmail.com</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="modal-overlay" id="prof-mod" onclick="if(event.target===this)closeProf()">
+  <div class="modal"><h3 style="margin-bottom:16px;color:var(--amber)">👤 個人資料</h3>
+    <div class="avatar-preview" id="av-prev" onclick="document.getElementById('av-inp').click()">👤</div>
+    <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="prevAv(event)">
+    <input class="input" id="p-nick" placeholder="花名">
+    <input class="input" id="p-oldpw" type="password" placeholder="舊密碼"><input class="input" id="p-newpw" type="password" placeholder="新密碼">
+    <button class="btn btn-primary" onclick="saveProf()">💾 儲存</button>
+    <div class="ad-email">📧 vichoo2020@gmail.com</div>
+  </div>
+</div>
+
+<!-- COMMENTS -->
+<div class="modal-overlay" id="cmt-mod" onclick="if(event.target===this)closeCmt()">
+  <div class="modal"><h3 style="margin-bottom:12px;color:var(--amber)">💬 留言</h3>
+    <div id="cmt-list" style="max-height:250px;overflow-y:auto;margin-bottom:12px"></div>
+    <div class="comment-input-row"><input class="input" id="cmt-inp" placeholder="留言..." style="margin-bottom:0"><button class="btn btn-primary" style="width:auto;margin-top:0" onclick="doCmt()">發送</button></div>
+    <div class="ad-email">📧 vichoo2020@gmail.com</div>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="modal-overlay" id="jnl-mod" onclick="if(event.target===this)closeJnl()">
+  <div class="modal"><h3 style="margin-bottom:12px;color:var(--amber)">📝 酒局記錄</h3>
+    <div id="jnl-list" style="max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
+    <textarea class="textarea" id="jnl-inp" placeholder="寫記錄..."></textarea>
+    <button class="btn btn-primary" onclick="doJnl()">發布</button>
+    <div class="ad-email">📧 vichoo2020@gmail.com</div>
+  </div>
+</div>
+
+<!-- PAY -->
+<div class="pay-modal" id="pay-mod" style="display:none" onclick="if(event.target===this)closePay()">
+  <div class="pay-card"><h3 style="color:var(--amber)">💳 掃碼支付</h3>
+    <div id="pay-plan-name" style="font-size:14px;margin:4px 0"></div><div id="pay-usd" style="font-size:12px;color:var(--sub)"></div>
+    <div class="pay-qr-tabs"><button class="pay-qr-tab active" id="pt-alipay" onclick="swQR('alipay')">支付寶</button><button class="pay-qr-tab" id="pt-wechat" onclick="swQR('wechat')">微信</button><button class="pay-qr-tab" id="pt-paypal" onclick="swQR('paypal')">PayPal</button></div>
+    <img class="pay-qr-img" id="pay-qr-img" src="" onerror="this.style.display='none';document.getElementById('pay-fb').style.display='block'">
+    <div id="pay-fb" style="display:none;padding:40px;background:#fff;border-radius:12px;color:#333;font-size:13px"><b>vichoo2020@gmail.com</b></div>
+    <button class="btn btn-primary" onclick="cfmPay()">✅ 已完成付款</button>
+    <div style="font-size:10px;color:var(--sub);margin-top:6px;cursor:pointer" onclick="closePay()">取消</div>
+    <div class="ad-email">📧 vichoo2020@gmail.com</div>
+  </div>
+</div>
+
+<script>
+// ═══════ GLOBAL STATE ═══════
+let me=null,token=null,selStatus=-1,selPlan='jiuyau',lang='zh-HK',payQR='alipay',curCid=null,curPid=null;
+
+// ═══════ API_BASE — simple: use relative URL on any host (browser or APK)
+// The key insight: on a browser, /api/login works relative to current origin.
+// On APK file://, we need absolute URL. We can detect this.
+const API_BASE = (()=>{
+  const proto = location.protocol;
+  // file:// protocol → APK WebView → need absolute URL
+  if(proto === 'file:') {
+    // Try to get server from localStorage
+    const saved = localStorage.getItem('jymy_server');
+    if(saved) return saved;
+    // Default: try localhost (works if running on same device via local server)
+    return 'http://10.0.2.2:5052'; // Android emulator uses 10.0.2.2 for host localhost
+  }
+  // http/https → normal browser → relative URLs work
+  return '';
+})();
+
+// ═══════ API CALL ═══════
+async function api(url,opts={}){
+  const h={};if(token)h['Authorization']='Bearer '+token;
+  if(opts.body&&typeof opts.body==='object'){h['Content-Type']='application/json';opts.body=JSON.stringify(opts.body)}
+  const furl = API_BASE + url;
+  console.log('API:', furl, opts.method||'GET');
+  const r=await fetch(furl,{method:opts.method||'GET',headers:h,body:opts.body});
+  const d=await r.json();
+  if(!r.ok) throw new Error(d.error||'Error '+r.status);
+  return d;
+}
+
+// ═══════ TOAST ═══════
+function toast(msg,isErr){
+  const el=document.createElement('div');el.className='toast';
+  el.textContent=msg;el.style.borderColor=isErr?'var(--red)':'var(--amber)';
+  document.body.appendChild(el);setTimeout(()=>el.remove(),2500);
+}
+
+// ═══════ PERSIST ═══════
+function saveS(){if(token)localStorage.setItem('jymy_token',token);if(me)localStorage.setItem('jymy_me',JSON.stringify(me))}
+function clearS(){localStorage.removeItem('jymy_token');localStorage.removeItem('jymy_me')}
+async function restoreS(){
+  const s=localStorage.getItem('jymy_token');if(!s)return false;token=s;
+  try{me=JSON.parse(localStorage.getItem('jymy_me')||'null')}catch(e){me=null}
+  try{const r=await api('/api/me');me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;saveS();return true}catch(e){token=null;me=null;clearS();return false}
+}
+
+// ═══════ NAV ═══════
+function toggleUM(){const d=document.getElementById('user-drop');d.style.display=d.style.display==='block'?'none':'block'}
+document.addEventListener('click',e=>{if(!e.target.closest('.user-menu'))document.getElementById('user-drop').style.display='none'})
+
+function showAuth(){const el=document.getElementById('auth-mod');el.style.display='flex';el.classList.add('show')}
+function closeAuth(){const el=document.getElementById('auth-mod');el.style.display='none';el.classList.remove('show')}
+function showLogin(){document.getElementById('auth-form').style.display='block';document.getElementById('reg-form').style.display='none'}
+function showReg(){document.getElementById('auth-form').style.display='none';document.getElementById('reg-form').style.display='block'}
+
+function updateNav(){
+  const menu=document.getElementById('user-menu'),btn=document.getElementById('btn-auth');
+  if(me){
+    btn.style.display='none';menu.style.display='block';
+    const trig=document.getElementById('user-trigger');
+    const av=me.avatar;
+    if(av&&av.startsWith('/')){trig.innerHTML='<img src="'+API_BASE+av+'">'}
+    else{trig.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
+    const ms=document.getElementById('dd-mem'),ex=document.getElementById('dd-exp');
+    if(me.membership&&me.membership!=='free'){ms.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');ex.textContent='到期：'+(me.member_expires||'永久')}
+    else{ms.textContent='🆓 免費會員';ex.textContent='點擊升級 💎'}
+  }else{btn.style.display='inline-flex';menu.style.display='none'}
+}
+
+// ═══════ PAGES ═══════
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pg=document.getElementById('page-'+name);if(pg)pg.classList.add('active');
+  document.querySelectorAll('.tab').forEach(tb=>tb.classList.remove('active'));
+  const tb=document.querySelector('[data-page="'+name+'"]');if(tb)tb.classList.add('active');
+  if(name==='timeline')loadTL();if(name==='stats')loadStats();if(name==='party')loadParties();if(name==='member')updMem();
+}
+
+// ═══════ LANG ═══════
+const L={'zh-HK':{
+  st_mai_yum:'未飲',st_seung_yum:'想飲',st_dou_cho:'到咗',st_hoi_cho:'開咗',st_yum_gan:'飲緊',st_gai_juk:'繼續',st_ga_jau:'加酒',st_cheung_yum:'暢飲',
+  st_jui_gan:'醉緊',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飄飄',st_dyun_pin:'斷片',st_seung_au:'想嘔',st_wan_wan:'暈暈',st_pa_dai:'趴低',
+  st_jyun_cheung:'轉場',st_gau_jau:'溝酒',st_chaai_mui:'猜枚',st_jik_lok:'直落',st_yum_cho:'飲咗',st_fan_gwai:'返歸',st_sing_saai:'醒晒',st_ting_yat:'聽日',
+  grp_hei_sau:'起手',grp_seung_gan:'上緊',grp_jui_gan:'醉緊',grp_baau_cho:'爆咗',grp_jyun_cheung:'轉場',grp_sau_mei:'收尾',
+  checkin:'報到',timeline:'動態',party:'酒局',stats:'統計',member:'會員',login:'登入',logout:'登出'
+},'zh-CN':{
+  st_mai_yum:'没喝',st_seung_yum:'想喝',st_dou_cho:'到了',st_hoi_cho:'开了',st_yum_gan:'喝着',st_gai_juk:'继续',st_ga_jau:'加酒',st_cheung_yum:'畅饮',
+  st_jui_gan:'醉着',st_ho_jui:'好醉',st_tou_jui:'陶醉',st_piu_piu:'飘飘',st_dyun_pin:'断片',st_seung_au:'想吐',st_wan_wan:'晕晕',st_pa_dai:'趴下',
+  st_jyun_cheung:'转场',st_gau_jau:'混酒',st_chaai_mui:'猜拳',st_jik_lok:'直落',st_yum_cho:'喝了',st_fan_gwai:'回家',st_sing_saai:'醒了',st_ting_yat:'明天',
+  grp_hei_sau:'起手',grp_seung_gan:'上头',grp_jui_gan:'醉着',grp_baau_cho:'爆了',grp_jyun_cheung:'转场',grp_sau_mei:'收尾',
+  checkin:'报到',timeline:'动态',party:'酒局',stats:'统计',member:'会员',login:'登录',logout:'退出'
+},'en':{
+  st_mai_yum:'Sober',st_seung_yum:'Thirsty',st_dou_cho:'Here',st_hoi_cho:'Started',st_yum_gan:'Drinking',st_gai_juk:'More',st_ga_jau:'TopUp',st_cheung_yum:'Flowing',
+  st_jui_gan:'Buzzed',st_ho_jui:'Drunk',st_tou_jui:'Tipsy',st_piu_piu:'Float',st_dyun_pin:'Wasted',st_seung_au:'Sick',st_wan_wan:'Dizzy',st_pa_dai:'Done',
+  st_jyun_cheung:'Hop',st_gau_jau:'Mix',st_chaai_mui:'Game',st_jik_lok:'On&On',st_yum_cho:'Done',st_fan_gwai:'Home',st_sing_saai:'SoberUp',st_ting_yat:'Tmrw',
+  grp_hei_sau:'Start',grp_seung_gan:'Going',grp_jui_gan:'Buzzed',grp_baau_cho:'Wasted',grp_jyun_cheung:'Hop',grp_sau_mei:'Done',
+  checkin:'Check In',timeline:'Feed',party:'Party',stats:'Stats',member:'Member',login:'Login',logout:'Logout'
+}};
+function T(k){return (L[lang]||L['zh-HK'])[k]||k}
+function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+
+function switchLang(l){lang=l;document.getElementById('lang-switch').value=l;if(me&&token)api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{});updTitles();buildGrid()}
+function updTitles(){
+  document.getElementById('nav-title').textContent='🍺 '+(lang==='en'?'Drunk Tonight?':'今晚飲咗未');
+  ['checkin','timeline','party','stats','member'].forEach(k=>{const el=document.getElementById('tab-'+k);if(el)el.textContent=T(k)});
+}
+
+// ═══════ STATUS GRID ═══════
+const STATUSES=[
+  {k:'st_mai_yum',g:0,e:'🥤'},{k:'st_seung_yum',g:0,e:'🤤'},{k:'st_dou_cho',g:0,e:'📍'},{k:'st_hoi_cho',g:0,e:'🔓'},
+  {k:'st_yum_gan',g:1,e:'🍺'},{k:'st_gai_juk',g:1,e:'🔄'},{k:'st_ga_jau',g:1,e:'➕'},{k:'st_cheung_yum',g:1,e:'🍻'},
+  {k:'st_jui_gan',g:2,e:'😵'},{k:'st_ho_jui',g:2,e:'🥴'},{k:'st_tou_jui',g:2,e:'😌'},{k:'st_piu_piu',g:2,e:'☁️'},
+  {k:'st_dyun_pin',g:3,e:'💀'},{k:'st_seung_au',g:3,e:'🤮'},{k:'st_wan_wan',g:3,e:'🌀'},{k:'st_pa_dai',g:3,e:'🛌'},
+  {k:'st_jyun_cheung',g:4,e:'🚕'},{k:'st_gau_jau',g:4,e:'🍹'},{k:'st_chaai_mui',g:4,e:'✊'},{k:'st_jik_lok',g:4,e:'🔥'},
+  {k:'st_yum_cho',g:5,e:'✅'},{k:'st_fan_gwai',g:5,e:'🏠'},{k:'st_sing_saai',g:5,e:'🌅'},{k:'st_ting_yat',g:5,e:'📅'}
+];
+const GKEYS=['grp_hei_sau','grp_seung_gan','grp_jui_gan','grp_baau_cho','grp_jyun_cheung','grp_sau_mei'];
+const RE_EM=['🍻','🫣','🤣','❤️','🔥','😭','💀','🥂','👏','🎉','🤤','😈'];
+const CM_EM=['😍','🤣','👍','🔥','❤️','🥂','🫣','💀','🎉','👏','😈','💪','🍺','🍻','😭','🤤'];
+const QR_M={alipay:'/qrcodes/alipay.jpg',wechat:'/qrcodes/wechat.png',paypal:'/qrcodes/paypal.jpg'};
+const PAY_U={jiuyau:'1.20',jaugwai:'2.50',jausan:'28.00'};
+
+function buildGrid(){
+  const g=document.getElementById('status-grid');g.innerHTML='';
+  const grps={};STATUSES.forEach((s,i)=>{if(!grps[s.g])grps[s.g]=[];grps[s.g].push({...s,i})});
+  GKEYS.forEach((gk,gid)=>{
+    const d=document.createElement('div');d.className='status-group';
+    d.innerHTML='<div class="group-label">'+T(gk)+'</div>';
+    const rw=document.createElement('div');rw.className='status-row';
+    (grps[gid]||[]).forEach(st=>{
+      const b=document.createElement('button');b.className='status-btn';
+      b.innerHTML=T(st.k)+'<br>'+st.e;
+      b.onclick=()=>{selStatus=st.i;buildGrid()};
+      if(selStatus===st.i)b.classList.add('selected');rw.appendChild(b);
+    });d.appendChild(rw);g.appendChild(d);
+  });
+}
+
+// ═══════ AUTH ═══════
+async function doLogin(){
+  const u=document.getElementById('l-user').value.trim(),p=document.getElementById('l-pass').value;
+  if(!u||!p)return toast('填寫用戶名和密碼',1);
+  try{
+    const r=await api('/api/login',{method:'POST',body:{username:u,password:p}});
+    token=r.token;me=r.user;lang=me.lang||'zh-HK';document.getElementById('lang-switch').value=lang;
+    saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();
+    toast('✅ 登入成功');
+  }catch(e){toast('❌ '+e.message,1)}
+}
+async function doRegister(){
+  const u=document.getElementById('r-user').value.trim(),n=document.getElementById('r-nick').value.trim(),
+    p=document.getElementById('r-pass').value,p2=document.getElementById('r-pass2').value;
+  if(!u||p.length<4)return toast('用戶名或密碼太短',1);if(p!==p2)return toast('密碼不一致',1);
+  try{
+    const r=await api('/api/register',{method:'POST',body:{username:u,password:p,nickname:n||u,lang}});
+    token=r.token;me=r.user;saveS();closeAuth();updateNav();buildGrid();updTitles();refreshAll();
+    toast('✅ 註冊成功');
+  }catch(e){toast('❌ '+e.message,1)}
+}
+function doLogout(){token=null;me=null;selStatus=-1;clearS();updateNav();buildGrid();updTitles();document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-checkin').classList.add('active');toast('👋 已登出')}
+
+// ═══════ CHECKIN ═══════
+async function doCheckin(){
+  if(!me)return toast('請先登入',1);if(selStatus<0)return toast('請選擇狀態',1);
+  try{
+    const r=await api('/api/checkin',{method:'POST',body:{status:selStatus,note:document.getElementById('chk-note').value,lat:0,lng:0}});
+    selStatus=-1;document.getElementById('chk-note').value='';buildGrid();
+    toast('🍻 報到成功！');document.getElementById('chk-remaining').textContent=r.remaining!==undefined?'剩餘：'+r.remaining+'次':'';
+    loadTL();
+  }catch(e){toast('❌ '+e.message,1)}
+}
+
+// ═══════ TIMELINE ═══════
+async function loadTL(){
+  const c=document.getElementById('tl-container');
+  if(!me){c.innerHTML='<div class="empty"><div class="empty-icon">🔒</div>請登入查看</div>';return}
+  try{
+    const d=await api('/api/timeline?limit=30&lang='+lang);let h='';
+    (d.timeline||[]).forEach(item=>{
+      const st=STATUSES[item.status]||STATUSES[0];
+      const av=item.avatar&&item.avatar.startsWith('/')?API_BASE+item.avatar:'';
+      h+='<div class="tl-item"><div class="tl-avatar">'+(av?'<img src="'+av+'">':'🍺')+'</div><div class="tl-body"><div class="tl-name">'+esc(item.nickname)+' <span class="tl-time">'+item.created_at+'</span></div><div class="tl-status">'+T(st.k)+' '+st.e+'</div>'+(item.note?'<div class="tl-note">'+esc(item.note)+'</div>':'')+'<div class="tl-actions">';
+      h+='<button class="btn btn-outline btn-sm" onclick="doLike('+item.id+')">❤️ <span id="lk-'+item.id+'">'+(item.likes||0)+'</span></button>';
+      h+='<button class="btn btn-outline btn-sm" onclick="openCmt('+item.id+')">💬 <span id="ct-'+item.id+'">'+(item.comments||0)+'</span></button>';
+      h+='<div style="display:flex;gap:2px;flex-wrap:wrap">';
+      RE_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="doRe('+item.id+',\''+e+'\')">'+e+'</button>'});
+      h+='</div><span style="font-size:11px;color:var(--sub)">'+(item.reactions||0)+'</span></div></div></div>';
+    });
+    if(!d.timeline.length)h='<div class="empty"><div class="empty-icon">🍺</div>未有動態</div>';
+    c.innerHTML=h;
+  }catch(e){c.innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>載入失敗</div>'}
+}
+async function doRe(cid,emoji){try{await api('/api/reaction',{method:'POST',body:{checkin_id:cid,emoji}});loadTL()}catch(e){}}
+async function doLike(cid){try{const r=await api('/api/checkin/'+cid+'/like',{method:'POST'});document.getElementById('lk-'+cid).textContent=r.count;loadTL()}catch(e){}}
+
+// ═══════ COMMENTS ═══════
+function openCmt(cid){curCid=cid;const el=document.getElementById('cmt-mod');el.style.display='flex';el.classList.add('show');document.getElementById('cmt-inp').value='';loadCmt(cid)}
+function closeCmt(){const el=document.getElementById('cmt-mod');el.style.display='none';el.classList.remove('show');curCid=null}
+async function loadCmt(cid){
+  try{const d=await api('/api/checkin/'+cid+'/comments');let h='';
+    (d.comments||[]).forEach(c=>{h+='<div class="comment-item"><b>'+esc(c.nickname)+'</b>: '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
+    if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有留言</div>';
+    h+='<div class="emoji-picker">';CM_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="insEm(\''+e+'\')" style="font-size:22px">'+e+'</button>'});h+='</div>';
+    document.getElementById('cmt-list').innerHTML=h;
+  }catch(e){}
+}
+function insEm(e){document.getElementById('cmt-inp').value+=e;document.getElementById('cmt-inp').focus()}
+async function doCmt(){
+  const t=document.getElementById('cmt-inp').value.trim();if(!t||!curCid)return;
+  try{await api('/api/checkin/'+curCid+'/comment',{method:'POST',body:{text:t}});document.getElementById('cmt-inp').value='';loadCmt(curCid);loadTL()}catch(e){toast('❌ '+e.message,1)}
+}
+
+// ═══════ PARTY ═══════
+async function createParty(){
+  if(!me)return toast('請先登入',1);
+  const title=document.getElementById('pa-title').value.trim(),loc=document.getElementById('pa-loc').value.trim(),
+    d=document.getElementById('pa-date').value,tm=document.getElementById('pa-time').value;
+  if(!title)return toast('輸入名稱',1);if(!d)return toast('選擇日期',1);
+  try{await api('/api/party',{method:'POST',body:{title,location:loc,meet_time:d+(tm?'T'+tm:''),lat:0,lng:0}});
+    document.getElementById('pa-title').value='';document.getElementById('pa-loc').value='';loadParties();toast('✅ 酒局已發起');
+  }catch(e){toast('❌ '+e.message,1)}
+}
+async function loadParties(){
+  if(!me)return;
+  try{const d=await api('/api/parties');let h='';
+    (d.parties||[]).forEach(p=>{const atts=p.attendees||[];
+      h+='<div class="card"><div style="font-weight:700;font-size:15px">'+esc(p.title)+'</div><div style="font-size:12px;color:var(--sub);margin:6px 0">📍 '+(esc(p.location)||'未定')+' · 🕐 '+(p.meet_time||'未定')+'</div><div style="font-size:11px;color:var(--amber)">👑 '+esc(p.creator_nickname)+'</div>';
+      h+='<div style="margin:8px 0"><span class="clickable" onclick="this.nextElementSibling.classList.toggle(\'open\')">👥 '+p.going_count+'人參加 ▸</span><div class="attendee-list">';
+      atts.forEach(a=>{h+='<div class="attendee-row">'+(a.response==='going'?'✅':a.response==='maybe'?'🤔':'❌')+' <b>'+esc(a.nickname)+'</b></div>'});
+      h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">✅ 到</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">🤔 可能</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">❌ 唔到</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">📝 記錄 ('+(p.journal_count||0)+')</button></div></div>';
+    });
+    if(!d.parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>未有酒局</div>';
+    document.getElementById('party-list').innerHTML=h;
+  }catch(e){}
+}
+async function rsvp(pid,resp){try{await api('/api/party/'+pid+'/rsvp',{method:'POST',body:{response:resp}});loadParties()}catch(e){}}
+function openJnl(pid){curPid=pid;const el=document.getElementById('jnl-mod');el.style.display='flex';el.classList.add('show');document.getElementById('jnl-inp').value='';loadJnl(pid)}
+function closeJnl(){const el=document.getElementById('jnl-mod');el.style.display='none';el.classList.remove('show');curPid=null}
+async function loadJnl(pid){
+  try{const d=await api('/api/party/'+pid+'/journal');let h='';
+    (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b>'+esc(j.nickname)+'</b>: '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
+    if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">未有記錄</div>';
+    document.getElementById('jnl-list').innerHTML=h;
+  }catch(e){}}
+async function doJnl(){const t=document.getElementById('jnl-inp').value.trim();if(!t||!curPid)return;try{await api('/api/party/'+curPid+'/journal',{method:'POST',body:{content:t}});document.getElementById('jnl-inp').value='';loadJnl(curPid);loadParties()}catch(e){toast('❌ '+e.message,1)}}
+
+// ═══════ STATS ═══════
+async function loadStats(){
+  if(!me)return;try{const d=await api('/api/stats');document.getElementById('st-total').textContent=d.total||0;document.getElementById('st-week').textContent=d.week||0;document.getElementById('st-today').textContent=d.today||0;let h='<div class="card"><div class="card-header">📊 狀態分佈</div>';const dist=d.status_dist||{};if(!Object.keys(dist).length)h+='<div style="color:var(--sub);font-size:12px;padding:8px">冇數據</div>';else Object.entries(dist).forEach(([k,v])=>{const st=STATUSES[parseInt(k)]||STATUSES[0];h+='<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)"><span>'+T(st.k)+' '+st.e+'</span><span style="color:var(--amber);font-weight:600">'+v+'次</span></div>'});h+='</div>';document.getElementById('st-dist').innerHTML=h}catch(e){}}
+
+// ═══════ MEMBER ═══════
+function updMem(){const s=document.getElementById('mem-status'),e=document.getElementById('mem-exp');if(!me)return;if(me.membership&&me.membership!=='free'){s.textContent='💎 '+({jiuyau:'酒友',jaugwai:'酒鬼',jausan:'酒神'}[me.membership]||'VIP');e.textContent='到期：'+(me.member_expires||'永久')}else{s.textContent='🆓 免費會員';e.textContent='升級享受完整功能'}}
+function selP(p){selPlan=p;document.querySelectorAll('.plan-card').forEach(c=>c.classList.remove('selected'));document.getElementById('plan-'+p)?.classList.add('selected')}
+function showPay(){if(!me)return toast('請先登入',1);document.getElementById('pay-plan-name').textContent={jiuyau:'🥉酒友 ¥8/月',jaugwai:'🥈酒鬼 ¥18/月',jausan:'🥇酒神 ¥198/年'}[selPlan]||'';document.getElementById('pay-usd').textContent='≈ $'+PAY_U[selPlan]+' USD';swQR('alipay');document.getElementById('pay-mod').style.display='flex'}
+function closePay(){document.getElementById('pay-mod').style.display='none'}
+function swQR(t){payQR=t;['alipay','wechat','paypal'].forEach(x=>document.getElementById('pt-'+x).classList.toggle('active',x===t));document.getElementById('pay-qr-img').src=API_BASE+QR_M[t];document.getElementById('pay-qr-img').style.display='block';document.getElementById('pay-fb').style.display='none'}
+async function cfmPay(){if(!me)return;try{const r=await api('/api/member/upgrade',{method:'POST',body:{plan:selPlan}});me.membership=r.membership;me.member_expires=r.expires;saveS();closePay();updateNav();updMem();toast('✅ 升級成功')}catch(e){toast('❌ '+e.message,1)}}
+
+// ═══════ PROFILE ═══════
+function openProfile(){
+  const el=document.getElementById('prof-mod');el.style.display='flex';el.classList.add('show');
+  document.getElementById('p-nick').value=me?.nickname||'';
+  document.getElementById('p-oldpw').value='';document.getElementById('p-newpw').value='';
+  document.getElementById('av-prev').textContent=(me?.nickname||me?.username||'?').charAt(0).toUpperCase();
+}
+function closeProf(){const el=document.getElementById('prof-mod');el.style.display='none';el.classList.remove('show')}
+function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('av-prev').innerHTML='<img src="'+ev.target.result+'">'};r.readAsDataURL(f)}
+async function saveProf(){
+  if(!me)return toast('請先登入',1);
+  const nick=document.getElementById('p-nick').value.trim(),oldpw=document.getElementById('p-oldpw').value,newpw=document.getElementById('p-newpw').value,avatar=document.querySelector('#av-prev img')?.src||'';
+  try{
+    if(nick){me.nickname=nick;await api('/api/update-profile',{method:'POST',body:{nickname:nick,lang}})}
+    if(oldpw&&newpw){if(newpw.length<4)return toast('新密碼最少4位',1);await api('/api/change-password',{method:'POST',body:{old_password:oldpw,new_password:newpw}})}
+    if(avatar&&avatar.startsWith('data:')){const r=await api('/api/update-avatar',{method:'POST',body:{avatar}});me.avatar=r.url;saveS()}
+    saveS();updateNav();closeProf();toast('✅ 已更新')
+  }catch(e){toast('❌ '+e.message,1)}
+}
+
+function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin()}
+
+// ═══════ ADMIN ═══════
+const ADMIN_TOKEN = 'admin_jymy_2026';
+async function loadAdmin(){
+  const panel = document.getElementById('admin-panel');
+  if(!me || me.membership !== 'admin') return;
+  panel.style.display = 'block';
+  try{
+    const s = await api('/api/admin/stats?token='+ADMIN_TOKEN);
+    if(s.stats){
+      document.getElementById('adm-users').textContent = s.stats.total_users;
+      document.getElementById('adm-checkins').textContent = s.stats.total_checkins;
+      document.getElementById('adm-vips').textContent = s.stats.vip_count;
+    }
+    const m = await api('/api/admin/members?token='+ADMIN_TOKEN);
+    let html = '';
+    (m.users||[]).forEach(u => {
+      const plan = u.membership || 'free';
+      const exp = u.member_expires || '—';
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px">';
+      html += '<div><b>'+esc(u.nickname||u.username)+'</b> <span style="color:var(--sub);font-size:10px">@'+esc(u.username)+'</span></div>';
+      html += '<div style="display:flex;align-items:center;gap:4px">';
+      html += '<span style="font-size:10px;color:var(--sub)">'+plan+'</span>';
+      html += '<select onchange="admSetPlan('+u.id+',this.value)" style="background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:4px;font-size:10px;padding:2px">';
+      ['free','jiuyau','jaugwai','jausan','admin'].forEach(p => {
+        html += '<option value="'+p+'"'+(plan===p?' selected':'')+'>'+p+'</option>';
+      });
+      html += '</select>';
+      html += '<button onclick="admSetPlan('+u.id+',\''+plan+'\')" style="background:var(--amber);color:#000;border:none;border-radius:4px;font-size:10px;padding:2px 6px;cursor:pointer">✓</button>';
+      html += '</div></div>';
+    });
+    document.getElementById('adm-member-list').innerHTML = html || '<div style="color:var(--sub);font-size:12px;padding:8px">暫無用戶</div>';
+  }catch(e){/* not admin */}
+}
+async function admSetPlan(uid, plan){
+  try{
+    await api('/api/admin/member/set',{method:'POST',body:{token:ADMIN_TOKEN, user_id:uid, plan:plan, days:30}});
+    toast('✅ 已更新');
+    loadAdmin();
+  }catch(e){toast('❌ '+e.message,1)}
+}
+
+// ═══════ INIT ═══════
+(async function init(){
+  document.getElementById('pa-date').value=new Date().toISOString().split('T')[0];
+  buildGrid();updTitles();
+  const ok=await restoreS();updateNav();
+  if(me){refreshAll()}else{setTimeout(showAuth,600)}
+})();
+</script>
+</body>
+</html>

@@ -56,3 +56,5 @@ node_modules/
 package-lock.jsonstatic/test-login.html
 
 .vercel
+swas_deploy*.py
+force_deploy.py

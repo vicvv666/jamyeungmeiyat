@@ -15,5 +15,8 @@
   "devDependencies": {
     "cordova-android": "^15.0.0",
     "jymy-safearea": "file:plugins/jymy-safearea"
+  },
+  "cordova": {
+    "plugins": {}
   }
 }

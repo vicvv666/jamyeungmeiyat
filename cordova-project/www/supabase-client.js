@@ -142,7 +142,7 @@ async function rsvpParty(partyId, userId, response) {
 window.JYM = {
  _supabaseOnly: true,
  supabase: _supabase,
- auth: { signUp, signIn, signOut, getCurrentUser, getSession, _toEmail: toEmail, _fromEmail: fromEmail },
+ _auth: { signUp, signIn, signOut, getCurrentUser, getSession, _toEmail: toEmail, _fromEmail: fromEmail }, // renamed to _auth so doLogin uses Flask API
  user: { getUserProfile, updateUserProfile },
  checkin: { createCheckin, getCheckins },
  like: { likeCheckin },
