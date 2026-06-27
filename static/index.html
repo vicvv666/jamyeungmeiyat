@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- v=202606272200 -->
+<!-- v=202606272300 -->
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
@@ -300,13 +300,54 @@ var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///an
     errors.push('REJECT: '+(e.reason&&e.reason.message||e.reason));
     // Don't auto-show; only via 5-tap toggle
   });
-  // Capture fetch errors (safely — don't interfere with normal flow)
-  var origFetch=window.fetch;
-  window.fetch=function(){
-    var url=arguments[0];
-    return origFetch.apply(this,arguments).catch(function(e){
-      errors.push('FETCH FAIL: '+url+' '+(e&&e.message||e));
-      throw e;
+  // Override window.fetch with XHR-based polyfill for Android WebView file:// compatibility.
+  // On file:// protocol, native fetch() fails with "Failed to fetch" due to CORS origin=null.
+  // XMLHttpRequest works reliably with setAllowUniversalAccessFromFileURLs(true).
+  window.fetch = function(input, init) {
+    init = init || {};
+    var url = (typeof input === 'string') ? input : (input.url || '');
+    var method = init.method || (input.method) || 'GET';
+    var headers = init.headers || {};
+    var body = init.body || null;
+    if (body && typeof body === 'object') body = JSON.stringify(body);
+    return new Promise(function(resolve, reject) {
+      var xhr = new XMLHttpRequest();
+      xhr.open(method, url, true);
+      // Normalize headers
+      if (headers instanceof Headers) {
+        headers.forEach(function(v, k) { xhr.setRequestHeader(k, v); });
+      } else {
+        for (var k in headers) { if (headers[k]) xhr.setRequestHeader(k, headers[k]); }
+      }
+      xhr.timeout = 30000;
+      xhr.ontimeout = function() { reject(new TypeError('請求超時')); };
+      xhr.onerror = function() {
+        reject(new TypeError('Failed to fetch: ' + url));
+      };
+      xhr.onload = function() {
+        var respText = xhr.responseText || '';
+        var respHeaders = {};
+        try {
+          var headerStr = xhr.getAllResponseHeaders() || '';
+          headerStr.trim().split('\r\n').forEach(function(line) {
+            var idx = line.indexOf(': ');
+            if (idx > 0) respHeaders[line.substring(0, idx).toLowerCase()] = line.substring(idx + 2);
+          });
+        } catch(e) {}
+        var response = {
+          ok: xhr.status >= 200 && xhr.status < 300,
+          status: xhr.status,
+          statusText: xhr.statusText,
+          headers: {
+            get: function(name) { return respHeaders[name.toLowerCase()] || null; }
+          },
+          text: function() { return Promise.resolve(respText); },
+          json: function() { return Promise.resolve(JSON.parse(respText)); },
+          clone: function() { return response; }
+        };
+        resolve(response);
+      };
+      xhr.send(body);
     });
   };
   // Toggle debug with 5 taps
@@ -1951,33 +1992,55 @@ const API_BASE = (()=>{
 })();
 
 // ═══════ API CALL ═══════
-async function api(url,opts={}){
-  const h={};if(token)h['Authorization']='Bearer '+token;
+// Use XMLHttpRequest instead of fetch() — on Android WebView file:// protocol,
+// fetch() fails silently with "Failed to fetch" but XHR works reliably.
+function _xhr(method,url,headers,body,timeout){
+  return new Promise(function(resolve,reject){
+    var xhr=new XMLHttpRequest();
+    xhr.open(method,url,true);
+    for(var k in headers){if(headers[k])xhr.setRequestHeader(k,headers[k]);}
+    xhr.timeout=timeout||15000;
+    xhr.ontimeout=function(){reject(new Error('請求超時'));};
+    xhr.onerror=function(){
+      // On Android WebView file:// this may fire if CORS/network fails
+      var status=xhr.status,msg=xhr.statusText;
+      reject(new Error('Network error'+(status?' ('+status+')':'')+': '+url));
+    };
+    xhr.onload=function(){
+      var txt=xhr.responseText||'';
+      var d;
+      try{d=JSON.parse(txt);}catch(e){
+        reject(new Error('Server error '+(xhr.status||'')));
+        return;
+      }
+      if(xhr.status>=200&&xhr.status<300){
+        d.ok=true;d.status=xhr.status;resolve(d);
+      }else{
+        d.ok=false;d.status=xhr.status;resolve(d); // return error data, don't reject
+      }
+    };
+    xhr.send(body||null);
+  });
+}
+
+async function api(url,opts){
+  opts=opts||{};
+  var h={};if(token)h['Authorization']='Bearer '+token;
   if(adminToken)h['X-Admin-Token']=adminToken;
-  if(opts.body){h['Content-Type']='application/json';if(typeof opts.body==='object')opts.body=JSON.stringify(opts.body)}
-  const furl = API_BASE + url;
-  console.log('API:', furl, opts.method||'GET');
-  const ctrl=new AbortController();
-  const timer=setTimeout(()=>ctrl.abort(),15000);
-  try{
-  const r=await fetch(furl,{method:opts.method||'GET',headers:h,body:opts.body,signal:ctrl.signal});
-  clearTimeout(timer);
-  const txt=await r.text();
-  let d;try{d=JSON.parse(txt)}catch(e){throw new Error('Server error '+(r.status||''))}
-  if(!r.ok){
-    // P0-4: Scene-based upgrade modal — auto-detect limit errors
-    const errMsg=d.error||'Error '+r.status;
-    if((r.status===429||r.status===403)&&memLevel()<3){
-      let reqLv=1;
-      if(errMsg.includes('酒鬼'))reqLv=2;
-      if(errMsg.includes('酒神'))reqLv=3;
-      showUpgradeModal(reqLv);
-    }
-    // Return error data so callers can check r.ok, instead of throwing
-    d.ok=false; d.status=r.status; return d;
+  var bodyData=null;
+  if(opts.body){
+    h['Content-Type']='application/json';
+    bodyData=typeof opts.body==='object'?JSON.stringify(opts.body):opts.body;
   }
-  d.ok=true; return d;
-  }catch(e){clearTimeout(timer);if(e.name==='AbortError')throw new Error('請求超時');throw e;}
+  var furl=API_BASE+url;
+  console.log('API:',furl,opts.method||'GET');
+  try{
+    return await _xhr(opts.method||'GET',furl,h,bodyData,15000);
+  }catch(e){
+    console.error('API error:',furl,e.message);
+    // Check upgrade modal for 429/403 — won't happen here since we resolve those
+    throw e;
+  }
 }
 
 // ═══════ TOAST ═══════
