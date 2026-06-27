@@ -58,3 +58,10 @@ package-lock.jsonstatic/test-login.html
 .vercel
 swas_deploy*.py
 force_deploy.py
+
+# Prevent APK-in-APK — never copy these into cordova www/
+cordova-project/www/*.apk
+cordova-project/platforms/android/app/src/main/assets/www/*.apk
+cordova-project/www/index.html.backup
+cordova-project/www/index_.html
+
