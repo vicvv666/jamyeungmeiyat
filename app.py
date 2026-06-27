@@ -5014,7 +5014,7 @@ def api_config():
         'amap_key': os.environ.get('AMAP_KEY',''),
         'amap_secret': os.environ.get('AMAP_SECRET',''),
         'app_name': '今晚飲咗未',
-        'version': '2.3'
+        'version': '2.5.3'
     })
 
 # ─── AMap Service Proxy (JS API 2.0 security) ────────────

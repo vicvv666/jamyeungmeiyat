@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.vic.jamyeungmeiyat" version="2.5.2" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.vic.jamyeungmeiyat" version="2.5.3" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <name>今晚飲咗未</name>
     <description>飲酒社交打卡 App - 今晚飲咗未？</description>
     <author email="vichoo2020@gmail.com">Vic</author>
@@ -36,4 +36,7 @@
         <splash density="xxhdpi" src="www/res/splash/android/splash-xxhdpi-portrait.png" />
         <splash density="xxxhdpi" src="www/res/splash/android/splash-xxxhdpi-portrait.png" />
     </platform>
+    <feature name="JymySafeArea">
+        <param name="android-package" value="com.vic.jamyeungmeiyat.JymySafeAreaPlugin" />
+    </feature>
 </widget>

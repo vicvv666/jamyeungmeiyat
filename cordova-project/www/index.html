@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<!-- v=202606271613 -->
+<!-- v=202606271639 -->
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<script src="cordova.js"></script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob:; connect-src * https: http:; img-src * file: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
 <meta name="description" content="今晚飲咗未 - 粤语饮酒社交打卡App，酒友打卡、骰子酒局、酒柜收藏、AI推荐、酒吧VIP，粤语文化社区">
   <meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
   <meta property="og:title" content="今晚飲咗未 🍺">
@@ -327,7 +327,7 @@ var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///an
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0D0D12;--card:#1A1A24;--card-hover:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glass-bg:rgba(13,13,18,0.75);--glass-border:rgba(255,255,255,0.06);--max-width:480px;--fs-base:16px;--fs-sm:14px;--fs-xs:12px;--fs-title:24px;--fs-card:17px;--fs-stat:30px}
-body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:calc(120px + env(safe-area-inset-bottom, 0px));overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:calc(120px + var(--safe-b, env(safe-area-inset-bottom, 0px)));overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
 /* Responsive: center content on large screens with max 480px */
 .nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
@@ -338,7 +338,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .tab{flex:1 1 0%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0 3px;color:var(--sub);font-size:11px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;white-space:nowrap;overflow:visible;letter-spacing:-0.2px;line-height:1.3}
 .tab .tab-icon{font-size:20px;margin-bottom:1px;transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s ease;display:inline-block;line-height:1}
 .tab .tab-icon svg{transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s ease}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(18,18,26,0.92);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0;padding-bottom:calc(4px + env(safe-area-inset-bottom, 0px));box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(18,18,26,0.92);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0;padding-bottom:calc(4px + var(--safe-b, env(safe-area-inset-bottom, 0px)));box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .tabs::-webkit-scrollbar{display:none}
 .tab.active{color:var(--amber)}
 .tab.active .tab-icon svg{filter:drop-shadow(0 2px 4px rgba(245,158,11,0.6));transform:translateY(-2px)}
@@ -598,7 +598,7 @@ body.lang-ready{visibility:visible}
 <div class="page active" id="page-checkin">
  <div id="checkin-ug-hint"></div>
  <div class="card" style="padding:0;overflow:hidden;border:none">
-  <img id="cover-img" src="cover.png" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.png'}else{this.style.display='none'}">
+  <img id="cover-img" src="cover.webp" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.webp'}else{this.style.display='none'}">
   <div style="padding:16px">
    <div style="font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">🍺 <span data-i18n="chk_title">今晚飲咗未？</span></div>
    <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px" data-i18n="chk_subtitle">飲酒社交打卡 · 骰盅對决 · 酒局約起</div>
@@ -1930,15 +1930,17 @@ const DICE_SND=(function(){
 (function(){
  if(location.protocol!=='file:')return; // only needed in APK
  var d=document,e=d.documentElement,w=window;
- var _lastSb=0;
+ var _lastSb=-1;
  function applySb(sb){
   if(sb===_lastSb)return;
   _lastSb=sb;
   e.style.setProperty('--safe-b',sb+'px');
+  // Only set via JS — remove the CSS env() so it doesn't double-stack
   var tabs=d.querySelector('.tabs');
   if(tabs)tabs.style.paddingBottom='calc(4px + '+sb+'px)';
   var navH=d.querySelector('.nav')?52:0;
   d.body.style.paddingBottom='calc('+(55+navH)+'px + '+sb+'px)';
+  console.log('[fixBottom] applySb =',sb);
  }
  function fixBottom(){
   var sb=0,envOk=false;
@@ -1949,27 +1951,37 @@ const DICE_SND=(function(){
   var pH=parseInt(w.getComputedStyle(div).paddingBottom);
   d.body.removeChild(div);
   if(pH>0&&pH<900){sb=pH;envOk=true;}
+  console.log('[fixBottom] Method1 env() pH='+pH+' envOk='+envOk);
   // Method 2: Cordova native plugin (async) — most reliable, overrides all
   if(window.JymySafeArea){
    window.JymySafeArea.getSafeAreaBottom(function(v){
     var ns=parseInt(v);
-    if(ns>=0)applySb(ns); // allow 0 (no nav bar phones)
-   },function(){});
-   return; // wait for plugin result, skip Method 3/4
+    console.log('[fixBottom] Method2 plugin val='+v+' ns='+ns);
+    if(ns>=0)applySb(ns);
+   },function(err){console.log('[fixBottom] Method2 plugin err',err);fixBottomFallback(envOk,sb);});
+   return; // wait for plugin result
   }
+  fixBottomFallback(envOk,sb);
+ }
+ function fixBottomFallback(envOk,sb){
   // Method 3: Detect nav bar from screen vs window dimension
+  // Only use this if env() didn't work — and cap the value to 48px max
+  // because screen.height-innerHeight includes status bar + nav bar + other insets
   if(!envOk){
    var screenH=w.screen.height,innerH=w.innerHeight;
    var dpr=w.devicePixelRatio||1;
    var screenPx=screenH*dpr;
    var navBarH=Math.round((screenPx-innerH*dpr)/dpr);
-   if(navBarH>20&&navBarH<200)sb=navBarH;
+   console.log('[fixBottom] Method3 screenH='+screenH+' innerH='+innerH+' dpr='+dpr+' navBarH='+navBarH);
+   // Most Android phones: 3-button nav=48dp, gesture nav=24dp
+   // Cap at 48 to avoid absurd values from status bar inclusion
+   if(navBarH>12&&navBarH<200)sb=Math.min(navBarH,48);
   }
-  // Method 4: Minimal fallback only if nothing detected
+  // Method 4: Gentle fallback — only if nothing else worked
   if(!sb&&!envOk){
-   if(dpr>=2.5)sb=48;
-   else if(dpr>=1.5)sb=44;
-   else sb=40;
+   // Modern phones use gesture nav ≈ 24px, not 40-48px
+   sb=24;
+   console.log('[fixBottom] Method4 fallback sb=24');
   }
   applySb(sb);
  }
@@ -7278,7 +7290,7 @@ async function admLoadAudit(){
  document.getElementById('pa-date').value=new Date().toISOString().split('T')[0];
  // Fix cover image src for APK mode
  if(ASSET_BASE){
- var ci=document.getElementById('cover-img');if(ci)ci.src=ASSET_BASE+'/cover.png';
+ var ci=document.getElementById('cover-img');if(ci)ci.src=ASSET_BASE+'/cover.webp';
  // APK 內部模式：隐藏 APK 下載按钮（已經喺 App 入麵）
  var al=document.getElementById('apk-dl-link');if(al){var card=al.closest('.card');if(card)card.style.display='none';}
  }

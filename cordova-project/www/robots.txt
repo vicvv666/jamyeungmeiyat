@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Allow: /sitemap.xml
+Allow: /manifest.json
+Disallow: /api/
+Disallow: /uploads/
+Disallow: /apk/
+
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 2
+
+Sitemap: https://drunk.vic999.com/sitemap.xml
