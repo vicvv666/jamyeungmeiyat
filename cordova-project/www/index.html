@@ -3,6 +3,7 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob:; connect-src * https: http:; img-src * file: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
 <meta name="description" content="今晚飲咗未 - 粤语饮酒社交打卡App，酒友打卡、骰子酒局、酒柜收藏、AI推荐、酒吧VIP，粤语文化社区">
   <meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
   <meta property="og:title" content="今晚飲咗未 🍺">
@@ -143,7 +144,7 @@
     "price": "0",
     "priceCurrency": "HKD"
   },
-  "installUrl": "https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk",
+  "installUrl": "https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk",
   "image": "https://drunk.vic999.com/cover-480.webp",
   "aggregateRating": {
     "@type": "AggregateRating",
@@ -202,7 +203,7 @@
       "name": "點樣下載今晚飲咗未App？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "可以透過浏览器直接使用，或者下載Android APK安裝。下載鏈接：https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk"
+        "text": "可以透過浏览器直接使用，或者下載Android APK安裝。下載鏈接：https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk"
       }
     },
     {
@@ -326,7 +327,7 @@ var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///an
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--bg:#0D0D12;--card:#1A1A24;--card-hover:#23233A;--border:#2A2A3A;--amber:#F59E0B;--purple:#8B5CF6;--pink:#EC4899;--green:#10B981;--red:#EF4444;--text:#E4E4E7;--sub:#71717A;--glass-bg:rgba(13,13,18,0.75);--glass-border:rgba(255,255,255,0.06);--max-width:480px;--fs-base:16px;--fs-sm:14px;--fs-xs:12px;--fs-title:24px;--fs-card:17px;--fs-stat:30px}
-body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:120px;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
+body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;padding-bottom:calc(120px + env(safe-area-inset-bottom, 0px));overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior-y:contain;font-size:var(--fs-base);line-height:1.5}
 /* Responsive: center content on large screens with max 480px */
 .nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
@@ -337,7 +338,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .tab{flex:1 1 0%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4px 0 3px;color:var(--sub);font-size:11px;cursor:pointer;border:none;background:none;position:relative;transition:color .3s ease;-webkit-tap-highlight-color:transparent;user-select:none;min-width:0;white-space:nowrap;overflow:visible;letter-spacing:-0.2px;line-height:1.3}
 .tab .tab-icon{font-size:20px;margin-bottom:1px;transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s ease;display:inline-block;line-height:1}
 .tab .tab-icon svg{transition:transform .3s cubic-bezier(.34,1.56,.64,1),filter .3s ease}
-.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(18,18,26,0.92);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0 env(safe-area-inset-bottom);box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.tabs{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(18,18,26,0.92);-webkit-backdrop-filter:blur(24px) saturate(1.8);backdrop-filter:blur(24px) saturate(1.8);border-top:1px solid var(--glass-border);display:flex;flex-wrap:nowrap;padding:2px 0;padding-bottom:calc(4px + env(safe-area-inset-bottom, 0px));box-shadow:0 -1px 12px rgba(0,0,0,0.3);overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .tabs::-webkit-scrollbar{display:none}
 .tab.active{color:var(--amber)}
 .tab.active .tab-icon svg{filter:drop-shadow(0 2px 4px rgba(245,158,11,0.6));transform:translateY(-2px)}
@@ -610,8 +611,8 @@ body.lang-ready{visibility:visible}
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header" data-i18n="download_title">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px"><span data-i18n="download_hint">喺手機安装 App 體驗更佳！</span></div>
-  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 5.0+ · v2.4.0 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a></div>
+  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
+  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 7.0+ · v2.5.1 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a></div>
  </div>
  <!-- Legal Footer on main page -->
  <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
@@ -899,8 +900,8 @@ body.lang-ready{visibility:visible}
     <div style="font-size:28px;margin-bottom:6px">📱</div>
     <div style="font-weight:700;font-size:14px;margin-bottom:4px" data-i18n="apk_download_title">下載 Android App</div>
     <div style="font-size:11px;color:var(--sub);margin-bottom:10px" data-i18n="apk_download_desc">更好體驗 · 離線打卡 · 推送通知</div>
-    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download><span data-i18n="dl_apk">🚀 下載 APK</span> <span id="apk-ver">v2.4.0</span></a>
-    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.4.0/app-release.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a> · Android 5.0+</div>
+    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download><span data-i18n="dl_apk">🚀 下載 APK</span> <span id="apk-ver">v2.5.1</span></a>
+    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a> · Android 7.0+</div>
   </div>
   <!-- My Checkins -->
   <div class="card" style="margin-top:8px;border:1.5px solid var(--amber);background:rgba(245,158,11,0.04)">
@@ -1923,6 +1924,36 @@ const DICE_SND=(function(){
 
 // ═══════ ASSET BASE (already defined in <head> for cover img) ═══════
 // ASSET_BASE is defined in <head> as var, don't redeclare with const
+
+
+// ═══════ Safe-Area Bottom Fix for Android APK ═══════
+(function(){
+ if(location.protocol!=='file:')return; // only needed in APK
+ var d=document,e=d.documentElement,w=window;
+ function fixBottom(){
+  var sb=0;
+  // Try native env() support
+  var div=d.createElement('div');
+  div.style.cssText='padding-bottom:env(safe-area-inset-bottom,999px);position:fixed;visibility:hidden';
+  d.body.appendChild(div);
+  var pH=parseInt(w.getComputedStyle(div).paddingBottom);
+  d.body.removeChild(div);
+  if(pH>0&&pH<900){sb=pH}
+  else{
+   // Fallback: detect system bar height
+   var diff=w.outerHeight-w.innerHeight;
+   if(diff>20)sb=diff;
+  }
+  if(sb>0){
+   e.style.setProperty('--safe-b',sb+'px');
+   var tabs=d.querySelector('.tabs');
+   if(tabs)tabs.style.paddingBottom='calc(4px + '+sb+'px)';
+  }
+ }
+ if(d.readyState==='complete')fixBottom();
+ else w.addEventListener('load',fixBottom);
+ w.addEventListener('resize',fixBottom);
+})();
 
 // ═══════ API_BASE ═══════
 const API_BASE = (()=>{
@@ -3080,7 +3111,7 @@ const L={
   dice_rolling:'搖緊...',
   dice_result:'擲出',
   dice_pts:'點 🎉',
-  dice_again:'🍻 再搖！',
+  dice_again:'🍻 再搖！',dice_tap_hint:'👇 點擊搖骰',
   dice_round:'第',
   dice_round_suffix:'轮',
   btn_edit:'編辑',
@@ -3978,7 +4009,7 @@ const L={
   dice_rolling:'摇紧...',
   dice_result:'已摇出',
   dice_pts:' pts 🎉',
-  dice_again:'🍻 再摇！',
+  dice_again:'🍻 再摇！',dice_tap_hint:'👇 点击摇骰',
   dice_round:'第',
   dice_round_suffix:'',
   btn_edit:'编辑',
@@ -4876,7 +4907,7 @@ const L={
   dice_rolling:'Rolling...',
   dice_result:'Rolled',
   dice_pts:'pts',
-  dice_again:'🍻 Roll Again!',
+  dice_again:'🍻 Roll Again!',dice_tap_hint:'👇 Tap to Roll',
   dice_round:'Rd ',
   dice_round_suffix:'',
   btn_edit:'Edit',
@@ -7366,18 +7397,18 @@ function renderDice3D(n){
  var area=document.getElementById('dice-area');
  if(!area)return;
  area.innerHTML='';_diceVals=[];
- // Show single brand cover die before shaking
- var coverDie=document.createElement('div');
- coverDie.id='dice-cover';
- coverDie.style.cssText='width:88px;height:88px;margin:0 auto;border-radius:16px;overflow:hidden;box-shadow:0 6px 24px rgba(245,158,11,0.35),0 0 0 2px rgba(245,158,11,0.2),0 0 50px rgba(139,92,246,0.12);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s;cursor:pointer;position:relative;background:#1a1a2e;border:2px solid rgba(245,158,11,0.3)';
- coverDie.innerHTML='<div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(139,92,246,0.08));z-index:1;border-radius:14px"></div><img src="'+(ASSET_BASE||API_BASE)+'/dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:14px;position:relative;z-index:0" onerror="if(this.src.indexOf(API_BASE)<0){this.src=API_BASE+\'/dice-cover.webp\'}else{this.style.display=\'none\'}">';
- coverDie.onmouseenter=function(){this.style.transform='scale(1.06) rotate(2deg)'};
- coverDie.onmouseleave=function(){this.style.transform='scale(1)'};
- // Subtle breathing animation
+ // Show brand cover image before shaking
+ var coverWrap=document.createElement('div');
+ coverWrap.id='dice-cover';
+ coverWrap.style.cssText='width:200px;height:200px;margin:0 auto 10px;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(245,158,11,0.4),0 0 0 3px rgba(245,158,11,0.25),0 0 80px rgba(139,92,246,0.15);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s;cursor:pointer;position:relative;background:#1a1a2e;border:2px solid rgba(245,158,11,0.3)';
+ coverWrap.innerHTML='<img src="dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:18px;display:block" onerror="if(this.src.indexOf(\'drunk.vic999.com\')<0){this.src=API_BASE+\'/dice-cover.webp\'}else{this.parentElement.innerHTML=\'🎲\'}"><div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,0.6);font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.8)" data-i18n="dice_tap_hint">👇 點擊搖骰</div>';
+ coverWrap.onmouseenter=function(){this.style.transform='scale(1.04) rotate(1deg)'};
+ coverWrap.onmouseleave=function(){this.style.transform='scale(1)'};
+ // Breathing animation for cover
  var breathStyle=document.createElement('style');
- breathStyle.textContent='#dice-cover{animation:diceBreath 2.5s ease-in-out infinite}@keyframes diceBreath{0%,100%{box-shadow:0 6px 24px rgba(245,158,11,0.35),0 0 0 2px rgba(245,158,11,0.2)}50%{box-shadow:0 6px 32px rgba(245,158,11,0.5),0 0 0 3px rgba(245,158,11,0.35),0 0 60px rgba(139,92,246,0.2)}}';
+ breathStyle.textContent='#dice-cover{animation:diceBreath 2.5s ease-in-out infinite}@keyframes diceBreath{0%,100%{box-shadow:0 8px 40px rgba(245,158,11,0.4),0 0 0 3px rgba(245,158,11,0.25)}50%{box-shadow:0 8px 50px rgba(245,158,11,0.6),0 0 0 4px rgba(245,158,11,0.4),0 0 100px rgba(139,92,246,0.25)}}';
  document.head.appendChild(breathStyle);
- area.appendChild(coverDie);
+ area.appendChild(coverWrap);
 }
 
 function create2DDice(val){

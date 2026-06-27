@@ -111,8 +111,8 @@ def _security_check():
     # Anti-CSRF: check Origin for POST/PUT/DELETE (allow APK WebView null origin)
     if request.method in ('POST','PUT','DELETE') and request.content_type and 'json' in request.content_type:
         origin = request.headers.get('Origin','')
-        if origin and origin not in _ALLOWED_ORIGINS:
-            # APK WebView sends empty/null origin — allow if no Origin header
+        # APK WebView sends file:// or null origin — allow these through
+        if origin and origin not in _ALLOWED_ORIGINS and not origin.startswith('file') and origin != 'null':
             return jsonify({'error':'非法來源'}), 403
 
 @app.after_request
@@ -123,8 +123,14 @@ def gzip_response(response):
     if origin in _ALLOWED_ORIGINS:
         response.headers['Access-Control-Allow-Origin'] = origin
         response.headers['Vary'] = 'Origin'
-    # APK WebView / same-origin: no Origin header → no CORS header needed (same-origin request)
-    # Unknown origin → no CORS header → browser blocks the request (security)
+    elif origin.startswith('file') or origin == 'null' or not origin:
+        # APK WebView: allow with wildcard
+        response.headers['Access-Control-Allow-Origin'] = '*'
+    # Handle CORS preflight (OPTIONS) for APK WebView
+    if request.method == 'OPTIONS':
+        response.headers['Access-Control-Allow-Origin'] = '*'
+        response.status_code = 204
+        return response
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Admin-Token'
     response.headers['Access-Control-Max-Age'] = '86400'
