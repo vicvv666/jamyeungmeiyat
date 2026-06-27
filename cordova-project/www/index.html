@@ -3,7 +3,8 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob:; connect-src * https: http:; img-src * file: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
+<script src="cordova.js"></script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob: gap: https://ssl.gstatic.com; connect-src * https: http:; img-src * file: data: blob: content:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file: gap:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
 <meta name="description" content="今晚飲咗未 - 粤语饮酒社交打卡App，酒友打卡、骰子酒局、酒柜收藏、AI推荐、酒吧VIP，粤语文化社区">
   <meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
   <meta property="og:title" content="今晚飲咗未 🍺">
@@ -144,7 +145,7 @@
     "price": "0",
     "priceCurrency": "HKD"
   },
-  "installUrl": "https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk",
+  "installUrl": "https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.2/jamyeungmeiyat-v2.5.2.apk",
   "image": "https://drunk.vic999.com/cover-480.webp",
   "aggregateRating": {
     "@type": "AggregateRating",
@@ -203,7 +204,7 @@
       "name": "點樣下載今晚飲咗未App？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "可以透過浏览器直接使用，或者下載Android APK安裝。下載鏈接：https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk"
+        "text": "可以透過浏览器直接使用，或者下載Android APK安裝。下載鏈接：https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.2/jamyeungmeiyat-v2.5.2.apk"
       }
     },
     {
@@ -611,8 +612,8 @@ body.lang-ready{visibility:visible}
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header" data-i18n="download_title">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px"><span data-i18n="download_hint">喺手機安装 App 體驗更佳！</span></div>
-  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 7.0+ · v2.5.1 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a></div>
+  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.2/jamyeungmeiyat-v2.5.2.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
+  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 7.0+ · v2.5.2 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.2/jamyeungmeiyat-v2.5.2.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a></div>
  </div>
  <!-- Legal Footer on main page -->
  <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
@@ -900,8 +901,8 @@ body.lang-ready{visibility:visible}
     <div style="font-size:28px;margin-bottom:6px">📱</div>
     <div style="font-weight:700;font-size:14px;margin-bottom:4px" data-i18n="apk_download_title">下載 Android App</div>
     <div style="font-size:11px;color:var(--sub);margin-bottom:10px" data-i18n="apk_download_desc">更好體驗 · 離線打卡 · 推送通知</div>
-    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download><span data-i18n="dl_apk">🚀 下載 APK</span> <span id="apk-ver">v2.5.1</span></a>
-    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.1/jamyeungmeiyat-v2.5.1.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a> · Android 7.0+</div>
+    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.2/jamyeungmeiyat-v2.5.2.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download><span data-i18n="dl_apk">🚀 下載 APK</span> <span id="apk-ver">v2.5.2</span></a>
+    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.2/jamyeungmeiyat-v2.5.2.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a> · Android 7.0+</div>
   </div>
   <!-- My Checkins -->
   <div class="card" style="margin-top:8px;border:1.5px solid var(--amber);background:rgba(245,158,11,0.04)">
@@ -1930,29 +1931,51 @@ const DICE_SND=(function(){
 (function(){
  if(location.protocol!=='file:')return; // only needed in APK
  var d=document,e=d.documentElement,w=window;
+ var _lastSb=0;
+ function applySb(sb){
+  if(sb===_lastSb)return;
+  _lastSb=sb;
+  e.style.setProperty('--safe-b',sb+'px');
+  var tabs=d.querySelector('.tabs');
+  if(tabs)tabs.style.paddingBottom='calc(4px + '+sb+'px)';
+  var navH=d.querySelector('.nav')?52:0;
+  d.body.style.paddingBottom='calc('+(55+navH)+'px + '+sb+'px)';
+ }
  function fixBottom(){
   var sb=0;
-  // Try native env() support
+  // Method 1: Try CSS env()
   var div=d.createElement('div');
-  div.style.cssText='padding-bottom:env(safe-area-inset-bottom,999px);position:fixed;visibility:hidden';
+  div.style.cssText='padding-bottom:env(safe-area-inset-bottom,999px);position:fixed;visibility:hidden;pointer-events:none';
   d.body.appendChild(div);
   var pH=parseInt(w.getComputedStyle(div).paddingBottom);
   d.body.removeChild(div);
-  if(pH>0&&pH<900){sb=pH}
-  else{
-   // Fallback: detect system bar height
-   var diff=w.outerHeight-w.innerHeight;
-   if(diff>20)sb=diff;
+  if(pH>0&&pH<900)applySb(pH);
+  // Method 2: Cordova native plugin (async) — most reliable
+  if(window.JymySafeArea){
+   window.JymySafeArea.getSafeAreaBottom(function(v){
+    var ns=parseInt(v);
+    if(ns>0)applySb(ns);
+   },function(){});
   }
-  if(sb>0){
-   e.style.setProperty('--safe-b',sb+'px');
-   var tabs=d.querySelector('.tabs');
-   if(tabs)tabs.style.paddingBottom='calc(4px + '+sb+'px)';
+  // Method 3: Detect nav bar from screen vs window dimension
+  var screenH=w.screen.height,innerH=w.innerHeight;
+  var dpr=w.devicePixelRatio||1;
+  var screenPx=screenH*dpr;
+  var navBarH=Math.round((screenPx-innerH*dpr)/dpr);
+  if(navBarH>20&&navBarH<200)sb=navBarH;
+  // Method 4: Common Android nav bar heights as fallback
+  if(!sb){
+   if(dpr>=2.5)sb=48;
+   else if(dpr>=1.5)sb=44;
+   else sb=40;
   }
+  applySb(sb);
  }
+ fixBottom();
  if(d.readyState==='complete')fixBottom();
  else w.addEventListener('load',fixBottom);
  w.addEventListener('resize',fixBottom);
+ w.addEventListener('load',function(){setTimeout(fixBottom,500);setTimeout(fixBottom,1500)});
 })();
 
 // ═══════ API_BASE ═══════
