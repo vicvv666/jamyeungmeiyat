@@ -3,6 +3,7 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob:; connect-src * https: http:; img-src * file: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
 <meta name="description" content="今晚飲咗未 - 粤语饮酒社交打卡App，酒友打卡、骰子酒局、酒柜收藏、AI推荐、酒吧VIP，粤语文化社区">
   <meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
   <meta property="og:title" content="今晚飲咗未 🍺">
@@ -1923,6 +1924,36 @@ const DICE_SND=(function(){
 
 // ═══════ ASSET BASE (already defined in <head> for cover img) ═══════
 // ASSET_BASE is defined in <head> as var, don't redeclare with const
+
+
+// ═══════ Safe-Area Bottom Fix for Android APK ═══════
+(function(){
+ if(location.protocol!=='file:')return; // only needed in APK
+ var d=document,e=d.documentElement,w=window;
+ function fixBottom(){
+  var sb=0;
+  // Try native env() support
+  var div=d.createElement('div');
+  div.style.cssText='padding-bottom:env(safe-area-inset-bottom,999px);position:fixed;visibility:hidden';
+  d.body.appendChild(div);
+  var pH=parseInt(w.getComputedStyle(div).paddingBottom);
+  d.body.removeChild(div);
+  if(pH>0&&pH<900){sb=pH}
+  else{
+   // Fallback: detect system bar height
+   var diff=w.outerHeight-w.innerHeight;
+   if(diff>20)sb=diff;
+  }
+  if(sb>0){
+   e.style.setProperty('--safe-b',sb+'px');
+   var tabs=d.querySelector('.tabs');
+   if(tabs)tabs.style.paddingBottom='calc(4px + '+sb+'px)';
+  }
+ }
+ if(d.readyState==='complete')fixBottom();
+ else w.addEventListener('load',fixBottom);
+ w.addEventListener('resize',fixBottom);
+})();
 
 // ═══════ API_BASE ═══════
 const API_BASE = (()=>{
@@ -7370,7 +7401,7 @@ function renderDice3D(n){
  var coverWrap=document.createElement('div');
  coverWrap.id='dice-cover';
  coverWrap.style.cssText='width:200px;height:200px;margin:0 auto 10px;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(245,158,11,0.4),0 0 0 3px rgba(245,158,11,0.25),0 0 80px rgba(139,92,246,0.15);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s;cursor:pointer;position:relative;background:#1a1a2e;border:2px solid rgba(245,158,11,0.3)';
- coverWrap.innerHTML='<img src="'+(ASSET_BASE||API_BASE)+'/dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:18px;display:block" onerror="this.src=\'dice-cover.webp\'"><div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,0.6);font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.8)" data-i18n="dice_tap_hint">👇 點擊搖骰</div>';
+ coverWrap.innerHTML='<img src="dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:18px;display:block" onerror="if(this.src.indexOf(\'drunk.vic999.com\')<0){this.src=API_BASE+\'/dice-cover.webp\'}else{this.parentElement.innerHTML=\'🎲\'}"><div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,0.6);font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.8)" data-i18n="dice_tap_hint">👇 點擊搖骰</div>';
  coverWrap.onmouseenter=function(){this.style.transform='scale(1.04) rotate(1deg)'};
  coverWrap.onmouseleave=function(){this.style.transform='scale(1)'};
  // Breathing animation for cover
