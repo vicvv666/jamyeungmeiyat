@@ -10,6 +10,8 @@ REMOTE_DIR = '/opt/jamyeungmeiyat'
 FILES = [
     ('app.py', 'app.py'),
     ('static/index.html', 'static/index.html'),
+    ('static/dice-cover.webp', 'static/dice-cover.webp'),
+    ('static/cover.png', 'static/cover.png'),
 ]
 
 local_base = os.path.dirname(os.path.abspath(__file__))
@@ -27,7 +29,9 @@ sftp = ssh.open_sftp()
 
 # Ensure remote directories exist
 stdin, stdout, stderr = ssh.exec_command(f'mkdir -p {REMOTE_DIR}/static {REMOTE_DIR}/static/uploads')
-stdout.read()
+exit_code = stdout.channel.recv_exit_status()  # Wait for command to finish
+if exit_code != 0:
+    print(f"mkdir warning: {stderr.read().decode().strip()}")
 
 for local_rel, remote_rel in FILES:
     local_path = os.path.join(local_base, local_rel)
@@ -40,7 +44,18 @@ for local_rel, remote_rel in FILES:
     try:
         sftp.stat(rdir)
     except FileNotFoundError:
-        ssh.exec_command(f'mkdir -p {rdir}')
+        # Use sync mkdir via SFTP itself
+        parts = rdir.split('/')
+        cur = ''
+        for p in parts:
+            cur = cur + '/' + p if cur else '/' + p
+            try:
+                sftp.stat(cur)
+            except FileNotFoundError:
+                try:
+                    sftp.mkdir(cur)
+                except:
+                    pass
     sftp.put(local_path, remote_path)
     sz = os.path.getsize(local_path)
     print(f"  Uploaded: {local_rel} ({sz:,} bytes)")
