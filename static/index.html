@@ -1935,11 +1935,8 @@ const DICE_SND=(function(){
   if(sb===_lastSb)return;
   _lastSb=sb;
   e.style.setProperty('--safe-b',sb+'px');
-  // Only set via JS — remove the CSS env() so it doesn't double-stack
-  var tabs=d.querySelector('.tabs');
-  if(tabs)tabs.style.paddingBottom='calc(4px + '+sb+'px)';
-  var navH=d.querySelector('.nav')?52:0;
-  d.body.style.paddingBottom='calc('+(55+navH)+'px + '+sb+'px)';
+  // CSS already uses var(--safe-b) for body.padding-bottom and .tabs.padding-bottom
+  // Just set the variable — do NOT double-apply inline styles
   console.log('[fixBottom] applySb =',sb);
  }
  function fixBottom(){

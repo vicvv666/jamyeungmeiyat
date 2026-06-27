@@ -124,11 +124,23 @@ def gzip_response(response):
         response.headers['Access-Control-Allow-Origin'] = origin
         response.headers['Vary'] = 'Origin'
     elif origin.startswith('file') or origin == 'null' or not origin:
-        # APK WebView: allow with wildcard
-        response.headers['Access-Control-Allow-Origin'] = '*'
+        # APK WebView: use explicit origin (echo back 'null') — cannot use '*' with credentials
+        response.headers['Access-Control-Allow-Origin'] = 'null'
+        response.headers['Vary'] = 'Origin'
     # Handle CORS preflight (OPTIONS) for APK WebView
     if request.method == 'OPTIONS':
-        response.headers['Access-Control-Allow-Origin'] = '*'
+        # Match the origin logic above — avoid '*' + credentials conflict
+        if origin in _ALLOWED_ORIGINS:
+            response.headers['Access-Control-Allow-Origin'] = origin
+        elif origin.startswith('file') or origin == 'null' or not origin:
+            response.headers['Access-Control-Allow-Origin'] = 'null'
+        else:
+            response.headers['Access-Control-Allow-Origin'] = '*'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization, X-Admin-Token'
+        response.headers['Access-Control-Max-Age'] = '86400'
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Content-Length'] = '0'
         response.status_code = 204
         return response
     response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
@@ -161,7 +173,7 @@ def gzip_response(response):
     response.headers['Strict-Transport-Security'] = 'max-age=63072000; includeSubDomains; preload'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
-    response.headers['Cross-Origin-Resource-Policy'] = 'same-site'
+    response.headers['Cross-Origin-Resource-Policy'] = 'cross-origin'
     response.headers['X-Permitted-Cross-Domain-Policies'] = 'none'
 
     # ── GZIP for JSON ──
