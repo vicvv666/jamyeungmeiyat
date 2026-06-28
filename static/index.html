@@ -3,22 +3,20 @@
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' file: data: blob:; connect-src * https: http: file:; img-src * file: data: blob:; script-src 'self' 'unsafe-inline' 'unsafe-eval' file:; style-src 'self' 'unsafe-inline' file:; font-src * file: data:; media-src *;">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+<meta http-equiv="Permissions-Policy" content="camera=(self),microphone=(),geolocation=(self)">
 <meta name="description" content="今晚飲咗未 - 粤语饮酒社交打卡App，酒友打卡、骰子酒局、酒柜收藏、AI推荐、酒吧VIP，粤语文化社区">
-  <meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
-  <meta property="og:title" content="今晚飲咗未 🍺">
-  <meta property="og:description" content="粤语饮酒社交打卡App — 酒友打卡、骰子酒局、酒柜收藏、AI推荐">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://drunk.vic999.com/">
-  <meta property="og:image" content="https://drunk.vic999.com/icon-192.png">
-  <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="今晚飲咗未 🍺">
-  <meta name="twitter:description" content="粤语饮酒社交打卡App">
-  <link rel="canonical" href="https://drunk.vic999.com/">
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="SAMEORIGIN">
-  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-  <meta http-equiv="Permissions-Policy" content="camera=(self),microphone=(),geolocation=(self)">
+<meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
+<meta property="og:title" content="今晚飲咗未 🍺">
+<meta property="og:description" content="粤语饮酒社交打卡App — 酒友打卡、骰子酒局、酒柜收藏、AI推荐">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://drunk.vic999.com/">
+<meta property="og:image" content="https://drunk.vic999.com/icon-192.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="今晚飲咗未 🍺">
+<meta name="twitter:description" content="粤语饮酒社交打卡App">
+<link rel="canonical" href="https://drunk.vic999.com/">
   <meta name="robots" content="index, follow">
   <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#0D0D12">
@@ -80,8 +78,8 @@
 <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png">
 <meta name="apple-touch-startup-image" content="https://drunk.vic999.com/cover-480.webp">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
 
 <!-- ─── Structured Data (JSON-LD) ──────────────────── -->
 <script type="application/ld+json">
@@ -6592,7 +6590,6 @@ async function loadAnnualReport(){
    +'</div>';
  }catch(e){body.innerHTML='<div style="color:var(--red);padding:8px">❌ '+esc(e.message||'加載失败')+'</div>'}
  }
-}
 
 // ═══════ FRIEND PROFILE MODAL ═══════
 function showMemFriend(uid){
