@@ -33,6 +33,18 @@ ADMIN_TOKEN  = os.environ.get('ADMIN_TOKEN', uuid.uuid4().hex)
 for d in [DB_PATH.parent, UPLOAD_DIR, OUTPUT_DIR]:
     d.mkdir(parents=True, exist_ok=True)
 
+# ── AMap keys (hardcoded primary; env override for rotation) ──
+_AMAP_KEY    = 'b2f537f65a3b066f052122367c05c72e'
+_AMAP_SECRET = 'b62580ce0ec71e3814045a58c9bc4583'
+def _amap_key():
+    """Return AMap JS key; prefer hardcoded, fall back to env."""
+    v = os.environ.get('AMAP_KEY','')
+    return v if v else _AMAP_KEY
+def _amap_secret():
+    """Return AMap security code; prefer hardcoded, fall back to env."""
+    v = os.environ.get('AMAP_SECRET','')
+    return v if v else _AMAP_SECRET
+
 app = Flask(__name__, static_folder='static', static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY', uuid.uuid4().hex + uuid.uuid4().hex)
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
@@ -5018,8 +5030,8 @@ def api_map_nearby_venues():
 def api_config():
     """公开配置（无需登录）"""
     return jsonify({
-        'amap_key': os.environ.get('AMAP_KEY','b2f537f65a3b066f052122367c05c72e'),
-        'amap_secret': os.environ.get('AMAP_SECRET','b62580ce0ec71e3814045a58c9bc4583'),
+        'amap_key': _amap_key(),
+        'amap_secret': _amap_secret(),
         'app_name': '今晚飲咗未',
         'version': '2.5.7'
     })
@@ -5030,7 +5042,7 @@ import urllib.request as urllib2
 @app.route('/_AMapService/<path:path>', methods=['GET','POST'])
 def amap_proxy(path):
     """Proxy AMap REST API requests (security mode 2)"""
-    amap_key = os.environ.get('AMAP_KEY','b2f537f65a3b066f052122367c05c72e')
+    amap_key = _amap_key()
     qs = request.query_string.decode() if request.query_string else ''
     target = f'https://restapi.amap.com/{path}?{qs}'
     if 'key=' not in target:
@@ -5056,8 +5068,8 @@ def amap_sdk_proxy():
     if hasattr(app, _cache_key) and hasattr(app, _cache_ts_key):
         if _time.time() - getattr(app, _cache_ts_key) < 3600:
             return Response(getattr(app, _cache_key), status=200, content_type='application/javascript; charset=utf-8')
-    amap_key = os.environ.get('AMAP_KEY','b2f537f65a3b066f052122367c05c72e')
-    amap_secret = os.environ.get('AMAP_SECRET','b62580ce0ec71e3814045a58c9bc4583')
+    amap_key = _amap_key()
+    amap_secret = _amap_secret()
     url = f'https://webapi.amap.com/maps?v=1.4.15&key={amap_key}&plugin=AMap.HeatMap,AMap.MarkerCluster,AMap.Geolocation'
     try:
         req = urllib2.Request(url)
