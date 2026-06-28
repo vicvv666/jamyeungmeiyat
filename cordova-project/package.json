@@ -14,9 +14,15 @@
   "license": "Apache-2.0",
   "devDependencies": {
     "cordova-android": "^15.0.0",
-    "jymy-safearea": "file:plugins/jymy-safearea"
+    "jymy-safearea": "file:plugins/jymy-safearea",
+    "cordova-plugin-camera": "^5.0.0",
+    "cordova-plugin-android-permissions": "^1.0.0"
   },
   "cordova": {
-    "plugins": {}
-  }
+    "plugins": {
+      "cordova-plugin-camera": {},
+      "cordova-plugin-android-permissions": {}
+    }
+  },
+  "dependencies": {}
 }
