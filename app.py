@@ -174,7 +174,7 @@ def gzip_response(response):
             "form-action 'self'; "
             "object-src 'none'; "
             "upgrade-insecure-requests; "
-            "frame-ancestors 'none'"
+            "frame-ancestors 'self'"
         )
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-XSS-Protection'] = '1; mode=block'
