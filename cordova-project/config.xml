@@ -3,7 +3,7 @@
     <name>今晚飲咗未</name>
     <description>飲酒社交打卡 App - 今晚飲咗未？</description>
     <author email="vichoo2020@gmail.com">Vic</author>
-    <content src="https://drunk.vic999.com/" />
+    <content src="index.html" />
     <access origin="*" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
