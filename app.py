@@ -130,6 +130,8 @@ def _security_check():
 @app.after_request
 def gzip_response(response):
     """Add security headers and compress JSON responses with GZIP if supported."""
+    # ── Remove Content-Disposition that send_from_directory auto-adds ──
+    response.headers.pop('Content-Disposition', None)
     # ── CORS headers (restrict to known origins, support APK WebView) ──
     origin = request.headers.get('Origin','')
     if origin in _ALLOWED_ORIGINS:
@@ -3390,6 +3392,7 @@ def index():
     resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     resp.headers['Pragma'] = 'no-cache'
     resp.headers['Expires'] = '0'
+    resp.headers.pop('Content-Disposition', None)
     return resp
 
 @app.route('/manifest.json')

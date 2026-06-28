@@ -294,10 +294,16 @@ var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///an
   }
   window.onerror=function(msg,url,line,col,err){
     errors.push('ERROR: '+msg+' (line '+line+')');
-    // Don't auto-show; only via 5-tap toggle
+    // In Cordova WebView, auto-show debug panel on first error
+    if(window._cordovaNative || navigator.userAgent.indexOf('wv')!==-1){
+      showDebug();
+    }
   };
   window.addEventListener('unhandledrejection',function(e){
     errors.push('REJECT: '+(e.reason&&e.reason.message||e.reason));
+    if(window._cordovaNative || navigator.userAgent.indexOf('wv')!==-1){
+      showDebug();
+    }
     // Don't auto-show; only via 5-tap toggle
   });
   // Override window.fetch with XHR-based polyfill for Android WebView file:// compatibility.
