@@ -165,11 +165,11 @@ def gzip_response(response):
     if 'Content-Security-Policy' not in response.headers:
         response.headers['Content-Security-Policy'] = (
             "default-src 'self' data: blob:; "
-            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://webapi.amap.com; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-            "img-src 'self' data: blob: https: http:; "
+            "img-src 'self' data: blob: https: http: https://*.autonavi.com https://*.basemaps.cartocdn.com; "
             "font-src 'self' https://fonts.gstatic.com https://fonts.googleapis.com; "
-            "connect-src 'self' https://drunk.vic999.com https://*.vic999.com https://cdn.jsdelivr.net; "
+            "connect-src 'self' https://drunk.vic999.com https://*.vic999.com https://cdn.jsdelivr.net https://webapi.amap.com https://restapi.amap.com https://*.basemaps.cartocdn.com https://tile.openstreetmap.org https://webrd0*.is.autonavi.com; "
             "media-src 'self' blob: https://drunk.vic999.com; "
             "manifest-src 'self'; "
             "base-uri 'self'; "
@@ -183,7 +183,7 @@ def gzip_response(response):
     if 'X-Frame-Options' not in response.headers:
         response.headers['X-Frame-Options'] = 'SAMEORIGIN'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    response.headers['Permissions-Policy'] = 'geolocation=(self), camera=(self), microphone=(), document-domain=(), sync-xhr=()'
+    response.headers['Permissions-Policy'] = 'geolocation=(self https:), camera=(self https:), microphone=(), document-domain=(), sync-xhr=()'
     response.headers['Strict-Transport-Security'] = 'max-age=63072000; includeSubDomains; preload'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Cross-Origin-Opener-Policy'] = 'same-origin-allow-popups'
@@ -3412,6 +3412,28 @@ def robots_txt():
 @app.route('/sitemap.xml')
 def static_sitemap():
     return send_from_directory(str(PWA_DIR), 'sitemap.xml')
+
+# ── APK Download (X-Accel-Redirect via nginx) ──
+@app.route('/api/download/apk')
+def api_download_apk():
+    """Stream APK via nginx X-Accel-Redirect — avoids gunicorn buffering 8MB."""
+    apk_name = 'jamyeungmeiyat.apk'
+    apk_path = PWA_DIR / apk_name
+    if not apk_path.exists():
+        return jsonify({'error': 'APK not found'}), 404
+    resp = Response(status=200)
+    resp.headers['X-Accel-Redirect'] = '/internal-apk/' + apk_name
+    resp.headers['Content-Type'] = 'application/vnd.android.package-archive'
+    resp.headers['Content-Length'] = str(apk_path.stat().st_size)
+    # Show version in filename for browser downloads; strip for WebView
+    ua = request.headers.get('User-Agent', '')
+    is_webview = 'wv' in ua.lower() or 'android' in ua.lower() and 'chrome' not in ua.lower()
+    if is_webview:
+        resp.headers.pop('Content-Disposition', None)
+    else:
+        resp.headers['Content-Disposition'] = 'attachment; filename="jymy-2.6.0.apk"'
+    resp.headers['Cache-Control'] = 'public, max-age=3600'
+    return resp
 
 # ═══════════════════ SEO / Sitemap ═══════════════════════
 @app.route('/api/seo/sitemap')

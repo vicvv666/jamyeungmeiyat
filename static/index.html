@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- v=202606280000 -->
+<!-- v=202606290002 -->
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-<meta http-equiv="Permissions-Policy" content="camera=(self),microphone=(),geolocation=(self)">
+<meta http-equiv="Permissions-Policy" content="camera=(self https:),microphone=(),geolocation=(self https:)">
 <meta name="description" content="今晚飲咗未 - 粤语饮酒社交打卡App，酒友打卡、骰子酒局、酒柜收藏、AI推荐、酒吧VIP，粤语文化社区">
 <meta name="keywords" content="饮酒,粤語,酒友,打卡,酒局,骰子,酒柜,AI推荐,社交,粤语,今晚饮咗未,jamyeungmeiyat">
 <meta property="og:title" content="今晚飲咗未 🍺">
@@ -79,7 +79,9 @@
 <meta name="apple-touch-startup-image" content="https://drunk.vic999.com/cover-480.webp">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-<script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js" defer></script>
+<script src="html5-qrcode.min.js"></script>
+<link rel="stylesheet" href="leaflet.css">
+<script src="leaflet.js"></script>
 
 <!-- ─── Structured Data (JSON-LD) ──────────────────── -->
 <script type="application/ld+json">
@@ -142,7 +144,7 @@
     "price": "0",
     "priceCurrency": "HKD"
   },
-  "installUrl": "https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.8/jymy-2.5.8.apk",
+  "installUrl": "https://drunk.vic999.com/api/download/apk",
   "image": "https://drunk.vic999.com/cover-480.webp",
   "aggregateRating": {
     "@type": "AggregateRating",
@@ -201,7 +203,7 @@
       "name": "點樣下載今晚飲咗未App？",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "可以透過浏览器直接使用，或者下載Android APK安裝。下載鏈接：https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.8/jymy-2.5.8.apk"
+        "text": "可以透過浏览器直接使用，或者下載Android APK安裝。下載鏈接：https://drunk.vic999.com/api/download/apk"
       }
     },
     {
@@ -376,7 +378,8 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 /* Responsive: center content on large screens with max 480px */
 .nav,.tabs,.content,.modal,.pay-card,.toast{max-width:var(--max-width);margin-left:auto;margin-right:auto}
 .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--glass-bg);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border-bottom:1px solid var(--glass-border);padding:10px 16px;display:flex;align-items:center;height:52px;box-shadow:0 1px 12px rgba(0,0,0,0.3)}
-.nav-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;padding:0 8px}
+.nav-title{font-size:20px;font-weight:800;background:linear-gradient(135deg,var(--amber),#FBBF24,var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;white-space:nowrap;flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;padding:0 8px;filter:drop-shadow(0 2px 6px rgba(245,158,11,0.3));animation:titleGlow 3s ease-in-out infinite;letter-spacing:0.5px}
+@keyframes titleGlow{0%,100%{filter:drop-shadow(0 2px 6px rgba(245,158,11,0.3))}50%{filter:drop-shadow(0 2px 12px rgba(245,158,11,0.6))}}
 .nav-right{display:flex;gap:8px;align-items:center;flex-shrink:0}
 .nav-btn{background:var(--card);border:1px solid var(--border);color:var(--text);padding:8px 16px;border-radius:10px;font-size:var(--fs-sm);cursor:pointer;transition:all .2s}
 .lang-select{background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:8px;font-size:var(--fs-xs);min-height:34px}
@@ -414,6 +417,7 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .confetti-container{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9999;overflow:hidden}
 .confetti-piece{position:absolute;width:10px;height:10px;opacity:0;animation:confettiFall 2.5s cubic-bezier(.25,.46,.45,.94) forwards}
 @keyframes confettiFall{0%{opacity:1;transform:translateY(-20px) rotate(0deg) scale(0)}15%{opacity:1;transform:translateY(20px) rotate(180deg) scale(1)}100%{opacity:0;transform:translateY(100vh) rotate(720deg) scale(0.5)}}
+@keyframes glassFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 /* Card micro-interactions */
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;transition:all .25s cubic-bezier(.22,1,.36,1);will-change:transform}
 .card:active{transform:scale(0.985)}
@@ -441,8 +445,27 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 .status-group{display:flex;flex-direction:column;gap:4px}
 .group-label{font-size:var(--fs-xs);color:var(--sub);padding:0 4px}
 .status-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.status-btn{padding:12px 4px;border-radius:12px;border:2px solid transparent;background:var(--card);color:var(--text);font-size:var(--fs-sm);font-weight:700;cursor:pointer;transition:all .2s;text-align:center;line-height:1.4;min-height:52px}
-.status-btn:hover{border-color:var(--amber)}.status-btn.selected{border-color:var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.25),rgba(139,92,246,0.25))}
+/* Status group accent colors */
+.st-grp-0{background:linear-gradient(135deg,rgba(16,185,129,0.05),rgba(16,185,129,0.02));border-color:rgba(16,185,129,0.15)}
+.st-grp-0.selected{border-color:var(--green);background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(5,150,105,0.15))}
+.st-grp-1{background:linear-gradient(135deg,rgba(245,158,11,0.05),rgba(245,158,11,0.02));border-color:rgba(245,158,11,0.15)}
+.st-grp-1.selected{border-color:var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(217,119,6,0.15))}
+.st-grp-2{background:linear-gradient(135deg,rgba(236,72,153,0.05),rgba(139,92,246,0.05));border-color:rgba(236,72,153,0.15)}
+.st-grp-2.selected{border-color:var(--pink);background:linear-gradient(135deg,rgba(236,72,153,0.2),rgba(139,92,246,0.15))}
+.st-grp-3{background:linear-gradient(135deg,rgba(239,68,68,0.05),rgba(239,68,68,0.02));border-color:rgba(239,68,68,0.15)}
+.st-grp-3.selected{border-color:var(--red);background:linear-gradient(135deg,rgba(239,68,68,0.2),rgba(220,38,38,0.15))}
+.st-grp-4{background:linear-gradient(135deg,rgba(139,92,246,0.05),rgba(139,92,246,0.02));border-color:rgba(139,92,246,0.15)}
+.st-grp-4.selected{border-color:var(--purple);background:linear-gradient(135deg,rgba(139,92,246,0.2),rgba(124,58,237,0.15))}
+.st-grp-5{background:linear-gradient(135deg,rgba(6,182,212,0.05),rgba(59,130,246,0.05));border-color:rgba(6,182,212,0.15)}
+.st-grp-5.selected{border-color:#06B6D4;background:linear-gradient(135deg,rgba(6,182,212,0.2),rgba(59,130,246,0.15))}
+.status-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:10px 4px;border-radius:14px;border:1.5px solid transparent;background:linear-gradient(135deg,rgba(245,158,11,0.04),rgba(139,92,246,0.04));box-shadow:0 2px 8px rgba(0,0,0,0.2),inset 0 1px 0 rgba(255,255,255,0.04);color:var(--text);font-size:var(--fs-sm);font-weight:600;cursor:pointer;transition:all .25s cubic-bezier(.34,1.56,.64,1);text-align:center;line-height:1.3;min-height:56px;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);position:relative;overflow:hidden}
+.status-btn::before{content:'';position:absolute;inset:0;border-radius:14px;background:linear-gradient(135deg,rgba(245,158,11,0.08),transparent);opacity:0;transition:opacity .3s}
+.status-btn:hover{transform:translateY(-2px);border-color:rgba(245,158,11,0.3);box-shadow:0 6px 20px rgba(245,158,11,0.15)}.status-btn:hover::before{opacity:1}
+.status-btn:active{transform:scale(0.95)}
+.status-btn.selected{border-color:var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(139,92,246,0.18));box-shadow:0 4px 16px rgba(245,158,11,0.2),inset 0 1px 0 rgba(255,255,255,0.08);transform:translateY(-1px);font-weight:700}
+.status-btn .st-emoji{font-size:22px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.4));transition:transform .3s cubic-bezier(.34,1.56,.64,1);line-height:1}
+.status-btn:hover .st-emoji{transform:scale(1.15)}
+.status-btn.selected .st-emoji{transform:scale(1.1)}
 .input,.textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:12px 16px;border-radius:10px;font-size:var(--fs-base);font-family:inherit;margin-bottom:10px}
 .input:focus,.textarea:focus{outline:none;border-color:var(--amber)}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:12px 24px;border-radius:12px;font-size:var(--fs-base);font-weight:600;cursor:pointer;border:none;transition:.2s}
@@ -644,9 +667,51 @@ body.lang-ready{visibility:visible}
  <div id="checkin-ug-hint"></div>
  <div class="card" style="padding:0;overflow:hidden;border:none">
   <img id="cover-img" src="cover.webp" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.webp'}else{this.style.display='none'}">
-  <div style="padding:16px">
-   <div style="font-size:20px;font-weight:800;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent">🍺 <span data-i18n="chk_title">今晚飲咗未？</span></div>
-   <div style="font-size:12px;color:var(--sub);text-align:center;margin-bottom:12px" data-i18n="chk_subtitle">飲酒社交打卡 · 骰盅對决 · 酒局約起</div>
+  <div style="padding:20px 16px 16px;text-align:center">
+   <div style="margin-bottom:8px;display:flex;justify-content:center">
+    <svg width="80" height="80" viewBox="0 0 80 80" style="filter:drop-shadow(0 4px 20px rgba(245,158,11,0.4));animation:glassFloat 3s ease-in-out infinite">
+     <defs>
+      <linearGradient id="beerGrad" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0%" stop-color="#FBBF24"/>
+       <stop offset="30%" stop-color="#F59E0B"/>
+       <stop offset="60%" stop-color="#D97706"/>
+       <stop offset="100%" stop-color="#92400E"/>
+      </linearGradient>
+      <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="0">
+       <stop offset="0%" stop-color="rgba(255,255,255,0.15)"/>
+       <stop offset="20%" stop-color="rgba(255,255,255,0.05)"/>
+       <stop offset="80%" stop-color="rgba(255,255,255,0.02)"/>
+       <stop offset="100%" stop-color="rgba(255,255,255,0.12)"/>
+      </linearGradient>
+      <radialGradient id="bubbleGrad" cx="50%" cy="30%" r="50%">
+       <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+       <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+      </radialGradient>
+      <linearGradient id="foamGrad" x1="0" y1="0" x2="0" y2="1">
+       <stop offset="0%" stop-color="#FEF3C7"/>
+       <stop offset="100%" stop-color="#FDE68A"/>
+      </linearGradient>
+     </defs>
+     <!-- Glass body -->
+     <path d="M22 10h36v6L52 62c-1 8-4 12-12 12H40c-8 0-11-4-12-12L22 16v-6z" fill="url(#glassGrad)" stroke="rgba(255,255,255,0.2)" stroke-width="1.5"/>
+     <!-- Beer liquid -->
+     <path d="M24 28h32v30c0 8-3 12-11 12H35c-8 0-11-4-11-12V28z" fill="url(#beerGrad)" opacity="0.9"/>
+     <!-- Foam head -->
+     <ellipse cx="40" cy="28" rx="18" ry="8" fill="url(#foamGrad)" opacity="0.95"/>
+     <!-- Foam overflow -->
+     <path d="M22 28c0-4 4-8 18-8s18 4 18 8" fill="url(#foamGrad)" opacity="0.7"/>
+     <!-- Glass highlight -->
+     <path d="M26 14v40" stroke="rgba(255,255,255,0.2)" stroke-width="3" stroke-linecap="round"/>
+     <!-- Bubbles -->
+     <circle cx="30" cy="50" r="1.5" fill="url(#bubbleGrad)"><animate attributeName="cy" values="52;38;30" dur="2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.6;0" dur="2s" repeatCount="indefinite"/></circle>
+     <circle cx="38" cy="55" r="1" fill="url(#bubbleGrad)"><animate attributeName="cy" values="55;42;34" dur="2.5s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.5;0" dur="2.5s" repeatCount="indefinite"/></circle>
+     <circle cx="45" cy="48" r="1.2" fill="url(#bubbleGrad)"><animate attributeName="cy" values="48;36;28" dur="1.8s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.4;0" dur="1.8s" repeatCount="indefinite"/></circle>
+     <circle cx="34" cy="45" r="0.8" fill="url(#bubbleGrad)"><animate attributeName="cy" values="45;32;24" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.3;0" dur="3s" repeatCount="indefinite"/></circle>
+     <circle cx="48" cy="52" r="1" fill="url(#bubbleGrad)"><animate attributeName="cy" values="52;40;32" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.5;0" dur="2.2s" repeatCount="indefinite"/></circle>
+    </svg>
+   </div>
+   <div style="font-size:26px;font-weight:900;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),#FBBF24,var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));animation:titleGlow 3s ease-in-out infinite;letter-spacing:1px">🍺 <span data-i18n="chk_title">今晚飲咗未？</span></div>
+   <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:0;letter-spacing:0.3px" data-i18n="chk_subtitle">飲酒社交打卡 · 骰盅對决 · 酒局約起</div>
   </div>
  </div>
  <div class="card"><div class="card-header" data-i18n="status_checkin">📍 狀態報到</div><div id="status-grid"></div>
@@ -656,8 +721,8 @@ body.lang-ready{visibility:visible}
  <div class="card" style="margin-top:12px;text-align:center;border:1px solid var(--amber);background:rgba(245,158,11,0.05)">
   <div class="card-header" data-i18n="download_title">📱 下載 App</div>
   <div style="font-size:12px;color:var(--sub);margin-bottom:12px"><span data-i18n="download_hint">喺手機安装 App 體驗更佳！</span></div>
-  <a id="apk-dl-link" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.8/jymy-2.5.8.apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
-  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 7.0+ · v2.5.8 · <a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.8/jymy-2.5.8.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a></div>
+  <a id="apk-dl-link" href="/api/download/apk" class="btn btn-primary" style="text-decoration:none" download data-i18n="download_btn">🚀 下載 Android APK</a>
+  <div style="font-size:10px;color:var(--sub);margin-top:6px">Android 7.0+ · v2.6.0 · <a href="https://drunk.vic999.com/static/jamyeungmeiyat.apk" style="color:var(--amber);text-decoration:underline" download data-i18n="download_mirror">阿里雲備用下載</a></div>
  </div>
  <!-- Legal Footer on main page -->
  <div style="text-align:center;margin-top:12px;font-size:11px;padding:8px;border-top:1px solid var(--border)">
@@ -743,7 +808,7 @@ body.lang-ready{visibility:visible}
   <div class="card" style="margin-top:8px">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="mapLocateMe()" id="btn-map-locate" data-i18n="map_my_loc">📍 我嘅位置</button>
-      <button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="mapLoadCheckins()" id="btn-map-checkins" data-i18n="map_checkins">🍺 打卡點</button>
+      <button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="window._mapShowCheckins=true;mapLoadCheckins()" id="btn-map-checkins" data-i18n="map_checkins">🍺 打卡點</button>
       <button class="btn btn-outline btn-sm" style="border-color:#22c55e;color:#22c55e" onclick="mapLoadVenues()" id="btn-map-venues" data-i18n="map_bar_vip">🏙️ 酒吧VIP</button>
       <button class="btn btn-outline btn-sm" style="border-color:var(--red);color:var(--red)" onclick="mapLoadHeatmap()" id="btn-map-heatmap" data-i18n="map_heatmap">🔥 热力足迹</button>
       <select id="map-days" style="padding:6px 8px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:12px">
@@ -945,8 +1010,8 @@ body.lang-ready{visibility:visible}
     <div style="font-size:28px;margin-bottom:6px">📱</div>
     <div style="font-weight:700;font-size:14px;margin-bottom:4px" data-i18n="apk_download_title">下載 Android App</div>
     <div style="font-size:11px;color:var(--sub);margin-bottom:10px" data-i18n="apk_download_desc">更好體驗 · 離線打卡 · 推送通知</div>
-    <a id="mem-apk-dl" href="https://gh-proxy.com/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.8/jymy-2.5.8.apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download><span data-i18n="dl_apk">🚀 下載 APK</span> <span id="apk-ver">v2.5.8</span></a>
-    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://gh.ddlc.top/https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.5.8/jymy-2.5.8.apk" style="color:var(--amber);text-decoration:underline" data-i18n="download_mirror">备用下載</a> · Android 7.0+</div>
+    <a id="mem-apk-dl" href="/api/download/apk" class="btn btn-primary" style="text-decoration:none;padding:10px 24px;font-size:14px" download><span data-i18n="dl_apk">🚀 下載 APK</span> <span id="apk-ver">v2.6.0</span></a>
+    <div style="font-size:10px;color:var(--sub);margin-top:6px"><a href="https://drunk.vic999.com/static/jamyeungmeiyat.apk" style="color:var(--amber);text-decoration:underline" download data-i18n="download_mirror">阿里雲備用下載</a> · Android 7.0+</div>
   </div>
   <!-- My Checkins -->
   <div class="card" style="margin-top:8px;border:1.5px solid var(--amber);background:rgba(245,158,11,0.04)">
@@ -1224,12 +1289,12 @@ body.lang-ready{visibility:visible}
     <div class="card-header" style="border:none;padding:8px 0">🔍 <span data-i18n="shop_auth_verify">酒品真偽驗證</span></div>
     <div style="font-size:12px;color:var(--sub);margin-bottom:10px"><span data-i18n="shop_auth_verify_desc">掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品详情</span></div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
-      <input class="input" id="scan-barcode-input" placeholder="" data-i18n-ph="ck_ph_barcode" style="flex:1;margin-bottom:0" onkeydown="if(event.key==='Enter')scanBarcode()">
-      <button class="btn btn-primary btn-sm" onclick="scanBarcode()" data-i18n="ck_verify">驗證</button>
+      <input class="input" id="scan-barcode-input" placeholder="" data-i18n-ph="ck_ph_barcode" style="flex:3;margin-bottom:0;font-size:15px;padding:14px 16px" onkeydown="if(event.key==='Enter')scanBarcode()">
+      <button class="btn btn-primary" onclick="scanBarcode()" data-i18n="ck_verify" style="flex:1;padding:8px 14px;font-size:13px;margin-top:0;white-space:nowrap">🔍 驗證</button>
     </div>
     <div style="display:flex;gap:8px;margin-bottom:10px">
-      <button class="btn btn-outline btn-sm" onclick="openScanner()" style="flex:1" data-i18n="scan_verify_btn">📷 掃碼驗證</button>
-      <button class="btn btn-outline btn-sm" onclick="showScanHistory()" style="flex:1" data-i18n="scan_history_btn">📜 掃碼記錄</button>
+      <button class="btn btn-outline" onclick="openScanner()" style="flex:1;padding:8px 10px;font-size:12px" data-i18n="scan_verify_btn">📷 掃碼</button>
+      <button class="btn btn-outline" onclick="showScanHistory()" style="flex:1;padding:8px 10px;font-size:12px" data-i18n="scan_history_btn">📜 記錄</button>
     </div>
     <div id="scan-result" style="display:none"></div>
   </div>
@@ -1254,8 +1319,12 @@ body.lang-ready{visibility:visible}
       </div>
       <div style="margin-top:8px;font-size:12px;color:var(--sub)"><span data-i18n="scan_hint">將條碼對準鏡頭，自動識别...</span></div>
       <div id="scanner-manual" style="margin-top:8px;display:flex;gap:6px">
-        <input class="input" id="scanner-input" placeholder="" data-i18n-ph="scan_manual_ph" style="flex:1;margin-bottom:0">
-        <button class="btn btn-primary btn-sm" onclick="scanBarcode(document.getElementById('scanner-input').value);closeScanner()" data-i18n="verify_btn">驗證</button>
+        <input class="input" id="scanner-input" placeholder="" data-i18n-ph="scan_manual_ph" style="flex:3;margin-bottom:0;font-size:15px;padding:14px 16px">
+        <button class="btn btn-primary" onclick="scanBarcode(document.getElementById('scanner-input').value);closeScanner()" data-i18n="verify_btn" style="flex:1;padding:8px 14px;font-size:13px;margin-top:0;white-space:nowrap">✅ 驗證</button>
+      </div>
+      <div id="scanner-photo" style="display:none;margin-top:8px">
+        <input type="file" id="scan-file-input" accept="image/*" capture="environment" style="display:none" onchange="_scanFromFile(this)">
+        <button class="btn btn-outline btn-sm" onclick="document.getElementById('scan-file-input').click()" style="width:100%" data-i18n="scan_from_photo">📷 從相冊選取條碼</button>
       </div>
     </div>
   </div>
@@ -2290,7 +2359,7 @@ function _ugCompareTable(){
   const curLv=memLevel();
   let h='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="width:100%;border-collapse:collapse;font-size:11px">';
   h+='<tr style="border-bottom:2px solid var(--border)"><td style="padding:6px 4px;color:var(--sub)"></td>';
-  [0,1,2,3].forEach(lv=>{const c=lv===curLv?'color:var(--pink);font-weight:700':'color:var(--text)';const tag=lv===curLv?' ('+T('cmp_you')+')':'';h+='<td style="padding:6px 4px;text-align:center;'+c+'">'+L[lv].t+tag+'</td>'});
+  [0,1,2,3].forEach(lv=>{const c=lv===curLv?'color:var(--pink);font-weight:700':'color:var(--text)';const tag=lv===curLv?' ('+T('cmp_you')+')':'';h+='<td style="padding:6px 4px;text-align:center;'+c+'">'+_L[lv].t+tag+'</td>'});
   h+='</tr>';
   h+='<tr style="border-bottom:1px solid var(--border)"><td></td><td style="text-align:center;color:var(--sub);font-size:10px;padding:4px">'+T('lv_free')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_bronze_m')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_silver_m')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_gold_m')+'</td></tr>';
   F.forEach(row=>{
@@ -2577,7 +2646,7 @@ document.addEventListener('touchend', function(e){
 }, {passive: true});
 
 // ═══════ LANG ═══════
-const L={
+const _L={
 'zh-HK':{
   st_mai_yum:'未飲',
   st_seung_yum:'想飲',
@@ -2603,12 +2672,12 @@ const L={
   st_fan_gwai:'返歸',
   st_sing_saai:'醒晒',
   st_ting_yat:'聽日',
-  grp_hei_sau:'起手',
-  grp_seung_gan:'上緊',
-  grp_jui_gan:'醉緊',
-  grp_baau_cho:'爆咗',
-  grp_jyun_cheung:'轉場',
-  grp_sau_mei:'收尾',
+  grp_hei_sau:'🥂 開場微醺',
+  grp_seung_gan:'🍷 上頭微熱',
+  grp_jui_gan:'🌀 沉醉飄然',
+  grp_baau_cho:'💥 盡興爆呔',
+  grp_jyun_cheung:'🚕 轉場續攤',
+  grp_sau_mei:'🌅 收尾歸途',
   checkin:'報到',
   timeline:'動態',
   party:'酒局',
@@ -2668,7 +2737,7 @@ const L={
   download_title:'📱 下載 App',
   download_hint:'喺手機安装 App 體驗更佳！',
   download_btn:'下載',
-  download_mirror:'备用下載',
+  download_mirror:'阿里雲備用下載',
   mem_my_checkins:'我嘅報到',
   mem_my_friends:'我嘅酒友',
   mem_my_posts:'我嘅帖子',
@@ -3476,6 +3545,25 @@ const L={
   grp_can_create:'可建',grp_group_unit:'個群 · ',grp_per_group:'每群',
   grp_op_failed:'操作失敗',grp_prompt_name:'群組名稱:',grp_update_failed:'更新失敗',
   grp_chat_load_failed:'無法載入聊天',grp_send_failed:'發送失敗',
+
+  cam_perm_title:'需要相機權限',
+  cam_perm_desc:'掃碼功能需要使用你嘅相機鏡頭<br>請允許浏览器使用相機',
+  cam_perm_allow:'已允許，打開相機',
+  loc_perm_title:'需要定位權限',
+  loc_perm_desc:'地圖需要你嘅位置才能顯示附近打卡點同酒吧<br>請允許浏览器使用你嘅位置',
+  loc_perm_allow:'已允許，開始定位',
+  loc_perm_skip:'暂不允許',
+  loc_perm_unavail:'此浏览器唔支援定位',
+  loc_perm_fail:'定位失敗，請確認已授權位置權限',
+  loc_found:'已定位',
+  perm_denied_title:'權限被拒絕',
+  perm_denied_desc:'功能需要開啟權限<br>前往手機設置開啟「',
+  perm_dened_q:'」權限？',
+  perm_still_denied:'權限仍然未開啟，請重試',
+  go_settings:'前往設置',
+  pwa_no_camera:'PWA模式不支持相機，請輸入條碼或從相冊選取',
+  scan_manual_hint:'請輸入條碼或從相冊選取條碼圖片',
+  scan_manual_btn:'手動輸入條碼',
 },'zh-CN':{
   st_mai_yum:'冇饮',
   st_seung_yum:'想饮',
@@ -3501,12 +3589,12 @@ const L={
   st_fan_gwai:'返归',
   st_sing_saai:'醒晒',
   st_ting_yat:'听日',
-  grp_hei_sau:'起手',
-  grp_seung_gan:'上头',
-  grp_jui_gan:'醉紧',
-  grp_baau_cho:'爆咗',
-  grp_jyun_cheung:'转场',
-  grp_sau_mei:'收尾',
+  grp_hei_sau:'🥂 開場微醺',
+  grp_seung_gan:'🍷 上头微热',
+  grp_jui_gan:'🌀 沉醉飘然',
+  grp_baau_cho:'💥 盡興爆呔',
+  grp_jyun_cheung:'🚕 转场续摊',
+  grp_sau_mei:'🌅 收尾歸途',
   checkin:'报到',
   timeline:'动态',
   party:'酒局',
@@ -3566,7 +3654,7 @@ const L={
   download_title:'📱 下载 App',
   download_hint:'在手机安装 App 体验更佳！',
   download_btn:'下载',
-  download_mirror:'备用下载',
+  download_mirror:'阿里云备用下载',
   mem_my_checkins:'我嘅报到',
   mem_my_friends:'我嘅酒友',
   mem_my_posts:'我嘅帖子',
@@ -4374,6 +4462,26 @@ const L={
   grp_can_create:'可建',grp_group_unit:'个群 · ',grp_per_group:'每群',
   grp_op_failed:'操作失败',grp_prompt_name:'群组名称:',grp_update_failed:'更新失败',
   grp_chat_load_failed:'无法载入聊天',grp_send_failed:'发送失败',
+
+  cam_perm_desc:'扫码功能需要使用您的相机镜头<br>请允许浏览器使用相机',
+  cam_perm_title:'需要相机权限',
+  cam_perm_desc:'扫码功能需要使用您的相机镜头<br>请允许浏览器使用相机',
+  cam_perm_allow:'已允许，打开相机',
+  loc_perm_title:'需要定位权限',
+  loc_perm_desc:'地图需要您的位置才能显示附近打卡点和酒吧<br>请允许浏览器使用您的位置',
+  loc_perm_allow:'已允许，开始定位',
+  loc_perm_skip:'暂不允许',
+  loc_perm_unavail:'此浏览器不支持定位',
+  loc_perm_fail:'定位失败，请确认已授权位置权限',
+  loc_found:'已定位',
+  perm_denied_title:'权限被拒绝',
+  perm_denied_desc:'功能需要开启权限<br>前往手机设置开启「',
+  perm_dened_q:'」权限？',
+  perm_still_denied:'权限仍然未开启，请重试',
+  go_settings:'前往设置',
+  pwa_no_camera:'PWA模式不支持相机，请输入条码或从相册选取',
+  scan_manual_hint:'请输入条码或从相册选取条码图片',
+  scan_manual_btn:'手动输入条码',
 },'en':{
   st_mai_yum:'Sober',
   st_seung_yum:'Thirsty',
@@ -4399,12 +4507,12 @@ const L={
   st_fan_gwai:'Home',
   st_sing_saai:'SoberUp',
   st_ting_yat:'Tmrw',
-  grp_hei_sau:'Start',
-  grp_seung_gan:'Going',
-  grp_jui_gan:'Buzzed',
-  grp_baau_cho:'Wasted',
-  grp_jyun_cheung:'Hop',
-  grp_sau_mei:'Done',
+  grp_hei_sau:'🥂 Cheers',
+  grp_seung_gan:'🍷 Buzzing',
+  grp_jui_gan:'🌀 Tipsy',
+  grp_baau_cho:'💥 Lit',
+  grp_jyun_cheung:'🚕 Next Round',
+  grp_sau_mei:'🌅 Last Call',
   checkin:'Check In',
   timeline:'Feed',
   party:'Party',
@@ -5272,9 +5380,28 @@ const L={
   grp_can_create:'Can create ',grp_group_unit:' groups · ',grp_per_group:' per group ',
   grp_op_failed:'Operation failed',grp_prompt_name:'Group name:',grp_update_failed:'Update failed',
   grp_chat_load_failed:'Cannot load chat',grp_send_failed:'Send failed',
+  cam_perm_title:'Camera Permission Required',
+  cam_perm_desc:'Barcode scanning needs camera access<br>Please allow your browser to use the camera',
+  cam_perm_allow:'Allow & Open Camera',
+  loc_perm_title:'Location Permission Required',
+  loc_perm_desc:'The map needs your location to show nearby check-ins & bars<br>Please allow your browser to use your location',
+  loc_perm_allow:'Allow & Locate Me',
+  loc_perm_skip:'Not Now',
+  loc_perm_unavail:'Geolocation not supported in this browser',
+  loc_perm_fail:'Location failed, please check location permissions',
+  loc_found:'Located',
+  perm_denied_title:' Permission Denied',
+  perm_denied_desc:' needs permission enabled<br>Go to Settings and enable "',
+  perm_dened_q:'" permission?',
+  perm_still_denied:'Permission still not granted, please retry',
+  go_settings:'Go to Settings',
+  pwa_no_camera:'PWA mode does not support camera, enter barcode or pick from gallery',
+  scan_manual_hint:'Enter barcode or pick barcode image from gallery',
+  scan_manual_btn:'Enter barcode manually',
+
 }
 };
-function T(k,params){let s=(L[lang]||L['zh-HK'])[k]||k;if(params){Object.entries(params).forEach(([k2,v])=>{s=s.replace(new RegExp('\\{'+k2+'\\}','g'),v)});}return s}
+function T(k,params){let s=(_L[lang]||_L['zh-HK'])[k]||k;if(params){Object.entries(params).forEach(([k2,v])=>{s=s.replace(new RegExp('\\{'+k2+'\\}','g'),v)});}return s}
 function esc(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
 // Update cellar entry card with current lang
 function updCellarEntry(){
@@ -5440,6 +5567,12 @@ function switchLang(l){
     document.body.classList.remove('lang-loading');
     document.body.classList.add('lang-ready');
   }
+  // 5) 语言切换时刷新地图瓦片（中文→AMap, 英文→CartoDB）
+  if(_mapInited&&_map){
+    _tileSources=_getTileSources();
+    _tileIdx=0;_tileErrs=0;
+    _tryTileSource(_tileSources[0]);
+  }
 }
 function updTitles(){
   // App title
@@ -5512,9 +5645,10 @@ function buildGrid(){
     const d=document.createElement('div');d.className='status-group';
     d.innerHTML='<div class="group-label">'+T(gk)+'</div>';
     const rw=document.createElement('div');rw.className='status-row';
+    const groupColors=['st-grp-0','st-grp-1','st-grp-2','st-grp-3','st-grp-4','st-grp-5'];
     (grps[gid]||[]).forEach(st=>{
-      const b=document.createElement('button');b.className='status-btn';
-      b.innerHTML=T(st.k)+'<br>'+st.e;
+      const b=document.createElement('button');b.className='status-btn '+(groupColors[gid]||'');
+      b.innerHTML=T(st.k)+'<span class="st-emoji">'+st.e+'</span>';
       b.onclick=()=>{selStatus=st.i;buildGrid()};
       if(selStatus===st.i)b.classList.add('selected');rw.appendChild(b);
     });d.appendChild(rw);g.appendChild(d);
@@ -5604,47 +5738,54 @@ async function doCheckin(){
  }catch(e){toast('❌ '+e.message,1)}
 }
 
-// ═══════ MAP ═══════
-let _amap=null,_mapMarkers=[],_heatMap=null,_mapInited=false,_amapLoading=false;
-let AMAP_KEY=''; // 從/api/config動態獲取
+// ═══════ MAP (Leaflet + Multi-source tiles) ═══════
+let _map=null,_mapMarkers=[],_mapInited=false,_mapLoading=false;
+let _mapTileLayer=null;
+// Multi-source tile providers — language-aware, auto-fallback for China/GFW
+// AMap has zh_cn labels built-in → primary for Chinese users; CartoDB for English/overseas
+const _tileSourcesCN=[
+  {name:'AMap',url:'https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',subdomains:'123',maxZoom:18},
+  {name:'CartoDB-Voyager',url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',subdomains:'abcd',maxZoom:20},
+  {name:'OSM',url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',subdomains:'abc',maxZoom:19},
+  {name:'CartoDB-Dark',url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',subdomains:'abcd',maxZoom:20}
+];
+const _tileSourcesEN=[
+  {name:'CartoDB-Voyager',url:'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',subdomains:'abcd',maxZoom:20},
+  {name:'AMap',url:'https://webrd0{s}.is.autonavi.com/appmaptile?lang=en&size=1&scale=1&style=8&x={x}&y={y}&z={z}',subdomains:'123',maxZoom:18},
+  {name:'OSM',url:'https://tile.openstreetmap.org/{z}/{x}/{y}.png',subdomains:'abc',maxZoom:19},
+  {name:'CartoDB-Dark',url:'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',subdomains:'abcd',maxZoom:20}
+];
+function _getTileSources(){
+  var lang=(document.documentElement.lang||'zh-HK');
+  return lang==='en'?_tileSourcesEN:_tileSourcesCN;
+}
+let _tileSources=_getTileSources();
+let _tileIdx=0,_tileErrs=0;
 
-async function _getAMapKey(){
-  if(AMAP_KEY)return AMAP_KEY;
-  try{
-    const r=await(await fetch('/api/config')).json();
-    AMAP_KEY=r.amap_key||'';
-    window.__AMAP_SECRET__=r.amap_secret||'';
-  }catch(e){}
-  return AMAP_KEY;
+function _setMapInfo(msg){
+ const el=document.getElementById('map-info');
+ if(el)el.textContent=msg;
 }
 
-async function _loadAMapSDK(){
-  return new Promise(async(resolve,reject)=>{
-    if(window.AMap)return resolve();
-    if(_amapLoading){let t=setInterval(()=>{if(window.AMap){clearInterval(t);resolve()}},200);return}
-    _amapLoading=true;
-    const key=await _getAMapKey();
-    if(!key){reject(new Error('未配置高德key，請管理員設置AMAP_KEY環境變量'));return}
-    window._AMapSecurityConfig={securityJsCode:window.__AMAP_SECRET__||''};
-    // Load via self-hosted proxy (bypasses VPN blocking of webapi.amap.com)
-    const s=document.createElement('script');
-    s.src='/amap/amap.js';
-    s.onload=()=>{resolve()};
-    s.onerror=()=>{
-      // Fallback: try self-hosted loader
-      const s2=document.createElement('script');
-      s2.src='/amap/loader.js';
-      s2.onload=async()=>{
-        try{
-          await AMapLoader.load({key:key,version:'1.4.15',plugins:['AMap.HeatMap','AMap.MarkerCluster','AMap.Geolocation']});
-          resolve();
-        }catch(e){reject(new Error(T('amap_sdk_load_err')+': '+e.message))}
-      };
-      s2.onerror=()=>{reject(new Error(T('amap_sdk_load_err')))};
-      document.head.appendChild(s2);
-    };
-    document.head.appendChild(s);
+function _clearMapLayers(){
+ _mapMarkers.forEach(m=>{try{_map.removeLayer(m)}catch(e){}});
+ _mapMarkers=[];
+}
+
+function _tryTileSource(src){
+  if(_mapTileLayer){try{_map.removeLayer(_mapTileLayer)}catch(e){}}
+  var opts={maxZoom:src.maxZoom,attribution:'© '+src.name,crossOrigin:'anonymous'};
+  if(src.subdomains)opts.subdomains=src.subdomains;
+  _mapTileLayer=L.tileLayer(src.url,opts);
+  _mapTileLayer.on('tileerror',function(){
+    _tileErrs++;
+    if(_tileErrs>8&&_tileIdx<_tileSources.length-1){
+      _tileErrs=0;_tileIdx++;
+      _setMapInfo('🗺️ 切換地圖源: '+_tileSources[_tileIdx].name+'...');
+      _tryTileSource(_tileSources[_tileIdx]);
+    }
   });
+  _mapTileLayer.addTo(_map);
 }
 
 async function initMap(){
@@ -5659,65 +5800,187 @@ async function initMap(){
     lockOv.style.display='none';
     if(ml<3)document.getElementById('btn-map-heatmap').disabled=true;
   }
-  _setMapInfo('🗺️ 載入地圖SDK...');
+  _setMapInfo('🗺️ 載入地圖...');
   try{
-    await _loadAMapSDK();
-    _amap=new AMap.Map('amap-container',{
-      zoom:12,center:[113.26,23.13],
-      mapStyle:'amap://styles/dark',viewMode:'2D'
+    _map=L.map('amap-container',{
+      zoom:12,center:[23.13,113.26],
+      zoomControl:true,attributionControl:false
     });
-    if(_myLat&&_myLng)_amap.setCenter([_myLng,_myLat]);
-    _amap.addControl(new AMap.Scale());
-    _amap.addControl(new AMap.ToolBar({position:'RB'}));
+    _tileIdx=0;_tileErrs=0;
+    _tryTileSource(_tileSources[0]);
+    if(_myLat&&_myLng)_map.setView([_myLat,_myLng],14);
+    _map.on('moveend',function(){
+      if(_mapInited&&window._mapShowCheckins)mapLoadCheckins();
+    });
     _mapInited=true;
     _setMapInfo('🗺️ '+T('amap_loaded'));
   }catch(e){_setMapInfo('❌ '+T('amap_load_failed')+': '+e.message)}
 }
 
-function _clearMapLayers(){
- _mapMarkers.forEach(m=>{try{_amap.remove(m)}catch(e){}});
- _mapMarkers=[];
- if(_heatMap){try{_amap.remove(_heatMap)}catch(e){}_heatMap=null;}
+// ═══════ UNIFIED PERMISSION SYSTEM ═══════
+// Check permission state via Permissions API (browser) or Cordova plugin
+async function _queryPerm(name){
+  // Cordova path
+  if(typeof cordova!=='undefined'&&cordova.plugins&&cordova.plugins.permissions){
+    return new Promise(res=>{
+      var P=cordova.plugins.permissions;
+      var permMap={geolocation:P.ACCESS_FINE_LOCATION,camera:P.CAMERA};
+      var perm=permMap[name];if(!perm)return res('prompt');
+      P.checkPermission(perm,function(s){res(s.hasPermission?'granted':'prompt')},function(){res('prompt')});
+    });
+  }
+  // Browser Permissions API
+  if(navigator.permissions&&navigator.permissions.query){
+    try{var r=await navigator.permissions.query({name:name});return r.state}catch(e){return'prompt'}
+  }
+  return'prompt';
+}
+// Request permission: Cordova or browser native
+async function _requestPerm(name){
+  // Cordova
+  if(typeof cordova!=='undefined'&&cordova.plugins&&cordova.plugins.permissions){
+    return new Promise(res=>{
+      var P=cordova.plugins.permissions;
+      var permMap={geolocation:P.ACCESS_FINE_LOCATION,camera:P.CAMERA};
+      var perm=permMap[name];if(!perm)return res('prompt');
+      P.requestPermission(perm,function(r){res(r.hasPermission?'granted':'denied')},function(){res('denied')});
+    });
+  }
+  // Browser: trigger actual API to prompt
+  if(name==='geolocation'&&navigator.geolocation){
+    return new Promise(res=>{
+      navigator.geolocation.getCurrentPosition(()=>res('granted'),e=>res(e.code===1?'denied':'prompt'),{timeout:5000});
+    });
+  }
+  if(name==='camera'&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+    try{var s=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});s.getTracks().forEach(t=>t.stop());return'granted'}catch(e){return e.name==='NotAllowedError'?'denied':'prompt'}
+  }
+  return'prompt';
+}
+// Open system app settings for re-granting permission
+function _openAppSettings(){
+  try{
+    if(typeof cordova!=='undefined'&&cordova.JymyAppSettings){
+      cordova.JymyAppSettings.openSettings(function(){},function(e){console.warn('openSettings fail',e)});
+      return;
+    }
+    if(typeof cordova!=='undefined'&&window.cordova.exec){
+      cordova.exec(function(){},function(e){console.warn('exec fail',e)},'JymyAppSettings','openSettings',[]);
+      return;
+    }
+  }catch(e){console.warn('_openAppSettings err',e)}
+  if(/iphone|ipad|ipod/i.test(navigator.userAgent)){window.location.href='app-settings:';}
+}
+// Re-check permission after returning from settings (Android lifecycle resume)
+document.addEventListener('resume',function(){
+  // Cordova resume — retry pending permission action
+  if(window._pendingPermAction)window._pendingPermAction();
+},false);
+document.addEventListener('visibilitychange',function(){
+  if(!document.hidden&&window._pendingPermAction)window._pendingPermAction();
+});
+
+// Show permission prompt with i18n, then check & request
+async function _showPermFlow(name,onGranted,onDenied){
+  var isGeo=name==='geolocation';
+  var icon=isGeo?'📍':'📷';
+  var titleKey=isGeo?'loc_perm_title':'cam_perm_title';
+  var descKey=isGeo?'loc_perm_desc':'cam_perm_desc';
+  var allowKey=isGeo?'loc_perm_allow':'cam_perm_allow';
+  var skipKey='loc_perm_skip'; // reuse for both
+  // Build prompt
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:999;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;padding:24px';
+  ov.innerHTML='<div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;max-width:340px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.5)">' +
+    '<div style="font-size:40px;margin-bottom:8px">'+icon+'</div>' +
+    '<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">'+T(titleKey)+'</div>' +
+    '<div style="font-size:13px;color:var(--sub);margin-bottom:16px">'+T(descKey)+'</div>' +
+    '<button class="btn btn-primary" id="pm-allow-btn" style="margin-top:0">'+icon+' '+T(allowKey)+'</button><br>' +
+    '<button class="btn btn-outline" id="pm-skip-btn" style="margin-top:8px;font-size:12px">'+T(skipKey)+'</button></div>';
+  document.body.appendChild(ov);
+  document.getElementById('pm-allow-btn').onclick=async function(){
+    ov.remove();
+    var state=await _requestPerm(name);
+    if(state==='granted'){onGranted&&onGranted()}
+    else{
+      //_DENIED — show settings guide
+      _showSettingsGuide(name,onGranted);
+    }
+  };
+  document.getElementById('pm-skip-btn').onclick=function(){ov.remove();onDenied&&onDenied()};
+}
+// Permission was denied — guide user to Settings to re-enable
+function _showSettingsGuide(name,onRecheck){
+  var featureName=name==='geolocation'?T('loc_perm_title').replace(/.*需要/,'').replace(/權限.*/,''):T('cam_perm_title').replace(/.*需要/,'').replace(/權限.*/,'');
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;padding:24px';
+  ov.innerHTML='<div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;max-width:340px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.5)">' +
+    '<div style="font-size:40px;margin-bottom:8px">⚙️</div>' +
+    '<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">'+featureName+T('perm_denied_title','權限被拒絕')+'</div>' +
+    '<div style="font-size:13px;color:var(--sub);margin-bottom:16px">'+featureName+T('perm_denied_desc','功能需要開啟權限<br>前往手機設置開啟「')+featureName+'」'+T('perm_dened_q','權限？')+'</div>' +
+    '<button class="btn btn-primary" id="set-go-btn" style="margin-top:0">⚙️ '+T('go_settings','前往設置')+'</button><br>' +
+    '<button class="btn btn-outline" id="set-retry-btn" style="margin-top:8px;font-size:12px">🔄 '+T('retry','重試')+'</button><br>' +
+    '<button class="btn btn-outline" id="set-cancel-btn" style="margin-top:8px;font-size:12px">'+T('cancel','取消')+'</button></div>';
+  document.body.appendChild(ov);
+  document.getElementById('set-go-btn').onclick=function(){
+    ov.remove();
+    // Set pending action to recheck on resume
+    window._pendingPermAction=async function(){
+      window._pendingPermAction=null;
+      var st=await _queryPerm(name);
+      if(st==='granted'){onRecheck&&onRecheck()}
+      else{toast(T('perm_still_denied','權限仍然未開啟，請重試'),'error')}
+    };
+    _openAppSettings();
+  };
+  document.getElementById('set-retry-btn').onclick=function(){ov.remove();_showPermFlow(name,onRecheck)};
+  document.getElementById('set-cancel-btn').onclick=function(){ov.remove()};
 }
 
-function _setMapInfo(msg){
- const el=document.getElementById('map-info');
- if(el)el.textContent=msg;
-}
-
-function _statusEmoji(s){
- return ['🥤','🍷','🍻','🥃','🍺'][Math.min(s,4)];
-}
-function _mlBadge(ml){
- return ml>=3?'🥇':ml>=2?'🥈':ml>=1?'🥉':'🆓';
-}
-
+// ═══════ MAP LOCATION ═══════
 async function mapLocateMe(){
- if(!_amap)return initMap();
- _setMapInfo('📍 定位中...');
- const ok=await getMyLocation();
- if(ok&&_myLat&&_myLng){
-   _amap.setCenter([_myLng,_myLat]);
-   _amap.setZoom(14);
-   _setMapInfo('📍 已定位: '+_myLat.toFixed(4)+', '+_myLng.toFixed(4));
- }else{
-   _setMapInfo('❌ 定位失敗，請確認浏览器已授權位置');
- }
+  if(!_map)return initMap();
+  if(!navigator.geolocation){_setMapInfo('❌ '+T('loc_perm_unavail'));return}
+  // Smart permission check
+  var state=await _queryPerm('geolocation');
+  if(state==='denied'){
+    _showSettingsGuide('geolocation',function(){mapLocateMe()});
+    return;
+  }
+  if(state==='prompt'){
+    _showPermFlow('geolocation',async function(){
+      _doMapLocate();
+    },function(){
+      _setMapInfo('❌ '+T('loc_perm_fail'));
+    });
+    return;
+  }
+  // granted — just locate
+  _doMapLocate();
+}
+async function _doMapLocate(){
+  _setMapInfo('📍 定位中...');
+  var ok=await getMyLocation();
+  if(ok&&_myLat&&_myLng){
+    _map.setView([_myLat,_myLng],14);
+    _setMapInfo('📍 '+T('loc_found','已定位')+': '+_myLat.toFixed(4)+', '+_myLng.toFixed(4));
+  }else{
+    _setMapInfo('❌ '+T('loc_perm_fail'));
+  }
 }
 
 async function mapLoadCheckins(){
- if(!_amap)return initMap();
+ if(!_map)return initMap();
  const ml=memLevel();
  if(ml<1)return showPay();
  _clearMapLayers();
  _setMapInfo('🍺 載入打卡點...');
  const days=document.getElementById('map-days').value;
  try{
-   const bounds=_amap.getBounds();
+   const bounds=_map.getBounds();
    let url='/api/map/checkins?limit=300&days='+days;
    if(bounds){
-     const sw=bounds.southwest,ne=bounds.northeast;
-     url+='&sw_lat='+sw.lat+'&sw_lng='+sw.lng+'&ne_lat='+ne.lat+'&ne_lng='+ne.lng;
+     url+='&sw_lat='+bounds.getSouth()+'&sw_lng='+bounds.getWest()+'&ne_lat='+bounds.getNorth()+'&ne_lng='+bounds.getEast();
    }
    const res=await api(url);
    _clearMapLayers();
@@ -5725,67 +5988,53 @@ async function mapLoadCheckins(){
    items.forEach(c=>{
      const emoji=_statusEmoji(c.status);
      const badge=_mlBadge(c.ml);
-     const m=new AMap.Marker({
-       position:[c.lng,c.lat],
-       title:c.nick,
-       content:'<div style="width:32px;height:32px;font-size:20px;text-align:center;line-height:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">'+emoji+'</div>',
-       offset:new AMap.Pixel(-16,-16)
+     const icon=L.divIcon({
+       className:'',html:'<div style="width:32px;height:32px;font-size:20px;text-align:center;line-height:32px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">'+emoji+'</div>',
+       iconSize:[32,32],iconAnchor:[16,16]
      });
-     const info='<div style="min-width:160px"><b>'+badge+' '+c.nick+'</b><br>'+emoji+' '+c.note+'<br><small style="color:#888">'+c.time+'</small></div>';
-     m.on('click',()=>{new AMap.InfoWindow({content:info,offset:new AMap.Pixel(0,-20)}).open(_amap,m.getPosition())});
+     const m=L.marker([c.lat,c.lng],{icon:icon});
+     const info='<div style="min-width:160px"><b>'+badge+' '+esc(c.nick)+'</b><br>'+emoji+' '+esc(c.note||'')+'<br><small style="color:#888">'+c.time+'</small></div>';
+     m.bindPopup(info);
      _mapMarkers.push(m);
-     _amap.add(m);
+     m.addTo(_map);
    });
    _setMapInfo('✅ 載入 '+items.length+' 個打卡點 (近'+days+'日)');
-   if(items.length>0)_amap.setFitView(_mapMarkers);
+   if(items.length>0){
+     const group=L.featureGroup(_mapMarkers);
+     _map.fitBounds(group.getBounds().pad(0.1));
+   }
  }catch(e){_setMapInfo('❌ '+e.message)}
 }
 
 async function mapLoadVenues(){
- if(!_amap)return initMap();
+ if(!_map)return initMap();
  _clearMapLayers();
  _setMapInfo('🏙️ 載入酒吧...');
  try{
    const res=await api('/api/map/nearby-venues?lat='+_myLat+'&lng='+_myLng);
    const venues=res.venues||[];
    venues.forEach(v=>{
-     const m=new AMap.Marker({
-       position:[v.lng||0,v.lat||0],
-       content:'<div style="width:28px;height:28px;font-size:18px;text-align:center;line-height:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">🏙️</div>',
-       offset:new AMap.Pixel(-14,-14)
+     const icon=L.divIcon({
+       className:'',html:'<div style="width:28px;height:28px;font-size:18px;text-align:center;line-height:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">🏙️</div>',
+       iconSize:[28,28],iconAnchor:[14,14]
      });
+     const m=L.marker([v.lat||0,v.lng||0],{icon:icon});
      const dist=v.dist_km?' ('+v.dist_km+'km)':'';
-     const info='<div style="min-width:180px"><b>🏙️ '+v.name+'</b>'+dist+'<br>'+(v.address||'')+'<br>'+(v.discount?'🎁 會員折扣: '+v.discount:'')+'</div>';
-     m.on('click',()=>{new AMap.InfoWindow({content:info,offset:new AMap.Pixel(0,-20)}).open(_amap,m.getPosition())});
+     const info='<div style="min-width:180px"><b>🏙️ '+esc(v.name)+'</b>'+dist+'<br>'+(v.address||'')+'<br>'+(v.discount?'🎁 會員折扣: '+v.discount:'')+'</div>';
+     m.bindPopup(info);
      _mapMarkers.push(m);
-     _amap.add(m);
+     m.addTo(_map);
    });
    _setMapInfo('✅ 找到 '+venues.length+' 間合作酒吧');
  }catch(e){_setMapInfo('❌ '+e.message)}
 }
 
 async function mapLoadHeatmap(){
- if(!_amap)return initMap();
+ if(!_map)return initMap();
  const ml=memLevel();
  if(ml<3)return showPay();
- _clearMapLayers();
- _setMapInfo('🔥 載入热力足跡...');
- try{
-   const res=await api('/api/map/my-heatmap');
-   const pts=res.points||[];
-   if(pts.length<2){_setMapInfo('📊 打卡數據不足，多啲帶定位打卡啦！');return}
-   const heatData=pts.map(p=>({lng:p.lng,lat:p.lat,count:p.count}));
-   _heatMap=new AMap.HeatMap(_amap,{
-     radius:30,opacity:[0,0.8],gradient:{0.3:'#4a9eff',0.6:'#f59e0b',1.0:'#ef4444'}
-   });
-   _heatMap.setDataSet({data:heatData,max:Math.max(...pts.map(p=>p.count),1)});
-   _setMapInfo('✅ 你的足跡热力圖 — '+res.total_loc_checkins+' 次定位打卡，'+pts.length+' 個熱點');
-   // 自動縮放到热力範围
-   if(pts.length>0){
-     const lats=pts.map(p=>p.lat),lngs=pts.map(p=>p.lng);
-     _amap.setBounds(new AMap.Bounds([Math.min(...lngs),Math.min(...lats)],[Math.max(...lngs),Math.max(...lats)]));
-   }
- }catch(e){_setMapInfo('❌ '+e.message)}
+ // Leaflet heatmap plugin not included — show placeholder
+ _setMapInfo('🔥 热力足跡功能即將推出（Leaflet版）');
 }
 
 // ═══════ TIMELINE ═══════
@@ -9302,15 +9551,112 @@ function scanBarcode(code){
 }
 
 var _html5QrCode=null;
-function openScanner(){
+// Detect iOS PWA standalone mode where camera API is unavailable
+function _isPwaStandalone(){
+  return window.navigator.standalone===true
+      || (window.matchMedia('(display-mode: standalone)').matches)
+      || (window.matchMedia('(display-mode: minimal-ui)').matches && !navigator.mediaDevices);
+}
+function _showManualScan(){
+  document.getElementById('scanner-reader').style.display='none';
+  document.getElementById('scanner-fallback').style.display='none';
+  document.getElementById('scanner-manual').style.display='flex';
+  document.getElementById('scanner-photo').style.display='block';
+  const hint=document.querySelector('#scanner-mod [data-i18n="scan_hint"]');
+  const isPwa=_isPwaStandalone();
+  if(hint)hint.textContent=isPwa?'📱 '+T('pwa_no_camera','PWA模式不支持相機，請輸入條碼或從相冊選取'):'📱 '+T('scan_manual_hint','請輸入條碼或從相冊選取條碼圖片');
+  document.getElementById('scanner-input').focus();
+}
+// Scan barcode from photo file (works in PWA mode where camera getUserMedia is blocked)
+function _scanFromFile(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  toast('📷 正在識别條碼...');
+  if(typeof Html5Qrcode!=='undefined'&&typeof Html5Qrcode.scanFile==='function'){
+    Html5Qrcode.scanFile(file,true).then(decodedText=>{
+      closeScanner();
+      const barcode=decodedText.trim();
+      toast('📷 識别到: '+barcode);
+      document.getElementById('scan-barcode-input').value=barcode;
+      scanBarcode(barcode);
+    }).catch(()=>{
+      toast(T('toast_scan_fail'),'error');
+    });
+  }else{
+    // Fallback: try jsQR from CDN if available
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      canvas.width=img.width;canvas.height=img.height;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0);
+      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      if(typeof jsQR==='undefined'){
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+        s.onload=()=>_decodeWithJsQR(imageData);
+        s.onerror=()=>toast(T('toast_scan_fail'),'error');
+        document.head.appendChild(s);
+      }else _decodeWithJsQR(imageData);
+    };
+    img.onerror=()=>toast(T('toast_scan_fail'),'error');
+    img.src=URL.createObjectURL(file);
+  }
+}
+function _decodeWithJsQR(imageData){
+  const code=jsQR(imageData.data,imageData.width,imageData.height);
+  if(code&&code.data){
+    closeScanner();
+    toast('📷 識别到: '+code.data);
+    document.getElementById('scan-barcode-input').value=code.data;
+    scanBarcode(code.data);
+  }else toast(T('toast_scan_fail'),'error');
+}
+function _showCamPermissionPrompt(){
+  // Delegate to unified permission system
+  _showPermFlow('camera',function(){
+    _doOpenScanner();
+  },function(){
+    _showManualScan();
+  });
+}
+function _doOpenScanner(){
   const mod=document.getElementById('scanner-mod');
   mod.style.display='flex';
+  if(_isPwaStandalone()) return _showManualScan();
   if(typeof Html5Qrcode!=='undefined'){
     try{
-      if(_html5QrCode){_html5QrCode.clear();_html5QrCode.stop().catch(()=>{}).then(()=>{_html5QrCode=null;_startScanner()});return}
+      if(_html5QrCode){_html5QrCode.stop().catch(()=>{}).then(()=>{_html5QrCode=null;_startScanner()});return}
       _startScanner();
     }catch(e){console.error('scanner err',e);_fallbackCamera()}
   }else{_fallbackCamera()}
+}
+function openScanner(){
+  const mod=document.getElementById('scanner-mod');
+  mod.style.display='flex';
+  // iOS PWA standalone → no camera API available
+  if(_isPwaStandalone()) return _showManualScan();
+  // Smart permission check instead of localStorage flag
+  _queryPerm('camera').then(function(state){
+    if(state==='denied'){
+      mod.style.display='none';
+      _showSettingsGuide('camera',function(){
+        mod.style.display='flex';
+        _doOpenScanner();
+      });
+    }else if(state==='prompt'){
+      mod.style.display='none';
+      _showPermFlow('camera',function(){
+        mod.style.display='flex';
+        _doOpenScanner();
+      },function(){
+        _showManualScan();
+      });
+    }else{
+      // granted — open scanner directly
+      _doOpenScanner();
+    }
+  });
 }
 function _startScanner(){
   _html5QrCode=new Html5Qrcode('scanner-reader');
