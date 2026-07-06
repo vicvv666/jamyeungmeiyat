@@ -55,6 +55,41 @@ app.config['REMEMBER_COOKIE_HTTPONLY'] = True
 app.config['REMEMBER_COOKIE_SAMESITE'] = 'Lax'
 if os.environ.get('FLASK_ENV') == 'production':
     app.config['SESSION_COOKIE_SECURE'] = True
+# ─── Email notification (smtplib stdlib, no extra deps) ──────────
+import smtplib, ssl as _ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr, formatdate
+
+MAIL_HOST = os.environ.get('MAIL_HOST', 'smtp.qq.com')
+MAIL_PORT = int(os.environ.get('MAIL_PORT', '465'))
+MAIL_USER = os.environ.get('MAIL_USER', '')
+MAIL_PASS = os.environ.get('MAIL_PASS', '')
+MAIL_FROM = os.environ.get('MAIL_FROM', MAIL_USER)
+MAIL_ENABLED = bool(MAIL_USER and MAIL_PASS)
+
+def _send_email(to_addr, subject, html_body, text_body=None):
+    """Send HTML email via SMTP SSL. Returns True on success."""
+    if not MAIL_ENABLED:
+        app.logger.warning('Mail not configured - skip send to %s', to_addr)
+        return False
+    try:
+        msg = MIMEMultipart('alternative')
+        msg['From'] = formataddr(('今晚饮咗未', MAIL_FROM))
+        msg['To'] = to_addr
+        msg['Subject'] = subject
+        msg['Date'] = formatdate(localtime=True)
+        msg.attach(MIMEText(text_body or subject, 'plain', 'utf-8'))
+        msg.attach(MIMEText(html_body, 'html', 'utf-8'))
+        ctx = _ssl.create_default_context()
+        with smtplib.SMTP_SSL(MAIL_HOST, MAIL_PORT, context=ctx, timeout=15) as s:
+            s.login(MAIL_USER, MAIL_PASS)
+            s.sendmail(MAIL_FROM, [to_addr], msg.as_string())
+        app.logger.info('Email sent to %s: %s', to_addr, subject)
+        return True
+    except Exception as e:
+        app.logger.error('Email send failed to %s: %s', to_addr, e)
+        return False
     app.config['REMEMBER_COOKIE_SECURE'] = True  # 50MB max upload (video support)
 
 # ─── Matchmaking queue (in-memory) ──────────────────
@@ -83,7 +118,12 @@ def sanitize_html(text):
 # No additional CSRF tokens needed.
 
 # ─── Security & GZIP Middleware ──────────────────────
-_ALLOWED_ORIGINS = {'https://drunk.vic999.com','http://drunk.vic999.com','https://www.drunk.vic999.com'}
+_ALLOWED_ORIGINS = {'https://drunk.vic999.com','http://drunk.vic999.com','https://www.drunk.vic999.com',
+    # APK WebView origins
+    'http://localhost','http://localhost:5052','http://127.0.0.1','http://127.0.0.1:5052',
+    'file://', 'null', 'http://localhost:8080','http://10.0.2.2','http://10.0.2.2:5052',
+    # Allow any local network origin (e.g., dev server)
+    }
 _IP_BLACKLIST = set()
 _GENERAL_RATE = {}  # ip -> [timestamps]
 _GENERAL_LIMIT = 200   # 200 req/min per IP (static assets excluded)
@@ -120,11 +160,12 @@ def _security_check():
     # Request size limit
     if request.content_length and request.content_length > 2*1024*1024:
         return jsonify({'error':'請求過大'}), 413
-    # Anti-CSRF: check Origin for POST/PUT/DELETE (allow APK WebView null origin)
+    # Anti-CSRF: only enforce strict Origin check for production domains
+    # APK WebView uses file://, null, or http://localhost — always allow these
     if request.method in ('POST','PUT','DELETE') and request.content_type and 'json' in request.content_type:
         origin = request.headers.get('Origin','')
-        # APK WebView sends file:// or null origin — allow these through
-        if origin and origin not in _ALLOWED_ORIGINS and not origin.startswith('file') and origin != 'null':
+        # Block only truly cross-site origins from external domains in production
+        if origin and origin not in _ALLOWED_ORIGINS and not origin.startswith('file') and origin != 'null' and 'localhost' not in origin and '127.0.0.1' not in origin and '10.0.2.2' not in origin:
             return jsonify({'error':'非法來源'}), 403
 
 @app.after_request
@@ -428,13 +469,25 @@ CREATE TABLE IF NOT EXISTS users (
             new_plan    TEXT DEFAULT '',
             admin_id    INTEGER DEFAULT 0,
             note        TEXT DEFAULT '',
-            created_at  TEXT DEFAULT (datetime('now','localtime'))
-        );
-        -- runtime config (admin_key, etc.)
-        CREATE TABLE IF NOT EXISTS config (
-            key   TEXT PRIMARY KEY,
-            value TEXT NOT NULL DEFAULT ''
-        );
+                        created_at  TEXT DEFAULT (datetime('now','localtime'))
+                    );
+                    -- announcements (admin-managed banner messages)
+                    CREATE TABLE IF NOT EXISTS announcements (
+                        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                        title_zh    TEXT DEFAULT '',
+                        title_en    TEXT DEFAULT '',
+                        body_zh     TEXT DEFAULT '',
+                        body_en     TEXT DEFAULT '',
+                        active      INTEGER DEFAULT 1,
+                        pinned      INTEGER DEFAULT 0,
+                        created_at  TEXT DEFAULT (datetime('now','localtime')),
+                        updated_at  TEXT DEFAULT (datetime('now','localtime'))
+                    );
+                    -- runtime config (admin_key, etc.)
+                    CREATE TABLE IF NOT EXISTS config (
+                        key   TEXT PRIMARY KEY,
+                        value TEXT NOT NULL DEFAULT ''
+                    );
         -- dice rooms (auto-cleaned after 2 hours)
         CREATE TABLE IF NOT EXISTS dice_rooms (
             id         TEXT PRIMARY KEY,
@@ -507,6 +560,15 @@ CREATE TABLE IF NOT EXISTS users (
     ]:
         try: db.execute(tbl_sql)
         except: pass
+    # fortune_usage (骰子测运程每日使用次数)
+    try:
+        db.execute('''CREATE TABLE IF NOT EXISTS fortune_usage (
+            user_id  INTEGER NOT NULL,
+            date     TEXT NOT NULL,
+            count    INTEGER DEFAULT 0,
+            PRIMARY KEY (user_id, date)
+        )''')
+    except: pass
 
     db.commit()
 
@@ -826,6 +888,12 @@ CREATE TABLE IF NOT EXISTS users (
         created_at  TEXT DEFAULT (datetime('now','localtime'))
     )''')
     except: pass
+    # ── kv_store (rate-limit / trial-IP / misc key-value) ──
+    try: db.execute('''CREATE TABLE IF NOT EXISTS kv_store (
+        key   TEXT PRIMARY KEY,
+        value TEXT
+    )''')
+    except: pass
     db.commit()
     db.close()
 
@@ -852,6 +920,8 @@ LANG = {
         # group labels
         'grp_hei_sau':'起手', 'grp_seung_gan':'上緊', 'grp_jui_gan':'醉緊',
         'grp_baau_cho':'爆咗', 'grp_jyun_cheung':'轉場', 'grp_sau_mei':'收尾',
+        'coupon_active':'可用', 'coupon_used':'已用', 'coupon_expired':'過期', 'coupon_general':'通用',
+        'sw_clear_title':'清除快取並重新載入',
     },
     'zh-CN': {
         'app_name':'今晚喝了没', 'tagline':'饮酒社交打卡',
@@ -870,6 +940,8 @@ LANG = {
         'st_yum_cho':'喝了',   'st_fan_gwai':'回家',   'st_sing_saai':'醒了', 'st_ting_yat':'明天',
         'grp_hei_sau':'起手', 'grp_seung_gan':'上头', 'grp_jui_gan':'醉着',
         'grp_baau_cho':'爆了', 'grp_jyun_cheung':'转场', 'grp_sau_mei':'收尾',
+        'coupon_active':'可用', 'coupon_used':'已用', 'coupon_expired':'过期', 'coupon_general':'通用',
+        'sw_clear_title':'清除缓存并重新加载',
     },
     'en': {
         'app_name':'Drunk Tonight?', 'tagline':'Drinking Check-in',
@@ -888,6 +960,8 @@ LANG = {
         'st_yum_cho':'Done',     'st_fan_gwai':'Home',  'st_sing_saai':'Sober Up','st_ting_yat':'Tomorrow',
         'grp_hei_sau':'Start', 'grp_seung_gan':'Going', 'grp_jui_gan':'Buzzed',
         'grp_baau_cho':'Wasted', 'grp_jyun_cheung':'Hop', 'grp_sau_mei':'Done',
+        'coupon_active':'Active', 'coupon_used':'Used', 'coupon_expired':'Expired', 'coupon_general':'General',
+        'sw_clear_title':'Clear Cache & Reload',
     }
 }
 def t(key, lang='zh-HK'):
@@ -999,9 +1073,12 @@ def _get_membership(uid):
     if uid == 0:
         return 'admin', 99, '2099-12-31'
     db = get_db()
-    u = db.execute('SELECT membership, member_expires FROM users WHERE id=?', (uid,)).fetchone()
+    u = db.execute('SELECT membership, member_expires, admin FROM users WHERE id=?', (uid,)).fetchone()
     if not u:
         return 'free', 0, ''
+    # Admin flag grants full admin powers regardless of paid plan
+    if u['admin']:
+        return 'admin', 99, u['member_expires'] or '永久'
     plan = u['membership'] or 'free'
     expires = u['member_expires'] or ''
     # Check expiry
@@ -1013,52 +1090,82 @@ def _get_membership(uid):
     return plan, level, expires
 
 def _mem_dice_max(level):
-    """Max dice count per membership level"""
-    return {0:2, 1:3, 2:4, 3:5}.get(level, 2)
+ """Max dice count per membership level"""
+ if (level or 0) >= 99:
+  return 999
+ return {0:2, 1:3, 2:4, 3:5}.get(level, 2)
 
 def _mem_note_max(level):
-    """Max note length per membership level"""
-    return {0:150, 1:500, 2:1000, 3:3000}.get(level, 150)
+ """Max note length per membership level"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:150, 1:500, 2:1000, 3:3000}.get(level, 150)
 
 def _mem_photo_max(level):
-    """Max photo count per membership level"""
-    return {0:1, 1:4, 2:9, 3:20}.get(level, 1)
+ """Max photo count per membership level"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:1, 1:4, 2:9, 3:20}.get(level, 1)
 
 def _mem_friends_max(level):
-    """Max friends per membership level — free=20 to drive upgrade friction"""
-    return {0:20, 1:200, 2:999, 3:9999}.get(level, 20)
+ """Max friends per membership level — free=20 to drive upgrade friction"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:20, 1:200, 2:999, 3:9999}.get(level, 20)
 
 def _mem_daily_posts(level):
-    """Max posts per day per membership level — free=3 to create daily friction"""
-    return {0:3, 1:15, 2:999, 3:999}.get(level, 3)
+ """Max posts per day per membership level — free=3 to create daily friction"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:3, 1:15, 2:999, 3:999}.get(level, 3)
 
 def _mem_post_images_max(level):
-    """Max images per post per membership level"""
-    return {0:1, 1:4, 2:9, 3:20}.get(level, 1)
+ """Max images per post per membership level"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:1, 1:4, 2:9, 3:20}.get(level, 1)
 
 def _mem_post_chars_max(level):
-    """Max characters per post per membership level"""
-    return {0:500, 1:1000, 2:2000, 3:5000}.get(level, 500)
+ """Max characters per post per membership level"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:500, 1:1000, 2:2000, 3:5000}.get(level, 500)
 
 def _mem_parties_max(level):
-    """Max parties user can create per month per membership level — free=0 to drive upgrade"""
-    return {0:0, 1:3, 2:5, 3:999}.get(level, 0)
+ """Max parties user can create per month per membership level — free=0 to drive upgrade"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:0, 1:3, 2:5, 3:999}.get(level, 0)
 
 def _mem_scan_daily(level):
-    """Max barcode scans per day per membership level — free=3 (experience then paywall)"""
-    return {0:3, 1:30, 2:200, 3:-1}.get(level, 3)
+ """Max barcode scans per day per membership level — free=3 (experience then paywall)"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:3, 1:30, 2:200, 3:-1}.get(level, 3)
 
 def _mem_favorites_max(level):
-    """Max liquor favorites per membership level — free=3 (taste then upgrade)"""
-    return {0:3, 1:50, 2:500, 3:-1}.get(level, 3)
+ """Max liquor favorites per membership level — free=3 (taste then upgrade)"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:3, 1:50, 2:500, 3:-1}.get(level, 3)
 
 def _mem_checkin_map(level):
-    """Checkin map access per membership: self_3d/self_7d/friends/global"""
-    return {0:'self_3d', 1:'self_7d', 2:'friends', 3:'global'}.get(level, 'self_3d')
+ """Checkin map access per membership: self_3d/self_7d/friends/global"""
+ if (level or 0) >= 99:
+  return 'global'
+ return {0:'self_3d', 1:'self_7d', 2:'friends', 3:'global'}.get(level, 'self_3d')
 
 def _mem_coupons_month(level):
-    """Monthly coupons per membership level — free=1 first month taste"""
-    return {0:1, 1:1, 2:3, 3:5}.get(level, 1)
+ """Monthly coupons per membership level — free=1 first month taste"""
+ if (level or 0) >= 99:
+  return -1
+ return {0:1, 1:1, 2:3, 3:5}.get(level, 1)
+
+def _mem_fortune_daily(level):
+    """Max dice fortune uses per day per membership level (admin = unlimited)"""
+    if (level or 0) >= 99:
+        return 999999
+    return {0:1, 1:3, 2:10, 3:999}.get(level, 1)
 
 # ═══════════════════ Barcode Verification (辨真助手) ═══════════════════
 _EAN13_COUNTRY = {
@@ -1260,17 +1367,47 @@ def api_register():
     if exist:
         return jsonify({'error':'用戶名已存在'}), 409
 
-    db.execute('INSERT INTO users (username,password,nickname,lang) VALUES (?,?,?,?)',
+    db.execute("INSERT INTO users (username,password,nickname,lang) VALUES (?,?,?,?)",
                (username, _hash_v2(pw), nickname, lang))
     db.commit()
-    uid = db.execute('SELECT id FROM users WHERE username=?',(username,)).fetchone()['id']
+    uid = db.execute("SELECT id FROM users WHERE username=?",(username,)).fetchone()["id"]
     # P0-2: 14-day free trial — new users get jiuyau for 14 days
-    trial_expires = (date.today() + timedelta(days=14)).isoformat()
-    db.execute("UPDATE users SET membership='jiuyau', member_expires=? WHERE id=?", (trial_expires, uid))
+    # Anti-abuse: track trial IPs, limit 1 trial per IP per 30 days
+    trial_ip_key = f"trial_ip_{ip}"
+    last_trial = db.execute("SELECT value FROM kv_store WHERE key=?", (trial_ip_key,)).fetchone()
+    if last_trial:
+        try:
+            last_dt = datetime.fromisoformat(last_trial["value"])
+            if (date.today() - last_dt.date()).days < 30:
+                trial_expires = (date.today() + timedelta(days=3)).isoformat()
+            else:
+                trial_expires = (date.today() + timedelta(days=14)).isoformat()
+        except:
+            trial_expires = (date.today() + timedelta(days=14)).isoformat()
+    else:
+        trial_expires = (date.today() + timedelta(days=14)).isoformat()
+    db.execute("INSERT OR REPLACE INTO kv_store (key, value) VALUES (?, ?)", (trial_ip_key, date.today().isoformat()))
+    db.execute("UPDATE users SET membership=?, member_expires=? WHERE id=?", ('jiuyau', trial_expires, uid))
     db.commit()
     tok = _token_for(uid)
-    return jsonify({'token':tok, 'user':{'id':uid,'username':username,'nickname':nickname,'lang':lang,'membership':'jiuyau','member_expires':trial_expires}})
-
+    # ─── Welcome email (if email provided) ───
+    email_val = (d.get('email') or '').strip()
+    if email_val:
+        try:
+            db.execute('UPDATE users SET email=? WHERE id=?', (email_val, uid))
+            db.commit()
+            html = f"""<div style="font-family:sans-serif;max-width:480px;margin:auto;background:#1a1a2e;color:#fff;padding:24px;border-radius:16px">
+<h2 style="color:#FBBF24">🍻 歡迎加入今晚飲咗未！</h2>
+<p>{nickname} 你好！</p>
+<p>你嘅14天免費試用已開通，有效期至 <b style="color:#FBBF24">{trial_expires}</b></p>
+<p>快啲去打卡記錄你嘅微醺時刻，搵朋友一齊飲！</p>
+<p style="margin-top:20px;color:#888">今晚飲咗未 · 你的酒友社交平台</p>
+</div>"""
+            _send_email(email_val, '🍻 歡迎加入今晚飲咗未！', html,
+                        f'歡迎{nickname}！14天免費試用至{trial_expires}')
+        except Exception as e:
+            app.logger.error('Welcome email failed: %s', e)
+    return jsonify({"token":tok, "user":{"id":uid,"username":username,"nickname":nickname,"lang":lang,"membership":"jiuyau","member_expires":trial_expires}})
 @app.route('/api/login', methods=['POST'])
 def api_login():
     d = request.get_json(force=True) or {}
@@ -2405,6 +2542,77 @@ def api_admin_ads():
     db.commit()
     return jsonify({'ok':True})
 
+# ─── Announcements: public read + admin CRUD ───
+@app.route('/api/announcements')
+def api_announcements_list():
+    """Return active announcements for the public banner."""
+    lang = request.args.get('lang','zh-HK')
+    is_en = lang == 'en' or lang == 'en-US'
+    db = get_db()
+    rows = db.execute(
+        "SELECT id, title_zh, title_en, body_zh, body_en, pinned FROM announcements "
+        "WHERE active=1 ORDER BY pinned DESC, id DESC LIMIT 20"
+    ).fetchall()
+    out = []
+    for r in rows:
+        out.append({
+            'id': r['id'],
+            'title': (r['title_en'] if is_en else r['title_zh']) or r['title_zh'] or r['title_en'] or '',
+            'body': (r['body_en'] if is_en else r['body_zh']) or r['body_zh'] or r['body_en'] or '',
+            'pinned': r['pinned']
+        })
+    return jsonify({'ok': True, 'announcements': out})
+
+@app.route('/api/admin/announcements', methods=['GET', 'POST'])
+@auth_required
+def api_admin_announcements():
+    """Admin: list/create/update announcements."""
+    if not _check_admin():
+        return jsonify({'error':'未授權'}), 403
+    db = get_db()
+    if request.method == 'GET':
+        rows = db.execute(
+            "SELECT * FROM announcements ORDER BY pinned DESC, id DESC"
+        ).fetchall()
+        return jsonify({'ok': True, 'announcements': [dict(r) for r in rows]})
+    d = request.get_json(force=True) or {}
+    action = d.get('action','create')
+    if action == 'create':
+        cur = db.execute(
+            "INSERT INTO announcements (title_zh,title_en,body_zh,body_en,active,pinned) VALUES (?,?,?,?,?,?)",
+            (d.get('title_zh',''), d.get('title_en',''), d.get('body_zh',''),
+             d.get('body_en',''), int(d.get('active',1)), int(d.get('pinned',0)))
+        )
+        db.commit()
+        return jsonify({'ok': True, 'id': cur.lastrowid})
+    if action == 'update':
+        aid = int(d.get('id',0))
+        if not aid:
+            return jsonify({'error':'缺少 id'}), 400
+        db.execute(
+            "UPDATE announcements SET title_zh=?, title_en=?, body_zh=?, body_en=?, active=?, pinned=?, updated_at=datetime('now','localtime') WHERE id=?",
+            (d.get('title_zh',''), d.get('title_en',''), d.get('body_zh',''),
+             d.get('body_en',''), int(d.get('active',1)), int(d.get('pinned',0)), aid)
+        )
+        db.commit()
+        return jsonify({'ok': True})
+    if action == 'delete':
+        aid = int(d.get('id',0))
+        if not aid:
+            return jsonify({'error':'缺少 id'}), 400
+        db.execute('DELETE FROM announcements WHERE id=?', (aid,))
+        db.commit()
+        return jsonify({'ok': True})
+    if action == 'toggle':
+        aid = int(d.get('id',0))
+        active = int(d.get('active', 1))
+        if not aid:
+            return jsonify({'error':'缺少 id'}), 400
+        db.execute('UPDATE announcements SET active=?, updated_at=datetime(\'now\',\'localtime\') WHERE id=?', (active, aid))
+        db.commit()
+        return jsonify({'ok': True})
+    return jsonify({'error':'未知動作'}), 400
+
 @app.route('/api/admin/stats')
 def api_admin_stats():
     if not _check_admin(): return jsonify({'error':'未授權'}), 403
@@ -2414,7 +2622,108 @@ def api_admin_stats():
     total_parties = db.execute('SELECT COUNT(*) FROM parties').fetchone()[0]
     vip_count = db.execute("SELECT COUNT(*) FROM users WHERE membership!='free' AND membership!=''").fetchone()[0]
     today_checkins = db.execute("SELECT COUNT(*) FROM checkins WHERE date(created_at)=date('now','localtime')").fetchone()[0]
-    return jsonify({'stats':{'total_users':total_users,'total_checkins':total_checkins,'total_parties':total_parties,'vip_count':vip_count,'today_checkins':today_checkins}})
+
+    # ─── Enhanced stats: revenue, retention, trends ───
+    # Total revenue (paid payments)
+    try:
+        total_revenue = db.execute("SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='paid'").fetchone()[0]
+    except:
+        total_revenue = 0
+
+    # Monthly revenue (current month)
+    try:
+        monthly_revenue = db.execute(
+            "SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='paid' "
+            "AND strftime('%Y-%m', paid_at)=strftime('%Y-%m','now','localtime')"
+        ).fetchone()[0]
+    except:
+        monthly_revenue = 0
+
+    # 7-day active users (users who checked in last 7 days)
+    try:
+        dau7 = db.execute(
+            "SELECT COUNT(DISTINCT user_id) FROM checkins "
+            "WHERE date(created_at) >= date('now','localtime','-7 days')"
+        ).fetchone()[0]
+    except:
+        dau7 = 0
+
+    # Today's active users
+    try:
+        dau1 = db.execute(
+            "SELECT COUNT(DISTINCT user_id) FROM checkins "
+            "WHERE date(created_at)=date('now','localtime')"
+        ).fetchone()[0]
+    except:
+        dau1 = 0
+
+    # New users last 7 days
+    try:
+        new_users_7d = db.execute(
+            "SELECT COUNT(*) FROM users "
+            "WHERE date(created_at) >= date('now','localtime','-7 days')"
+        ).fetchone()[0]
+    except:
+        new_users_7d = 0
+
+    # New users today
+    try:
+        new_users_today = db.execute(
+            "SELECT COUNT(*) FROM users WHERE date(created_at)=date('now','localtime')"
+        ).fetchone()[0]
+    except:
+        new_users_today = 0
+
+    # Trial users (jiuyau membership)
+    try:
+        trial_count = db.execute(
+            "SELECT COUNT(*) FROM users WHERE membership='jiuyau' "
+            "AND date(member_expires) > date('now','localtime')"
+        ).fetchone()[0]
+    except:
+        trial_count = 0
+
+    # Expired trial users (jiuyau but expired)
+    try:
+        expired_trial = db.execute(
+            "SELECT COUNT(*) FROM users WHERE membership='jiuyau' "
+            "AND date(member_expires) <= date('now','localtime')"
+        ).fetchone()[0]
+    except:
+        expired_trial = 0
+
+    # VIP conversion rate
+    vip_rate = round(vip_count / total_users * 100, 1) if total_users > 0 else 0
+
+    # Checkin trend (last 7 days)
+    try:
+        trend_rows = db.execute(
+            "SELECT date(created_at) as d, COUNT(*) as c FROM checkins "
+            "WHERE date(created_at) >= date('now','localtime','-7 days') "
+            "GROUP BY date(created_at) ORDER BY d"
+        ).fetchall()
+        checkin_trend = [{'date': r['d'], 'count': r['c']} for r in trend_rows]
+    except:
+        checkin_trend = []
+
+    return jsonify({'stats':{
+        'total_users': total_users,
+        'total_checkins': total_checkins,
+        'total_parties': total_parties,
+        'vip_count': vip_count,
+        'today_checkins': today_checkins,
+        # Enhanced
+        'total_revenue': total_revenue,
+        'monthly_revenue': monthly_revenue,
+        'dau7': dau7,
+        'dau1': dau1,
+        'new_users_7d': new_users_7d,
+        'new_users_today': new_users_today,
+        'trial_count': trial_count,
+        'expired_trial': expired_trial,
+        'vip_rate': vip_rate,
+        'checkin_trend': checkin_trend,
+    }})
 
 @app.route('/api/admin/delete-user', methods=['POST'])
 def api_admin_delete_user():
@@ -2746,9 +3055,11 @@ def api_admin_confirm_payment():
         plan_amounts_monthly = {'jiuyau': 9.9, 'jaugwai': 19.9, 'jausan': 49.9}
         plan_amounts_annual = {'jiuyau': 69, 'jaugwai': 149, 'jausan': 233}
         paid = pmt['amount'] or 0
-        # If amount >= annual price * 0.9, treat as annual
+        plan_amounts_quarterly = {'jiuyau': 25, 'jaugwai': 50, 'jausan': 76}
+        # If amount >= annual price * 0.9, treat as annual; >= quarterly * 0.9, treat as quarterly
         is_annual = paid >= plan_amounts_annual.get(plan, 999) * 0.9
-        days = 365 if is_annual else 30
+        is_quarterly = paid >= plan_amounts_quarterly.get(plan, 999) * 0.9
+        days = 365 if is_annual else (90 if is_quarterly else 30)
         from datetime import timedelta
         exp_date = (datetime.now() + timedelta(days=days)).strftime('%Y-%m-%d')
         db.execute('UPDATE users SET membership=?, member_expires=? WHERE id=?',
@@ -2758,6 +3069,23 @@ def api_admin_confirm_payment():
             VALUES (?,'payment_confirm',?,?,'Admin confirmed payment #'+?)""",
             (pmt['user_id'], plan, d.get('admin_id',0), str(pid)))
         msg = f'✅ 已確認付款，會員已升級至 {plan}'
+        # ─── Send confirmation email ───
+        try:
+            usr = db.execute('SELECT email, nickname FROM users WHERE id=?', (pmt['user_id'],)).fetchone()
+            if usr and usr['email']:
+                plan_names = {'jiuyau': '酒友 VIP', 'jaugwai': '酒鬼 VIP', 'jausan': '酒神 VIP'}
+                pname = plan_names.get(plan, plan)
+                html = f"""<div style="font-family:sans-serif;max-width:480px;margin:auto;background:#1a1a2e;color:#fff;padding:24px;border-radius:16px">
+<h2 style="color:#FBBF24">🎉 會員升級確認</h2>
+<p>{usr['nickname']} 你好！</p>
+<p>你嘅付款已確認，會員已升級至 <b style="color:#FBBF24">{pname}</b></p>
+<p>有效期至：<b>{exp_date}</b></p>
+<p style="margin-top:20px;color:#888">今晚飲咗未 · 享受你的微醺時光 🍻</p>
+</div>"""
+                _send_email(usr['email'], f'✅ 會員升級確認 — {pname}',
+                             html, f'會員升級至 {pname}，有效期至 {exp_date}')
+        except Exception as e:
+            app.logger.error('Payment confirm email failed: %s', e)
     else:
         db.execute('DELETE FROM payments WHERE id=?', (pid,))
         msg = '❌ 付款已拒絕'
@@ -5283,6 +5611,264 @@ def api_ai_taste_profile():
         'top_categories': [{'category': c, 'count': n} for c, n in top_cats],
         'recent_scans': [dict(r) for r in recent]
     })
+
+
+# ═══════════════════ Fortune Dice (骰子測運程) ═══════════════════
+
+import hashlib as _hl
+import random as _rng
+
+_FORTUNE_ELEMENTS = ['金','木','水','火','土']
+_FORTUNE_ELEMENTS_EN = {'金':'Metal','木':'Wood','水':'Water','火':'Fire','土':'Earth'}
+_FORTUNE_EMOJI = {'金':'⭐','木':'🌲','水':'💧','火':'🔥','土':'🏔️'}
+_FORTUNE_DESC = {
+    '金':'剛毅果斷','木':'生機勃勃','水':'柔順靈動','火':'熱情奔放','土':'穩重踏實'
+}
+_FORTUNE_DESC_EN = {
+    '金':'Resolute & decisive','木':'Vibrant & alive','水':'Gentle & flowing','火':'Passionate & bold','土':'Steady & grounded'
+}
+_FORTUNE_LEVELS = [
+    (80,'大吉','✨','鴻運當頭，諸事順遂'),
+    (65,'中吉','🌟','運勢回暖，宜積極行動'),
+    (50,'小吉','🌤️','平穩向好，穩中求進'),
+    (35,'平','☁️','波瀾不驚，隨遇而安'),
+    (20,'小凶','🌧️','暗流涌動，宜謹慎行事'),
+    (0,'凶','🌑','運勢低迷，韜光養晦')
+]
+_FORTUNE_LEVELS_EN = [
+    (80,'Great Fortune','✨','Clear skies — everything aligns in your favor'),
+    (65,'Mid Fortune','🌟','Momentum rising — a great time to take action'),
+    (50,'Small Fortune','🌤️','Steady growth — keep a measured pace'),
+    (35,'Neutral','☁️','Calm waters — go with the flow'),
+    (20,'Minor Misfortune','🌧️','Undercurrents present — stay cautious'),
+    (0,'Misfortune','🌑','Low tide — lay low and conserve energy')
+]
+_FORTUNE_CATS = [
+    ('桃花','💕','異性緣份'),
+    ('財運','💰','財帛進出'),
+    ('事業','📈','仕途發展'),
+    ('健康','💪','身心安泰'),
+    ('心情','😊','情緒起伏'),
+    ('酒運','🍺','飲勝指數')
+]
+_FORTUNE_CATS_EN = [
+    ('Love','💕','Romantic chemistry'),
+    ('Wealth','💰','Money in & out'),
+    ('Career','📈','Career moves'),
+    ('Health','💪','Body & mind'),
+    ('Mood','😊','Emotional state'),
+    ('Drinks','🍺','Drinking luck')
+]
+_LUCKY_COLORS = ['暖橙','翠綠','寶藍','酒紅','淡金','紫韻','墨黑','純白']
+_LUCKY_COLORS_EN = ['Warm Orange','Emerald','Royal Blue','Wine Red','Soft Gold','Purple Hue','Ink Black','Pure White']
+_LUCKY_DIRS = ['東','南','西','北','東南','東北','西南','西北']
+_LUCKY_DIRS_EN = ['East','South','West','North','Southeast','Northeast','Southwest','Northwest']
+_LUCKY_TIME_KEYS = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥']
+_LUCKY_TIME_RANGES = ('23-1','1-3','3-5','5-7','7-9','9-11','11-13','13-15','15-17','17-19','19-21','21-23')
+_LUCKY_TIME_HOUR_KEYS = ['ug_zi','ug_chou','ug_yin','ug_mao','ug_chen','ug_si','ug_wu','ug_wei','ug_shen','ug_you','ug_xu','ug_hai']
+_LUCKY_TIMES = ['子時(23-1)','丑時(1-3)','寅時(3-5)','卯時(5-7)','辰時(7-9)','巳時(9-11)',
+                '午時(11-13)','未時(13-15)','申時(15-17)','酉時(17-19)','戌時(19-21)','亥時(21-23)']
+_FORTUNE_TIPS = {
+    '金':[
+        '今日利果斷決策，遲疑則失。飲酒宜品唔宜豪，一杯好過三杯濫。',
+        '銳氣正盛，宜主動出擊。酒過三巡見真章，真心話至動人。',
+        '鋒芒畢露之日，小心太硬易折。飲杯暖暖熱酒，潤下喉嚨先講。',
+        '金聲玉振，今日口才了得。酒局上係你嘅主場，笑住贏全場。'
+    ],
+    '木':[
+        '生長之氣旺盛，宜播種新計劃。唔好飲悶酒，搵酒友傾下偈。',
+        '今日貴人運強，朋友中藏機遇。舉杯碰杯間，好運自然嚟。',
+        '木秀於林，低調反而勝。靜靜嘆杯好酒，享受當下寧靜。',
+        '枝繁葉茂，人緣極佳。約酒友出嚟飲返杯，好過獨酌。'
+    ],
+    '水':[
+        '隨波逐流亦可到岸，唔好硬碰。飲酒隨心，唔好勉強。',
+        '水到渠成日，耐心等收成。慢慢嘆杯陳年佳釀，好事自然到。',
+        '水能載舟亦能覆舟，今日量力而飲。微醺剛好，醉倒就唔靚。',
+        '順流而行，今日適合聽從直覺。跟住感覺揀酒，一揀就中。'
+    ],
+    '火':[
+        '熱情高漲日，適合社交狂歡！約齊酒友開大場，今晚一定要飲贏！',
+        '火勢正旺，但小心樂極生悲。適可而止，留返二兩醒目酒量。',
+        '烈火烹酒，豪飲則傷。今日適合品鑑唔適合拼酒，慢飲為上。',
+        '火候剛好，熱鬧場合你至搶眼。酒局做主角，場面掌控一流。'
+    ],
+    '土':[
+        '穩如泰山日，適合鞏固根基。唔使急住出去飲，屋企靜靜品酒更好。',
+        '踏實前行，今日收穫來自積累。開支好酒慶祝，感恩過去努力。',
+        '厚土載物，包容為懷。唔好同人計較飲多飲少，開心就得。',
+        '土地肥沃日，適合深耕興趣。研究下酒嘅產地風味，會有新發現。'
+    ]
+}
+_FORTUNE_TIPS_EN = {
+    '金':[
+        'Decisiveness pays off today — hesitation loses. Sip rather than chug; one great pour beats three bad ones.',
+        'You are razor sharp — take the initiative. The third round strips pretense; honest words land hardest.',
+        'Sharp edges cut both ways — soften your tone tonight. A warm drink loosens even the tightest throat.',
+        'Your words carry weight today — every toast lands. Take center stage at the table and own the room.'
+    ],
+    '木':[
+        'Growth energy is strong — plant something new. Skip sad solo drinks; phone a drinking buddy.',
+        'Mentors are everywhere today — your table mates may hold the key. A simple clink can open a door.',
+        'The tallest tree draws no axe — play it cool tonight. Quiet sips of good liquor beat loud bragging.',
+        'Your branches are full of leaves — so is your social calendar. Bring someone out to drink; solo is dull.'
+    ],
+    '水':[
+        'Float with the current — forcing it only spashes. Drink at your own rhythm; never chase anyone.',
+        'A patient day — let things ripen slowly. Savor the vintage and let good news drift in on its own.',
+        'Water can lift or sink boats — pace yourself tonight. A soft buzz is plenty; overdoing it loses style.',
+        'Trust your gut today — first instinct on the menu is probably right. One pour, no second-guessing.'
+    ],
+    '火':[
+        'The fire is high — go out, gather people, and win the night! Round up the whole crew and toast loud.',
+        'Fierce heat can scorch — pull back before you crash. Reserve just enough for tomorrow\'s stories.',
+        'Brandy burns bright but wasted in gulps — today is for tasting, not guzzling. Slow pour only.',
+        'The crowd is yours tonight. Take the lead bottle, set the pace, and the room will follow.'
+    ],
+    '土':[
+        'Rock-solid day — perfect for deepening what you\'ve built. Stay in, sip quietly, and enjoy the stillness.',
+        'Today\'s harvest comes from yesterday\'s labor. Crack a bottle of something nice — celebrate yourself.',
+        'The mountain carries all. Don\'t fuss over who drank more or less — joy is the only measure tonight.',
+        'Fertile ground for hobbies — dig into origins, regions, aromas. A new tasting note may surprise you.'
+    ]
+}
+
+def _fortune_seed(dice_vals, date_str):
+    """Generate deterministic seed from dice values + date"""
+    raw = ','.join(map(str, dice_vals)) + '-' + date_str
+    return int(_hl.md5(raw.encode()).hexdigest()[:8], 16)
+
+def _calculate_fortune(dice_vals, date_str, lang='zh-HK'):
+    """Calculate fortune from dice values and date. lang='zh-HK' or 'en'."""
+    is_en = (lang == 'en' or lang == 'en-US')
+    seed = _fortune_seed(dice_vals, date_str)
+    rng = _rng.Random(seed)
+    total = sum(dice_vals)
+    n_dice = len(dice_vals)
+    elem = _FORTUNE_ELEMENTS[total % 5]
+    cats_meta = _FORTUNE_CATS_EN if is_en else _FORTUNE_CATS
+    cats = {}
+    for name_en, _, _ in cats_meta:
+        base = rng.randint(10, 95)
+        base = min(100, base + max(0, n_dice - 2) * 5)
+        cats[name_en] = base
+    overall = sum(cats.values()) // len(cats)
+    levels = _FORTUNE_LEVELS_EN if is_en else _FORTUNE_LEVELS
+    level_name, level_emoji, level_desc = 'Neutral' if is_en else '平', '☁️', 'Calm waters — go with the flow' if is_en else '波瀾不驚'
+    for threshold, name, emoji, desc in levels:
+        if overall >= threshold:
+            level_name, level_emoji, level_desc = name, emoji, desc
+            break
+    colors = _LUCKY_COLORS_EN if is_en else _LUCKY_COLORS
+    dirs = _LUCKY_DIRS_EN if is_en else _LUCKY_DIRS
+    idx = rng.randint(0, len(_LUCKY_TIME_KEYS)-1)
+    if is_en:
+        # Build localized time label: e.g. "亥時 21-23" -> "21:00–23:00 Hai Hour"
+        time_str = _LUCKY_TIME_HOUR_KEYS[idx].replace('ug_','').title() + f" ({_LUCKY_TIME_RANGES[idx]})"
+    else:
+        time_str = _LUCKY_TIMES[idx]
+    lucky = {
+        'color': rng.choice(colors),
+        'direction': rng.choice(dirs),
+        'number': str(rng.randint(1, 9)) + '·' + str(rng.randint(1, 9)),
+        'time': time_str
+    }
+    tips = (_FORTUNE_TIPS_EN if is_en else _FORTUNE_TIPS).get(elem, _FORTUNE_TIPS_EN.get('土') if is_en else _FORTUNE_TIPS['土'])
+    tip = rng.choice(tips)
+    if is_en:
+        elem_desc = _FORTUNE_DESC_EN[elem]
+    else:
+        elem_desc = _FORTUNE_DESC[elem]
+    return {
+                'ok': True,
+                'element': elem,
+                'element_en': _FORTUNE_ELEMENTS_EN[elem],
+                'element_emoji': _FORTUNE_EMOJI[elem],
+                'element_desc': elem_desc,
+                'lang': lang,
+        'dice_values': dice_vals,
+        'dice_total': total,
+        'date': date_str,
+        'overall_score': overall,
+        'level_name': level_name,
+        'level_emoji': level_emoji,
+        'level_desc': level_desc,
+        'categories': [{'name': n, 'emoji': e, 'desc': d, 'score': cats[n]} for n, e, d in cats_meta],
+        'lucky': lucky,
+        'tip': tip
+    }
+
+
+@app.route('/api/fortune-dice', methods=['POST'])
+@auth_required
+def api_fortune_dice():
+    """骰子測運程"""
+    uid = g.uid
+    d = request.get_json(silent=True) or {}
+    # Determine language: explicit ?lang= override, then user profile lang, default zh-HK
+    lang = request.args.get('lang') or d.get('lang') or ''
+    if not lang:
+        try:
+            db_lang = get_db().execute('SELECT lang FROM users WHERE id=?', (uid,)).fetchone()
+            lang = (db_lang['lang'] if db_lang else '') or 'zh-HK'
+        except Exception:
+            lang = 'zh-HK'
+    is_en = lang == 'en' or lang == 'en-US'
+    plan, level, _ = _get_membership(uid)
+    db = get_db()
+    today = datetime.now().strftime('%Y-%m-%d')
+    limit = _mem_fortune_daily(level)
+    row = db.execute('SELECT count FROM fortune_usage WHERE user_id=? AND date=?', (uid, today)).fetchone()
+    used = row['count'] if row else 0
+    if used >= limit:
+        if is_en:
+            mem_tip = {0:'Upgrade to 🥉 Wine Friend — 3/day', 1:'Upgrade to 🥈 Wine Ghost — 10/day', 2:'Upgrade to 🥇 Wine God — Unlimited', 99:'Admin — Unlimited'}
+        else:
+            mem_tip = {0:'升級🥉酒友每日3次', 1:'升級🥈酒鬼每日10次', 2:'升級🥇酒神無限次', 99:'管理員 — 無限次'}
+        return jsonify({'ok': False, 'error': 'daily_limit', 'limit': limit, 'used': used,
+                        'membership_tip': mem_tip.get(level, ''), 'level': level}), 429
+    dice_vals = d.get('dice_values')
+    if not dice_vals or not isinstance(dice_vals, list):
+        dice_count = min(int(d.get('dice_count', 2)), _mem_dice_max(level))
+        rng = _rng.Random()
+        dice_vals = [rng.randint(1, 6) for _ in range(dice_count)]
+    else:
+        dice_vals = [min(6, max(1, int(v))) for v in dice_vals]
+    if row:
+        db.execute('UPDATE fortune_usage SET count=count+1 WHERE user_id=? AND date=?', (uid, today))
+    else:
+        db.execute('INSERT INTO fortune_usage (user_id, date, count) VALUES (?,?,1)', (uid, today))
+    db.commit()
+    fortune = _calculate_fortune(dice_vals, today, lang)
+    fortune['used'] = used + 1
+    fortune['limit'] = limit
+    fortune['level'] = level
+    fortune['lang'] = lang
+    return jsonify(fortune)
+
+
+@app.route('/api/fortune-dice/quota')
+@auth_required
+def api_fortune_dice_quota():
+    """查詢今日骰子測運程剩餘次數"""
+    uid = g.uid
+    plan, level, _ = _get_membership(uid)
+    db = get_db()
+    today = datetime.now().strftime('%Y-%m-%d')
+    limit = _mem_fortune_daily(level)
+    row = db.execute('SELECT count FROM fortune_usage WHERE user_id=? AND date=?', (uid, today)).fetchone()
+    used = row['count'] if row else 0
+    return jsonify({'ok': True, 'limit': limit, 'used': used, 'remaining': max(0, limit - used), 'level': level})
+
+
+@app.route('/api/fortune-dice/history')
+@auth_required
+def api_fortune_dice_history():
+    """骰子測運程歷史"""
+    uid = g.uid
+    db = get_db()
+    rows = db.execute('SELECT date, count FROM fortune_usage WHERE user_id=? ORDER BY date DESC LIMIT 30', (uid,)).fetchall()
+    return jsonify({'ok': True, 'history': [dict(r) for r in rows]})
 
 
 

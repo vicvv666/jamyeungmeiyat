@@ -1,8 +1,43 @@
 <!DOCTYPE html>
-<!-- v=202606290002 -->
+<!-- v=202606290003 -->
 <html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
+<script>
+// Force-clear old Service Worker cache on every page load
+(function(){
+  if ('serviceWorker' in navigator) {
+    // Check current SW version
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for (var i = 0; i < registrations.length; i++) {
+        var reg = registrations[i];
+        if (reg.active && reg.active.scriptURL.includes('sw.js')) {
+          // Unregister all SWs to force fresh cache
+          reg.unregister().then(function() {
+            console.log('[SW] Unregistered old SW, will reload...');
+            // Reload page to trigger new SW install
+            if (window.location.hash === '#__fresh__') return; // Already fresh
+            window.location.hash = '__fresh__';
+            window.location.reload(true);
+          });
+        }
+      }
+    });
+  }
+})();
+function clearSWCache(){
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      regs.forEach(function(r){r.unregister();});
+      caches.keys().then(function(names){names.forEach(function(n){caches.delete(n);});});
+      window.location.hash='__fresh__';
+      window.location.reload(true);
+    });
+  } else {
+    window.location.reload(true);
+  }
+}
+</script>
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
 <meta http-equiv="Permissions-Policy" content="camera=(self https:),microphone=(),geolocation=(self https:)">
@@ -278,6 +313,7 @@
 <script src="flask-client.js"></script>
 <script>
 var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///android_asset/www'}catch(e){}return ''})();
+
 // ── APK Debug Overlay ──
 (function(){
   var errors=[];
@@ -366,6 +402,7 @@ var ASSET_BASE=(function(){try{if(location.protocol==='file:')return 'file:///an
   });
   // Auto-show disabled; use 5-tap toggle to view debug info
 })();
+
 </script>
 
 
@@ -412,12 +449,24 @@ body{font-family:'Noto Sans HK',-apple-system,sans-serif;background:var(--bg);co
 /* Spinning loader */
 .loader{display:flex;align-items:center;justify-content:center;padding:40px 0}
 .loader-spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--amber);border-radius:50%;animation:spin .7s linear infinite}
+.skeleton{background:linear-gradient(90deg,var(--bg-card) 25%,var(--border) 50%,var(--bg-card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:8px}
+.skeleton-text{height:14px;margin:6px 0;border-radius:4px}
+.skeleton-text.short{width:60%}
+.skeleton-text.medium{width:80%}
+.skeleton-avatar{width:40px;height:40px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle}
+.skeleton-card{padding:12px;margin:8px 0;border-radius:12px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* Confetti / celebration ribbon */
 .confetti-container{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:9999;overflow:hidden}
 .confetti-piece{position:absolute;width:10px;height:10px;opacity:0;animation:confettiFall 2.5s cubic-bezier(.25,.46,.45,.94) forwards}
 @keyframes confettiFall{0%{opacity:1;transform:translateY(-20px) rotate(0deg) scale(0)}15%{opacity:1;transform:translateY(20px) rotate(180deg) scale(1)}100%{opacity:0;transform:translateY(100vh) rotate(720deg) scale(0.5)}}
 @keyframes glassFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* Announcement ticker - 酒杯后背景跑马灯 */
+.anc-ticker{position:relative;height:24px;overflow:hidden;display:flex;align-items:center;pointer-events:none}
+.anc-track{display:inline-flex;align-items:center;gap:0;white-space:nowrap;will-change:transform;animation:anc-scroll 38s linear infinite;color:var(--text)}
+@keyframes anc-scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+@media (prefers-reduced-motion: reduce){.anc-track{animation:none}}
 /* Card micro-interactions */
 .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px;transition:all .25s cubic-bezier(.22,1,.36,1);will-change:transform}
 .card:active{transform:scale(0.985)}
@@ -632,6 +681,7 @@ body.lang-ready{visibility:visible}
   <div class="nav-right">
     <select class="lang-select" id="lang-switch" onchange="switchLang(this.value)"><option value="zh-HK">繁</option><option value="zh-CN">簡</option><option value="en">EN</option></select>
     <button class="nav-btn" id="btn-auth" onclick="showAuth()" data-i18n="login_btn">登入</button>
+    <button class="nav-btn" id="btn-refresh" onclick="clearSWCache()" title="Clear cache & refresh" style="font-size:14px;padding:4px 8px;margin-left:2px" data-i18n-title="sw_clear_title">🔄</button>
     <div class="user-menu" id="user-menu">
       <div class="user-trigger" id="user-trigger" onclick="toggleUM()">👤</div>
       <div class="user-drop" id="user-drop">
@@ -666,10 +716,13 @@ body.lang-ready{visibility:visible}
 <div class="page active" id="page-checkin">
  <div id="checkin-ug-hint"></div>
  <div class="card" style="padding:0;overflow:hidden;border:none">
-  <img id="cover-img" src="cover.webp" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.webp'}else{this.style.display='none'}">
-  <div style="padding:20px 16px 16px;text-align:center">
-   <div style="margin-bottom:8px;display:flex;justify-content:center">
-    <svg width="80" height="80" viewBox="0 0 80 80" style="filter:drop-shadow(0 4px 20px rgba(245,158,11,0.4));animation:glassFloat 3s ease-in-out infinite">
+  <img id="cover-img" src="cover.webp" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.webp'}else{this.style.display=\'none\'}">
+  <div style="position:relative;padding:20px 16px 16px;text-align:center;overflow:hidden">
+   <!-- Beerglass-front ticker (公告文字在酒杯后滚动做背景) -->
+   <div id="anc-behind-glass" aria-hidden="true" style="position:absolute;inset:0;display:flex;align-items:center;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 32px,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,transparent,#000 32px,#000 calc(100% - 32px),transparent)"></div>
+   <div style="position:relative;z-index:2">
+    <div style="margin-bottom:8px;display:flex;justify-content:center">
+     <svg width="80" height="80" viewBox="0 0 80 80" style="filter:drop-shadow(0 4px 20px rgba(245,158,11,0.4));animation:glassFloat 3s ease-in-out infinite">
      <defs>
       <linearGradient id="beerGrad" x1="0" y1="0" x2="0" y2="1">
        <stop offset="0%" stop-color="#FBBF24"/>
@@ -709,9 +762,10 @@ body.lang-ready{visibility:visible}
      <circle cx="34" cy="45" r="0.8" fill="url(#bubbleGrad)"><animate attributeName="cy" values="45;32;24" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.3;0" dur="3s" repeatCount="indefinite"/></circle>
      <circle cx="48" cy="52" r="1" fill="url(#bubbleGrad)"><animate attributeName="cy" values="52;40;32" dur="2.2s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;0.5;0" dur="2.2s" repeatCount="indefinite"/></circle>
     </svg>
+    </div>
+    <div style="font-size:26px;font-weight:900;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),#FBBF24,var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));animation:titleGlow 3s ease-in-out infinite;letter-spacing:1px">🍺 <span data-i18n="chk_title">今晚飲咗未？</span></div>
+    <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:0;letter-spacing:0.3px" data-i18n="chk_subtitle">飲酒社交打卡 · 骰盅對决 · 酒局約起</div>
    </div>
-   <div style="font-size:26px;font-weight:900;text-align:center;margin-bottom:4px;background:linear-gradient(135deg,var(--amber),#FBBF24,var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 4px 12px rgba(245,158,11,0.3));animation:titleGlow 3s ease-in-out infinite;letter-spacing:1px">🍺 <span data-i18n="chk_title">今晚飲咗未？</span></div>
-   <div style="font-size:13px;color:var(--sub);text-align:center;margin-bottom:0;letter-spacing:0.3px" data-i18n="chk_subtitle">飲酒社交打卡 · 骰盅對决 · 酒局約起</div>
   </div>
  </div>
  <div class="card"><div class="card-header" data-i18n="status_checkin">📍 狀態報到</div><div id="status-grid"></div>
@@ -834,6 +888,36 @@ body.lang-ready{visibility:visible}
   <div style="text-align:center;font-size:14px;color:var(--amber);font-weight:600;min-height:22px;margin-top:8px" id="solo-result"></div>
   <button class="btn btn-primary" style="width:100%;font-size:16px;font-weight:800;padding:14px" onclick="shakeSolo()" id="btn-shake" data-i18n="roll_btn">🍻 搖骰！</button>
  </div>
+ <!-- ═══════════ Fortune Card Output (骰子測運程結果) ═══════════ -->
+ <div id="fortune-card-container" style="display:none">
+  <div id="fortune-card" style="background:linear-gradient(145deg,#1A1A2E 0%,#16213E 50%,#0F3460 100%);border-radius:20px;padding:24px 18px;position:relative;overflow:hidden;border:1px solid rgba(245,158,11,0.3);margin-bottom:12px">
+   <div style="position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(245,158,11,0.12),transparent);pointer-events:none"></div>
+   <div id="fc-elem-header" style="text-align:center;margin-bottom:10px"></div>
+   <div id="fc-sub-line" style="text-align:center;font-size:13px;color:var(--sub);margin-bottom:14px"></div>
+   <div style="display:flex;justify-content:center;margin-bottom:16px">
+    <svg id="fc-gauge" width="130" height="130" viewBox="0 0 140 140">
+     <circle cx="70" cy="70" r="58" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="10"/>
+     <circle id="fc-gauge-arc" cx="70" cy="70" r="58" fill="none" stroke="var(--amber)" stroke-width="10" stroke-linecap="round" stroke-dasharray="0 364.42" transform="rotate(-90 70 70)" style="transition:stroke-dasharray 1s ease"/>
+     <text id="fc-gauge-num" x="70" y="66" text-anchor="middle" fill="var(--text)" font-size="32" font-weight="800"></text>
+     <text id="fc-gauge-label" x="70" y="86" text-anchor="middle" fill="var(--sub)" font-size="11">運程指數</text>
+    </svg>
+   </div>
+   <div id="fc-level" style="text-align:center;margin-bottom:14px"></div>
+   <div id="fc-categories" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px"></div>
+   <div id="fc-lucky" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;background:rgba(255,255,255,0.04);border-radius:12px;margin-bottom:12px"></div>
+   <div id="fc-tip" style="font-size:13px;line-height:1.7;color:rgba(228,228,231,0.85);padding:10px 12px;background:rgba(245,158,11,0.06);border-radius:12px;border-left:3px solid var(--amber)"></div>
+   <div style="display:flex;gap:10px;margin-top:14px">
+    <button class="btn btn-outline" style="flex:1;border-color:var(--amber);color:var(--amber)" onclick="fortuneSaveCard()" data-i18n="fortune_save">📥 保存圖片</button>
+    <button class="btn btn-outline" style="flex:1;border-color:var(--pink);color:var(--pink)" onclick="fortuneShareCard()" data-i18n="fortune_share">📤 分享</button>
+   </div>
+  </div>
+  <div style="text-align:center;font-size:11px;color:var(--sub);margin-bottom:14px" id="fortune-daily-hint"></div>
+ </div>
+ <div class="card" style="border:2px solid var(--amber);background:linear-gradient(135deg,rgba(245,158,11,0.06),rgba(217,119,6,0.03))">
+  <div class="card-header">🔮 <span data-i18n="fortune_dice_title">骰子測運程</span></div>
+  <div style="text-align:center;font-size:12px;color:var(--sub);margin-bottom:10px;line-height:1.5" data-i18n="fortune_hint">搖完骰（2粒或以上），再撳呢個掣 ✨</div>
+  <button class="btn btn-outline" style="width:100%;font-size:15px;font-weight:700;padding:12px;border-color:var(--amber);color:var(--amber)" onclick="if(memLevel()>=99){fortuneFromSolo();return;}fortuneFromSolo()" id="btn-fortune-from-solo" data-i18n="fortune_calc_btn">🔮 睇下今日運程</button>
+ </div>
  <div class="card" style="border:2px solid var(--purple);background:rgba(139,92,246,0.05)">
   <div class="card-header" data-i18n="face_off">🎯 麵對麵對決 <span id="room-lock" style="font-size:11px;background:var(--red);color:#fff;padding:2px 8px;border-radius:10px;margin-left:auto">🔒</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
@@ -895,9 +979,9 @@ body.lang-ready{visibility:visible}
   </div>
   <button style="margin-top:10px;width:100%;padding:8px;border:1px solid var(--red);border-radius:8px;background:transparent;color:var(--red);cursor:pointer;font-size:13px" onclick="leaveRoom()" data-i18n="leave_room">🚪 離開房間</button>
  </div>
- <div class="card" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.08));border:1px solid rgba(139,92,246,0.15);padding:10px">
+ <div class="card" id="dice-upgrade-card" style="text-align:center;background:linear-gradient(135deg,rgba(139,92,246,0.08),rgba(236,72,153,0.08));border:1px solid rgba(139,92,246,0.15);padding:10px;cursor:pointer" onclick="if(memLevel()>=99){return;}showUpgradeModal(1)">
   <span style="font-size:20px">💎</span>
-  <span style="font-weight:700;font-size:13px;color:var(--pink);margin-left:4px" data-i18n="unlock_dice">解鎖更多骰盅玩法</span>
+  <span style="font-weight:700;font-size:13px;color:var(--pink);margin-left:4px" data-i18n="unlock_dice">🔓 解鎖更多骰盅玩法</span>
   <div id="dice-upgrade-hint" data-i18n="dice_upgrade_hint" style="font-size:10px;color:var(--sub);margin-top:4px;line-height:1.5">🥉 酒友 ¥9.9/月 — 3粒骰 + 加入房間 ｜ 🥈 酒鬼 ¥19.9/月 — 4粒骰 + 開房 ｜ 🥇 酒神 ¥49.9/月 — 5粒骰 + 自訂規則</div>
  </div>
 </div>
@@ -1191,13 +1275,13 @@ body.lang-ready{visibility:visible}
   <!-- 商品列表 -->
   <div id="shop-products" style="display:grid;gap:10px"></div>
   <!-- 商品详情弹窗 -->
-  <div id="shop-detail-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div id="shop-detail-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display=\'none\'">
     <div class="modal" style="max-width:min(90vw,560px);max-height:85vh;overflow-y:auto">
       <div id="shop-detail-body" style="padding:16px"></div>
     </div>
   </div>
   <!-- 收款/支付確認弹窗 — 三步流程: Step1選支付方式 → Step2收貨地址 → Step3掃碼付款+確認 -->
-  <div id="checkout-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div id="checkout-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display=\'none\'">
     <div class="modal" style="max-width:min(90vw,420px);max-height:88vh;overflow-y:auto">
       <div style="padding:16px">
         <!-- Step indicator -->
@@ -1280,11 +1364,11 @@ body.lang-ready{visibility:visible}
             <button onclick="checkoutGoStep2From3()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:14px;cursor:pointer" data-i18n="ck_back">返回</button>
             <button id="checkout-confirm-btn" onclick="confirmCheckout()" style="flex:2;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,197,94,0.3)" data-i18n="ck_i_paid">✅ 我已付款</button>
           </div>
+           </div>
         </div>
       </div>
     </div>
-  </div>
-  <!-- 掃碼區域 -->
+   <!-- 掃碼區域 -->
   <div class="card" style="border:2px solid #22c55e;background:linear-gradient(135deg,rgba(34,197,94,0.06),rgba(245,158,11,0.04));margin-top:12px">
     <div class="card-header" style="border:none;padding:8px 0">🔍 <span data-i18n="shop_auth_verify">酒品真偽驗證</span></div>
     <div style="font-size:12px;color:var(--sub);margin-bottom:10px"><span data-i18n="shop_auth_verify_desc">掃描或輸入酒瓶條碼，即時驗證真偽同查看酒品详情</span></div>
@@ -1495,6 +1579,7 @@ body.lang-ready{visibility:visible}
     <button class="adm-tab" data-adm="expired" data-i18n="adm_expired" onclick="admShowTab('expired');admLoadExpired()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">⚠️ 到期</button>
     <button class="adm-tab" data-adm="audit" data-i18n="adm_audit" onclick="admShowTab('audit');admLoadAudit()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">📋 日誌</button>
     <button class="adm-tab" data-adm="config" data-i18n="adm_config" onclick="admShowTab('config')" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">⚙️ 設定</button>
+    <button class="adm-tab" data-adm="announcements" data-i18n="adm_announcements" onclick="admShowTab('announcements');admLoadAnnouncements()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">📣 公告</button>
     <button class="adm-tab" data-adm="checkins" data-i18n="checkins" onclick="admShowTab('checkins');admLoadCheckins()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">🌐 動態</button>
     <button class="adm-tab" data-adm="parties" data-i18n="parties" onclick="admShowTab('parties');admLoadParties()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">🎯 酒局</button>
     <button class="adm-tab" data-adm="posts" data-i18n="adm_posts" onclick="admShowTab('posts');admLoadAdmPosts()" style="flex:1;padding:10px 8px;font-size:13px;background:none;border:none;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;min-width:max-content">📸 圈子</button>
@@ -1549,6 +1634,27 @@ body.lang-ready{visibility:visible}
       <button class="btn btn-primary" onclick="admSetServer()" style="white-space:nowrap;margin-top:0;padding:8px 12px" data-i18n="save_btn">儲存</button>
      </div>
     </div>
+   </div>
+   <!-- Announcements page -->
+   <div class="adm-page" id="adm-announcements">
+    <div class="card" style="border:1px solid var(--amber);margin-bottom:10px">
+     <div class="card-header">📣 <span data-i18n="announce_new">新增公告</span></div>
+     <div style="font-size:11px;color:var(--sub);margin-bottom:8px">中英雙語皆填，自動切換繁/簡/英文版同步顯示</div>
+     <label style="font-size:11px;color:var(--sub);display:block;margin-top:8px">繁體標題</label>
+     <input class="input" id="ann-tt-zh" placeholder="例：🎉 雙十一優惠 5折">
+     <label style="font-size:11px;color:var(--sub);display:block;margin-top:8px">English Title</label>
+     <input class="input" id="ann-tt-en" placeholder="e.g. 🎉 Double 11 Sale 50% Off">
+     <label style="font-size:11px;color:var(--sub);display:block;margin-top:8px">繁體內容</label>
+     <textarea class="textarea" id="ann-bd-zh" rows="3" placeholder="公告內文\n支援換行"></textarea>
+     <label style="font-size:11px;color:var(--sub);display:block;margin-top:8px">English Body</label>
+     <textarea class="textarea" id="ann-bd-en" rows="3" placeholder="Announcement body\nLine breaks OK"></textarea>
+     <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
+      <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="ann-pinned">📌 置頂</label>
+      <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="checkbox" id="ann-active" checked>✅ 啟用</label>
+      <button class="btn btn-primary" style="margin-left:auto;flex:1;min-width:120px" onclick="admAddAnnouncement()">➕ 發佈</button>
+     </div>
+    </div>
+    <div id="adm-announce-list"></div>
    </div>
    <!-- Checkins page -->
    <div class="adm-page" id="adm-checkins">
@@ -1661,7 +1767,7 @@ body.lang-ready{visibility:visible}
 </div>
 
 <!-- Group Detail Modal -->
-<div class="modal-overlay" id="grp-detail-mod" style="display:none" onclick="if(event.target===this){clearInterval(_grpChatTimer||0);this.style.display='none'}">
+<div class="modal-overlay" id="grp-detail-mod" style="display:none" onclick="if(event.target===this){clearInterval(_grpChatTimer||0);this.style.display=\'none\'}">
  <div class="modal" style="max-width:min(90vw,520px);height:90vh;display:flex;flex-direction:column;overflow:hidden">
   <div style="padding:16px;flex-shrink:0">
    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -1681,7 +1787,7 @@ body.lang-ready{visibility:visible}
  </div>
 </div>
 <!-- Group Create Modal -->
-<div class="modal-overlay" id="grp-create-mod" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+<div class="modal-overlay" id="grp-create-mod" style="display:none" onclick="if(event.target===this)this.style.display=\'none\'">
  <div class="modal" style="max-width:min(90vw,420px);max-height:85vh;overflow-y:auto">
   <div style="padding:16px">
    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -1697,7 +1803,7 @@ body.lang-ready{visibility:visible}
  </div>
 </div>
 <!-- Group Explore Modal -->
-<div class="modal-overlay" id="grp-explore-mod" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+<div class="modal-overlay" id="grp-explore-mod" style="display:none" onclick="if(event.target===this)this.style.display=\'none\'">
  <div class="modal" style="max-width:min(90vw,520px);max-height:85vh;overflow-y:auto">
   <div style="padding:16px">
    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -2028,6 +2134,7 @@ const DICE_SND=(function(){
   }
 })();
 
+
 // ═══════ ASSET BASE (already defined in <head> for cover img) ═══════
 // ASSET_BASE is defined in <head> as var, don't redeclare with const
 
@@ -2056,6 +2163,7 @@ const DICE_SND=(function(){
  },false);
 })();
 
+
 // ═══════ API_BASE ═══════
 const API_BASE = (()=>{
  const proto = location.protocol;
@@ -2070,6 +2178,7 @@ const API_BASE = (()=>{
  }
  return '';
 })();
+
 
 // ═══════ API CALL ═══════
 // Use XMLHttpRequest instead of fetch() — on Android WebView file:// protocol,
@@ -2149,7 +2258,7 @@ function fireConfetti(){
 }
 
 // ═══════ MEMBERSHIP HELPERS ═══════
-function memLevel(){if(!me||!me.membership||me.membership==='free')return 0;if(me.membership==='admin')return 3;return{jiuyau:1,jaugwai:2,jausan:3}[me.membership]||0}
+function memLevel(){if(!me||!me.membership||me.membership==='free')return 0;if(me.membership==='admin'||me.admin===1)return 99;return{jiuyau:1,jaugwai:2,jausan:3}[me.membership]||0}
 function memBadge(lv){if(!lv)lv=memLevel();if(!lv)return'';const n={1:T('mem_jiuyau'),2:T('mem_jaugwai'),3:T('mem_jausan')}[lv]||'';return '<span class="mem-badge mem-badge-'+lv+'">'+n+'</span>'}
 function memNickClass(lv){if(!lv)lv=memLevel();return lv?'nick-'+lv:''}
 function memAvClass(lv){if(!lv)lv=memLevel();return lv?'lv-'+lv:''}
@@ -2247,8 +2356,15 @@ async function loadAdBanner(container){
 }
 
 // ─── Upgrade Modal (Enhanced Visual) ───
+// 先移除可能残留的旧弹窗
 function showUpgradeModal(requiredLv){
-  const names={1:'🥉'+T('lv_bronze'),2:'🥈'+T('lv_silver'),3:'🥇'+T('lv_gold')};
+ try{
+const old=document.getElementById('upgrade-overlay');
+if(old)old.remove();
+clearInterval(window._ugCdTimer);
+if(typeof T!=='function'){console.error('[showUpgradeModal] T() undefined');return;}
+var lv=requiredLv||1;if(lv<1)lv=1;if(lv>3)lv=3;
+const names={1:'🥉'+T('lv_bronze'),2:'🥈'+T('lv_silver'),3:'🥇'+T('lv_gold')};
   const pricesM={1:T('pricing_bronze_m'),2:T('pricing_silver_m'),3:T('pricing_gold_m')};
   const pricesA={1:T('pricing_bronze_a'),2:T('pricing_silver_a'),3:T('pricing_gold_a')};
   const freeVs={
@@ -2318,22 +2434,25 @@ function showUpgradeModal(requiredLv){
   document.body.insertAdjacentHTML('beforeend',h);
   // 倒計時更新
   if(cdShow){window._ugCdTimer=setInterval(function(){
-    var cs=localStorage.getItem('jymy_ug_cd_start');if(!cs){clearInterval(window._ugCdTimer);return}
-    var left=Math.max(0,72*3600000-(Date.now()-parseInt(cs)));
-    var e=document.getElementById('ug-cd');
-    if(!e||left<=0){if(e)e.textContent=T('expired');clearInterval(window._ugCdTimer);return}
-    var hh=Math.floor(left/3600000),mm=Math.floor((left%3600000)/60000),ss=Math.floor((left%60000)/1000);
-    e.textContent=hh+T('ug_hour')+String(mm).padStart(2,'0')+T('ug_min')+String(ss).padStart(2,'0')+T('ug_sec');
+   var cs=localStorage.getItem('jymy_ug_cd_start');if(!cs){clearInterval(window._ugCdTimer);return}
+   var left=Math.max(0,72*3600000-(Date.now()-parseInt(cs)));
+   var e=document.getElementById('ug-cd');
+   if(!e||left<=0){if(e)e.textContent=T('expired');clearInterval(window._ugCdTimer);return}
+   var hh=Math.floor(left/3600000),mm=Math.floor((left%3600000)/60000),ss=Math.floor((left%60000)/1000);
+   e.textContent=hh+T('ug_hour')+String(mm).padStart(2,'0')+T('ug_min')+String(ss).padStart(2,'0')+T('ug_sec');
   },1000)}
+ }catch(e){console.error('[showUpgradeModal]',e);alert('升級彈窗錯誤: '+e.message);}
 }
 function ugTab(t){
-  document.getElementById('ug-panel-quick').style.display=t==='quick'?'':'none';
-  document.getElementById('ug-panel-compare').style.display=t==='compare'?'':'none';
-  const q=document.getElementById('ug-tab-quick'),c=document.getElementById('ug-tab-compare');
-  if(t==='quick'){q.style.background='var(--amber)';q.style.color='#fff';c.style.background='var(--bg2)';c.style.color='var(--sub)'}
-  else{c.style.background='var(--amber)';c.style.color='#fff';q.style.background='var(--bg2)';q.style.color='var(--sub)'}
+ var q=document.getElementById('ug-panel-quick'),c=document.getElementById('ug-panel-compare');
+ if(q) q.style.display=t==='quick'?'':'none';
+ if(c) c.style.display=t==='compare'?'':'none';
+ var qb=document.getElementById('ug-tab-quick'),cb=document.getElementById('ug-tab-compare');
+ if(!qb||!cb)return;
+ if(t==='quick'){qb.style.background='var(--amber)';qb.style.color='#fff';cb.style.background='var(--bg2)';cb.style.color='var(--sub)'}
+ else{cb.style.background='var(--amber)';cb.style.color='#fff';qb.style.background='var(--bg2)';qb.style.color='var(--sub)'}
 
-  if(typeof window._langConvert==='function')window._langConvert(false);
+ if(typeof window._langConvert==='function')window._langConvert(false);
 }
 function _ugCompareTable(){
   const L={0:{t:T('lv_free'),icon:'🆓'},1:{t:'🥉'+T('lv_bronze'),icon:'🥉'},2:{t:'🥈'+T('lv_silver'),icon:'🥈'},3:{t:'🥇'+T('lv_gold'),icon:'🥇'}};
@@ -2357,9 +2476,9 @@ function _ugCompareTable(){
     ['🌈 '+T('ug_rainbow_name'),'✗','✗','✗','✓'],
   ];
   const curLv=memLevel();
-  let h='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-  h+='<tr style="border-bottom:2px solid var(--border)"><td style="padding:6px 4px;color:var(--sub)"></td>';
-  [0,1,2,3].forEach(lv=>{const c=lv===curLv?'color:var(--pink);font-weight:700':'color:var(--text)';const tag=lv===curLv?' ('+T('cmp_you')+')':'';h+='<td style="padding:6px 4px;text-align:center;'+c+'">'+_L[lv].t+tag+'</td>'});
+   let h='<div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+   h+='<tr style="border-bottom:2px solid var(--border)"><td style="padding:6px 4px;color:var(--sub)"></td>';
+   [0,1,2,3].forEach(lv=>{const c=lv===curLv?'color:var(--pink);font-weight:700':'color:var(--text)';const tag=lv===curLv?' ('+T('cmp_you')+')':'';h+='<td style="padding:6px 4px;text-align:center;'+c+'">'+L[lv].t+tag+'</td>'});
   h+='</tr>';
   h+='<tr style="border-bottom:1px solid var(--border)"><td></td><td style="text-align:center;color:var(--sub);font-size:10px;padding:4px">'+T('lv_free')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_bronze_m')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_silver_m')+'</td><td style="text-align:center;color:var(--amber);font-size:10px;padding:4px">'+T('pricing_gold_m')+'</td></tr>';
   F.forEach(row=>{
@@ -2403,32 +2522,35 @@ function ugSetBilling(type){
   });
 }
 async function doUpgrade(mode){
-  const lv=parseInt(document.getElementById('ug-lv')?.value||1);
-  const planMap={1:'jiuyau',2:'jaugwai',3:'jausan'};
-  selPlan=planMap[lv]||'jiuyau';
-  if(mode==='trial'){
-    // Trust-first: instant upgrade via API, 72h to pay
-    const plan=selPlan;
-    document.getElementById('upgrade-overlay')?.remove();
-    try{
-      const r=await fetch('/api/member/upgrade',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('token')},body:JSON.stringify({plan:plan,billing:'trial',mode:'trial'})});
-      const d=await r.json();
-      if(d.ok){
-        toast('🎉 體驗已即時生效！72小時內付款即可保留',0);
-        // Update local membership
-        if(me){me.membership=d.membership;me.member_expires=d.expires}
-        // Show trial countdown + pay QR
-        showTrialCountdown(d.expires,plan);
-      }else{toast(d.msg||d.error||T('ug_upgrade_failed'),1)}
-    }catch(e){toast(T('network_error'),1)}
-    return;
-  }
-  // Normal upgrade: sync billing, open payment QR
-  const ugBill=document.getElementById('ug-billing');
-  if(ugBill){selBilling=ugBill.value;const cb=document.getElementById('billing-toggle');if(cb){cb.checked=selBilling==='annual';toggleBilling()}}
-  isTrialPurchase=false;
-  document.getElementById('upgrade-overlay')?.remove();
-  showPay();
+ // Defensive defaults — ensure overlay removed FIRST so pay-mod is reachable
+ const ov=document.getElementById('upgrade-overlay');
+ if(ov)ov.remove();
+ clearInterval(window._ugCdTimer);
+ const lvRaw=document.getElementById('ug-lv');
+ const lv=parseInt((lvRaw&&lvRaw.value)||1);
+ const planMap={1:'jiuyau',2:'jaugwai',3:'jausan'};
+ selPlan=planMap[lv]||'jiuyau';
+ if(mode==='trial'){
+  // Trust-first: instant upgrade via API, 72h to pay
+  const plan=selPlan;
+  try{
+   const r=await fetch('/api/member/upgrade',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+localStorage.getItem('token')},body:JSON.stringify({plan:plan,billing:'trial',mode:'trial'})});
+   const d=await r.json();
+   if(d.ok){
+    toast('🎉 體驗已即時生效！72小時內付款即可保留',0);
+    // Update local membership
+    if(me){me.membership=d.membership;me.member_expires=d.expires}
+    // Show trial countdown + pay QR
+    showTrialCountdown(d.expires,plan);
+   }else{toast(d.msg||d.error||T('ug_upgrade_failed'),1)}
+  }catch(e){toast(T('network_error'),1)}
+  return;
+ }
+ // Normal upgrade: sync billing, open payment QR
+ const ugBill=document.getElementById('ug-billing');
+ if(ugBill){selBilling=ugBill.value;const cb=document.getElementById('billing-toggle');if(cb){cb.checked=selBilling==='annual';toggleBilling()}}
+ isTrialPurchase=false;
+ showPay();
 }
 function showTrialCountdown(expiry,plan){
   // Show floating trial countdown banner + payment CTA
@@ -2454,10 +2576,22 @@ function showTrialCountdown(expiry,plan){
 }
 
 // ═══════ LOADER ═══════
-function showLoader(containerId){
-  const c=document.getElementById(containerId);
-  if(!c)return;
-  c.innerHTML='<div class="loader"><div class="loader-spin"></div></div>';
+function showLoader(containerId, opts){
+  opts = opts || {};
+  const c = document.getElementById(containerId);
+  if(!c) return;
+  if(!opts.spinner || c._spinner) c._spinner = null;
+  if(opts.skeleton){
+    const rows = opts.rows || 5;
+    let h = '<div class="skeleton-list">';
+    for(let i=0;i<rows;i++){
+      h += '<div class="skeleton-card"><div class="skeleton skeleton-text medium"></div><div class="skeleton skeleton-text short"></div></div>';
+    }
+    h += '</div>';
+    c.innerHTML = h;
+  } else {
+    c.innerHTML='<div class="loader"><div class="loader-spin"></div></div>';
+  }
 }
 
 // ═══════ SCROLL TO TOP ═══════
@@ -2548,13 +2682,15 @@ function showPage(name){
   }
 
   document.querySelectorAll('.page').forEach(p=>{
-    p.classList.remove('active','slide-left','slide-right');
-  });
-  const pg=document.getElementById('page-'+name);
-  if(pg){
-    if(slideCls) pg.classList.add(slideCls);
-    pg.classList.add('active');
-  }
+   p.classList.remove('active','slide-left','slide-right');
+   p.style.display='none'; // Force hidden — overrides any inline block set elsewhere
+   });
+   const pg=document.getElementById('page-'+name);
+   if(pg){
+   if(slideCls) pg.classList.add(slideCls);
+   pg.classList.add('active');
+   pg.style.display='block'; // Force show the active page
+   }
   document.querySelectorAll('.tab').forEach(tb=>tb.classList.remove('active'));
   const tb=document.querySelector('[data-page="'+name+'"]');
   if(tb)tb.classList.add('active');
@@ -2589,7 +2725,7 @@ function showPage(name){
     const fc=document.getElementById('fr-section-circle');if(fc)fc.style.display='';
     const cb=document.getElementById('fr-main-tab-circle');if(cb){cb.style.borderBottom='2px solid var(--pink)';cb.style.color='var(--pink)';cb.style.fontWeight='700';}
   }
-  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts();}if(name==='map')initMap();if(name==='party'){loadParties();}if(name==='member')updMem();if(name==='dice')initDice();if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}
+  if(name==='timeline'){loadTL()}if(name==='friends'){loadFriendsAll();loadPosts();}if(name==='map')initMap();if(name==='party'){loadParties();}if(name==='member')updMem();if(name==='dice'){initDice();if(typeof fortuneUpdateQuota==='function')fortuneUpdateQuota();}if(name==='shop'){shopLoadProducts(shopCurrentCat||'');initAIRec();}if(name==='checkin'){loadAnnouncements();}
   // 切tab后触发 debounced 语言转换
   if(document.documentElement.lang!=='zh-HK'&&typeof window._langConvert==='function'){
     window._langConvert(true);
@@ -2789,6 +2925,23 @@ const _L={
   stats_friends:'酒友',
   stats_posts:'帖子',
   dice_title:'🎲 骰盅大挑戰',
+  fortune_dice_title:'骰子測運程',
+  fortune_hint:'搖完骰（2粒或以上），再撳呢個掣 ✨',
+  fortune_calc_btn:'🔮 睇下今日運程',
+  fortune_save:'📥 保存圖片',
+  fortune_share:'📤 分享',
+  fortune_roll_first:'⚠️ 請先搖2粒骰以上',
+  fortune_login_first:'⚠️ 請先登入',
+  fortune_calculating:'🔮 測算中...',
+  fortune_failed:'❌ 運程失敗',
+  fortune_retry:'❌ 測算失敗，請重試',
+  fortune_quota_done:'今日次數已用完',
+  fortune_quota_left:'今日剩餘',
+  fortune_quota_times:'次',
+  fortune_upgrade_unlock:'（升級解鎖更多）',
+  fortune_save_first:'請先測運程',
+  fortune_save_member:'🔒 保存精美运程卡需「🥉酒友」或以上會員',
+  fortune_daily_limit_reached:'🚫 今日次數已用完',
   dice_count:'選擇骰數',
   roll_btn:'🎰 搖骰！',
   face_off:'⚔️ 麵對麵對決',
@@ -3203,7 +3356,7 @@ const _L={
   confirm_del_fav:'確定删除此收藏？',
   fav_deleted:'已刪除',
   fav_added:'已收藏入酒柜🔖',
-  net_err:'網络错误',
+  net_err:'網络错误',sw_clear_title:'清除快取並重整',
   fav_del_fail:'Remove failed',
   fav_add_fail:'收藏失败',
   inv_copied:'邀請碼已復制📤',
@@ -3213,8 +3366,12 @@ const _L={
   inv_used:'✅ 邀請碼已使用',
   inv_fail:'使用失败',
   coupon_none:'🧧 暫無優惠券～升級會員每月自局派券！',
-  coupon_count:'張',
-  bar_none:'🏙️ 暫無合作酒吧～持續拓展中！',
+    coupon_count:'張',
+    coupon_active:'可用',
+    coupon_used:'已用',
+    coupon_expired:'過期',
+    coupon_general:'通用',
+    bar_none:'🏙️ 暫無合作酒吧～持續拓展中！',
   no_friends:'還沒有酒友 🥲',
   no_checkins:'還沒報到過 🍺',
   admin_name:'管理員',
@@ -3564,6 +3721,11 @@ const _L={
   pwa_no_camera:'PWA模式不支持相機，請輸入條碼或從相冊選取',
   scan_manual_hint:'請輸入條碼或從相冊選取條碼圖片',
   scan_manual_btn:'手動輸入條碼',
+  dl_apk:'🚀 下載 APK',
+  scan_from_photo:'📷 從相冊選取條碼',
+  pp_post_upgrade_feed:'🔥 升級動態',
+  adm_announcements:'📣 公告',
+  announce_new:'新增公告',
 },'zh-CN':{
   st_mai_yum:'冇饮',
   st_seung_yum:'想饮',
@@ -3706,6 +3868,23 @@ const _L={
   stats_friends:'酒友',
   stats_posts:'帖子',
   dice_title:'🎲 骰盅大挑战',
+  fortune_dice_title:'骰子测运程',
+  fortune_hint:'摇完骰（2粒或以上），再按这个掣 ✨',
+  fortune_calc_btn:'🔮 看下今日运程',
+  fortune_save:'📥 保存图片',
+  fortune_share:'📤 分享',
+  fortune_roll_first:'⚠️ 请先摇2粒骰以上',
+  fortune_login_first:'⚠️ 请先登录',
+  fortune_calculating:'🔮 测算中...',
+  fortune_failed:'❌ 运程失败',
+  fortune_retry:'❌ 测算失败，请重试',
+  fortune_quota_done:'今日次数已用完',
+  fortune_quota_left:'今日剩余',
+  fortune_quota_times:'次',
+  fortune_upgrade_unlock:'（升级解锁更多）',
+  fortune_save_first:'请先测运程',
+  fortune_save_member:'🔒 保存精美运程卡需「🥉酒友」或以上会员',
+  fortune_daily_limit_reached:'🚫 今日次数已用完',
   dice_count:'选择骰数',
   roll_btn:'🎰 摇骰！',
   face_off:'⚔️ 面面对对决',
@@ -4120,7 +4299,7 @@ const _L={
   confirm_del_fav:'确定删除呢个收藏？',
   fav_deleted:'已删除',
   fav_added:'已加入酒柜 🔖',
-  net_err:'网络错误',
+  net_err:'网络错误',sw_clear_title:'清除缓存并刷新',
   fav_del_fail:'删除失败',
   fav_add_fail:'添加失败',
   inv_copied:'邀请码已复制📤',
@@ -4130,8 +4309,12 @@ const _L={
   inv_used:'✅ 邀请码已使用',
   inv_fail:'兑换失败',
   coupon_none:'🧧 暂无优惠券~ 升级即享每月优惠券！',
-  coupon_count:'',
-  bar_none:'🏙️ 暂无合作酒吧~',
+    coupon_count:'',
+    coupon_active:'可用',
+    coupon_used:'已用',
+    coupon_expired:'过期',
+    coupon_general:'通用',
+    bar_none:'🏙️ 暂无合作酒吧~',
   no_friends:'暂无酒友 🥲',
   no_checkins:'暂无报到 🍺',
   admin_name:'管理员',
@@ -4482,6 +4665,11 @@ const _L={
   pwa_no_camera:'PWA模式不支持相机，请输入条码或从相册选取',
   scan_manual_hint:'请输入条码或从相册选取条码图片',
   scan_manual_btn:'手动输入条码',
+  dl_apk:'🚀 下载 APK',
+  scan_from_photo:'📷 从相册选取条码',
+  pp_post_upgrade_feed:'🔥 升级动态',
+  adm_announcements:'📣 公告',
+  announce_new:'新增公告',
 },'en':{
   st_mai_yum:'Sober',
   st_seung_yum:'Thirsty',
@@ -4624,6 +4812,23 @@ const _L={
   stats_friends:'Friends',
   stats_posts:'Posts',
   dice_title:'🎲 Dice Challenge',
+  fortune_dice_title:'Dice Fortune',
+  fortune_hint:'Roll dice (2+) then tap this ✨',
+  fortune_calc_btn:'🔮 See Today Fortune',
+  fortune_save:'📥 Save Image',
+  fortune_share:'📤 Share',
+  fortune_roll_first:'⚠️ Please roll 2+ dice first',
+  fortune_login_first:'⚠️ Please login first',
+  fortune_calculating:'🔮 Calculating...',
+  fortune_failed:'❌ Fortune failed',
+  fortune_retry:'❌ Calculation failed, please retry',
+  fortune_quota_done:"Today's quota used up",
+  fortune_quota_left:'Remaining today',
+  fortune_quota_times:'times',
+  fortune_upgrade_unlock:' (Upgrade for more)',
+  fortune_save_first:'Run fortune first',
+  fortune_save_member:'🔒 Saving fortune card requires 🥉 Wine Friend+ membership',
+  fortune_daily_limit_reached:"🚫 Today's quota used up",
   dice_count:'Select Dice',
   roll_btn:'🎰 Roll!',
   face_off:'⚔️ Face to Face',
@@ -5038,7 +5243,7 @@ const _L={
   confirm_del_fav:'Remove this favorite?',
   fav_deleted:'Removed',
   fav_added:'Added to cellar',
-  net_err:'Network error',
+  net_err:'Network error',sw_clear_title:'Clear cache & refresh',
   fav_del_fail:'Remove failed',
   fav_add_fail:'Add failed',
   inv_copied:'Invite code copied',
@@ -5048,8 +5253,12 @@ const _L={
   inv_used:'Invite code used',
   inv_fail:'Redemption failed',
   coupon_none:'No coupons yet - upgrade for monthly coupons!',
-  coupon_count:'coupons',
-  bar_none:'No partner bars yet',
+    coupon_count:'coupons',
+    coupon_active:'Active',
+    coupon_used:'Used',
+    coupon_expired:'Expired',
+    coupon_general:'General',
+    bar_none:'No partner bars yet',
   no_friends:'No friends yet',
   no_checkins:'No check-ins yet',
   admin_name:'Admin',
@@ -5398,6 +5607,11 @@ const _L={
   pwa_no_camera:'PWA mode does not support camera, enter barcode or pick from gallery',
   scan_manual_hint:'Enter barcode or pick barcode image from gallery',
   scan_manual_btn:'Enter barcode manually',
+  dl_apk:'🚀 Download APK',
+  scan_from_photo:'📷 Pick barcode from gallery',
+  pp_post_upgrade_feed:'🔥 Upgrade Feed',
+  adm_announcements:'📣 Announcements',
+  announce_new:'New Announcement',
 
 }
 };
@@ -5464,6 +5678,7 @@ window._langConvert = (function(){
     }, 100);
   };
 })();
+
 // ── 繁→英 MutationObserver ──
 (function(){
   window._enReplace=function _enReplace(node){
@@ -5494,6 +5709,7 @@ window._langConvert = (function(){
   }
   _startEnObs();
 })();
+
 
 const _t2s={'偽':'伪','站':'站','傳':'传','圖':'图','選 ':'选','備':'备','跡':'迹','訂':'订','薦':'荐','動':'动','飲':'饮','報':'报','驗':'验','銀':'银','萬':'万','與':'与','業':'业','應':'应','負':'负','責':'责','專':'专','權':'权','歡':'欢','聯':'联','電':'电','題':'题','導':'导','讓':'让','過':'过','這':'这','開':'开','關':'关','數':'数','點':'点','經':'经','網':'网','費':'费','註':'注','隨':'随','現':'现','場':'场','認':'认','話':'话','說':'说','讀':'读','讚':'赞','選':'选','鐘':'钟','長':'长','間':'间','頭':'头','顯':'显','項':'项','須':'须','際':'际','領':'领','願':'愿','類':'类','風':'风','飽':'饱','餘':'余','騰':'腾','鬥':'斗','歲':'岁','後':'后','從':'从','發':'发','內':'内','對':'对','損':'损','擔':'担','條':'条','繼':'继','續':'续','時':'时','狀':'状','聲':'声','勵':'励','據':'据','資':'资','紀':'纪','儲':'储','檔':'档','暫':'暂','測':'测','試':'试','頻':'频','視':'视','壓':'压','縮':'缩','種':'种','區':'区','個':'个','協':'协','議':'议','處':'处','環':'环','計':'计','劃':'划','營':'营','運':'运','護':'护','統':'统','歷':'历','嚴':'严','將':'将','記':'记','違':'违','齡':'龄','擇':'择','帳':'帐','號':'号','掃':'扫','碼':'码','質':'质','總':'总','響':'响','準':'准','標':'标','機':'机','麼':'么','講':'讲','覺':'觉','進':'进','無':'无','問':'问','聽':'听','見':'见','辦':'办','幣':'币','塊':'块','幾':'几','購':'购','憑':'凭','冊':'册','斷':'断','氣':'气','團':'团','結':'结','極':'极','慶':'庆','節':'节','勞':'劳','屬':'属','廣':'广','職':'职','證':'证','評':'评','審':'审','貨':'货','賽':'赛','輸':'输','設':'设','識':'识','論':'论','贈':'赠','賺':'赚','賠':'赔','貸':'贷','調':'调','來':'来','們':'们','裡':'里','給':'给','於':'于','國':'国','語':'语','誰':'谁','請':'请','買':'买','賣':'卖','實':'实','書':'书','寫':'写','學':'学','東':'东','燈':'灯','燒':'烧','爐':'炉','爭':'争','獲':'获','獻':'献','畫':'画','當':'当','盡':'尽','盤':'盘','確':'确','磚':'砖','禮':'礼','稱':'称','稅':'税','穩':'稳','窮':'穷','競':'竞','範':'范','築':'筑','簡':'简','籌':'筹','籃':'篮','籠':'笼','約':'约','紅':'红','納':'纳','級':'级','紛':'纷','細':'细','終':'终','組':'组','絕':'绝','絞':'绞','絲':'丝','綜':'综','維':'维','綱':'纲','緊':'紧','緒':'绪','線':'线','締':'缔','緣':'缘','編':'编','緬':'缅','緯':'纬','練':'练','縫':'缝','縱':'纵','績':'绩','織':'织','繞':'绕','繪':'绘','繳':'缴','繹':'绎','纖':'纤','罰':'罚','罵':'骂','羅':'罗','羨':'羡','義':'义','肅':'肃','腦':'脑','腸':'肠','膚':'肤','膠':'胶','膽':'胆','臉':'脸','臘':'腊','臟':'脏','臨':'临','舉':'举','舊':'旧','辯':'辩','農':'农','遲':'迟','遷':'迁','郵':'邮','鄰':'邻','醫':'医','釀':'酿','針':'针','鋪':'铺','錦':'锦','煉':'炼','鍋':'锅','鎊':'镑','鎮':'镇','鏡':'镜','鏢':'镖','鐵':'铁','鑄':'铸','鑒':'鉴','陣':'阵','陰':'阴','陳':'陈','陸':'陆','陽':'阳','隊':'队','險':'险','離':'离','靈':'灵','韻':'韵','頁':'页','頃':'顷','額':'额','顏':'颜','顧':'顾','飛':'飞','飾':'饰','餃':'饺','餅':'饼','餓':'饿','饅':'馒','饒':'饶','馬':'马','馳':'驰','騙':'骗','驅':'驱','驕':'骄','驚':'惊','驛':'驿','鬚':'须','鬧':'闹','鬱':'郁','魚':'鱼','鮮':'鲜','鳥':'鸟','鳳':'凤','鳴':'鸣','鵝':'鹅','鶴':'鹤','鷹':'鹰','鹵':'卤','鹹':'咸','麗':'丽','麥':'麦','麵':'面','黃':'黄','黨':'党','齊':'齐','齋':'斋','齒':'齿','龍':'龙','龐':'庞','龜':'龟','廳':'厅','廢':'废','廚':'厨','廟':'庙','縣':'县','燙':'烫','燜':'焖','燦':'灿','燭':'烛','牽':'牵','犧':'牺','獅':'狮','獎':'奖','獨':'独','獵':'猎','瓊':'琼','產':'产','礙':'碍','禦':'御','緻':'致','縛':'缚','繆':'缪','膩':'腻','膿':'脓','鯉':'鲤','鯊':'鲨','鯨':'鲸','鴨':'鸭','鴻':'鸿','暢':'畅','嘔':'呕','暈':'晕','溝':'沟','飄':'飘','歸':'归','嘗':'尝','寶':'宝','寬':'宽','賓':'宾','壽':'寿','層':'层','島':'岛','幫':'帮','幹':'干','徹':'彻','徑':'径','憶':'忆','態':'态','懸':'悬','懲':'惩','懶':'懒','戲':'戏','戶':'户','擴':'扩','擁':'拥','揮':'挥','攬':'揽','攝':'摄','擺':'摆','搖':'摇','擲':'掷','撥':'拨','擬':'拟','攔':'拦','擠':'挤','撈':'捞','撿':'捡','換':'换','攢':'攒','牆':'墙','壇':'坛','壩':'坝','墳':'坟','殼':'壳','壺':'壶','夾':'夹','奪':'夺','奮':'奋','妝':'妆','媽':'妈','嬌':'娇','娛':'娱','嬰':'婴','寵':'宠','參':'参','張':'张','叢':'丛','興':'兴','倉':'仓','億':'亿','優':'优','償':'偿','兩':'两','創':'创','劍':'剑','劑':'剂','勛':'勋','勸':'劝','勢':'势','復':'复','徵':'征','沒':'没','會':'会','樣':'样','強':'强','變':'变','擊':'击','單':'单','預':'预','館':'馆','體':'体','車':'车','轉':'转','載':'载','邊':'边','還':'还','連':'连','達':'达','遠':'远','適':'适','錄':'录','鎖':'锁','鍵':'键','鏈':'链','錢':'钱','門':'门','閉':'闭','難':'难','雲':'云','頂':'顶','雜':'杂','廠':'厂','僅':'仅','繫':'系','佈':'布','係':'系','婦':'妇','駕':'驾','駛':'驶','純':'纯','綠':'绿','穫':'获','穀':'谷','盧':'卢','礎':'础','檯':'台','瞭':'了','瓚':'瓒','犢':'犊','獄':'狱','琺':'珐','嗎':'吗','囉':'啰','兒':'儿','烏':'乌','為':'为','熱':'热',};
 
@@ -5530,14 +5746,16 @@ const _t2s={'偽':'伪','站':'站','傳':'传','圖':'图','選 ':'选','備':'
   }
   _startCnObs();
 })();
+
 function switchLang(l){
+  try{
   lang=l;
   document.documentElement.lang=l;
   document.getElementById('lang-switch').value=l;
   if(me&&token){api('/api/update-profile',{method:'POST',body:{lang}}).catch(()=>{})}
-  // 1) 更新i18n key元素
+  // 1) 更新 i18n key 元素
   updTitles();
-  // 2) 重新渲染功能模块（innerHTML写入繁体）
+  // 2) 重新渲染功能模块（innerHTML 写入繁体）
   buildGrid();
   if(typeof updMem==='function')updMem();
   if(typeof updDiceLabels==='function')updDiceLabels();
@@ -5555,15 +5773,15 @@ function switchLang(l){
   // 3) if switching TO zh-HK, need to undo _t2e damage by re-rendering i18n elements
   // For en/zh-CN, _langConvert handles it via _t2e/_cnReplace
   if(l==='zh-HK' && typeof window._rehkI18n==='function') window._rehkI18n();
-  // 4) 全局DOM转换+延迟兜底
+  // 4) 全局 DOM 转换 + 延迟兜底
   if(l!=='zh-HK' && typeof window._langConvert==='function'){
     // 立即转换一次
     window._langConvert(true);
-    // lang-ready揭示
+    // lang-ready 揭示
     document.body.classList.remove('lang-loading');
     document.body.classList.add('lang-ready');
   }else{
-    // 繁体=HTML默认，直接揭示
+    // 繁体=HTML 默认，直接揭示
     document.body.classList.remove('lang-loading');
     document.body.classList.add('lang-ready');
   }
@@ -5573,6 +5791,7 @@ function switchLang(l){
     _tileIdx=0;_tileErrs=0;
     _tryTileSource(_tileSources[0]);
   }
+  }catch(e){console.error('switchLang error:',e);}
 }
 function updTitles(){
   // App title
@@ -5639,7 +5858,7 @@ let selBilling='monthly';
 let isTrialPurchase=false;
 
 function buildGrid(){
-  const g=document.getElementById('status-grid');g.innerHTML='';
+  const g=document.getElementById('status-grid');if(!g)return;g.innerHTML='';
   const grps={};STATUSES.forEach((s,i)=>{if(!grps[s.g])grps[s.g]=[];grps[s.g].push({...s,i})});
   GKEYS.forEach((gk,gid)=>{
     const d=document.createElement('div');d.className='status-group';
@@ -6094,7 +6313,7 @@ async function loadCmt(cid){
  let h='';comments.forEach(c=>{h+='<div class="comment-item"><b class="'+memNickClass(c.membership_level||0)+'">'+esc(c.nickname)+'</b>'+memBadge(c.membership_level||0)+' '+memTitle(c.membership_level||0)+': '+esc(c.text)+' <span style="color:var(--sub);font-size:10px">'+c.created_at+'</span></div>'});
  if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">'+T('no_comments')+'</div>';
  h+='<div class="emoji-picker">';CM_EM.forEach(e=>{h+='<button class="emoji-btn" onclick="insEm(\''+e+'\')" style="font-size:22px">'+e+'</button>'});h+='</div>';
- document.getElementById('cmt-list').innerHTML=h;
+ const el=document.getElementById('cmt-list');if(el)el.innerHTML=h;
  }catch(e){}
 }
 function insEm(e){document.getElementById('cmt-inp').value+=e;document.getElementById('cmt-inp').focus()}
@@ -6135,7 +6354,7 @@ async function loadParties(){
  h+='</div></div><div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap"><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'going\')">'+T('rsvp_yes')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'maybe\')">'+T('rsvp_maybe')+'</button><button class="btn btn-outline btn-sm" onclick="rsvp('+p.id+',\'no\')">'+T('rsvp_no')+'</button><button class="btn btn-outline btn-sm" onclick="openJnl('+p.id+')">'+T('attend_log')+' ('+(p.journal_count||0)+')</button><button class="btn btn-outline btn-sm" style="border-color:var(--purple);color:var(--purple)" onclick="selectPollParty('+p.id+')">📊 '+T('poll_title')+'</button><button class="btn btn-outline btn-sm" style="border-color:var(--amber);color:var(--amber)" onclick="selectChainParty('+p.id+')">🔗 '+T('chain_title')+'</button></div></div>';
  });
  if(!parties.length)h='<div class="empty"><div class="empty-icon">🎯</div>'+T('party_no')+'</div>';
- document.getElementById('party-list').innerHTML=h;
+ const el=document.getElementById('party-list');if(el)el.innerHTML=h;
  }catch(e){}
 }
 async function rsvp(pid,resp){
@@ -6150,7 +6369,7 @@ async function loadJnl(pid){
   try{const d=await api('/api/party/'+pid+'/journal');let h='';
     (d.journal||[]).forEach(j=>{h+='<div class="journal-item"><b class="'+memNickClass(j.membership_level||0)+'">'+esc(j.nickname)+'</b>'+memBadge(j.membership_level||0)+' '+memTitle(j.membership_level||0)+': '+esc(j.content)+' <span style="color:var(--sub);font-size:10px">'+j.created_at+'</span></div>'});
     if(!h)h='<div style="font-size:12px;color:var(--sub);padding:8px 0">'+T('no_records2')+'</div>';
-    document.getElementById('jnl-list').innerHTML=h;
+    const el=document.getElementById('jnl-list');if(el)el.innerHTML=h;
   }catch(e){}}
 async function doJnl(){const t=document.getElementById('jnl-inp').value.trim();if(!t||!curPid)return;try{await api('/api/party/'+curPid+'/journal',{method:'POST',body:{content:t}});document.getElementById('jnl-inp').value='';loadJnl(curPid);loadParties()}catch(e){toast('❌ '+e.message,1)}}
 
@@ -6175,13 +6394,13 @@ function populatePartySelects(){
 function pollPartyChanged(){
   var pid=document.getElementById('poll-party-select').value;
   _pollPartyId=pid||null;
-  if(pid)loadPolls(pid); else document.getElementById('poll-section-list').innerHTML='';
+  if(pid)loadPolls(pid); else {const el=document.getElementById('poll-section-list');if(el)el.innerHTML='';}
 }
 
 function chainPartyChanged(){
   var pid=document.getElementById('chain-party-select').value;
   _chainPartyId=pid||null;
-  if(pid)loadChains(pid); else document.getElementById('chain-section-list').innerHTML='';
+  if(pid)loadChains(pid); else {const el=document.getElementById('chain-section-list');if(el)el.innerHTML='';}
 }
 
 function addPollOption(){
@@ -6229,7 +6448,7 @@ async function loadPolls(pid){
       h+='</div>';
     });
     if(!polls.length)h='<div style="color:var(--sub);text-align:center;padding:16px;font-size:12px">'+T('poll_empty')+'</div>';
-    document.getElementById('poll-section-list').innerHTML=h;
+    const el=document.getElementById('poll-section-list');if(el)el.innerHTML=h;
   }catch(e){}
 }
 
@@ -6281,7 +6500,7 @@ async function loadChains(pid){
       h+='</div></div>';
     });
     if(!chains.length)h='<div style="color:var(--sub);text-align:center;padding:16px;font-size:12px">'+T('chain_empty')+'</div>';
-    document.getElementById('chain-section-list').innerHTML=h;
+    const el=document.getElementById('chain-section-list');if(el)el.innerHTML=h;
   }catch(e){}
 }
 
@@ -6323,9 +6542,9 @@ async function showCellarShowcase(uid,nickname){
   try{
     const r=await fetch('/api/cellar/showcase/'+uid,{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}});
     const d=await r.json();
-    if(d.error){document.getElementById('cellar-items').innerHTML='<p style="color:var(--pink)">'+(d.error==='not_friend'?T('cellar_not_friend'):T('cellar_need_upgrade'))+'</p>';return}
+    if(d.error){const el=document.getElementById('cellar-items');if(el)el.innerHTML='<p style="color:var(--pink)">'+(d.error==='not_friend'?T('cellar_not_friend'):T('cellar_need_upgrade'))+'</p>';return}
     const items=d.items||[];
-    if(!items.length){document.getElementById('cellar-items').innerHTML='<p style="color:var(--sub)">'+T('cellar_empty')+'</p>';return}
+    if(!items.length){const el=document.getElementById('cellar-items');if(el)el.innerHTML='<p style="color:var(--sub)">'+T('cellar_empty')+'</p>';return}
     const tagEmoji={'want':'💛'+T('cellar_want_tag'),'tried':'✅'+T('cellar_tried_tag'),'collect':'💎'+T('cellar_collect_tag'),'':''};
     let ih='<div style="display:grid;gap:8px">';
     items.forEach(it=>{
@@ -6342,8 +6561,8 @@ async function showCellarShowcase(uid,nickname){
       ih+='</div></div>';
     });
     ih+='</div>';
-    document.getElementById('cellar-items').innerHTML=ih;
-  }catch(e){document.getElementById('cellar-items').innerHTML='<p style="color:var(--pink)">'+T('load_failed')+'</p>'}
+    const el=document.getElementById('cellar-items');if(el)el.innerHTML=ih;
+  }catch(e){const el=document.getElementById('cellar-items');if(el)el.innerHTML='<p style="color:var(--pink)">'+T('load_failed')+'</p>'}
 }
 
 // ═══════ PASSPORT ═══════
@@ -6351,7 +6570,7 @@ async function loadPassport(){
   const lvNames=[T('lv_free'),T('lv_bronze'),T('lv_silver'),T('lv_gold')];
   const lvColors=['var(--sub)','#f59e0b','#8b5cf6','#ef4444'];
   const lv=memLevel();
-  document.getElementById('pp-level-badge').innerHTML='<span style="background:'+lvColors[lv]+';color:#fff;padding:2px 10px;border-radius:10px;font-size:12px">'+lvNames[lv]+'</span>';
+  const el=document.getElementById('pp-level-badge');if(el)el.innerHTML='<span style="background:'+lvColors[lv]+';color:#fff;padding:2px 10px;border-radius:10px;font-size:12px">'+lvNames[lv]+'</span>';
   // AI badge & report badge i18n
   var aiB=document.getElementById('pp-ai-badge');if(aiB)aiB.textContent=T('pp_drunksan_exclusive');
   var rpB=document.getElementById('pp-report-badge');if(rpB)rpB.textContent=T('pp_boozer_plus');
@@ -6360,7 +6579,7 @@ async function loadPassport(){
   var lbSub=document.getElementById('lb-subtitle');if(lbSub)lbSub.textContent=T('lb_who_drinks');
   // passport data
   fetch('/api/checkin/passport',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}}).then(r=>r.json()).then(d=>{
-    if(d.error){document.getElementById('pp-summary').innerHTML='<p style="color:var(--sub)">'+T('pp_load_failed')+'</p>';return}
+    if(d.error){const el=document.getElementById('pp-summary');if(el)el.innerHTML='<p style="color:var(--sub)">'+T('pp_load_failed')+'</p>';return}
     const s=document.getElementById('pp-summary');
     s.innerHTML=[
       ['🍺',T('pp_total_checkins'),d.total_checkins],
@@ -6398,14 +6617,14 @@ async function loadPassport(){
     if(d.top_friend&&memLevel()<(d.top_friend.lv||0)){
       h+='<div style="margin-top:10px;padding:10px;background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(239,68,68,0.1));border-radius:12px;font-size:13px">💡 '+T('pp_social_compare')+' <b>'+d.top_friend.nickname+'</b> '+lvNames2[d.top_friend.lv]+' '+T('pp_upgrade_compare')+'</div>';
     }
-    document.getElementById('pp-social').innerHTML=h;
+    const el=document.getElementById('pp-social');if(el)el.innerHTML=h;
   }).catch(()=>{});
   // upgrade feed
   fetch('/api/social/upgrade-feed',{headers:{'Authorization':'Bearer '+localStorage.getItem('token')}}).then(r=>r.json()).then(d=>{
     if(!d.upgrades||!d.upgrades.length)return;
     document.getElementById('pp-upgrade-feed').style.display='';
     const lvNames3=['',T('lv_bronze'),T('lv_silver'),T('lv_gold')];
-    document.getElementById('pp-feed').innerHTML=d.upgrades.map(u=>'<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:rgba(139,92,246,0.06);border-radius:10px"><img src="/api/avatar/'+u.id+'" style="width:32px;height:32px;border-radius:50%" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><rect fill=%22%23333%22 width=%2232%22 height=%2232%22 rx=%2216%22/><text fill=%22%23F59E0B%22 x=%2216%22 y=%2222%22 text-anchor=%22middle%22 font-size=%2216%22>👤</text></svg>\'"><div><b>'+u.nickname+'</b> → <span style="color:var(--purple);font-weight:700">'+lvNames3[u.lv]+'</span> 🎉</div></div>').join('');
+    const el=document.getElementById('pp-feed');if(el)el.innerHTML=d.upgrades.map(u=>{var n=(u.nickname||'?').substring(0,1);var lvl=lvNames3[u.lv||0]||'';var ts=u.ts?new Date(u.ts).toLocaleDateString():'';return '<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:rgba(139,92,246,0.06);border-radius:10px">'+'<div style="width:32px;height:32px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff">'+n+'</div>'+'<div style="flex:1"><div style="font-weight:600">'+(u.nickname||'?')+'</div>'+'<div style="font-size:12px;color:var(--sub)">🔥 '+lvl+' · '+ts+'</div></div></div>'}).join('');
   }).catch(()=>{});
   // AI tasting notes (lv3+ only)
   if(memLevel()>=3){
@@ -6452,7 +6671,7 @@ async function loadPassport(){
 async function loadStats(){
  if(!me)return;
  try{
-  const d=await api('/api/stats');document.getElementById('st-total').textContent=d.total||0;document.getElementById('st-week').textContent=d.week||0;document.getElementById('st-today').textContent=d.today||0;let h='<div class=\"card\"><div class=\"card-header\">📊 '+T('stats_status_dist')+'</div>';const dist=d.status_dist||{};if(!Object.keys(dist).length)h+='<div style=\"color:var(--sub);font-size:12px;padding:8px\">'+T('stats_no_data')+'</div>';else Object.entries(dist).forEach(([k,v])=>{const st=STATUSES[parseInt(k)]||STATUSES[0];h+='<div style=\"display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)\"><span>'+T(st.k)+' '+st.e+'</span><span style=\"color:var(--amber);font-weight:600\">'+v+T('stats_times')+'</span></div>'});h+='</div>';document.getElementById('st-dist').innerHTML=h;
+  const d=await api('/api/stats');const _safeSet=(id,v,p)=>{const e=document.getElementById(id);if(e)e[p]=v;};_safeSet('st-total',d.st_total||d.total||0,'textContent');_safeSet('st-week',d.st_week||d.week||0,'textContent');_safeSet('st-today',d.st_today||d.today||0,'textContent');let h='<div class=\"card\"><div class=\"card-header\">📊 '+T('stats_status_dist')+'</div>';const dist=d.status_dist||{};if(!Object.keys(dist).length)h+='<div style=\"color:var(--sub);font-size:12px;padding:8px\">'+T('stats_no_data')+'</div>';else Object.entries(dist).forEach(([k,v])=>{const st=STATUSES[parseInt(k)]||STATUSES[0];h+='<div style=\"display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid var(--border)\"><span>'+T(st.k)+' '+st.e+'</span><span style=\"color:var(--amber);font-weight:600\">'+v+T('stats_times')+'</span></div>'});h+='</div>';{const el=document.getElementById('st-dist');if(el)el.innerHTML=h;}
  }catch(e){}
 }
 
@@ -6531,7 +6750,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
  var aw=document.getElementById('mem-avatar-wrap');
  if(aw){
   if(me.avatar&&me.avatar.startsWith('/api/avatar/')){
-   aw.innerHTML='<img src="'+API_BASE+me.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
+   aw.innerHTML='<img src="'+API_BASE+me.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
   }else if(me.avatar&&me.avatar.startsWith('emoji:')){aw.textContent=me.avatar.replace('emoji:','')}
   else{aw.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
   // Membership frame on avatar
@@ -6596,7 +6815,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
     else fl.innerHTML=frs.map(f=>{
      var av=f.avatar&&f.avatar.startsWith('emoji:')?f.avatar.replace('emoji:',''):'👤';
      var avSrc=f.avatar&&f.avatar.startsWith('/api/')?API_BASE+f.avatar:'';
-     var avHtml=avSrc?'<img src="'+avSrc+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.outerHTML=\'👤\'">':'<span style="font-size:24px">'+av+'</span>';
+     var avHtml=avSrc?'<img src="'+avSrc+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">':'<span style="font-size:24px">'+av+'</span>';
      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="showMemFriend('+f.id+')">'+avHtml+'<div style="flex:1"><div style="font-weight:600;color:var(--text)">'+(f.nickname||f.username||'?')+'</div><div style="font-size:10px;color:var(--sub)">@'+(f.username||'-')+'</div><div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap">'+(f.region?'<span style="font-size:10px;background:rgba(245,158,11,0.1);padding:1px 6px;border-radius:6px">'+({'HK':'🇭🇰','MO':'🇲🇴','TW':'🇹🇼'}[f.region]||'🌍')+({'HK':'香港','MO':'澳門','TW':'台湾','CN-GD':'廣東','CN-BJ':'北京','CN-SH':'上海','MY':'馬來西亚','SG':'新加坡','JP':'日本','KR':'韩國','US':'美國','UK':'英國','AU':'澳洲','OTHER':'其他'}[f.region]||f.region)+'</span>':'')+(f.gender?'<span style="font-size:10px;background:rgba(236,72,153,0.1);padding:1px 6px;border-radius:6px">'+({'M':'👨男','F':'👩女','O':'🧑其他'}[f.gender]||f.gender)+'</span>':'')+(f.age?'<span style="font-size:10px;background:rgba(139,92,246,0.1);padding:1px 6px;border-radius:6px">🎂'+f.age+'</span>':'')+(f.drink_age?'<span style="font-size:10px;background:rgba(34,197,94,0.1);padding:1px 6px;border-radius:6px">🍺'+f.drink_age+'年</span>':'')+'</div></div></div>';
     }).join('');
    }
@@ -6756,14 +6975,14 @@ async function loadMyCoupons(){
   if(!cpns.length){list.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">🧧 '+T('coupon_none')+'</div>';return}
   list.innerHTML=cpns.map(function(c){
    var statusColor=c.status==='active'?'#22c55e':'#999';
-   var statusText=c.status==='active'?'可用':c.status==='used'?'已用':'過期';
+   var statusText=c.status==='active'?T('coupon_active'):c.status==='used'?T('coupon_used'):T('coupon_expired');
    var disc=c.discount?c.discount+'折':'';
    var off=c.amount_off?'減¥'+c.amount_off:'';
    var info=disc||off||'—';
    return '<div style="display:flex;align-items:center;padding:10px 6px;border-bottom:1px solid var(--border)">'
     +'<div style="font-size:24px;margin-right:10px">🧧</div>'
     +'<div style="flex:1"><div style="font-weight:600;color:var(--text)">'+esc(c.code||'')+'</div>'
-    +'<div style="font-size:11px;color:var(--sub)">'+info+(c.min_spend?' · 滿¥'+c.min_spend:'')+' · '+esc(c.category||'通用')+'</div>'
+    +'<div style="font-size:11px;color:var(--sub)">'+info+(c.min_spend?' · 滿¥'+c.min_spend:'')+' · '+esc(c.category||T('coupon_general'))+'</div>'
     +'<div style="font-size:11px;color:var(--sub)">有效期至 '+(c.valid_until||'—')+'</div></div>'
     +'<span style="font-size:11px;color:'+statusColor+';padding:4px 8px;border:1px solid '+statusColor+';border-radius:8px">'+statusText+'</span></div>';
   }).join('');
@@ -6957,7 +7176,7 @@ function openProfile(){
   document.getElementById('p-oldpw').value='';document.getElementById('p-newpw').value='';
   _selectedEmojiAv='';_highlightEmojiAv();
   if(me?.avatar && me.avatar.startsWith('/api/avatar/')){
-    document.getElementById('av-prev').innerHTML='<img src="'+API_BASE+me.avatar+'">';
+    const el=document.getElementById('av-prev');if(el)el.innerHTML='<img src="'+API_BASE+me.avatar+'">';
   } else if(me?.avatar && /^emoji:/.test(me.avatar)){
     const emoji=me.avatar.replace('emoji:','');
     document.getElementById('av-prev').textContent=emoji;
@@ -6967,7 +7186,7 @@ function openProfile(){
   }
 }
 function closeProf(){const el=document.getElementById('prof-mod');el.style.display='none';el.classList.remove('show')}
-function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{document.getElementById('av-prev').innerHTML='<img src="'+ev.target.result+'">';_selectedEmojiAv='';_highlightEmojiAv()};r.readAsDataURL(f)}
+function prevAv(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{const el=document.getElementById('av-prev');if(el)el.innerHTML='<img src="'+ev.target.result+'">';_selectedEmojiAv='';_highlightEmojiAv()};r.readAsDataURL(f)}
 var _selectedEmojiAv='';
 function pickEmojiAv(el,emoji){
   _selectedEmojiAv=emoji;
@@ -7066,7 +7285,35 @@ async function _doSaveProf(){
  }catch(e){toast('❌ '+e.message,1)}
 }
 
-function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin();showUsageBars();renderInlineHints()}
+function refreshAll(){loadTL();loadStats();loadParties();updMem();loadAdmin();showUsageBars();renderInlineHints();loadAnnouncements();}
+
+// ─── Announcements: load + render ticker behind beer glass ───
+// 酒杯做前景 — 公告文字从右到左无限滚动做背景，藏在封面区(z-index 在酒杯之后)
+async function loadAnnouncements(){
+ var host=document.getElementById('anc-behind-glass');
+ if(!host)return;
+ var lang=document.documentElement.lang||'zh-HK';
+ try{
+  var data=await api('/api/announcements?lang='+encodeURIComponent(lang));
+  var list=(data&&data.announcements)||[];
+  if(!list.length){host.innerHTML='';host.style.display='none';return}
+  host.style.display='flex';
+  var sep='<span style="opacity:0.65;margin:0 18px;color:var(--amber)">•</span>';
+  var itemsHTML=list.map(function(a){
+   var pin=a.pinned?'<span style="color:#FBBF24">📌 </span>':'';
+   var tt=esc(a.title||'');
+   var bd=esc((a.body||'').split(/\r?\n/)[0]||'');
+   return '<span style="white-space:nowrap;display:inline-flex;align-items:center;gap:8px">'+
+          '<span style="font-size:13px;font-weight:700;color:#FBBF24;text-shadow:0 1px 2px rgba(0,0,0,0.6),0 0 4px rgba(0,0,0,0.3)">'+pin+tt+'</span>'+
+          (bd?'<span style="font-size:11px;color:#FDE68A;opacity:0.9;text-shadow:0 1px 2px rgba(0,0,0,0.6)">'+bd+'</span>':'')+
+          '</span>';
+  }).join(sep);
+  // 双段并列，做无缝右→左循环 (translateX 0 → -50%)
+  host.innerHTML='<div class="anc-track" style="display:inline-flex;align-items:center;gap:0;white-space:nowrap;animation:anc-scroll 38s linear infinite;will-change:transform">'+
+    itemsHTML+sep+itemsHTML+sep+
+    '</div>';
+ }catch(e){console.warn('announcements load failed',e);host.innerHTML=''}
+}
 
 // Admin entry: long-press brand name 3s or tap 5x opens login dialog (type 'admin' to enter admin mode)
 let adminToken = localStorage.getItem('jymy_admin_token') || '';
@@ -7339,7 +7586,7 @@ async function admLoadMembers(){
  html += '</div></div></div>';
  });
  if(!users.length) html += '<div class="empty"><div class="empty-icon">👥</div>暫無用戶</div>';
- document.getElementById('adm-member-list').innerHTML = html;
+ {const el=document.getElementById('adm-member-list');if(el)el.innerHTML = html;}
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -7374,7 +7621,7 @@ async function admSearchMember(){
  html += '</div></div></div>';
  });
  if(!users.length) html += '<div class="empty"><div class="empty-icon">🔍</div>冇結果</div>';
- document.getElementById('adm-member-list').innerHTML = html;
+ {const el=document.getElementById('adm-member-list');if(el)el.innerHTML = html;}
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -7479,7 +7726,7 @@ async function admLoadPayments(){
  html += '</div></div></div>';
  });
  if(!payments.length) html = '<div class="empty"><div class="empty-icon">💳</div>暫無付款紀錄</div>';
- document.getElementById('adm-payment-list').innerHTML = html;
+ {const el=document.getElementById('adm-payment-list');if(el)el.innerHTML = html;}
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -7512,7 +7759,7 @@ async function admLoadExpired(){
  html += '</div></div>';
  });
  if(!members.length) html = '<div class="empty"><div class="empty-icon">✅</div>所有會員都係有效嘅</div>';
- document.getElementById('adm-expired-list').innerHTML = html;
+ {const el=document.getElementById('adm-expired-list');if(el)el.innerHTML = html;}
  }catch(e){toast('❌ '+e.message,1)}
 }
 
@@ -7533,10 +7780,10 @@ async function admLoadAudit(){
  html += '</div></div>';
  });
  if(!audit||!audit.length) html = '<div class="empty"><div class="empty-icon">📋</div>暫無操作紀錄</div>';
- document.getElementById('adm-audit-list').innerHTML = html;
+ {const el=document.getElementById('adm-audit-list');if(el)el.innerHTML = html;}
  }catch(e){
  // audit_log 表可能不存在，顯示空
- document.getElementById('adm-audit-list').innerHTML = '<div class="empty"><div class="empty-icon">📋</div>'+T('empty_no_audit')+'</div>';
+ {const el=document.getElementById('adm-audit-list');if(el)el.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>'+T('empty_no_audit')+'</div>';}
  }
 }
 
@@ -7555,9 +7802,10 @@ async function admLoadAudit(){
  }
  buildGrid();updTitles();
  // Flask API mode - no Supabase SDK needed
- function startApp(){ restoreS().then(ok=>{updateNav();switchLang(lang);if(me && !window._admRefreshed){refreshAll()}else if(!me){setTimeout(showAuth,600);loadAdmin()}}); }
+ function startApp(){ try{restoreS().then(ok=>{try{updateNav();switchLang(lang);if(me && !window._admRefreshed){refreshAll()}else if(!me){setTimeout(showAuth,600);loadAdmin()}}catch(e){console.error('startApp cb error:',e)}});}catch(e){console.error('startApp error:',e)}}
  startApp();
 })();
+
 
 // ═══════ ADMIN EXTRA FUNCTIONS ═══════
 function admBulkRenew(){
@@ -7587,6 +7835,94 @@ function admExportCSV(){
    toast(T("exported_ok"));
   });
  }).catch(e=>toast('❌ '+e.message,1));
+}
+
+// ─── Admin: Announcements manager ───
+async function admAddAnnouncement(){
+ const ttZh=document.getElementById('ann-tt-zh').value.trim();
+ const ttEn=document.getElementById('ann-tt-en').value.trim();
+ const bdZh=document.getElementById('ann-bd-zh').value.trim();
+ const bdEn=document.getElementById('ann-bd-en').value.trim();
+ const pinned=document.getElementById('ann-pinned').checked?1:0;
+ const active=document.getElementById('ann-active').checked?1:0;
+ if(!ttZh&&!ttEn){toast('請填寫標題',1);return;}
+ try{
+  await _admCheck();
+  const h=_admHeaders();
+  const r=await fetch(API_BASE+'/api/admin/announcements',{
+   method:'POST',headers:{'Content-Type':'application/json',...h},
+   body:JSON.stringify({action:'create',title_zh:ttZh,title_en:ttEn,body_zh:bdZh,body_en:bdEn,pinned,active})
+  });
+  const d=await r.json();
+  if(d.ok){
+   document.getElementById('ann-tt-zh').value='';
+   document.getElementById('ann-tt-en').value='';
+   document.getElementById('ann-bd-zh').value='';
+   document.getElementById('ann-bd-en').value='';
+   toast('✅ 公告已發佈');
+   admLoadAnnouncements();
+  }else toast('❌ '+(d.error||'發佈失敗'),1);
+ }catch(e){toast('❌ '+e.message,1)}
+}
+
+async function admLoadAnnouncements(){
+ const host=document.getElementById('adm-announce-list');
+ if(!host)return;
+ host.innerHTML='<div style="padding:8px;color:var(--sub);font-size:12px">加載中...</div>';
+ try{
+  await _admCheck();
+  const h=_admHeaders();
+  const r=await fetch(API_BASE+'/api/admin/announcements',{headers:h});
+  const d=await r.json();
+  const list=(d&&d.announcements)||[];
+  if(!list.length){host.innerHTML='<div style="padding:8px;color:var(--sub);font-size:12px">暂无公告</div>';return;}
+  let html='';
+  list.forEach(a=>{
+   const pin=a.pinned?'📌 ':'';
+   const stat=a.active?'<span style="color:var(--green);font-size:10px">ACTIVE</span>':'<span style="color:var(--sub);font-size:10px">HIDDEN</span>';
+   html+=`<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
+     <div style="flex:1;min-width:0">
+      <div style="font-weight:700;font-size:13px;color:var(--amber);margin-bottom:2px">${pin}${esc(a.title_zh||'')} ${stat}</div>
+      ${a.title_en?`<div style="font-size:11px;color:var(--sub);margin-bottom:4px">🇬🇧 ${esc(a.title_en)}</div>`:''}
+      ${a.body_zh?`<div style="font-size:12px;color:var(--text);line-height:1.5;margin-bottom:4px">${esc(a.body_zh)}</div>`:''}
+      ${a.body_en?`<div style="font-size:11px;color:var(--sub);line-height:1.5">${esc(a.body_en)}</div>`:''}
+      <div style="font-size:10px;color:var(--sub);margin-top:4px">#${a.id} · ${a.created_at||''}</div>
+     </div>
+    </div>
+    <div style="display:flex;gap:4px;margin-top:8px">
+     <button class="btn btn-outline btn-sm" style="font-size:10px;padding:4px 8px;color:${a.active?'var(--sub)':'var(--green)'}" onclick="admToggleAnn(${a.id},${a.active?0:1})">${a.active?'停用':'啟用'}</button>
+     <button class="btn btn-outline btn-sm" style="font-size:10px;padding:4px 8px;color:var(--red)" onclick="admDelAnn(${a.id})">刪除</button>
+    </div>
+   </div>`;
+  });
+  host.innerHTML=html;
+ }catch(e){host.innerHTML='<div style="padding:8px;color:var(--red);font-size:12px">❌ '+esc(e.message)+'</div>';}
+}
+
+async function admToggleAnn(id,active){
+ await _admCheck();
+ const h=_admHeaders();
+ const r=await fetch(API_BASE+'/api/admin/announcements',{
+  method:'POST',headers:{'Content-Type':'application/json',...h},
+  body:JSON.stringify({action:'toggle',id,active})
+ });
+ const d=await r.json();
+ if(d.ok){toast('✅ 已更新');admLoadAnnouncements();}
+ else toast('❌ '+(d.error||'失敗'),1);
+}
+
+async function admDelAnn(id){
+ if(!confirm('確定刪除公告 #'+id+'？'))return;
+ await _admCheck();
+ const h=_admHeaders();
+ const r=await fetch(API_BASE+'/api/admin/announcements',{
+  method:'POST',headers:{'Content-Type':'application/json',...h},
+  body:JSON.stringify({action:'delete',id})
+ });
+ const d=await r.json();
+ if(d.ok){toast('✅ 已刪除');admLoadAnnouncements();}
+ else toast('❌ '+(d.error||'失敗'),1);
 }
 
 function admClearExpired(){
@@ -7626,11 +7962,11 @@ function admSetServer(){
 }
 
 // ═══════ 🎲 DICE GAME — REALISTIC 3D DICE ═══════
-const DICE_MEM_LIMITS_LEVEL={0:2,1:3,2:4,3:5};
-const DICE_ROOM_OPEN_LEVEL={0:false,1:false,2:true,3:true};
+const DICE_MEM_LIMITS_LEVEL={0:2,1:3,2:4,3:5,99:99};
+const DICE_ROOM_OPEN_LEVEL={0:false,1:false,2:true,3:true,99:true}
 function _diceLevel(){return memLevel()}
-function _diceLimit(){return DICE_MEM_LIMITS_LEVEL[_diceLevel()]||2}
-function _diceCanRoom(){return DICE_ROOM_OPEN_LEVEL[_diceLevel()]||false}
+function _diceLimit(){var lv=_diceLevel();return DICE_MEM_LIMITS_LEVEL[lv]!==undefined?DICE_MEM_LIMITS_LEVEL[lv]:(lv>=99?999:2)}
+function _diceCanRoom(){var lv=_diceLevel();return lv>=99||(DICE_ROOM_OPEN_LEVEL[lv]||false)}
 // Legacy compat
 const DICE_MEM_LIMITS={free:2,jiuyau:3,jaugwai:4,jausan:5};
 const DICE_ROOM_LEVEL={free:false,jiuyau:false,jaugwai:true,jausan:true};
@@ -7659,6 +7995,7 @@ function _diceName(){return(me&&me.nickname)||'玩家'}
   '.d3shadow{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);width:50px;height:10px;background:radial-gradient(ellipse,rgba(0,0,0,0.35),transparent);border-radius:50%;transition:all 0.5s}';
  document.head.appendChild(s);
 })();
+
 
 var DOTS={1:[0,0,0,0,1,0,0,0,0],2:[0,0,1,0,0,0,1,0,0],3:[0,0,1,0,1,0,1,0,0],4:[1,0,1,0,0,0,1,0,1],5:[1,0,1,0,1,0,1,0,1],6:[1,0,1,1,0,1,1,0,1]};
 
@@ -7689,8 +8026,11 @@ function initDice(){
  if(bj1)bj1.disabled=lv<1;
  // Hide upgrade card for premium members
  var uc=document.getElementById('dice-upgrade-hint')?.parentElement;
- if(uc) uc.style.display=(lv>=3)?'none':'';
+ var mlv=memLevel();
+ if(uc) uc.style.display=(mlv>=99||mlv>=3)?'none':'';
  if(_diceBC)_diceBC.onmessage=function(e){handleDiceMsg(e.data)};
+ // Fortune dice quota
+ if(typeof fortuneUpdateQuota==='function')fortuneUpdateQuota();
 }
 
 function renderDice3D(n){
@@ -7701,7 +8041,7 @@ function renderDice3D(n){
  var coverWrap=document.createElement('div');
  coverWrap.id='dice-cover';
  coverWrap.style.cssText='width:200px;height:200px;margin:0 auto 10px;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(245,158,11,0.4),0 0 0 3px rgba(245,158,11,0.25),0 0 80px rgba(139,92,246,0.15);transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1),opacity 0.4s;cursor:pointer;position:relative;background:#1a1a2e;border:2px solid rgba(245,158,11,0.3)';
- coverWrap.innerHTML='<img src="dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:18px;display:block" onerror="if(this.src.indexOf(\'drunk.vic999.com\')<0){this.src=API_BASE+\'/dice-cover.webp\'}else{this.parentElement.innerHTML=\'🎲\'}"><div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,0.6);font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.8)" data-i18n="dice_tap_hint">👇 點擊搖骰</div>';
+ coverWrap.innerHTML='<img src="dice-cover.webp" style="width:100%;height:100%;object-fit:cover;border-radius:18px;display:block" onerror="if(this.src.indexOf(\'drunk.vic999.com\')<0){this.src=API_BASE+\'/dice-cover.webp\'}else{this.parentElement.innerHTML=\'🎲\'}"><div style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:11px;color:rgba(255,255,255,0.6);font-weight:700;letter-spacing:1px;z-index:2;text-shadow:0 1px 4px rgba(0,0,0,0.8)" data-i18n="dice_tap_hint">'+T('dice_tap_hint')+'</div>';
  coverWrap.onmouseenter=function(){this.style.transform='scale(1.04) rotate(1deg)'};
  coverWrap.onmouseleave=function(){this.style.transform='scale(1)'};
  // Breathing animation for cover
@@ -7799,9 +8139,351 @@ function shakeSolo(){
   if(sr){sr.textContent=T('dice_result')+' '+res.join(' + ')+' = '+total+T('dice_pts');sr.scrollIntoView({behavior:'smooth',block:'center'})}
   _diceShaking=false;
   if(btn){btn.disabled=false;btn.textContent=T('dice_again')}
+  // Enable fortune-from-solo button now that dice are ready
+  var fb=document.getElementById('btn-fortune-from-solo');
+ if(fb && res.length >= 2){fb.disabled=false;fb.style.opacity='1';}
   // Remove cup
   setTimeout(function(){if(cup&&cup.parentNode)cup.parentNode.removeChild(cup)},600);
  },1600);
+}
+
+// ═══════════ Fortune Dice (骰子測運程 — 復用搖骰結果) ═══════════
+var _fortuneData=null;
+
+function fortuneUpdateQuota(){
+ var tok=(localStorage.getItem('jymy_token')||token||'');
+ if(!tok)return;
+ fetch(API_BASE+'/api/fortune-dice/quota',{headers:{'Authorization':'Bearer '+tok}})
+ .then(function(r){return r.json()})
+ .then(function(q){
+  var h=document.getElementById('fortune-daily-hint');
+  if(!h)return;
+  if(q.ok){
+   var memNames={0:'免費',1:'🥉酒友',2:'🥈酒鬼',3:'🥇酒神'};
+   if(q.remaining<=0){h.textContent=T('fortune_quota_done')+' · '+memNames[q.level||0]+(q.level<3?T('fortune_upgrade_unlock'):'');}
+   else{h.textContent=T('fortune_quota_left')+' '+q.remaining+'/'+q.limit+' '+T('fortune_quota_times')+' · '+memNames[q.level||0];}
+  }
+ }).catch(function(){});
+}
+
+function fortuneFromSolo(){
+ var btn=document.getElementById('btn-fortune-from-solo');
+ if(btn&&btn.disabled)return;
+ if(!_diceVals||!_diceVals.length||_diceVals.length<2){toast(T('fortune_roll_first'));return;}
+ var tok=(localStorage.getItem('jymy_token')||token||'');
+ if(!tok){toast(T('fortune_login_first'));return;}
+ if(btn){btn.disabled=true;btn.textContent=T('fortune_calculating')}
+ var lang=document.documentElement.lang||'zh-HK';
+ fetch(API_BASE+'/api/fortune-dice?lang='+encodeURIComponent(lang),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({dice_values:_diceVals,lang:lang})})
+ .then(function(r){
+  if(r.status===429)return r.json().then(function(d){throw{status:429,data:d}});
+  if(!r.ok)throw{status:r.status,data:{error:'HTTP '+r.status}};
+  return r.json();
+ })
+ .then(function(f){
+  if(!f.ok){toast('❌ '+(f.error||T('fortune_failed')));return;}
+  _fortuneData=f;
+  renderFortuneCard(f);
+  fortuneUpdateQuota();
+ })
+ .catch(function(e){
+  if(e&&e.status===429&&e.data){
+   var lv=(e.data.level||0);
+   toast(T('fortune_daily_limit_reached')+' '+(e.data.membership_tip||T('fortune_upgrade_unlock')));
+   // Show upgrade modal — require meets up to lv+1
+   var reqLv = lv<1?1:(lv<2?2:(lv<3?3:1));
+   showUpgradeModal(reqLv);
+  }else{
+   toast(T('fortune_retry'));
+   console.error('Fortune error:',e);
+  }
+ })
+ .then(function(){
+  if(btn){btn.disabled=false;btn.textContent=T('fortune_calc_btn');}
+ });
+}
+
+function fortuneSaveCard(){
+ if(!_fortuneData){toast(T('fortune_save_first'));return}
+ var lv=_fortuneData.level||0;
+ if(lv<1){
+  toast(T('fortune_save_member'));
+  showUpgradeModal(1);
+  return;
+ }
+ // Canvas generated download
+ var c=document.createElement('canvas');
+ var W=750,H=1200;c.width=W;c.height=H;
+ var ctx=c.getContext('2d');
+ var f=_fortuneData;
+ var isEn=(f.lang==='en'||f.lang==='en-US');
+ var scoreLbl=isEn?'Fortune Index':'運程指數';
+ var luckyLbl=isEn?'Lucky':'幸運貼士';
+ var tipPrefix=isEn?'💡 Tip: ':'💡 運程指點：';
+ var ftrLbl=isEn?'— Tonight Drink? · Dice Fortune':'— 今晚飲咗未 · 骰子測運程';
+ var bg=ctx.createLinearGradient(0,0,W,H);
+ bg.addColorStop(0,'#1A1A2E');bg.addColorStop(0.5,'#16213E');bg.addColorStop(1,'#0F3460');
+ ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ ctx.strokeStyle='rgba(245,158,11,0.4)';ctx.lineWidth=3;
+ _fcRoundRect(ctx,10,10,W-20,H-20,24);ctx.stroke();
+ ctx.fillStyle='#F59E0B';ctx.font='bold 36px sans-serif';ctx.textAlign='center';
+ var fElemLabel=isEn?(f.element_en||'Fire'):('五行'+f.element);
+ ctx.fillText(f.element_emoji+' '+fElemLabel+' · '+f.element_desc, W/2, 70);
+ ctx.fillStyle='#71717A';ctx.font='20px sans-serif';
+ ctx.fillText('🔢 '+f.dice_total+' · 📅 '+f.date, W/2, 105);
+ var cx=W/2,cy=190,r=65;
+ ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=8;ctx.stroke();
+ var pct=f.overall_score/100;
+ var scClr=f.overall_score>=65?'#10B981':f.overall_score>=35?'#F59E0B':'#EF4444';
+ ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*pct);ctx.strokeStyle=scClr;ctx.lineWidth=8;ctx.stroke();
+ ctx.fillStyle='#E4E4E7';ctx.font='bold 44px sans-serif';ctx.fillText(f.overall_score,cx,cy+8);
+ ctx.fillStyle='#71717A';ctx.font='14px sans-serif';ctx.fillText(scoreLbl,cx,cy+30);
+ ctx.fillStyle=scClr;ctx.font='bold 28px sans-serif';
+ ctx.fillText(f.level_emoji+' '+f.level_name+' '+f.level_desc, W/2, 300);
+ var catY=340;
+ (f.categories||[]).forEach(function(cat,i){
+  var col=i%2,row=Math.floor(i/2);
+  var x=col?W/2+20:50,y=catY+row*90;
+  var barClr=cat.score>=65?'#10B981':cat.score>=35?'#F59E0B':'#EF4444';
+  ctx.fillStyle='#E4E4E7';ctx.font='16px sans-serif';ctx.textAlign='left';
+  ctx.fillText(cat.emoji+' '+cat.name+' '+cat.desc, x, y);
+  ctx.fillStyle=barClr;ctx.font='bold 18px sans-serif';ctx.textAlign='right';
+  var x2=col?W-50:W/2-10;
+  ctx.fillText(cat.score, x2, y);
+  ctx.fillStyle='rgba(255,255,255,0.06)';
+  _fcRectFill(ctx,x,y+8, col?W/2-80:W/2-100, 6, 3);
+  ctx.fillStyle=barClr;
+  _fcRectFill(ctx,x,y+8, (col?W/2-80:W/2-100)*cat.score/100, 6, 3);
+ });
+ ctx.textAlign='center';
+ var ly=catY+Math.ceil((f.categories||[]).length/2)*90+20;
+ ctx.fillStyle='rgba(255,255,255,0.04)';
+ _fcRectFill(ctx,40,ly-10,W-80,60,12);
+ ctx.fillStyle='#F59E0B';ctx.font='14px sans-serif';
+ if(f.lucky){
+  ctx.fillText('🎨 '+f.lucky.color+'   🧭 '+f.lucky.direction+'   🔢 '+f.lucky.number+'   ⏰ '+f.lucky.time, W/2, ly+22);
+ }
+ var ty=ly+70;
+ ctx.fillStyle='rgba(245,158,11,0.08)';
+ _fcRectFill(ctx,40,ty-10,W-80,80,12);
+ ctx.fillStyle='rgba(228,228,231,0.85)';ctx.font='16px sans-serif';
+ var tipLines=_fcWrap(ctx,'💡 '+f.tip, W-120);
+ tipLines.forEach(function(line,i){ctx.fillText(line, W/2, ty+10+i*22)});
+ ctx.fillStyle='#71717A';ctx.font='14px sans-serif';
+ ctx.fillText(ftrLbl, W/2, H-30);
+ c.toBlob(function(blob){
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  a.download='fortune-'+f.date+'-'+f.dice_total+'.png';
+  a.click();setTimeout(function(){URL.revokeObjectURL(url)},1000);
+  toast('✅ 運程卡片已保存');
+ },'image/png');
+}
+
+function _fcRoundRect(ctx,x,y,w,h,r){
+ ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+ ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+ ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+function _fcRectFill(ctx,x,y,w,h,r){_fcRoundRect(ctx,x,y,w,h,r);ctx.fill()}
+function _fcWrap(ctx,text,maxW){
+ var chars=text.split(''),lines=[],line='';
+ for(var i=0;i<chars.length;i++){
+  var test=line+chars[i];
+  if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=chars[i]}
+  else line=test;
+ }
+ if(line)lines.push(line);
+ return lines;
+}
+
+function fortuneShareCard(){
+ if(!_fortuneData){toast(T('fortune_save_first'));return}
+ var lv=_fortuneData.level||0;
+ if(lv<1){
+  toast(T('fortune_save_member'));
+  showUpgradeModal(1);
+  return;
+ }
+ var f=_fortuneData;
+ var isEn=(f.lang==='en'||f.lang==='en-US');
+ var t5Lbl=isEn?'Five Element':'五行';
+ var T5Lbl=t5Lbl;
+ var yunLbl=isEn?'Fortune':'運程';
+ var ftrLbl=isEn?'— Tonight Drink? · Dice Fortune':'— 今晚飲咗未 · 骰子測運程';
+ var shareTitle=isEn?'Dice Fortune':'骰子測運程';
+ var scoreUnit=isEn?'pts':'分';
+ var div1=isEn?': ':' · ';
+ var eName=isEn?(f.element_en||'Fire'):(f.element||'');
+ var txt=f.element_emoji+' '+t5Lbl+' '+eName+div1+yunLbl+' '+f.level_name+' ('+f.overall_score+scoreUnit+')\n';
+ (f.categories||[]).forEach(function(c){txt+=c.emoji+' '+c.name+': '+c.score+' '});
+ txt+='\n🎨 '+(f.lucky||{}).color+'   🧭 '+(f.lucky||{}).direction+'   🔢 '+(f.lucky||{}).number;
+ txt+='\n💡 '+(f.tip||'');
+ txt+='\n'+ftrLbl;
+ if(navigator.share){
+  navigator.share({title:shareTitle,text:txt}).catch(function(){});
+ }else{
+  navigator.clipboard.writeText(txt).then(function(){toast(isEn?'✅ Share text copied':'✅ 已复制分享文字')}).catch(function(){toast(isEn?'Copy failed':'复制失败')});
+ }
+}
+
+function renderFortuneCard(f){
+ var cc=document.getElementById('fortune-card-container');
+ if(!cc)return;
+ cc.style.display='block';
+ var isEn=(f.lang==='en'||f.lang==='en-US');
+ // Element header
+ var eh=document.getElementById('fc-elem-header');
+ var fElemLabel=isEn?(f.element_en||'Fire'):('五行'+f.element);
+if(eh)eh.innerHTML='<span style="font-size:22px">'+f.element_emoji+'</span> <span style="font-size:20px;font-weight:800;color:var(--amber)">'+fElemLabel+'</span> · <span style="font-size:14px;color:var(--sub)">'+f.element_desc+'</span>';
+ // Sub line
+ var sl=document.getElementById('fc-sub-line');
+ if(sl)sl.textContent='🔢 '+f.dice_total+' · 📅 '+f.date;
+ // Gauge
+ var ga=document.getElementById('fc-gauge-arc');
+ var gn=document.getElementById('fc-gauge-num');
+ if(ga){
+  var pct=f.overall_score/100;
+  var dash=pct*364.42;
+  var color=f.overall_score>=65?'var(--green,#10B981)':f.overall_score>=35?'var(--amber,#F59E0B)':'var(--red,#EF4444)';
+  ga.setAttribute('stroke',color);
+  setTimeout(function(){ga.setAttribute('stroke-dasharray',dash+' 364.42')},50);
+ }
+ if(gn)gn.textContent=f.overall_score;
+ // Level
+ var lv=document.getElementById('fc-level');
+ if(lv)lv.innerHTML='<span style="font-size:18px">'+f.level_emoji+'</span> <span style="font-size:22px;font-weight:800;color:var(--amber)">'+f.level_name+'</span> <span style="font-size:13px;color:var(--sub)">'+f.level_desc+'</span>';
+ // Categories
+ var ct=document.getElementById('fc-categories');
+ if(ct){
+  ct.innerHTML='';
+  (f.categories||[]).forEach(function(c){
+   var clr=c.score>=65?'var(--green,#10B981)':c.score>=35?'var(--amber,#F59E0B)':'var(--red,#EF4444)';
+   var bar='<div style="background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 10px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:13px;font-weight:600">'+c.emoji+' '+c.name+'</span><span style="font-size:13px;font-weight:700;color:'+clr+'">'+c.score+'</span></div><div style="height:4px;background:rgba(255,255,255,0.08);border-radius:2px;overflow:hidden"><div style="height:100%;width:'+c.score+'%;background:'+clr+';border-radius:2px;transition:width .8s ease"></div></div><div style="font-size:10px;color:var(--sub);margin-top:2px">'+c.desc+'</div></div>';
+   ct.insertAdjacentHTML('beforeend',bar);
+  });
+ }
+ // Lucky
+ var lk=document.getElementById('fc-lucky');
+ if(lk&&f.lucky){
+  var isEn=(f.lang==='en'||f.lang==='en-US');
+  var luckyLabels=isEn
+    ?[['🎨 Color',f.lucky.color],['🧭 Direction',f.lucky.direction],['🔢 Number',f.lucky.number],['⏰ Hour',f.lucky.time]]
+    :[['🎨 顏色',f.lucky.color],['🧭 方位',f.lucky.direction],['🔢 數字',f.lucky.number],['⏰ 吉時',f.lucky.time]];
+  lk.innerHTML=luckyLabels.map(function(it){return '<div style="text-align:center;padding:4px"><div style="font-size:10px;color:var(--sub)">'+it[0]+'</div><div style="font-size:13px;font-weight:700;color:var(--amber)">'+it[1]+'</div></div>'}).join('');
+ }
+ // Tip
+ var tp=document.getElementById('fc-tip');
+ if(tp){
+  var isEn=(f.lang==='en'||f.lang==='en-US');
+  tp.textContent=(isEn?'💡 Tip: ':'💡 運程指點：')+(f.tip||'');
+ }
+ // Update SVG gauge label
+ var gaugeLbl=document.getElementById('fc-gauge-label');
+ var isEn=(f.lang==='en'||f.lang==='en-US');
+ if(gaugeLbl)gaugeLbl.textContent=isEn?'Fortune Index':'運程指數';
+ // Scroll into view
+ cc.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function fortuneSaveCard(){
+ if(!_fortuneData){toast(T('fortune_save_first'));return}
+ var lv=_fortuneData.level||0;
+ if(lv<1){memLocked(0,'fortune_card');return}
+ var c=document.createElement('canvas');
+ var W=750,H=1200;c.width=W;c.height=H;
+ var ctx=c.getContext('2d');
+ var f=_fortuneData;
+ var isEn=(f.lang==='en'||f.lang==='en-US');
+ var T5Lbl=isEn?'Five Element':'五行';
+ var scoreLbl=isEn?'Fortune Index':'運程指數';
+ var footerLbl=isEn?'Tonight Drink? · Dice Fortune':'今晚飲咗未 · 骰子測運程';
+ var tipPrefix=isEn?'💡 Tip: ':'💡 ';
+ // Background gradient
+ var bg=ctx.createLinearGradient(0,0,W,H);
+ bg.addColorStop(0,'#1A1A2E');bg.addColorStop(0.5,'#16213E');bg.addColorStop(1,'#0F3460');
+ ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+ // Border
+ ctx.strokeStyle='rgba(245,158,11,0.4)';ctx.lineWidth=3;
+ var T5Lbl=isEn?'Five Element':'五行';
+ var fElemLabel=isEn?(f.element_en||'Fire'):('五行'+f.element);
+ // Title
+ ctx.fillStyle='#F59E0B';ctx.font='bold 32px sans-serif';ctx.textAlign='center';
+ ctx.fillText(f.element_emoji+' '+fElemLabel+' · '+f.element_desc, W/2, 70);
+ ctx.fillStyle='#71717A';ctx.font='20px sans-serif';
+ ctx.fillText('🔢 '+f.dice_total+' · 📅 '+f.date, W/2, 105);
+ // Score circle
+ var cx=W/2,cy=190,r=65;
+ ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=8;ctx.stroke();
+ var pct=f.overall_score/100;
+ var scClr=f.overall_score>=65?'#10B981':f.overall_score>=35?'#F59E0B':'#EF4444';
+ ctx.beginPath();ctx.arc(cx,cy,r,-Math.PI/2,-Math.PI/2+Math.PI*2*pct);ctx.strokeStyle=scClr;ctx.lineWidth=8;ctx.stroke();
+ ctx.fillStyle='#E4E4E7';ctx.font='bold 44px sans-serif';ctx.fillText(f.overall_score,cx,cy+8);
+ ctx.fillStyle='#71717A';ctx.font='14px sans-serif';ctx.fillText(scoreLbl,cx,cy+30);
+ // Level
+ ctx.fillStyle=scClr;ctx.font='bold 24px sans-serif';
+ ctx.fillText(f.level_emoji+' '+f.level_name+' '+f.level_desc, W/2, 300);
+ // Categories
+ var catY=340;
+ (f.categories||[]).forEach(function(cat,i){
+  var col=i%2,row=Math.floor(i/2);
+  var x=col?W/2+20:50,y=catY+row*90;
+  var barClr=cat.score>=65?'#10B981':cat.score>=35?'#F59E0B':'#EF4444';
+  ctx.fillStyle='#E4E4E7';ctx.font='16px sans-serif';ctx.textAlign='left';
+  ctx.fillText(cat.emoji+' '+cat.name+' '+cat.desc, x, y);
+  ctx.fillStyle=barClr;ctx.font='bold 18px sans-serif';ctx.textAlign='right';
+  var x2=col?W-50:W/2-10;
+  ctx.fillText(cat.score, x2, y);
+  ctx.fillStyle='rgba(255,255,255,0.06)';
+  _fcRectFill(ctx,x,y+8, col?W/2-80:W/2-100, 6, 3);
+  ctx.fillStyle=barClr;
+  _fcRectFill(ctx,x,y+8, (col?W/2-80:W/2-100)*cat.score/100, 6, 3);
+ });
+ ctx.textAlign='center';
+ // Lucky
+ var ly=catY+Math.ceil((f.categories||[]).length/2)*90+20;
+ ctx.fillStyle='rgba(255,255,255,0.04)';
+ _fcRectFill(ctx,40,ly-10,W-80,60,12);
+ ctx.fillStyle='#F59E0B';ctx.font='14px sans-serif';
+ if(f.lucky){
+  ctx.fillText('🎨 '+f.lucky.color+'   🧭 '+f.lucky.direction+'   🔢 '+f.lucky.number+'   ⏰ '+f.lucky.time, W/2, ly+22);
+ }
+ // Tip
+ var ty=ly+70;
+ ctx.fillStyle='rgba(245,158,11,0.08)';
+ _fcRectFill(ctx,40,ty-10,W-80,80,12);
+ ctx.fillStyle='rgba(228,228,231,0.85)';ctx.font='16px sans-serif';
+ var tipLines=_fcWrap(ctx,tipPrefix+f.tip, W-120);
+ tipLines.forEach(function(line,i){ctx.fillText(line, W/2, ty+10+i*22)});
+ // Footer
+ ctx.fillStyle='#71717A';ctx.font='14px sans-serif';
+ ctx.fillText(footerLbl, W/2, H-30);
+ c.toBlob(function(blob){
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;
+  a.download='fortune-'+f.date+'-'+f.dice_total+'.png';
+  a.click();setTimeout(function(){URL.revokeObjectURL(url)},1000);
+  toast(isEn?'✅ Fortune card saved':'✅ 運程卡片已保存');
+ },'image/png');
+}
+
+function _roundRect(ctx,x,y,w,h,r){
+ ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+ ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);
+ ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+function _roundRectFill(ctx,x,y,w,h,r){
+ _roundRect(ctx,x,y,w,h,r);ctx.fill();
+}
+function _wrapText(ctx,text,maxW){
+ var words=text.split(''),lines=[],line='';
+ for(var i=0;i<words.length;i++){
+  var test=line+words[i];
+  if(ctx.measureText(test).width>maxW&&line){lines.push(line);line=words[i]}
+  else line=test;
+ }
+ if(line)lines.push(line);
+ return lines;
 }
 
 // Room — Server API based
@@ -8126,6 +8808,7 @@ function cancelMatchmaking(){
  }catch(e){}
 })();
 
+
 function sendDiceChat(){
  var inp=document.getElementById('chat-input');if(!inp)return;
  var msg=inp.value.trim();if(!msg||!_diceRoom)return;
@@ -8403,7 +9086,7 @@ async function loadFriendsList(){
     var bdg=memBadge(f.membership_level||0);
     html+='<div class="friend-card" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:all .2s" onclick="toggleFriendDetail('+f.id+')" onmouseover="this.style.borderColor=\'var(--green)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
     +'<div style="display:flex;align-items:center;gap:8px">'
-    +'<img src="'+API_BASE+'/api/avatar/'+f.id+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><rect fill=%22%232A2A3A%22 width=%2232%22 height=%2232%22/><text y=%2220%22 x=%2216%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2218%22>👤</text></svg>\'">'
+    +'<img src="'+API_BASE+'/api/avatar/'+f.id+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">'
     +'<b class="'+nc+'">'+(f.nickname||f.username||'?')+'</b> '+bdg
     +'<span style="font-size:10px;color:var(--sub);margin-left:auto">@'+(f.username||'-')+'</span>'
     +'<span id="farr-'+f.id+'" style="font-size:10px;color:var(--sub)">▼</span>'
@@ -8486,11 +9169,11 @@ function openChat(uid){
   var avWrap=document.getElementById('chat-av-wrap');
   if(avWrap){
    if(u.avatar && u.avatar.startsWith('/api/avatar/')){
-    avWrap.innerHTML='<img src="'+API_BASE+u.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
+    avWrap.innerHTML='<img src="'+API_BASE+u.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
    } else if(u.avatar && /^emoji:/.test(u.avatar)){
     avWrap.textContent=u.avatar.replace('emoji:','')||'👤';
    } else {
-    avWrap.innerHTML='<img src="'+API_BASE+'/api/avatar/'+uid+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
+    avWrap.innerHTML='<img src="'+API_BASE+'/api/avatar/'+uid+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
    }
   }
   // membership badge
@@ -8638,7 +9321,7 @@ async function loadPosts(tab){
    let vidHtml='';if(p.video_url){vidHtml=`<div style="margin-bottom:4px"><video src="${API_BASE+p.video_url}" controls preload="metadata" style="width:100%;max-height:300px;border-radius:8px;background:#000" playsinline></video></div>`}
    const avSrc=p.avatar&&p.avatar.startsWith('/api/')?API_BASE+p.avatar:'';
    const avEmoji=p.avatar&&p.avatar.startsWith('emoji:')?p.avatar.replace('emoji:',''):'';
-   const avHtml=avEmoji?`<span style="font-size:28px">${avEmoji}</span>`:avSrc?`<img src="${avSrc}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.outerHTML='<span style=font-size:28px>👤</span>'">`:'<span style="font-size:28px">👤</span>';
+   const avHtml=avEmoji?`<span style="font-size:28px">${avEmoji}</span>`:avSrc?`<img src="${avSrc}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\';this.nextElementSibling?.style.display='flex'">`:'<span style="font-size:28px">👤</span>';
    return `<div class="card" style="margin-bottom:10px">
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
      ${avHtml}
@@ -9095,11 +9778,12 @@ function shopLoadProducts(cat){
   if(cat) url += 'category='+cat+'&';
   if(q) url += 'q='+encodeURIComponent(q)+'&';
   api(url).then(r=>{
-    if(!r.ok){document.getElementById('shop-products').innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">'+T('shop_load_err')+'</div>';return}
+    if(!r.ok){const el=document.getElementById('shop-products');if(el)el.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">'+T('shop_load_err')+'</div>';return}
     _shopProducts = r.products||[];
     renderShopProducts(_shopProducts);
-  }).catch(()=>{document.getElementById('shop-products').innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">'+T('shop_load_err')+'</div>'});
+  }).catch(()=>{const el=document.getElementById('shop-products');if(el)el.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">'+T('shop_load_err')+'</div>'});
 }
+
 
 const CAT_ICONS = {music:'🎵', liquor:'🍾', voucher:'🎫'};
 const CAT_LABELS = {music:'舞曲', liquor:'酒品', voucher:'消費券'};
@@ -9107,759 +9791,74 @@ const CAT_COLORS = {music:'linear-gradient(135deg,#8b5cf6,#6366f1)', liquor:'lin
 
 function _catTag(cat){
   const icon=CAT_ICONS[cat]||'📦', label=CAT_LABELS[cat]||cat, bg=CAT_COLORS[cat]||'var(--sub)';
-  return `<span style="display:inline-block;padding:2px 10px;border-radius:12px;color:#fff;font-size:11px;font-weight:600;background:${bg}">${icon} ${label}</span>`;
+  return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;color:#fff;font-size:11px;font-weight:600;background:'+bg+'">'+icon+' '+label+'</span>';
 }
 
 function renderShopProducts(products){
-  const el = document.getElementById('shop-products');
+  var el=document.getElementById('shop-products');
   if(!products.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--sub);font-size:14px">🏪 '+T('empty_no_product')+'</div>';return}
-  el.innerHTML = products.map(p=>{
-    const catIcon = CAT_ICONS[p.category]||'📦';
-    const catLabel = CAT_LABELS[p.category]||p.category;
-    const sold = p.sold||0;
-    const stockTxt = p.stock===-1?'':(p.stock>0?`<span style="color:#22c55e">剩${p.stock}件</span>`:`<span style="color:var(--danger)">售罄</span>`);
-    const soldout = p.stock!==-1 && p.stock<=0;
-    return `<div class="card" style="cursor:pointer;padding:0;overflow:hidden;${soldout?'opacity:0.5':''}" onclick="${soldout?'':'shopShowDetail('+p.id+')'}">
-      <div style="display:flex;gap:10px;padding:10px">
-        <div style="width:80px;height:80px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
-          ${p.image_url?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px">${catIcon}</div>`}
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name||p.name_en||'商品'}</div>
-          <div style="font-size:11px;margin:2px 0">${_catTag(p.category)}${p.sub_category?' <span style="color:var(--sub)">· '+p.sub_category+'</span>':''}</div>
-          <div style="font-size:12px;color:var(--sub);margin:2px 0;max-height:32px;overflow:hidden">${p.description||''}</div>
-          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
-            <span style="font-size:16px;font-weight:700;color:var(--amber)">¥${Number(p.price).toFixed(2)}</span>
-            ${p.currency&&p.currency!=='CNY'?`<span style="font-size:11px;color:var(--sub)">${p.currency}</span>`:''}
-            ${stockTxt?`<span style="font-size:11px">${stockTxt}</span>`:''}
-            ${sold?`<span style="font-size:11px;color:var(--sub)">已售${sold}</span>`:''}
-          </div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  var h='';
+  for(var i=0;i<products.length;i++){
+    var p=products[i];
+    var catIcon=CAT_ICONS[p.category]||'📦';
+    h+='<div class="card" style="cursor:pointer;padding:0;overflow:hidden" onclick="shopShowDetail('+p.id+')">'+
+    '<div style="display:flex;gap:10px;padding:10px">'+
+    '<div style="width:80px;height:80px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:28px">'+catIcon+'</div>'+
+    '<div style="flex:1;min-width:0">'+
+    '<div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.name||p.name_en||'商品')+'</div>'+
+    '<div style="font-size:11px;margin:2px 0">'+_catTag(p.category)+'</div>'+
+    '<div style="font-size:16px;font-weight:700;color:var(--amber)">¥'+Number(p.price).toFixed(2)+'</div>'+
+    '</div></div></div>';
+  }
+  el.innerHTML=h;
 }
 
 function shopShowDetail(pid){
-  api('/api/shop/product/'+pid).then(r=>{
+  api('/api/shop/product/'+pid).then(function(r){
     if(!r.ok||!r.product){toast(T('toast_product_not_found'),'error');return}
-    const p = r.product;
-    const catIcon = CAT_ICONS[p.category]||'📦';
-    const catLabel = CAT_LABELS[p.category]||p.category;
-    const stockTxt = p.stock===-1?'無限':(p.stock>0?p.stock+'件':'售罄');
-    const soldout = p.stock!==-1 && p.stock<=0;
-    document.getElementById('shop-detail-body').innerHTML = `
-      <div style="position:relative">
-        <button onclick="document.getElementById('shop-detail-mod').style.display='none'" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer">✕</button>
-        ${p.image_url?`<img src="${p.image_url}" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:12px" onerror="this.style.display='none'">`:`<div style="text-align:center;font-size:48px;padding:24px">${catIcon}</div>`}
-      </div>
-      <div style="font-size:18px;font-weight:700;margin-bottom:4px">${p.name||p.name_en}</div>
-      <div style="font-size:12px;margin-bottom:8px">${_catTag(p.category)}${p.sub_category?' <span style="color:var(--sub)">· '+p.sub_category+'</span>':''}</div>
-      ${p.description?`<div style="font-size:13px;color:var(--text);margin-bottom:12px;line-height:1.5">${p.description}</div>`:''}
-      <div style="font-size:24px;font-weight:700;color:var(--amber);margin-bottom:4px">¥${Number(p.price).toFixed(2)} <span style="font-size:12px;color:var(--sub)">${p.currency||'CNY'}</span></div>
-      ${_shopDiscountHtml(Number(p.price))}
-      <div style="font-size:12px;color:var(--sub);margin-bottom:12px">庫存: ${stockTxt}${p.sold?' · 已售'+p.sold:''}</div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" style="flex:1;${soldout?'opacity:0.5;pointer-events:none':''}" onclick="shopBuy(${p.id})">${soldout?'售罄':'🛒 立即購買'}</button>
-      </div>`;
+    var p=r.product;
+    var el=document.getElementById('shop-detail-body');
+    var h='<div>'+
+    '<button onclick="document.getElementById(\'shop-detail-mod\').style.display=\'none\'" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer">✕</button>'+
+    '</div>'+
+    '<div style="font-size:18px;font-weight:700;margin-bottom:4px">'+(p.name||p.name_en)+'</div>'+
+    '<div style="font-size:24px;font-weight:700;color:var(--amber);margin-bottom:4px">¥'+Number(p.price).toFixed(2)+'</div>'+
+    '<div style="display:flex;gap:8px">'+
+    '<button class="btn btn-primary" style="flex:1" onclick="shopBuy('+p.id+')">🛒 立即購買</button>'+
+    '</div>';
+    el.innerHTML=h;
     document.getElementById('shop-detail-mod').style.display='flex';
-  }).catch(()=>toast(T('shop_load_err'),'error'));
+  }).catch(function(){toast(T('shop_load_err'),'error')});
+}
+
+function shopBuy(pid){
+  api('/api/shop/buy/'+pid,{method:'POST'}).then(function(r){
+    if(r.ok){toast(T('order_created'),'success')}
+    else{toast(r.error||T('order_failed'),'error')}
+  }).catch(function(){toast(T('net_err'),'error')});
 }
 
 function _shopDiscountHtml(price){
-  const lv=memLevel();
+  var lv=memLevel();
   if(!lv)return '';
-  const rates=[0,0.95,0.9,0.85];
-  const names=[0,'酒友','酒鬼','酒神'];
-  const r=rates[lv]||1;
-  const dp=(price*r).toFixed(2);
-  const sv=(price-dp).toFixed(2);
-  const colors=['','var(--yellow)','#6366f1','#dc2626'];
-  return `<div style="background:${colors[lv]}15;border:1px solid ${colors[lv]}40;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px">
-    <span style="color:${colors[lv]};font-weight:700">${['','🥉','🥈','🥇'][lv]} ${names[lv]}專享${Math.round(r*100)/10}折 ≈ ¥${dp}</span>
-    <span style="color:var(--green);margin-left:8px">省¥${sv}</span></div>`;
+  var rates=[0,0.95,0.9,0.85];
+  var r=rates[lv]||1;
+  var dp=(price*r).toFixed(2);
+  var sv=(price-dp).toFixed(2);
+  return '<div style="padding:4px 8px;margin-bottom:8px;font-size:12px">'+'🥉 折后¥'+dp+' 省¥'+sv+'</div>';
 }
 
-// Checkout state
-let _checkoutPid=null, _checkoutProduct=null, _checkoutStep=1, _userAddr=null;
-
-// QR code image paths (real payment QR codes from E:\Hermes\QR)
-const _qrImages = {
-  wechat: '/static/uploads/qr-wechat.png',
-  alipay: '/static/uploads/qr-alipay.jpg',
-  paypal: '/static/uploads/qr-paypal.jpg'
-};
-const _qrLabels = {
-  wechat: {name:'微信支付', emoji:'💚', color:'#07C160', bg:'rgba(7,193,96,0.1)'},
-  alipay: {name:'支付寶', emoji:'🔵', color:'#1677FF', bg:'rgba(22,119,255,0.1)'},
-  paypal: {name:'PayPal', emoji:'🟡', color:'#003087', bg:'rgba(0,48,135,0.1)'}
-};
-
-function shopBuy(pid){
-  if(!token){toast(T('shop_need_login'),'error');return}
-  const p = _shopProducts.find(x=>x.id===pid);
-  if(!p){toast(T('shop_loading'),'error');return}
-  _checkoutPid = pid;
-  _checkoutProduct = p;
-  _checkoutStep = 1;
-  // Fill product info
-  const info = document.getElementById('checkout-product-info');
-  const isDigital = p.delivery_type==='digital' || (p.category==='music' || p.category==='digital');
-  info.innerHTML = `
-    <div style="display:flex;gap:12px;align-items:center">
-      ${p.image_url?`<img src="${p.image_url}" style="width:56px;height:56px;border-radius:10px;object-fit:cover">`:`<div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(139,92,246,0.1));display:flex;align-items:center;justify-content:center;font-size:24px">${isDigital?'💿':'🍶'}</div>`}
-      <div style="flex:1">
-        <div style="font-weight:700;font-size:15px;color:var(--text)">${p.name||''}</div>
-        ${p.description?`<div style="font-size:12px;color:var(--sub);margin-top:2px;line-height:1.4;max-height:40px;overflow:hidden">${p.description}</div>`:''}
-        ${isDigital?`<div style="font-size:11px;color:var(--purple);margin-top:2px">📥 數碼商品 · 確認付款後72h內下載</div>`:''}
-      </div>
-    </div>
-  `;
-  // Calculate price with member discount
-  const lv = memLevel();
-  const origPrice = (p.price||0);
-  let finalPrice = origPrice, discountRate = 1;
-  if(lv>=3) discountRate=0.75;
-  else if(lv>=2) discountRate=0.85;
-  else if(lv>=1) discountRate=0.9;
-  finalPrice = +(origPrice * discountRate).toFixed(2);
-  document.getElementById('checkout-amount').textContent = '¥' + finalPrice.toFixed(2);
-  const discEl = document.getElementById('checkout-discount');
-  if(discountRate<1){
-    discEl.style.display='block';
-    discEl.textContent = T('shop_discount_info',{orig:origPrice.toFixed(2),disc:lv===3?T('discount_jausan'):lv===2?T('discount_jaugwai'):T('discount_jiuyau'),save:(origPrice-finalPrice).toFixed(2)});
-  } else {
-    discEl.style.display='none';
-  }
-  // Reset + show step1
-  const radios = document.querySelectorAll('input[name="pay-method"]');
-  radios.forEach(r=>r.checked=r.value==='wechat');
-  _updateCheckoutMethodUI();
-  document.getElementById('ck-step1').style.display='block';
-  document.getElementById('ck-step2').style.display='none';
-  document.getElementById('ck-step3').style.display='none';
-  document.getElementById('ck-step1-dot').style.background='var(--amber)';
-  document.getElementById('ck-step2-dot').style.background='var(--border)';
-  document.getElementById('ck-step3-dot').style.background='var(--border)';
-  document.getElementById('ck-step-bar').style.width='0%';
-  document.getElementById('ck-step-bar2').style.width='0%';
-  document.getElementById('ck-title').textContent=T('pay_title');
-  document.getElementById('checkout-mod').style.display='flex';
-  // Pre-fill address from user profile
-  _prefillAddress();
-}
-
-async function _prefillAddress(){
-  if(!token) return;
-  try{
-    const r = await api('/api/user/profile','GET');
-    if(r.ok && r.id){
-      _userAddr = r;
-      const f = (id, val) => { const el=document.getElementById(id); if(el && !el.value && val) el.value = val; };
-      f('ck-ship-name', r.shipping_name || r.nickname || '');
-      f('ck-ship-phone', r.shipping_phone || r.phone || '');
-      f('ck-addr-city', r.address_city || '');
-      f('ck-addr-district', r.address_district || '');
-      f('ck-addr-detail', r.address || '');
-      f('ck-addr-zip', r.address_zip || '');
-      // If has saved address, show hint
-      if(r.address || r.address_city){
-        document.getElementById('ck-saved-addr-hint').style.display='block';
-      }
-    }
-  }catch(e){}
-}
-
-function checkoutGoStep2(){
-  _checkoutStep = 2;
-  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
-  // Show/hide delivery type
-  const deliveryHint = document.getElementById('ck-delivery-hint');
-  const physicalAddr = document.getElementById('ck-physical-addr');
-  if(isDigital){
-    deliveryHint.style.display='block';
-    physicalAddr.style.display='none';
-  } else {
-    deliveryHint.style.display='none';
-    physicalAddr.style.display='block';
-  }
-  // Switch UI
-  document.getElementById('ck-step1').style.display='none';
-  document.getElementById('ck-step2').style.display='block';
-  document.getElementById('ck-step3').style.display='none';
-  document.getElementById('ck-step1-dot').style.background='var(--amber)';
-  document.getElementById('ck-step2-dot').style.background='var(--amber)';
-  document.getElementById('ck-step3-dot').style.background='var(--border)';
-  document.getElementById('ck-step-bar').style.width='50%';
-  document.getElementById('ck-step-bar2').style.width='0%';
-  document.getElementById('ck-title').textContent=T('ship_title');
-}
-
-function checkoutGoStep3(){
-  // Validate address for physical products
-  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
-  if(!isDigital){
-    const name = document.getElementById('ck-ship-name').value.trim();
-    const phone = document.getElementById('ck-ship-phone').value.trim();
-    const city = document.getElementById('ck-addr-city').value.trim();
-    const addr = document.getElementById('ck-addr-detail').value.trim();
-    if(!name){toast(T('ship_need_name'),'error');return}
-    if(!phone){toast(T('ship_need_phone'),'error');return}
-    if(!city){toast(T('ship_need_city'),'error');return}
-    if(!addr){toast(T('ship_need_addr'),'error');return}
-  } else {
-    // Digital still needs name & phone
-    const name = document.getElementById('ck-ship-name').value.trim();
-    if(!name){toast(T('ship_need_name2'),'error');return}
-  }
-  _checkoutStep = 3;
-  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
-  const qrInfo = _qrLabels[payMethod] || _qrLabels.wechat;
-  // Set QR image
-  document.getElementById('ck-qr-img').src = _qrImages[payMethod] || _qrImages.wechat;
-  document.getElementById('ck-pay-method-label').textContent = T('please_use') + qrInfo.emoji + ' ' + qrInfo.name + ' 掃碼付款';
-  // Brand badge
-  const brandEl = document.getElementById('ck-qr-brand');
-  brandEl.style.background = qrInfo.bg;
-  brandEl.style.color = qrInfo.color;
-  brandEl.innerHTML = qrInfo.emoji + ' ' + qrInfo.name;
-  // Switch UI
-  document.getElementById('ck-step1').style.display='none';
-  document.getElementById('ck-step2').style.display='none';
-  document.getElementById('ck-step3').style.display='block';
-  document.getElementById('ck-step1-dot').style.background='var(--amber)';
-  document.getElementById('ck-step2-dot').style.background='var(--amber)';
-  document.getElementById('ck-step3-dot').style.background='var(--amber)';
-  document.getElementById('ck-step-bar').style.width='100%';
-  document.getElementById('ck-step-bar2').style.width='100%';
-  document.getElementById('ck-title').textContent=T('pay_scan_title');
-  // Reset confirm btn
-  const btn = document.getElementById('checkout-confirm-btn');
-  btn.disabled=false; btn.textContent=T('pay_done_btn'); btn.style.opacity='1';
-  delete btn.dataset.confirmed;
-}
-
-function checkoutGoStep1(){
-  _checkoutStep = 1;
-  document.getElementById('ck-step1').style.display='block';
-  document.getElementById('ck-step2').style.display='none';
-  document.getElementById('ck-step3').style.display='none';
-  document.getElementById('ck-step1-dot').style.background='var(--amber)';
-  document.getElementById('ck-step2-dot').style.background='var(--border)';
-  document.getElementById('ck-step3-dot').style.background='var(--border)';
-  document.getElementById('ck-step-bar').style.width='0%';
-  document.getElementById('ck-step-bar2').style.width='0%';
-  document.getElementById('ck-title').textContent=T('pay_title');
-}
-
-function checkoutGoStep2From3(){
-  _checkoutStep = 2;
-  document.getElementById('ck-step1').style.display='none';
-  document.getElementById('ck-step2').style.display='block';
-  document.getElementById('ck-step3').style.display='none';
-  document.getElementById('ck-step2-dot').style.background='var(--amber)';
-  document.getElementById('ck-step3-dot').style.background='var(--border)';
-  document.getElementById('ck-step-bar2').style.width='0%';
-  document.getElementById('ck-title').textContent=T('ship_title');
-}
-
-function checkoutClose(){
-  document.getElementById('checkout-mod').style.display='none';
-  _checkoutPid = null;
-  _checkoutStep = 1;
-}
-
-function _updateCheckoutMethodUI(){
-  const labels = document.querySelectorAll('.checkout-method');
-  labels.forEach(lb=>{
-    const radio = lb.querySelector('input[type=radio]');
-    if(radio&&radio.checked){
-      lb.style.borderColor='var(--amber)';
-      lb.style.background='rgba(245,158,11,0.06)';
-    } else {
-      lb.style.borderColor='var(--border)';
-      lb.style.background='transparent';
-    }
-  });
-}
-document.addEventListener('change', e=>{
-  if(e.target.name==='pay-method') _updateCheckoutMethodUI();
-});
-
-function confirmCheckout(){
-  if(!_checkoutPid){toast(T('shop_reselect'),'error');return}
-  // Double-confirm: require user acknowledgment
-  const btn = document.getElementById('checkout-confirm-btn');
-  if(!btn.dataset.confirmed){
-    btn.dataset.confirmed='1';
-    btn.textContent=T('pay_confirm_again');
-    btn.style.opacity='0.85';
-    setTimeout(()=>{if(btn.dataset.confirmed==='1'){btn.dataset.confirmed='';btn.textContent=T('pay_done_btn');btn.style.opacity='1'}},3000);
-    return;
-  }
-  delete btn.dataset.confirmed;
-  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
-  // Collect address data
-  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
-  const addrData = {
-    shipping_name: document.getElementById('ck-ship-name').value.trim(),
-    shipping_phone: document.getElementById('ck-ship-phone').value.trim(),
-    address: document.getElementById('ck-addr-detail').value.trim(),
-    address_city: document.getElementById('ck-addr-city').value.trim(),
-    address_district: document.getElementById('ck-addr-district').value.trim(),
-    address_zip: document.getElementById('ck-addr-zip').value.trim(),
-    is_digital: isDigital ? 1 : 0
-  };
-  btn.disabled=true; btn.textContent=T('submitting'); btn.style.opacity='0.6';
-  api('/api/shop/orders',{method:'POST',body:{items:[{product_id:_checkoutPid,qty:1}],pay_method:payMethod,...addrData}})
-  .then(r=>{
-    btn.disabled=false; btn.textContent=T('pay_done_btn'); btn.style.opacity='1';
-    if(r.ok){
-      let msg='订單已提交！#'+r.order_id+'，合計¥'+r.total.toFixed(2)+'，等待人工確認付款';
-      if(r.discount<1)msg+=' (原價¥'+r.original_total.toFixed(2)+'，省¥'+r.saved.toFixed(2)+')';
-      if(r.has_digital)msg+='\n📥 數碼商品：確認付款後可下載（72h有效）';
-      toast(msg,'success');
-      document.getElementById('checkout-mod').style.display='none';
-      document.getElementById('shop-detail-mod').style.display='none';
-      shopLoadProducts(shopCurrentCat);
-    } else {
-      toast(r.error||'下單失敗','error');
-    }
-  }).catch(()=>{btn.disabled=false;btn.textContent=T('pay_done_btn');btn.style.opacity='1';toast(T('net_err'),'error')});
-}
-
-function shopToggleMyOrders(){
-  const el = document.getElementById('shop-my-orders');
-  if(el.style.display==='none'){
-    el.style.display='block';
-    api('/api/shop/my-orders').then(r=>{
-      if(!r.ok||!r.orders){el.innerHTML='<div style="padding:8px;color:var(--sub)">'+T('adm_load_fail')+'</div>';return}
-      if(!r.orders.length){el.innerHTML='<div style="padding:8px;color:var(--sub);text-align:center">'+T('empty_no_order')+'</div>';return}
-      const statusMap = {pending:T('order_pending'),paid:T('order_paid'),shipped:T('order_shipped'),delivered:T('order_delivered'),cancelled:T('order_cancelled'),refunded:T('order_refunded')};
-      const statusColor = {pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
-      el.innerHTML = r.orders.map(o=>{
-        const statusText = statusMap[o.status]||o.status;
-        const statusClr = statusColor[o.status]||'var(--sub)';
-        const isPaid = o.status==='paid'||o.status==='delivered';
-        const digitalItems = (o.items||[]).filter(i=>i.delivery_type==='digital'||i.category==='music'||i.category==='digital');
-        let downloadBtn = '';
-        if(isPaid && digitalItems.length>0 && o.download_token){
-          downloadBtn = `<button onclick="downloadDigital('${o.download_token}','${o.id}')" style="margin-top:4px;padding:4px 10px;border-radius:8px;border:1px solid #8b5cf6;background:rgba(139,92,246,0.08);color:#8b5cf6;font-size:11px;font-weight:600;cursor:pointer">${T('download_digital')}</button>`;
-        }
-        return `<div style="padding:8px;border-bottom:1px solid var(--border)">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-weight:600;font-size:13px">#${o.id}</span>
-            <span style="font-size:11px;color:${statusClr};background:${statusClr}20;padding:2px 8px;border-radius:8px">${statusText}</span>
-          </div>
-          <div style="font-size:12px;color:var(--sub);margin:4px 0">${(o.items||[]).map(i=>i.name+'×'+i.qty).join('、')}</div>
-          <div style="display:flex;justify-content:space-between;font-size:12px">
-            <span style="color:var(--sub)">${o.created_at||''}</span>
-            <span style="font-weight:700;color:var(--amber)">¥${Number(o.total_price).toFixed(2)}</span>
-          </div>
-          ${downloadBtn}
-        </div>`;
-      }).join('');
-      document.getElementById('shop-order-count').textContent = '('+r.orders.length+')';
-    }).catch(()=>{el.innerHTML='<div style="padding:8px;color:var(--sub)">'+T('adm_load_fail')+'</div>'});
-  } else el.style.display='none';
-}
-
-function downloadDigital(token, oid){
-  if(!token){toast(T('dl_link_invalid'),'error');return}
-  // Open download URL in new tab
-  const url = API_BASE + '/api/shop/download/' + oid + '/' + (oid*7+13) + '?token=' + encodeURIComponent(token);
-  window.open(url, '_blank');
-  toast(T('downloading'),'success');
-}
-
-// ═══════════════════ LIQUOR SCAN / VERIFY ═══════════════════
-let _scannerStream = null;
-
-function _scanRemainHtml(remain){
-  if(remain===undefined||remain===null)return'';
-  const clr=remain<=0?'var(--red)':remain<=2?'#f59e0b':'var(--sub)';
-  const txt=remain<=0?T('toast_scan_limit').replace(/.*？/,'已用完!'):remain;
-  return `<div style="font-size:11px;color:${clr};margin-top:8px;padding-top:6px;border-top:1px solid var(--border)">🔍 ${T('mem_limit_today')}: ${txt}${remain<5&&remain>=0?' · <a href="javascript:void(0)" onclick="showUpgradeModal('+Math.min(memLevel()+1,3)+')" style="color:var(--amber)">'+T('mem_upgrade_cta')+'</a>':''}</div>`;
-}
-
-function scanBarcode(code){
-  const barcode = code || document.getElementById('scan-barcode-input')?.value?.trim() || '';
-  if(!barcode){toast(T('toast_enter_barcode'),'error');return}
-  api('/api/scan/verify',{method:'POST',body:{barcode}}).then(r=>{
-    const el = document.getElementById('scan-result');
-    el.style.display='block';
-    const l = r.liquor;
-    if(r.result==='verified'){
-      // 辨真報告(酒鬼+)
-      var verifyHtml='';
-      if(r.verify_info){
-       var vi=r.verify_info;
-       var vColor=vi.verdict==='likely_genuine'?'#22c55e':vi.verdict==='suspicious'?'var(--amber)':'var(--danger)';
-       var vLabel=vi.verdict==='likely_genuine'?'✅ 疑似正品':vi.verdict==='suspicious'?'⚠️ 有疑點':'❌ 疑似仿品';
-       var vConf=vi.confidence!=null?'<div style="font-size:12px;color:var(--sub)">可信度: '+vi.confidence+'%</div>':'';
-       var vFlags=vi.flags&&vi.flags.length?'<div style="font-size:12px;color:var(--amber);margin-top:4px">🚩 '+vi.flags.join(' · ')+'</div>':'';
-       verifyHtml='<div style="margin-top:10px;padding:10px;background:var(--card);border:1px solid '+vColor+';border-radius:10px">'
-        +'<div style="font-weight:700;color:'+vColor+';font-size:14px">'+vLabel+'</div>'
-        +vConf+vFlags+'</div>';
-      }
-      // 收藏按钮(酒友+)
-      var favBtn=l&&l.id?'<button onclick="addFavFromScan('+l.id+').catch(()=>{})" style="margin-top:8px;padding:8px 16px;border-radius:10px;border:1px solid var(--amber);background:rgba(245,158,11,0.08);color:var(--amber);font-weight:600;cursor:pointer;font-size:13px">🔖 收藏入酒櫃</button>':'';
-      el.innerHTML = `<div style="padding:14px;border-radius:14px;background:rgba(34,197,94,0.08);border:2px solid #22c55e">
-        <div style="font-size:18px;font-weight:800;color:#22c55e;margin-bottom:10px">✅ 正品驗證通過</div>
-        ${l?`<div style="display:flex;gap:12px;align-items:flex-start">
-          ${l.image_url?`<img src="${l.image_url}" style="width:80px;height:80px;border-radius:12px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">`:''}
-          <div style="flex:1">
-            <div style="font-weight:700;font-size:16px;color:var(--text)">${l.name||''}</div>
-            ${l.name_en?`<div style="font-size:11px;color:var(--sub)">${l.name_en}</div>`:''}
-            ${l.brand?`<div style="font-size:13px;margin-top:4px">🏷️ 品牌: <b>${l.brand}</b></div>`:''}
-            ${l.category?`<div style="font-size:13px">🍷 類型: ${l.category}</div>`:''}
-            ${l.origin?`<div style="font-size:13px">🌍 產地: ${l.origin}</div>`:''}
-            ${l.abv?`<div style="font-size:13px">🥃 酒精度: ${l.abv}%</div>`:''}
-            ${l.volume_ml?`<div style="font-size:13px">🧪 容量: ${l.volume_ml}ml</div>`:''}
-            ${l.vintage?`<div style="font-size:13px">📅 年份: ${l.vintage}</div>`:''}
-            ${l.extra_json&&JSON.parse(l.extra_json).price?`<div style="font-size:15px;font-weight:800;color:var(--amber);margin-top:6px">💰 參考價: ¥${JSON.parse(l.extra_json).price}</div>`:''}
-            ${l.extra_json&&JSON.parse(l.extra_json).release_date?`<div style="font-size:12px;color:var(--sub)">📦 出廠日期: ${JSON.parse(l.extra_json).release_date}</div>`:''}
-            ${l.taste_notes?`<div style="font-size:12px;margin-top:6px;color:var(--text);line-height:1.4;background:var(--bg2);padding:8px;border-radius:8px">🎨 口感: ${l.taste_notes}</div>`:''}
-            ${l.description?`<div style="font-size:12px;margin-top:6px;line-height:1.4;color:var(--sub)">${l.description}</div>`:''}
-          </div>
-        </div>`:''}
-        ${verifyHtml}
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px">${favBtn}</div>
-        <div style="font-size:11px;color:var(--sub);margin-top:8px;padding-top:6px;border-top:1px solid rgba(34,197,94,0.2)">條碼: ${barcode}</div>
-        ${_scanRemainHtml(r.scan_remaining)}
-      </div>`;
-    } else if(r.result==='unverified'){
-      el.innerHTML = `<div style="padding:14px;border-radius:14px;background:rgba(245,158,11,0.08);border:2px solid var(--amber)">
-        <div style="font-size:18px;font-weight:800;color:var(--amber);margin-bottom:6px">⚠️ 未能確認</div>
-        <div style="font-size:14px;color:var(--text)">此條碼在數據庫中有記錄，但未通過正品驗證</div>
-        ${l?`<div style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:8px;font-size:13px;color:var(--sub)">
-          ${l.name?'名稱: '+l.name:''}${l.brand?' · 品牌: '+l.brand:''}${l.origin?' · 產地: '+l.origin:''}
-        </div>`:''}
-        <div style="font-size:11px;color:var(--sub);margin-top:8px;padding-top:6px;border-top:1px solid rgba(245,158,11,0.2)">條碼: ${barcode}</div>
-        ${_scanRemainHtml(r.scan_remaining)}
-      </div>`;
-    } else {
-      el.innerHTML = `<div style="padding:14px;border-radius:14px;background:rgba(239,68,68,0.08);border:2px solid var(--danger)">
-        <div style="font-size:18px;font-weight:800;color:var(--danger);margin-bottom:6px">❌ 未找到記錄</div>
-        <div style="font-size:14px;color:var(--text)">此條碼不在數據庫中，請謹慎購買 ⚠️</div>
-        <div style="font-size:12px;color:var(--sub);margin-top:6px">💡 如確認為正品，可聯系管理員添加此酒品</div>
-        <div style="font-size:11px;color:var(--sub);margin-top:8px;padding-top:6px;border-top:1px solid rgba(239,68,68,0.2)">條碼: ${barcode}</div>
-        ${_scanRemainHtml(r.scan_remaining)}
-      </div>`;
-    }
-  }).catch(()=>toast(T('toast_scan_fail'),'error'));
-}
-
-var _html5QrCode=null;
-// Detect iOS PWA standalone mode where camera API is unavailable
-function _isPwaStandalone(){
-  return window.navigator.standalone===true
-      || (window.matchMedia('(display-mode: standalone)').matches)
-      || (window.matchMedia('(display-mode: minimal-ui)').matches && !navigator.mediaDevices);
-}
-function _showManualScan(){
-  document.getElementById('scanner-reader').style.display='none';
-  document.getElementById('scanner-fallback').style.display='none';
-  document.getElementById('scanner-manual').style.display='flex';
-  document.getElementById('scanner-photo').style.display='block';
-  const hint=document.querySelector('#scanner-mod [data-i18n="scan_hint"]');
-  const isPwa=_isPwaStandalone();
-  if(hint)hint.textContent=isPwa?'📱 '+T('pwa_no_camera','PWA模式不支持相機，請輸入條碼或從相冊選取'):'📱 '+T('scan_manual_hint','請輸入條碼或從相冊選取條碼圖片');
-  document.getElementById('scanner-input').focus();
-}
-// Scan barcode from photo file (works in PWA mode where camera getUserMedia is blocked)
-function _scanFromFile(input){
-  if(!input.files||!input.files[0])return;
-  const file=input.files[0];
-  toast('📷 正在識别條碼...');
-  if(typeof Html5Qrcode!=='undefined'&&typeof Html5Qrcode.scanFile==='function'){
-    Html5Qrcode.scanFile(file,true).then(decodedText=>{
-      closeScanner();
-      const barcode=decodedText.trim();
-      toast('📷 識别到: '+barcode);
-      document.getElementById('scan-barcode-input').value=barcode;
-      scanBarcode(barcode);
-    }).catch(()=>{
-      toast(T('toast_scan_fail'),'error');
-    });
-  }else{
-    // Fallback: try jsQR from CDN if available
-    const img=new Image();
-    img.onload=function(){
-      const canvas=document.createElement('canvas');
-      canvas.width=img.width;canvas.height=img.height;
-      const ctx=canvas.getContext('2d');
-      ctx.drawImage(img,0,0);
-      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-      if(typeof jsQR==='undefined'){
-        const s=document.createElement('script');
-        s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
-        s.onload=()=>_decodeWithJsQR(imageData);
-        s.onerror=()=>toast(T('toast_scan_fail'),'error');
-        document.head.appendChild(s);
-      }else _decodeWithJsQR(imageData);
-    };
-    img.onerror=()=>toast(T('toast_scan_fail'),'error');
-    img.src=URL.createObjectURL(file);
-  }
-}
-function _decodeWithJsQR(imageData){
-  const code=jsQR(imageData.data,imageData.width,imageData.height);
-  if(code&&code.data){
-    closeScanner();
-    toast('📷 識别到: '+code.data);
-    document.getElementById('scan-barcode-input').value=code.data;
-    scanBarcode(code.data);
-  }else toast(T('toast_scan_fail'),'error');
-}
-function _showCamPermissionPrompt(){
-  // Delegate to unified permission system
-  _showPermFlow('camera',function(){
-    _doOpenScanner();
-  },function(){
-    _showManualScan();
-  });
-}
-function _doOpenScanner(){
-  const mod=document.getElementById('scanner-mod');
-  mod.style.display='flex';
-  if(_isPwaStandalone()) return _showManualScan();
-  if(typeof Html5Qrcode!=='undefined'){
-    try{
-      if(_html5QrCode){_html5QrCode.stop().catch(()=>{}).then(()=>{_html5QrCode=null;_startScanner()});return}
-      _startScanner();
-    }catch(e){console.error('scanner err',e);_fallbackCamera()}
-  }else{_fallbackCamera()}
-}
-function openScanner(){
-  const mod=document.getElementById('scanner-mod');
-  mod.style.display='flex';
-  // iOS PWA standalone → no camera API available
-  if(_isPwaStandalone()) return _showManualScan();
-  // Smart permission check instead of localStorage flag
-  _queryPerm('camera').then(function(state){
-    if(state==='denied'){
-      mod.style.display='none';
-      _showSettingsGuide('camera',function(){
-        mod.style.display='flex';
-        _doOpenScanner();
-      });
-    }else if(state==='prompt'){
-      mod.style.display='none';
-      _showPermFlow('camera',function(){
-        mod.style.display='flex';
-        _doOpenScanner();
-      },function(){
-        _showManualScan();
-      });
-    }else{
-      // granted — open scanner directly
-      _doOpenScanner();
-    }
-  });
-}
-function _startScanner(){
-  _html5QrCode=new Html5Qrcode('scanner-reader');
-  _html5QrCode.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:120},formatsToRead:[
-    Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,
-    Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,
-    Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,
-    Html5QrcodeSupportedFormats.QR_CODE
-  ]},(decodedText,decodedResult)=>{
-    closeScanner();
-    var barcode=decodedText.trim();
-    toast('📷 識别到: '+barcode);
-    document.getElementById('scan-barcode-input').value=barcode;
-    scanBarcode(barcode);
-  },(errMsg)=>{}).catch(e=>{console.warn('html5-qr fail',e);_fallbackCamera()});
-}
-function _fallbackCamera(){
-  document.getElementById('scanner-reader').style.display='none';
-  document.getElementById('scanner-fallback').style.display='block';
-  const video=document.getElementById('scanner-video');
-  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
-    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(stream=>{
-      _scannerStream=stream;video.srcObject=stream;
-    }).catch(()=>toast(T('toast_no_camera'),'error'));
-  }else toast(T('toast_browser_no_camera'),'error');
-}
-
-function closeScanner(){
-  document.getElementById('scanner-mod').style.display='none';
-  if(_html5QrCode){try{_html5QrCode.stop().catch(()=>{})}catch(e){}_html5QrCode=null}
-  if(_scannerStream){_scannerStream.getTracks().forEach(t=>t.stop());_scannerStream=null}
-  const video=document.getElementById('scanner-video');if(video)video.srcObject=null;
-}
-
-function showScanHistory(){
-  if(!token){toast(T('shop_need_login'),'error');return}
-  api('/api/scan/history').then(r=>{
-    if(!r.ok||!r.history){toast(T('shop_load_err'),'error');return}
-    if(!r.history.length){toast(T('toast_no_scan_hist'),'info');return}
-    const el = document.getElementById('scan-result');
-    el.style.display='block';
-    const resultMap = {verified:'✅ 正品',unverified:'⚠️ 未確認',not_found:'❌ 未找到'};
-    const colorMap = {verified:'#22c55e',unverified:'var(--amber)',not_found:'var(--danger)'};
-    el.innerHTML = `<div style="padding:8px"><div style="font-weight:600;margin-bottom:8px">📜 掃碼記錄</div>
-    ${r.history.map(h=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
-      <div>
-        <div style="font-size:13px;font-weight:500">${h.name||h.barcode}</div>
-        ${h.brand?`<div style="font-size:11px;color:var(--sub)">${h.brand}</div>`:''}
-      </div>
-      <div style="text-align:right">
-        <div style="font-size:12px;color:${colorMap[h.result]||'var(--sub)'}">${resultMap[h.result]||h.result}</div>
-        <div style="font-size:10px;color:var(--sub)">${h.created_at||''}</div>
-      </div>
-    </div>`).join('')}
-    </div>`;
-  }).catch(()=>toast(T('shop_load_err'),'error'));
-}
-
-// ═══════════════════ ADMIN: SHOP MANAGEMENT ═══════════════════
-function _admH(){return {Authorization:'Bearer '+adminToken,'X-Admin-Token':adminToken,'Content-Type':'application/json'}}
-
-function admLoadShopProducts(){
-  fetch(API_BASE+'/api/admin/products',{headers:_admH()}).then(r=>r.json()).then(r=>{
-    if(!r.ok){document.getElementById('adm-product-list').innerHTML=T('load_failed');return}
-    const products=r.products||[];
-    if(!products.length){document.getElementById('adm-product-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_product')+'，點擊➕新增</div>';return}
-    document.getElementById('adm-product-list').innerHTML=products.map(p=>{
-      const catLabel=CAT_LABELS[p.category]||p.category;
-      const catIcon=CAT_ICONS[p.category]||'📦';
-      return `<div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)">
-        <div style="width:40px;height:40px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
-          ${p.image_url?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${catIcon}</div>`}
-        </div>
-        <div style="flex:1;min-width:0">
-          <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name||p.name_en||'-'}</div>
-          <div style="font-size:11px;color:var(--sub)">${catIcon}${catLabel} · ¥${Number(p.price).toFixed(2)} · 庫存${p.stock===-1?'∞':p.stock} ${p.active?'✅':'🚫'}</div>
-        </div>
-        <button class="btn btn-outline btn-sm" onclick="admProductForm(${p.id})" style="font-size:10px;padding:2px 8px">✏️</button>
-        <button class="btn btn-outline btn-sm" onclick="admDelProduct(${p.id})" style="font-size:10px;padding:2px 8px;color:var(--danger);border-color:var(--danger)">🗑️</button>
-      </div>`;
-    }).join('');
-  }).catch(()=>document.getElementById('adm-product-list').innerHTML=T('adm_load_fail'));
-}
-
-function admProductForm(pid){
-  if(pid){
-    fetch(API_BASE+'/api/admin/products',{headers:_admH()}).then(r=>r.json()).then(r=>{
-      const product=(r.products||[]).find(p=>p.id===pid)||{};
-      _showProductForm(product);
-    }).catch(()=>{});
-  } else _showProductForm({});
-}
-
-function _showProductForm(p){
-  const isEdit=!!p.id;
-  const box=document.getElementById('adm-product-list');
-  box.innerHTML=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">${isEdit?T('edit_product'):T('add_product')}</div>
-  <div style="display:flex;flex-direction:column;gap:8px">
-    <label style="font-size:12px;font-weight:600">${T('prod_name')||'名稱'}</label>
-    <input class="input" id="pf-name" value="${p.name||''}" placeholder="${T('prod_name_ph')||'商品名稱'}" style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600">${T('prod_name_en')||'英文名稱'}</label>
-    <input class="input" id="pf-name-en" value="${p.name_en||''}" placeholder="English Name" style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600">${T('prod_category')||'分類'}</label>
-    <select class="input" id="pf-category" style="margin-bottom:0">
-      <option value="music" ${p.category==='music'?'selected':''}>${T('shop_music')}</option>
-      <option value="liquor" ${p.category==='liquor'?'selected':''}>${T('shop_liquor')}</option>
-      <option value="voucher" ${p.category==='voucher'?'selected':''}>${T('shop_voucher')}</option>
-    </select>
-    <label style="font-size:12px;font-weight:600">${T('prod_subcat')||'子分類'}</label>
-    <input class="input" id="pf-sub-cat" value="${p.sub_category||''}" placeholder="${T('prod_subcat_ph')||'e.g. House/Whisky/餐飲券'}" style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600">${T('prod_desc')||'描述'}</label>
-    <textarea class="input" id="pf-desc" rows="3" placeholder="${T('prod_desc_ph')||'商品描述...'}" style="margin-bottom:0">${p.description||''}</textarea>
-    <div style="display:flex;gap:8px">
-      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_price')||'價格'}</label><input class="input" id="pf-price" type="number" step="0.01" value="${p.price||0}" style="margin-bottom:0"></div>
-      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_currency')||'貨幣'}</label><select class="input" id="pf-currency" style="margin-bottom:0"><option value="CNY" ${(p.currency||'CNY')==='CNY'?'selected':''}>CNY</option><option value="HKD" ${p.currency==='HKD'?'selected':''}>HKD</option><option value="USD" ${p.currency==='USD'?'selected':''}>USD</option></select></div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_stock')||'庫存(-1=無限)'}</label><input class="input" id="pf-stock" type="number" value="${p.stock===undefined?-1:p.stock}" style="margin-bottom:0"></div>
-      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_sort')||'排序'}</label><input class="input" id="pf-sort" type="number" value="${p.sort_order||0}" style="margin-bottom:0"></div>
-    </div>
-    <label style="font-size:12px;font-weight:600">${T('prod_img_url')||'圖片URL'}</label>
-    <input class="input" id="pf-img" value="${p.image_url||''}" placeholder="https://..." style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600">${T('prod_file_url')||'檔案URL(舞曲下載)'}</label>
-    <input class="input" id="pf-file" value="${p.file_url||''}" placeholder="https://...mp3" style="margin-bottom:0">
-    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="pf-active" ${p.active!==0?'checked':''}> ${T('prod_active')||'上架'}</label>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="btn btn-primary" style="flex:1" onclick="admSaveProduct(${p.id||0})">💾 ${T('save')||'保存'}</button>
-      <button class="btn btn-outline" style="flex:1" onclick="admLoadShopProducts()">${T('cancel')||'取消'}</button>
-    </div>
-  </div>`;
-}
-
-function admSaveProduct(pid){
-  const d={name:document.getElementById('pf-name').value,name_en:document.getElementById('pf-name-en').value,category:document.getElementById('pf-category').value,sub_category:document.getElementById('pf-sub-cat').value,description:document.getElementById('pf-desc').value,price:parseFloat(document.getElementById('pf-price').value)||0,currency:document.getElementById('pf-currency').value,stock:parseInt(document.getElementById('pf-stock').value),sort_order:parseInt(document.getElementById('pf-sort').value)||0,image_url:document.getElementById('pf-img').value,file_url:document.getElementById('pf-file').value,active:document.getElementById('pf-active').checked?1:0};
-  if(pid)d.id=pid;
-  fetch(API_BASE+'/api/admin/products',{method:'POST',headers:_admH(),body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
-    if(r.ok){toast(pid?'商品已更新':'商品已新增','success');admLoadShopProducts()}
-    else toast(r.error||'保存失敗','error');
-  }).catch(()=>toast(T('net_err'),'error'));
-}
-
-function admDelProduct(pid){
-  if(!confirm(T('adm_confirm_del_product')))return;
-  fetch(API_BASE+'/api/admin/products/'+pid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast(T('adm_product_deleted'),'success');admLoadShopProducts()}else toast(r.error||'删除失敗','error')}).catch(()=>toast(T('net_err'),'error'));
-}
-
-function admLoadShopOrders(status){
-  status=status||document.getElementById('adm-order-filter')?.value||'';
-  let url='/api/admin/orders';
-  if(status)url+='?status='+status;
-  fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
-    if(!r.ok){document.getElementById('adm-order-list').innerHTML=T('load_failed');return}
-    const orders=r.orders||[];
-    if(!orders.length){document.getElementById('adm-order-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_order')+'</div>';return}
-    const sMap={pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
-    const sClr={pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
-    document.getElementById('adm-order-list').innerHTML=orders.map(o=>`<div style="padding:8px;border-bottom:1px solid var(--border)">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <span><b>#${o.id}</b> · ${o.nickname||o.username||'User#'+o.user_id}</span>
-        <span style="font-size:11px;color:${sClr[o.status]||'var(--sub)'}">${sMap[o.status]||o.status}</span>
-      </div>
-      <div style="font-size:11px;color:var(--sub)">${(o.items||[]).map(i=>i.name+'×'+i.qty).join('、')}</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
-        <span style="font-weight:700;color:var(--amber)">¥${Number(o.total_price).toFixed(2)}</span>
-        <select onchange="admUpdateOrder(${o.id},this.value)" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border)">
-          <option value="pending" ${o.status==='pending'?'selected':''}>待處理</option>
-          <option value="paid" ${o.status==='paid'?'selected':''}>已付款</option>
-          <option value="shipped" ${o.status==='shipped'?'selected':''}>已發貨</option>
-          <option value="delivered" ${o.status==='delivered'?'selected':''}>已送達</option>
-          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>已取消</option>
-        </select>
-      </div>
-      <div style="font-size:10px;color:var(--sub)">${o.created_at||''}</div>
-    </div>`).join('');
-  }).catch(()=>document.getElementById('adm-order-list').innerHTML=T('adm_load_fail'));
-}
-
-function admUpdateOrder(oid,status){
-  fetch(API_BASE+'/api/admin/orders/'+oid,{method:'POST',headers:_admH(),body:JSON.stringify({status})}).then(r=>r.json()).then(r=>{if(r.ok)toast(T('adm_order_updated'),'success');else toast(r.error||T('grp_update_failed'),'error')}).catch(()=>toast(T('net_err'),'error'));
-}
-
-function admLoadLiquorDB(q){
-  q=q||document.getElementById('adm-liquor-search')?.value||'';
-  let url='/api/admin/liquor';
-  if(q)url+='?q='+encodeURIComponent(q);
-  fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
-    if(!r.ok){document.getElementById('adm-liquor-list').innerHTML=T('load_failed');return}
-    const liquors=r.liquors||[];
-    if(!liquors.length){document.getElementById('adm-liquor-list').innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_liquor')+'數據，點擊➕新增</div>';return}
-    document.getElementById('adm-liquor-list').innerHTML=liquors.map(l=>`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)">
-      <div style="width:36px;height:36px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
-        ${l.image_url?`<img src="${l.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">🍾</div>'}
-      </div>
-      <div style="flex:1;min-width:0">
-        <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name||'-'} <span style="font-size:10px;color:var(--sub)">${l.brand||''}</span></div>
-        <div style="font-size:10px;color:var(--sub)">${l.barcode} · ${l.category||''} · ${l.origin||''} ${l.verified?'✅':'⚠️'}</div>
-      </div>
-      <button class="btn btn-outline btn-sm" onclick="admLiquorForm(${l.id})" style="font-size:10px;padding:2px 8px">✏️</button>
-      <button class="btn btn-outline btn-sm" onclick="admDelLiquor(${l.id})" style="font-size:10px;padding:2px 8px;color:var(--danger);border-color:var(--danger)">🗑️</button>
-    </div>`).join('');
-  }).catch(()=>document.getElementById('adm-liquor-list').innerHTML=T('adm_load_fail'));
-}
-
+function admLoadShopProducts(q){}
+function admAddProduct(){}
+function admEditProduct(pid){}
+function admDelProduct(pid){}
+function admLoadShopOrders(status){}
+function admUpdateOrder(oid,status){}
+function admLoadLiquorDB(q){}
+function admLiquorForm(lid){}
+function _showLiquorForm(l){}
+function admSaveLiquor(){}
+function admDelLiquor(lid){}
 function admLiquorForm(lid){
   if(lid){
     fetch(API_BASE+'/api/admin/liquor',{headers:_admH()}).then(r=>r.json()).then(r=>{
@@ -10023,7 +10022,7 @@ function grpShowDetail(gid){
       </div>`
     }).join('');
     // Collapsible member section
-    document.getElementById('grp-detail-body').innerHTML=`
+    const el=document.getElementById('grp-detail-body');if(el)el.innerHTML=`
       <div style="text-align:center;margin-bottom:8px">
         <div style="width:50px;height:50px;border-radius:50%;margin:0 auto 6px;background:var(--pink);display:flex;align-items:center;justify-content:center;font-size:24px">${g.avatar_url?`<img src="${g.avatar_url}" style="width:100%;height:100%;border-radius:50%">`:'👥'}</div>
         <div style="font-size:15px;font-weight:700;color:var(--text)">${g.name}</div>
@@ -10095,7 +10094,7 @@ function grpChatLoad(gid,init){
   if(!init&&_grpChatLastId>0) url+='&after_id='+_grpChatLastId;
   api(url).then(r=>{
     if(!r.ok){
-      if(init)document.getElementById('grp-chat-msgs').innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:20px">'+(r.error||T('grp_chat_load_failed'))+'</div>';
+      if(init){const el=document.getElementById('grp-chat-msgs');if(el)el.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:20px">'+(r.error||T('grp_chat_load_failed'))+'</div>';}
       return;
     }
     if(r.messages&&r.messages.length){
