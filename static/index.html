@@ -716,7 +716,7 @@ body.lang-ready{visibility:visible}
 <div class="page active" id="page-checkin">
  <div id="checkin-ug-hint"></div>
  <div class="card" style="padding:0;overflow:hidden;border:none">
-  <img id="cover-img" src="cover.webp" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.webp'}else{this.style.display=\'none\'}">
+  <img id="cover-img" src="cover.webp" style="width:100%;display:block" onerror="if(this.src.indexOf('drunk.vic999.com')<0){this.src=API_BASE+'/cover.webp'}else{this.style.display='none'}">
   <div style="position:relative;padding:20px 16px 16px;text-align:center;overflow:hidden">
    <!-- Beerglass-front ticker (公告文字在酒杯后滚动做背景) -->
    <div id="anc-behind-glass" aria-hidden="true" style="position:absolute;inset:0;display:flex;align-items:center;overflow:hidden;pointer-events:none;-webkit-mask-image:linear-gradient(90deg,transparent,#000 32px,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,transparent,#000 32px,#000 calc(100% - 32px),transparent)"></div>
@@ -1275,13 +1275,13 @@ body.lang-ready{visibility:visible}
   <!-- 商品列表 -->
   <div id="shop-products" style="display:grid;gap:10px"></div>
   <!-- 商品详情弹窗 -->
-  <div id="shop-detail-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display=\'none\'">
+  <div id="shop-detail-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
     <div class="modal" style="max-width:min(90vw,560px);max-height:85vh;overflow-y:auto">
       <div id="shop-detail-body" style="padding:16px"></div>
     </div>
   </div>
   <!-- 收款/支付確認弹窗 — 三步流程: Step1選支付方式 → Step2收貨地址 → Step3掃碼付款+確認 -->
-  <div id="checkout-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display=\'none\'">
+  <div id="checkout-mod" class="modal-overlay" style="display:none" onclick="if(event.target===this)this.style.display='none'">
     <div class="modal" style="max-width:min(90vw,420px);max-height:88vh;overflow-y:auto">
       <div style="padding:16px">
         <!-- Step indicator -->
@@ -1767,7 +1767,7 @@ body.lang-ready{visibility:visible}
 </div>
 
 <!-- Group Detail Modal -->
-<div class="modal-overlay" id="grp-detail-mod" style="display:none" onclick="if(event.target===this){clearInterval(_grpChatTimer||0);this.style.display=\'none\'}">
+<div class="modal-overlay" id="grp-detail-mod" style="display:none" onclick="if(event.target===this){clearInterval(_grpChatTimer||0);this.style.display='none'}">
  <div class="modal" style="max-width:min(90vw,520px);height:90vh;display:flex;flex-direction:column;overflow:hidden">
   <div style="padding:16px;flex-shrink:0">
    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -1787,7 +1787,7 @@ body.lang-ready{visibility:visible}
  </div>
 </div>
 <!-- Group Create Modal -->
-<div class="modal-overlay" id="grp-create-mod" style="display:none" onclick="if(event.target===this)this.style.display=\'none\'">
+<div class="modal-overlay" id="grp-create-mod" style="display:none" onclick="if(event.target===this)this.style.display='none'">
  <div class="modal" style="max-width:min(90vw,420px);max-height:85vh;overflow-y:auto">
   <div style="padding:16px">
    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -1803,7 +1803,7 @@ body.lang-ready{visibility:visible}
  </div>
 </div>
 <!-- Group Explore Modal -->
-<div class="modal-overlay" id="grp-explore-mod" style="display:none" onclick="if(event.target===this)this.style.display=\'none\'">
+<div class="modal-overlay" id="grp-explore-mod" style="display:none" onclick="if(event.target===this)this.style.display='none'">
  <div class="modal" style="max-width:min(90vw,520px);max-height:85vh;overflow-y:auto">
   <div style="padding:16px">
    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
@@ -6624,7 +6624,7 @@ async function loadPassport(){
     if(!d.upgrades||!d.upgrades.length)return;
     document.getElementById('pp-upgrade-feed').style.display='';
     const lvNames3=['',T('lv_bronze'),T('lv_silver'),T('lv_gold')];
-    const el=document.getElementById('pp-feed');if(el)el.innerHTML=d.upgrades.map(u=>{var n=(u.nickname||'?').substring(0,1);var lvl=lvNames3[u.lv||0]||'';var ts=u.ts?new Date(u.ts).toLocaleDateString():'';return '<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:rgba(139,92,246,0.06);border-radius:10px">'+'<div style="width:32px;height:32px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff">'+n+'</div>'+'<div style="flex:1"><div style="font-weight:600">'+(u.nickname||'?')+'</div>'+'<div style="font-size:12px;color:var(--sub)">🔥 '+lvl+' · '+ts+'</div></div></div>'}).join('');
+    const el=document.getElementById('pp-feed');if(el)el.innerHTML=d.upgrades.map(u=>'<div style="display:flex;align-items:center;gap:8px;padding:8px;margin:4px 0;background:rgba(139,92,246,0.06);border-radius:10px"><img src="/api/avatar/'+u.id+'" style="width:32px;height:32px;border-radius:50%" onerror="this.src=\\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><rect fill=%22%23333%22 width=%2232%22 height=%2232%22 rx=%2216%22/><text fill=%22%23F59E0B%22 x=%2216%22 y
   }).catch(()=>{});
   // AI tasting notes (lv3+ only)
   if(memLevel()>=3){
@@ -6750,7 +6750,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
  var aw=document.getElementById('mem-avatar-wrap');
  if(aw){
   if(me.avatar&&me.avatar.startsWith('/api/avatar/')){
-   aw.innerHTML='<img src="'+API_BASE+me.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
+   aw.innerHTML='<img src="'+API_BASE+me.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
   }else if(me.avatar&&me.avatar.startsWith('emoji:')){aw.textContent=me.avatar.replace('emoji:','')}
   else{aw.textContent=(me.nickname||me.username||'?').charAt(0).toUpperCase()}
   // Membership frame on avatar
@@ -6815,7 +6815,7 @@ function updMem(){const s=document.getElementById('mem-status'),e=document.getEl
     else fl.innerHTML=frs.map(f=>{
      var av=f.avatar&&f.avatar.startsWith('emoji:')?f.avatar.replace('emoji:',''):'👤';
      var avSrc=f.avatar&&f.avatar.startsWith('/api/')?API_BASE+f.avatar:'';
-     var avHtml=avSrc?'<img src="'+avSrc+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">':'<span style="font-size:24px">'+av+'</span>';
+     var avHtml=avSrc?'<img src="'+avSrc+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.outerHTML=\'👤\'">':'<span style="font-size:24px">'+av+'</span>';
      return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);cursor:pointer" onclick="showMemFriend('+f.id+')">'+avHtml+'<div style="flex:1"><div style="font-weight:600;color:var(--text)">'+(f.nickname||f.username||'?')+'</div><div style="font-size:10px;color:var(--sub)">@'+(f.username||'-')+'</div><div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap">'+(f.region?'<span style="font-size:10px;background:rgba(245,158,11,0.1);padding:1px 6px;border-radius:6px">'+({'HK':'🇭🇰','MO':'🇲🇴','TW':'🇹🇼'}[f.region]||'🌍')+({'HK':'香港','MO':'澳門','TW':'台湾','CN-GD':'廣東','CN-BJ':'北京','CN-SH':'上海','MY':'馬來西亚','SG':'新加坡','JP':'日本','KR':'韩國','US':'美國','UK':'英國','AU':'澳洲','OTHER':'其他'}[f.region]||f.region)+'</span>':'')+(f.gender?'<span style="font-size:10px;background:rgba(236,72,153,0.1);padding:1px 6px;border-radius:6px">'+({'M':'👨男','F':'👩女','O':'🧑其他'}[f.gender]||f.gender)+'</span>':'')+(f.age?'<span style="font-size:10px;background:rgba(139,92,246,0.1);padding:1px 6px;border-radius:6px">🎂'+f.age+'</span>':'')+(f.drink_age?'<span style="font-size:10px;background:rgba(34,197,94,0.1);padding:1px 6px;border-radius:6px">🍺'+f.drink_age+'年</span>':'')+'</div></div></div>';
     }).join('');
    }
@@ -9086,7 +9086,7 @@ async function loadFriendsList(){
     var bdg=memBadge(f.membership_level||0);
     html+='<div class="friend-card" style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:all .2s" onclick="toggleFriendDetail('+f.id+')" onmouseover="this.style.borderColor=\'var(--green)\'" onmouseout="this.style.borderColor=\'var(--border)\'">'
     +'<div style="display:flex;align-items:center;gap:8px">'
-    +'<img src="'+API_BASE+'/api/avatar/'+f.id+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\'">'
+    +'<img src="'+API_BASE+'/api/avatar/'+f.id+'" style="width:32px;height:32px;border-radius:50%;object-fit:cover" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><rect fill=%22%232A2A3A%22 width=%2232%22 height=%2232%22/><text y=%2220%22 x=%2216%22 text-anchor=%22middle%22 fill=%22%23F59E0B%22 font-size=%2218%22>👤</text></svg>\'">'
     +'<b class="'+nc+'">'+(f.nickname||f.username||'?')+'</b> '+bdg
     +'<span style="font-size:10px;color:var(--sub);margin-left:auto">@'+(f.username||'-')+'</span>'
     +'<span id="farr-'+f.id+'" style="font-size:10px;color:var(--sub)">▼</span>'
@@ -9169,11 +9169,11 @@ function openChat(uid){
   var avWrap=document.getElementById('chat-av-wrap');
   if(avWrap){
    if(u.avatar && u.avatar.startsWith('/api/avatar/')){
-    avWrap.innerHTML='<img src="'+API_BASE+u.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
+    avWrap.innerHTML='<img src="'+API_BASE+u.avatar+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
    } else if(u.avatar && /^emoji:/.test(u.avatar)){
     avWrap.textContent=u.avatar.replace('emoji:','')||'👤';
    } else {
-    avWrap.innerHTML='<img src="'+API_BASE+'/api/avatar/'+uid+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\'">';
+    avWrap.innerHTML='<img src="'+API_BASE+'/api/avatar/'+uid+'" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML=\'👤\'">';
    }
   }
   // membership badge
@@ -9321,7 +9321,7 @@ async function loadPosts(tab){
    let vidHtml='';if(p.video_url){vidHtml=`<div style="margin-bottom:4px"><video src="${API_BASE+p.video_url}" controls preload="metadata" style="width:100%;max-height:300px;border-radius:8px;background:#000" playsinline></video></div>`}
    const avSrc=p.avatar&&p.avatar.startsWith('/api/')?API_BASE+p.avatar:'';
    const avEmoji=p.avatar&&p.avatar.startsWith('emoji:')?p.avatar.replace('emoji:',''):'';
-   const avHtml=avEmoji?`<span style="font-size:28px">${avEmoji}</span>`:avSrc?`<img src="${avSrc}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.style.display=\'none\';this.nextElementSibling?.style.display='flex'">`:'<span style="font-size:28px">👤</span>';
+   const avHtml=avEmoji?`<span style="font-size:28px">${avEmoji}</span>`:avSrc?`<img src="${avSrc}" style="width:36px;height:36px;border-radius:50%;object-fit:cover" onerror="this.outerHTML='<span style=font-size:28px>👤</span>'">`:'<span style="font-size:28px">👤</span>';
    return `<div class="card" style="margin-bottom:10px">
     <div style="display:flex;gap:10px;align-items:center;margin-bottom:8px">
      ${avHtml}
@@ -9784,81 +9784,765 @@ function shopLoadProducts(cat){
   }).catch(()=>{const el=document.getElementById('shop-products');if(el)el.innerHTML='<div style="text-align:center;padding:20px;color:var(--sub)">'+T('shop_load_err')+'</div>'});
 }
 
-
 const CAT_ICONS = {music:'🎵', liquor:'🍾', voucher:'🎫'};
 const CAT_LABELS = {music:'舞曲', liquor:'酒品', voucher:'消費券'};
 const CAT_COLORS = {music:'linear-gradient(135deg,#8b5cf6,#6366f1)', liquor:'linear-gradient(135deg,#f59e0b,#d97706)', voucher:'linear-gradient(135deg,#22c55e,#16a34a)'};
 
 function _catTag(cat){
   const icon=CAT_ICONS[cat]||'📦', label=CAT_LABELS[cat]||cat, bg=CAT_COLORS[cat]||'var(--sub)';
-  return '<span style="display:inline-block;padding:2px 10px;border-radius:12px;color:#fff;font-size:11px;font-weight:600;background:'+bg+'">'+icon+' '+label+'</span>';
+  return `<span style="display:inline-block;padding:2px 10px;border-radius:12px;color:#fff;font-size:11px;font-weight:600;background:${bg}">${icon} ${label}</span>`;
 }
 
 function renderShopProducts(products){
-  var el=document.getElementById('shop-products');
+  const el = document.getElementById('shop-products');
   if(!products.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--sub);font-size:14px">🏪 '+T('empty_no_product')+'</div>';return}
-  var h='';
-  for(var i=0;i<products.length;i++){
-    var p=products[i];
-    var catIcon=CAT_ICONS[p.category]||'📦';
-    h+='<div class="card" style="cursor:pointer;padding:0;overflow:hidden" onclick="shopShowDetail('+p.id+')">'+
-    '<div style="display:flex;gap:10px;padding:10px">'+
-    '<div style="width:80px;height:80px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:28px">'+catIcon+'</div>'+
-    '<div style="flex:1;min-width:0">'+
-    '<div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(p.name||p.name_en||'商品')+'</div>'+
-    '<div style="font-size:11px;margin:2px 0">'+_catTag(p.category)+'</div>'+
-    '<div style="font-size:16px;font-weight:700;color:var(--amber)">¥'+Number(p.price).toFixed(2)+'</div>'+
-    '</div></div></div>';
-  }
-  el.innerHTML=h;
+  el.innerHTML = products.map(p=>{
+    const catIcon = CAT_ICONS[p.category]||'📦';
+    const catLabel = CAT_LABELS[p.category]||p.category;
+    const sold = p.sold||0;
+    const stockTxt = p.stock===-1?'':(p.stock>0?`<span style="color:#22c55e">剩${p.stock}件</span>`:`<span style="color:var(--danger)">售罄</span>`);
+    const soldout = p.stock!==-1 && p.stock<=0;
+    return `<div class="card" style="cursor:pointer;padding:0;overflow:hidden;${soldout?'opacity:0.5':''}" onclick="${soldout?'':'shopShowDetail('+p.id+')'}">
+      <div style="display:flex;gap:10px;padding:10px">
+        <div style="width:80px;height:80px;border-radius:10px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
+          ${p.image_url?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px">${catIcon}</div>`}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name||p.name_en||'商品'}</div>
+          <div style="font-size:11px;margin:2px 0">${_catTag(p.category)}${p.sub_category?' <span style="color:var(--sub)">· '+p.sub_category+'</span>':''}</div>
+          <div style="font-size:12px;color:var(--sub);margin:2px 0;max-height:32px;overflow:hidden">${p.description||''}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+            <span style="font-size:16px;font-weight:700;color:var(--amber)">¥${Number(p.price).toFixed(2)}</span>
+            ${p.currency&&p.currency!=='CNY'?`<span style="font-size:11px;color:var(--sub)">${p.currency}</span>`:''}
+            ${stockTxt?`<span style="font-size:11px">${stockTxt}</span>`:''}
+            ${sold?`<span style="font-size:11px;color:var(--sub)">已售${sold}</span>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function shopShowDetail(pid){
-  api('/api/shop/product/'+pid).then(function(r){
+  api('/api/shop/product/'+pid).then(r=>{
     if(!r.ok||!r.product){toast(T('toast_product_not_found'),'error');return}
-    var p=r.product;
-    var el=document.getElementById('shop-detail-body');
-    var h='<div>'+
-    '<button onclick="document.getElementById(\'shop-detail-mod\').style.display=\'none\'" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer">✕</button>'+
-    '</div>'+
-    '<div style="font-size:18px;font-weight:700;margin-bottom:4px">'+(p.name||p.name_en)+'</div>'+
-    '<div style="font-size:24px;font-weight:700;color:var(--amber);margin-bottom:4px">¥'+Number(p.price).toFixed(2)+'</div>'+
-    '<div style="display:flex;gap:8px">'+
-    '<button class="btn btn-primary" style="flex:1" onclick="shopBuy('+p.id+')">🛒 立即購買</button>'+
-    '</div>';
-    el.innerHTML=h;
+    const p = r.product;
+    const catIcon = CAT_ICONS[p.category]||'📦';
+    const catLabel = CAT_LABELS[p.category]||p.category;
+    const stockTxt = p.stock===-1?'無限':(p.stock>0?p.stock+'件':'售罄');
+    const soldout = p.stock!==-1 && p.stock<=0;
+    {const el=document.getElementById('shop-detail-body');if(el)el.innerHTML = `
+      <div style="position:relative">
+        <button onclick="document.getElementById('shop-detail-mod').style.display='none'" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.5);color:#fff;border:none;border-radius:50%;width:28px;height:28px;font-size:14px;cursor:pointer">✕</button>
+        ${p.image_url?`<img src="${p.image_url}" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px;margin-bottom:12px" onerror="this.style.display='none'">`:`<div style="text-align:center;font-size:48px;padding:24px">${catIcon}</div>`}
+      </div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">${p.name||p.name_en}</div>
+      <div style="font-size:12px;margin-bottom:8px">${_catTag(p.category)}${p.sub_category?' <span style="color:var(--sub)">· '+p.sub_category+'</span>':''}</div>
+      ${p.description?`<div style="font-size:13px;color:var(--text);margin-bottom:12px;line-height:1.5">${p.description}</div>`:''}
+      <div style="font-size:24px;font-weight:700;color:var(--amber);margin-bottom:4px">¥${Number(p.price).toFixed(2)} <span style="font-size:12px;color:var(--sub)">${p.currency||'CNY'}</span></div>
+      ${_shopDiscountHtml(Number(p.price))}
+      <div style="font-size:12px;color:var(--sub);margin-bottom:12px">庫存: ${stockTxt}${p.sold?' · 已售'+p.sold:''}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" style="flex:1;${soldout?'opacity:0.5;pointer-events:none':''}" onclick="shopBuy(${p.id})">${soldout?'售罄':'🛒 立即購買'}</button>
+      </div>`;
     document.getElementById('shop-detail-mod').style.display='flex';
-  }).catch(function(){toast(T('shop_load_err'),'error')});
-}
-
-function shopBuy(pid){
-  api('/api/shop/buy/'+pid,{method:'POST'}).then(function(r){
-    if(r.ok){toast(T('order_created'),'success')}
-    else{toast(r.error||T('order_failed'),'error')}
-  }).catch(function(){toast(T('net_err'),'error')});
+  }).catch(()=>toast(T('shop_load_err'),'error'));
 }
 
 function _shopDiscountHtml(price){
-  var lv=memLevel();
+  const lv=memLevel();
   if(!lv)return '';
-  var rates=[0,0.95,0.9,0.85];
-  var r=rates[lv]||1;
-  var dp=(price*r).toFixed(2);
-  var sv=(price-dp).toFixed(2);
-  return '<div style="padding:4px 8px;margin-bottom:8px;font-size:12px">'+'🥉 折后¥'+dp+' 省¥'+sv+'</div>';
+  const rates=[0,0.95,0.9,0.85];
+  const names=[0,'酒友','酒鬼','酒神'];
+  const r=rates[lv]||1;
+  const dp=(price*r).toFixed(2);
+  const sv=(price-dp).toFixed(2);
+  const colors=['','var(--yellow)','#6366f1','#dc2626'];
+  return `<div style="background:${colors[lv]}15;border:1px solid ${colors[lv]}40;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px">
+    <span style="color:${colors[lv]};font-weight:700">${['','🥉','🥈','🥇'][lv]} ${names[lv]}專享${Math.round(r*100)/10}折 ≈ ¥${dp}</span>
+    <span style="color:var(--green);margin-left:8px">省¥${sv}</span></div>`;
 }
 
-function admLoadShopProducts(q){}
-function admAddProduct(){}
-function admEditProduct(pid){}
-function admDelProduct(pid){}
-function admLoadShopOrders(status){}
-function admUpdateOrder(oid,status){}
-function admLoadLiquorDB(q){}
-function admLiquorForm(lid){}
-function _showLiquorForm(l){}
-function admSaveLiquor(){}
-function admDelLiquor(lid){}
+// Checkout state
+let _checkoutPid=null, _checkoutProduct=null, _checkoutStep=1, _userAddr=null;
+
+// QR code image paths (real payment QR codes from E:\Hermes\QR)
+const _qrImages = {
+  wechat: '/static/uploads/qr-wechat.png',
+  alipay: '/static/uploads/qr-alipay.jpg',
+  paypal: '/static/uploads/qr-paypal.jpg'
+};
+const _qrLabels = {
+  wechat: {name:'微信支付', emoji:'💚', color:'#07C160', bg:'rgba(7,193,96,0.1)'},
+  alipay: {name:'支付寶', emoji:'🔵', color:'#1677FF', bg:'rgba(22,119,255,0.1)'},
+  paypal: {name:'PayPal', emoji:'🟡', color:'#003087', bg:'rgba(0,48,135,0.1)'}
+};
+
+function shopBuy(pid){
+  if(!token){toast(T('shop_need_login'),'error');return}
+  const p = _shopProducts.find(x=>x.id===pid);
+  if(!p){toast(T('shop_loading'),'error');return}
+  _checkoutPid = pid;
+  _checkoutProduct = p;
+  _checkoutStep = 1;
+  // Fill product info
+  const info = document.getElementById('checkout-product-info');
+  const isDigital = p.delivery_type==='digital' || (p.category==='music' || p.category==='digital');
+  info.innerHTML = `
+    <div style="display:flex;gap:12px;align-items:center">
+      ${p.image_url?`<img src="${p.image_url}" style="width:56px;height:56px;border-radius:10px;object-fit:cover">`:`<div style="width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(139,92,246,0.1));display:flex;align-items:center;justify-content:center;font-size:24px">${isDigital?'💿':'🍶'}</div>`}
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:15px;color:var(--text)">${p.name||''}</div>
+        ${p.description?`<div style="font-size:12px;color:var(--sub);margin-top:2px;line-height:1.4;max-height:40px;overflow:hidden">${p.description}</div>`:''}
+        ${isDigital?`<div style="font-size:11px;color:var(--purple);margin-top:2px">📥 數碼商品 · 確認付款後72h內下載</div>`:''}
+      </div>
+    </div>
+  `;
+  // Calculate price with member discount
+  const lv = memLevel();
+  const origPrice = (p.price||0);
+  let finalPrice = origPrice, discountRate = 1;
+  if(lv>=3) discountRate=0.75;
+  else if(lv>=2) discountRate=0.85;
+  else if(lv>=1) discountRate=0.9;
+  finalPrice = +(origPrice * discountRate).toFixed(2);
+  document.getElementById('checkout-amount').textContent = '¥' + finalPrice.toFixed(2);
+  const discEl = document.getElementById('checkout-discount');
+  if(discountRate<1){
+    discEl.style.display='block';
+    discEl.textContent = T('shop_discount_info',{orig:origPrice.toFixed(2),disc:lv===3?T('discount_jausan'):lv===2?T('discount_jaugwai'):T('discount_jiuyau'),save:(origPrice-finalPrice).toFixed(2)});
+  } else {
+    discEl.style.display='none';
+  }
+  // Reset + show step1
+  const radios = document.querySelectorAll('input[name="pay-method"]');
+  radios.forEach(r=>r.checked=r.value==='wechat');
+  _updateCheckoutMethodUI();
+  document.getElementById('ck-step1').style.display='block';
+  document.getElementById('ck-step2').style.display='none';
+  document.getElementById('ck-step3').style.display='none';
+  document.getElementById('ck-step1-dot').style.background='var(--amber)';
+  document.getElementById('ck-step2-dot').style.background='var(--border)';
+  document.getElementById('ck-step3-dot').style.background='var(--border)';
+  document.getElementById('ck-step-bar').style.width='0%';
+  document.getElementById('ck-step-bar2').style.width='0%';
+  document.getElementById('ck-title').textContent=T('pay_title');
+  document.getElementById('checkout-mod').style.display='flex';
+  // Pre-fill address from user profile
+  _prefillAddress();
+}
+
+async function _prefillAddress(){
+  if(!token) return;
+  try{
+    const r = await api('/api/user/profile','GET');
+    if(r.ok && r.id){
+      _userAddr = r;
+      const f = (id, val) => { const el=document.getElementById(id); if(el && !el.value && val) el.value = val; };
+      f('ck-ship-name', r.shipping_name || r.nickname || '');
+      f('ck-ship-phone', r.shipping_phone || r.phone || '');
+      f('ck-addr-city', r.address_city || '');
+      f('ck-addr-district', r.address_district || '');
+      f('ck-addr-detail', r.address || '');
+      f('ck-addr-zip', r.address_zip || '');
+      // If has saved address, show hint
+      if(r.address || r.address_city){
+        document.getElementById('ck-saved-addr-hint').style.display='block';
+      }
+    }
+  }catch(e){}
+}
+
+function checkoutGoStep2(){
+  _checkoutStep = 2;
+  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
+  // Show/hide delivery type
+  const deliveryHint = document.getElementById('ck-delivery-hint');
+  const physicalAddr = document.getElementById('ck-physical-addr');
+  if(isDigital){
+    deliveryHint.style.display='block';
+    physicalAddr.style.display='none';
+  } else {
+    deliveryHint.style.display='none';
+    physicalAddr.style.display='block';
+  }
+  // Switch UI
+  document.getElementById('ck-step1').style.display='none';
+  document.getElementById('ck-step2').style.display='block';
+  document.getElementById('ck-step3').style.display='none';
+  document.getElementById('ck-step1-dot').style.background='var(--amber)';
+  document.getElementById('ck-step2-dot').style.background='var(--amber)';
+  document.getElementById('ck-step3-dot').style.background='var(--border)';
+  document.getElementById('ck-step-bar').style.width='50%';
+  document.getElementById('ck-step-bar2').style.width='0%';
+  document.getElementById('ck-title').textContent=T('ship_title');
+}
+
+function checkoutGoStep3(){
+  // Validate address for physical products
+  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
+  if(!isDigital){
+    const name = document.getElementById('ck-ship-name').value.trim();
+    const phone = document.getElementById('ck-ship-phone').value.trim();
+    const city = document.getElementById('ck-addr-city').value.trim();
+    const addr = document.getElementById('ck-addr-detail').value.trim();
+    if(!name){toast(T('ship_need_name'),'error');return}
+    if(!phone){toast(T('ship_need_phone'),'error');return}
+    if(!city){toast(T('ship_need_city'),'error');return}
+    if(!addr){toast(T('ship_need_addr'),'error');return}
+  } else {
+    // Digital still needs name & phone
+    const name = document.getElementById('ck-ship-name').value.trim();
+    if(!name){toast(T('ship_need_name2'),'error');return}
+  }
+  _checkoutStep = 3;
+  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
+  const qrInfo = _qrLabels[payMethod] || _qrLabels.wechat;
+  // Set QR image
+  document.getElementById('ck-qr-img').src = _qrImages[payMethod] || _qrImages.wechat;
+  document.getElementById('ck-pay-method-label').textContent = T('please_use') + qrInfo.emoji + ' ' + qrInfo.name + ' 掃碼付款';
+  // Brand badge
+  const brandEl = document.getElementById('ck-qr-brand');
+  brandEl.style.background = qrInfo.bg;
+  brandEl.style.color = qrInfo.color;
+  brandEl.innerHTML = qrInfo.emoji + ' ' + qrInfo.name;
+  // Switch UI
+  document.getElementById('ck-step1').style.display='none';
+  document.getElementById('ck-step2').style.display='none';
+  document.getElementById('ck-step3').style.display='block';
+  document.getElementById('ck-step1-dot').style.background='var(--amber)';
+  document.getElementById('ck-step2-dot').style.background='var(--amber)';
+  document.getElementById('ck-step3-dot').style.background='var(--amber)';
+  document.getElementById('ck-step-bar').style.width='100%';
+  document.getElementById('ck-step-bar2').style.width='100%';
+  document.getElementById('ck-title').textContent=T('pay_scan_title');
+  // Reset confirm btn
+  const btn = document.getElementById('checkout-confirm-btn');
+  btn.disabled=false; btn.textContent=T('pay_done_btn'); btn.style.opacity='1';
+  delete btn.dataset.confirmed;
+}
+
+function checkoutGoStep1(){
+  _checkoutStep = 1;
+  document.getElementById('ck-step1').style.display='block';
+  document.getElementById('ck-step2').style.display='none';
+  document.getElementById('ck-step3').style.display='none';
+  document.getElementById('ck-step1-dot').style.background='var(--amber)';
+  document.getElementById('ck-step2-dot').style.background='var(--border)';
+  document.getElementById('ck-step3-dot').style.background='var(--border)';
+  document.getElementById('ck-step-bar').style.width='0%';
+  document.getElementById('ck-step-bar2').style.width='0%';
+  document.getElementById('ck-title').textContent=T('pay_title');
+}
+
+function checkoutGoStep2From3(){
+  _checkoutStep = 2;
+  document.getElementById('ck-step1').style.display='none';
+  document.getElementById('ck-step2').style.display='block';
+  document.getElementById('ck-step3').style.display='none';
+  document.getElementById('ck-step2-dot').style.background='var(--amber)';
+  document.getElementById('ck-step3-dot').style.background='var(--border)';
+  document.getElementById('ck-step-bar2').style.width='0%';
+  document.getElementById('ck-title').textContent=T('ship_title');
+}
+
+function checkoutClose(){
+  document.getElementById('checkout-mod').style.display='none';
+  _checkoutPid = null;
+  _checkoutStep = 1;
+}
+
+function _updateCheckoutMethodUI(){
+  const labels = document.querySelectorAll('.checkout-method');
+  labels.forEach(lb=>{
+    const radio = lb.querySelector('input[type=radio]');
+    if(radio&&radio.checked){
+      lb.style.borderColor='var(--amber)';
+      lb.style.background='rgba(245,158,11,0.06)';
+    } else {
+      lb.style.borderColor='var(--border)';
+      lb.style.background='transparent';
+    }
+  });
+}
+document.addEventListener('change', e=>{
+  if(e.target.name==='pay-method') _updateCheckoutMethodUI();
+});
+
+function confirmCheckout(){
+  if(!_checkoutPid){toast(T('shop_reselect'),'error');return}
+  // Double-confirm: require user acknowledgment
+  const btn = document.getElementById('checkout-confirm-btn');
+  if(!btn.dataset.confirmed){
+    btn.dataset.confirmed='1';
+    btn.textContent=T('pay_confirm_again');
+    btn.style.opacity='0.85';
+    setTimeout(()=>{if(btn.dataset.confirmed==='1'){btn.dataset.confirmed='';btn.textContent=T('pay_done_btn');btn.style.opacity='1'}},3000);
+    return;
+  }
+  delete btn.dataset.confirmed;
+  const payMethod = document.querySelector('input[name="pay-method"]:checked')?.value||'wechat';
+  // Collect address data
+  const isDigital = _checkoutProduct && (_checkoutProduct.delivery_type==='digital' || _checkoutProduct.category==='music' || _checkoutProduct.category==='digital');
+  const addrData = {
+    shipping_name: document.getElementById('ck-ship-name').value.trim(),
+    shipping_phone: document.getElementById('ck-ship-phone').value.trim(),
+    address: document.getElementById('ck-addr-detail').value.trim(),
+    address_city: document.getElementById('ck-addr-city').value.trim(),
+    address_district: document.getElementById('ck-addr-district').value.trim(),
+    address_zip: document.getElementById('ck-addr-zip').value.trim(),
+    is_digital: isDigital ? 1 : 0
+  };
+  btn.disabled=true; btn.textContent=T('submitting'); btn.style.opacity='0.6';
+  api('/api/shop/orders',{method:'POST',body:{items:[{product_id:_checkoutPid,qty:1}],pay_method:payMethod,...addrData}})
+  .then(r=>{
+    btn.disabled=false; btn.textContent=T('pay_done_btn'); btn.style.opacity='1';
+    if(r.ok){
+      let msg='订單已提交！#'+r.order_id+'，合計¥'+r.total.toFixed(2)+'，等待人工確認付款';
+      if(r.discount<1)msg+=' (原價¥'+r.original_total.toFixed(2)+'，省¥'+r.saved.toFixed(2)+')';
+      if(r.has_digital)msg+='\n📥 數碼商品：確認付款後可下載（72h有效）';
+      toast(msg,'success');
+      document.getElementById('checkout-mod').style.display='none';
+      document.getElementById('shop-detail-mod').style.display='none';
+      shopLoadProducts(shopCurrentCat);
+    } else {
+      toast(r.error||'下單失敗','error');
+    }
+  }).catch(()=>{btn.disabled=false;btn.textContent=T('pay_done_btn');btn.style.opacity='1';toast(T('net_err'),'error')});
+}
+
+function shopToggleMyOrders(){
+  const el = document.getElementById('shop-my-orders');
+  if(el.style.display==='none'){
+    el.style.display='block';
+    api('/api/shop/my-orders').then(r=>{
+      if(!r.ok||!r.orders){el.innerHTML='<div style="padding:8px;color:var(--sub)">'+T('adm_load_fail')+'</div>';return}
+      if(!r.orders.length){el.innerHTML='<div style="padding:8px;color:var(--sub);text-align:center">'+T('empty_no_order')+'</div>';return}
+      const statusMap = {pending:T('order_pending'),paid:T('order_paid'),shipped:T('order_shipped'),delivered:T('order_delivered'),cancelled:T('order_cancelled'),refunded:T('order_refunded')};
+      const statusColor = {pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
+      el.innerHTML = r.orders.map(o=>{
+        const statusText = statusMap[o.status]||o.status;
+        const statusClr = statusColor[o.status]||'var(--sub)';
+        const isPaid = o.status==='paid'||o.status==='delivered';
+        const digitalItems = (o.items||[]).filter(i=>i.delivery_type==='digital'||i.category==='music'||i.category==='digital');
+        let downloadBtn = '';
+        if(isPaid && digitalItems.length>0 && o.download_token){
+          downloadBtn = `<button onclick="downloadDigital('${o.download_token}','${o.id}')" style="margin-top:4px;padding:4px 10px;border-radius:8px;border:1px solid #8b5cf6;background:rgba(139,92,246,0.08);color:#8b5cf6;font-size:11px;font-weight:600;cursor:pointer">${T('download_digital')}</button>`;
+        }
+        return `<div style="padding:8px;border-bottom:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-weight:600;font-size:13px">#${o.id}</span>
+            <span style="font-size:11px;color:${statusClr};background:${statusClr}20;padding:2px 8px;border-radius:8px">${statusText}</span>
+          </div>
+          <div style="font-size:12px;color:var(--sub);margin:4px 0">${(o.items||[]).map(i=>i.name+'×'+i.qty).join('、')}</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px">
+            <span style="color:var(--sub)">${o.created_at||''}</span>
+            <span style="font-weight:700;color:var(--amber)">¥${Number(o.total_price).toFixed(2)}</span>
+          </div>
+          ${downloadBtn}
+        </div>`;
+      }).join('');
+      document.getElementById('shop-order-count').textContent = '('+r.orders.length+')';
+    }).catch(()=>{el.innerHTML='<div style="padding:8px;color:var(--sub)">'+T('adm_load_fail')+'</div>'});
+  } else el.style.display='none';
+}
+
+function downloadDigital(token, oid){
+  if(!token){toast(T('dl_link_invalid'),'error');return}
+  // Open download URL in new tab
+  const url = API_BASE + '/api/shop/download/' + oid + '/' + (oid*7+13) + '?token=' + encodeURIComponent(token);
+  window.open(url, '_blank');
+  toast(T('downloading'),'success');
+}
+
+// ═══════════════════ LIQUOR SCAN / VERIFY ═══════════════════
+let _scannerStream = null;
+
+function _scanRemainHtml(remain){
+  if(remain===undefined||remain===null)return'';
+  const clr=remain<=0?'var(--red)':remain<=2?'#f59e0b':'var(--sub)';
+  const txt=remain<=0?T('toast_scan_limit').replace(/.*？/,'已用完!'):remain;
+  return `<div style="font-size:11px;color:${clr};margin-top:8px;padding-top:6px;border-top:1px solid var(--border)">🔍 ${T('mem_limit_today')}: ${txt}${remain<5&&remain>=0?' · <a href="javascript:void(0)" onclick="showUpgradeModal('+Math.min(memLevel()+1,3)+')" style="color:var(--amber)">'+T('mem_upgrade_cta')+'</a>':''}</div>`;
+}
+
+function scanBarcode(code){
+  const barcode = code || document.getElementById('scan-barcode-input')?.value?.trim() || '';
+  if(!barcode){toast(T('toast_enter_barcode'),'error');return}
+  api('/api/scan/verify',{method:'POST',body:{barcode}}).then(r=>{
+    const el = document.getElementById('scan-result');
+    el.style.display='block';
+    const l = r.liquor;
+    if(r.result==='verified'){
+      // 辨真報告(酒鬼+)
+      var verifyHtml='';
+      if(r.verify_info){
+       var vi=r.verify_info;
+       var vColor=vi.verdict==='likely_genuine'?'#22c55e':vi.verdict==='suspicious'?'var(--amber)':'var(--danger)';
+       var vLabel=vi.verdict==='likely_genuine'?'✅ 疑似正品':vi.verdict==='suspicious'?'⚠️ 有疑點':'❌ 疑似仿品';
+       var vConf=vi.confidence!=null?'<div style="font-size:12px;color:var(--sub)">可信度: '+vi.confidence+'%</div>':'';
+       var vFlags=vi.flags&&vi.flags.length?'<div style="font-size:12px;color:var(--amber);margin-top:4px">🚩 '+vi.flags.join(' · ')+'</div>':'';
+       verifyHtml='<div style="margin-top:10px;padding:10px;background:var(--card);border:1px solid '+vColor+';border-radius:10px">'
+        +'<div style="font-weight:700;color:'+vColor+';font-size:14px">'+vLabel+'</div>'
+        +vConf+vFlags+'</div>';
+      }
+      // 收藏按钮(酒友+)
+      var favBtn=l&&l.id?'<button onclick="addFavFromScan('+l.id+').catch(()=>{})" style="margin-top:8px;padding:8px 16px;border-radius:10px;border:1px solid var(--amber);background:rgba(245,158,11,0.08);color:var(--amber);font-weight:600;cursor:pointer;font-size:13px">🔖 收藏入酒櫃</button>':'';
+      el.innerHTML = `<div style="padding:14px;border-radius:14px;background:rgba(34,197,94,0.08);border:2px solid #22c55e">
+        <div style="font-size:18px;font-weight:800;color:#22c55e;margin-bottom:10px">✅ 正品驗證通過</div>
+        ${l?`<div style="display:flex;gap:12px;align-items:flex-start">
+          ${l.image_url?`<img src="${l.image_url}" style="width:80px;height:80px;border-radius:12px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'">`:''}
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:16px;color:var(--text)">${l.name||''}</div>
+            ${l.name_en?`<div style="font-size:11px;color:var(--sub)">${l.name_en}</div>`:''}
+            ${l.brand?`<div style="font-size:13px;margin-top:4px">🏷️ 品牌: <b>${l.brand}</b></div>`:''}
+            ${l.category?`<div style="font-size:13px">🍷 類型: ${l.category}</div>`:''}
+            ${l.origin?`<div style="font-size:13px">🌍 產地: ${l.origin}</div>`:''}
+            ${l.abv?`<div style="font-size:13px">🥃 酒精度: ${l.abv}%</div>`:''}
+            ${l.volume_ml?`<div style="font-size:13px">🧪 容量: ${l.volume_ml}ml</div>`:''}
+            ${l.vintage?`<div style="font-size:13px">📅 年份: ${l.vintage}</div>`:''}
+            ${l.extra_json&&JSON.parse(l.extra_json).price?`<div style="font-size:15px;font-weight:800;color:var(--amber);margin-top:6px">💰 參考價: ¥${JSON.parse(l.extra_json).price}</div>`:''}
+            ${l.extra_json&&JSON.parse(l.extra_json).release_date?`<div style="font-size:12px;color:var(--sub)">📦 出廠日期: ${JSON.parse(l.extra_json).release_date}</div>`:''}
+            ${l.taste_notes?`<div style="font-size:12px;margin-top:6px;color:var(--text);line-height:1.4;background:var(--bg2);padding:8px;border-radius:8px">🎨 口感: ${l.taste_notes}</div>`:''}
+            ${l.description?`<div style="font-size:12px;margin-top:6px;line-height:1.4;color:var(--sub)">${l.description}</div>`:''}
+          </div>
+        </div>`:''}
+        ${verifyHtml}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px">${favBtn}</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:8px;padding-top:6px;border-top:1px solid rgba(34,197,94,0.2)">條碼: ${barcode}</div>
+        ${_scanRemainHtml(r.scan_remaining)}
+      </div>`;
+    } else if(r.result==='unverified'){
+      el.innerHTML = `<div style="padding:14px;border-radius:14px;background:rgba(245,158,11,0.08);border:2px solid var(--amber)">
+        <div style="font-size:18px;font-weight:800;color:var(--amber);margin-bottom:6px">⚠️ 未能確認</div>
+        <div style="font-size:14px;color:var(--text)">此條碼在數據庫中有記錄，但未通過正品驗證</div>
+        ${l?`<div style="margin-top:8px;padding:8px;background:var(--bg2);border-radius:8px;font-size:13px;color:var(--sub)">
+          ${l.name?'名稱: '+l.name:''}${l.brand?' · 品牌: '+l.brand:''}${l.origin?' · 產地: '+l.origin:''}
+        </div>`:''}
+        <div style="font-size:11px;color:var(--sub);margin-top:8px;padding-top:6px;border-top:1px solid rgba(245,158,11,0.2)">條碼: ${barcode}</div>
+        ${_scanRemainHtml(r.scan_remaining)}
+      </div>`;
+    } else {
+      el.innerHTML = `<div style="padding:14px;border-radius:14px;background:rgba(239,68,68,0.08);border:2px solid var(--danger)">
+        <div style="font-size:18px;font-weight:800;color:var(--danger);margin-bottom:6px">❌ 未找到記錄</div>
+        <div style="font-size:14px;color:var(--text)">此條碼不在數據庫中，請謹慎購買 ⚠️</div>
+        <div style="font-size:12px;color:var(--sub);margin-top:6px">💡 如確認為正品，可聯系管理員添加此酒品</div>
+        <div style="font-size:11px;color:var(--sub);margin-top:8px;padding-top:6px;border-top:1px solid rgba(239,68,68,0.2)">條碼: ${barcode}</div>
+        ${_scanRemainHtml(r.scan_remaining)}
+      </div>`;
+    }
+  }).catch(()=>toast(T('toast_scan_fail'),'error'));
+}
+
+var _html5QrCode=null;
+// Detect iOS PWA standalone mode where camera API is unavailable
+function _isPwaStandalone(){
+  return window.navigator.standalone===true
+      || (window.matchMedia('(display-mode: standalone)').matches)
+      || (window.matchMedia('(display-mode: minimal-ui)').matches && !navigator.mediaDevices);
+}
+function _showManualScan(){
+  document.getElementById('scanner-reader').style.display='none';
+  document.getElementById('scanner-fallback').style.display='none';
+  document.getElementById('scanner-manual').style.display='flex';
+  document.getElementById('scanner-photo').style.display='block';
+  const hint=document.querySelector('#scanner-mod [data-i18n="scan_hint"]');
+  const isPwa=_isPwaStandalone();
+  if(hint)hint.textContent=isPwa?'📱 '+T('pwa_no_camera','PWA模式不支持相機，請輸入條碼或從相冊選取'):'📱 '+T('scan_manual_hint','請輸入條碼或從相冊選取條碼圖片');
+  document.getElementById('scanner-input').focus();
+}
+// Scan barcode from photo file (works in PWA mode where camera getUserMedia is blocked)
+function _scanFromFile(input){
+  if(!input.files||!input.files[0])return;
+  const file=input.files[0];
+  toast('📷 正在識别條碼...');
+  if(typeof Html5Qrcode!=='undefined'&&typeof Html5Qrcode.scanFile==='function'){
+    Html5Qrcode.scanFile(file,true).then(decodedText=>{
+      closeScanner();
+      const barcode=decodedText.trim();
+      toast('📷 識别到: '+barcode);
+      document.getElementById('scan-barcode-input').value=barcode;
+      scanBarcode(barcode);
+    }).catch(()=>{
+      toast(T('toast_scan_fail'),'error');
+    });
+  }else{
+    // Fallback: try jsQR from CDN if available
+    const img=new Image();
+    img.onload=function(){
+      const canvas=document.createElement('canvas');
+      canvas.width=img.width;canvas.height=img.height;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0);
+      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      if(typeof jsQR==='undefined'){
+        const s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+        s.onload=()=>_decodeWithJsQR(imageData);
+        s.onerror=()=>toast(T('toast_scan_fail'),'error');
+        document.head.appendChild(s);
+      }else _decodeWithJsQR(imageData);
+    };
+    img.onerror=()=>toast(T('toast_scan_fail'),'error');
+    img.src=URL.createObjectURL(file);
+  }
+}
+function _decodeWithJsQR(imageData){
+  const code=jsQR(imageData.data,imageData.width,imageData.height);
+  if(code&&code.data){
+    closeScanner();
+    toast('📷 識别到: '+code.data);
+    document.getElementById('scan-barcode-input').value=code.data;
+    scanBarcode(code.data);
+  }else toast(T('toast_scan_fail'),'error');
+}
+function _showCamPermissionPrompt(){
+  // Delegate to unified permission system
+  _showPermFlow('camera',function(){
+    _doOpenScanner();
+  },function(){
+    _showManualScan();
+  });
+}
+function _doOpenScanner(){
+  const mod=document.getElementById('scanner-mod');
+  mod.style.display='flex';
+  if(_isPwaStandalone()) return _showManualScan();
+  if(typeof Html5Qrcode!=='undefined'){
+    try{
+      if(_html5QrCode){_html5QrCode.stop().catch(()=>{}).then(()=>{_html5QrCode=null;_startScanner()});return}
+      _startScanner();
+    }catch(e){console.error('scanner err',e);_fallbackCamera()}
+  }else{_fallbackCamera()}
+}
+function openScanner(){
+  const mod=document.getElementById('scanner-mod');
+  mod.style.display='flex';
+  // iOS PWA standalone → no camera API available
+  if(_isPwaStandalone()) return _showManualScan();
+  // Smart permission check instead of localStorage flag
+  _queryPerm('camera').then(function(state){
+    if(state==='denied'){
+      mod.style.display='none';
+      _showSettingsGuide('camera',function(){
+        mod.style.display='flex';
+        _doOpenScanner();
+      });
+    }else if(state==='prompt'){
+      mod.style.display='none';
+      _showPermFlow('camera',function(){
+        mod.style.display='flex';
+        _doOpenScanner();
+      },function(){
+        _showManualScan();
+      });
+    }else{
+      // granted — open scanner directly
+      _doOpenScanner();
+    }
+  });
+}
+function _startScanner(){
+  _html5QrCode=new Html5Qrcode('scanner-reader');
+  _html5QrCode.start({facingMode:'environment'},{fps:10,qrbox:{width:250,height:120},formatsToSupport:[
+    Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,
+    Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,
+    Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,
+    Html5QrcodeSupportedFormats.QR_CODE
+  ]},(decodedText,decodedResult)=>{
+    closeScanner();
+    var barcode=decodedText.trim();
+    toast('📷 識别到: '+barcode);
+    document.getElementById('scan-barcode-input').value=barcode;
+    scanBarcode(barcode);
+  },(errMsg)=>{}).catch(e=>{console.warn('html5-qr fail',e);_fallbackCamera()});
+}
+function _fallbackCamera(){
+  document.getElementById('scanner-reader').style.display='none';
+  document.getElementById('scanner-fallback').style.display='block';
+  const video=document.getElementById('scanner-video');
+  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){
+    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}}).then(stream=>{
+      _scannerStream=stream;video.srcObject=stream;
+    }).catch(()=>toast(T('toast_no_camera'),'error'));
+  }else toast(T('toast_browser_no_camera'),'error');
+}
+
+function closeScanner(){
+  document.getElementById('scanner-mod').style.display='none';
+  if(_html5QrCode){try{_html5QrCode.stop().catch(()=>{})}catch(e){}_html5QrCode=null}
+  if(_scannerStream){_scannerStream.getTracks().forEach(t=>t.stop());_scannerStream=null}
+  const video=document.getElementById('scanner-video');if(video)video.srcObject=null;
+}
+
+function showScanHistory(){
+  if(!token){toast(T('shop_need_login'),'error');return}
+  api('/api/scan/history').then(r=>{
+    if(!r.ok||!r.history){toast(T('shop_load_err'),'error');return}
+    if(!r.history.length){toast(T('toast_no_scan_hist'),'info');return}
+    const el = document.getElementById('scan-result');
+    el.style.display='block';
+    const resultMap = {verified:'✅ 正品',unverified:'⚠️ 未確認',not_found:'❌ 未找到'};
+    const colorMap = {verified:'#22c55e',unverified:'var(--amber)',not_found:'var(--danger)'};
+    el.innerHTML = `<div style="padding:8px"><div style="font-weight:600;margin-bottom:8px">📜 掃碼記錄</div>
+    ${r.history.map(h=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:13px;font-weight:500">${h.name||h.barcode}</div>
+        ${h.brand?`<div style="font-size:11px;color:var(--sub)">${h.brand}</div>`:''}
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:12px;color:${colorMap[h.result]||'var(--sub)'}">${resultMap[h.result]||h.result}</div>
+        <div style="font-size:10px;color:var(--sub)">${h.created_at||''}</div>
+      </div>
+    </div>`).join('')}
+    </div>`;
+  }).catch(()=>toast(T('shop_load_err'),'error'));
+}
+
+// ═══════════════════ ADMIN: SHOP MANAGEMENT ═══════════════════
+function _admH(){return {Authorization:'Bearer '+adminToken,'X-Admin-Token':adminToken,'Content-Type':'application/json'}}
+
+function admLoadShopProducts(){
+  fetch(API_BASE+'/api/admin/products',{headers:_admH()}).then(r=>r.json()).then(r=>{
+    if(!r.ok){const el=document.getElementById('adm-product-list');if(el)el.innerHTML=T('load_failed');return}
+    const products=r.products||[];
+    if(!products.length){const el=document.getElementById('adm-product-list');if(el)el.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_product')+'，點擊➕新增</div>';return}
+    const el=document.getElementById('adm-product-list');if(el)el.innerHTML=products.map(p=>{
+      const catLabel=CAT_LABELS[p.category]||p.category;
+      const catIcon=CAT_ICONS[p.category]||'📦';
+      return `<div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)">
+        <div style="width:40px;height:40px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
+          ${p.image_url?`<img src="${p.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">${catIcon}</div>`}
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name||p.name_en||'-'}</div>
+          <div style="font-size:11px;color:var(--sub)">${catIcon}${catLabel} · ¥${Number(p.price).toFixed(2)} · 庫存${p.stock===-1?'∞':p.stock} ${p.active?'✅':'🚫'}</div>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="admProductForm(${p.id})" style="font-size:10px;padding:2px 8px">✏️</button>
+        <button class="btn btn-outline btn-sm" onclick="admDelProduct(${p.id})" style="font-size:10px;padding:2px 8px;color:var(--danger);border-color:var(--danger)">🗑️</button>
+      </div>`;
+    }).join('');
+  }).catch(()=>{const el=document.getElementById('adm-product-list');if(el)el.innerHTML=T('adm_load_fail')});
+}
+
+function admProductForm(pid){
+  if(pid){
+    fetch(API_BASE+'/api/admin/products',{headers:_admH()}).then(r=>r.json()).then(r=>{
+      const product=(r.products||[]).find(p=>p.id===pid)||{};
+      _showProductForm(product);
+    }).catch(()=>{});
+  } else _showProductForm({});
+}
+
+function _showProductForm(p){
+  const isEdit=!!p.id;
+  const box=document.getElementById('adm-product-list');
+  box.innerHTML=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">${isEdit?T('edit_product'):T('add_product')}</div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <label style="font-size:12px;font-weight:600">${T('prod_name')||'名稱'}</label>
+    <input class="input" id="pf-name" value="${p.name||''}" placeholder="${T('prod_name_ph')||'商品名稱'}" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">${T('prod_name_en')||'英文名稱'}</label>
+    <input class="input" id="pf-name-en" value="${p.name_en||''}" placeholder="English Name" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">${T('prod_category')||'分類'}</label>
+    <select class="input" id="pf-category" style="margin-bottom:0">
+      <option value="music" ${p.category==='music'?'selected':''}>${T('shop_music')}</option>
+      <option value="liquor" ${p.category==='liquor'?'selected':''}>${T('shop_liquor')}</option>
+      <option value="voucher" ${p.category==='voucher'?'selected':''}>${T('shop_voucher')}</option>
+    </select>
+    <label style="font-size:12px;font-weight:600">${T('prod_subcat')||'子分類'}</label>
+    <input class="input" id="pf-sub-cat" value="${p.sub_category||''}" placeholder="${T('prod_subcat_ph')||'e.g. House/Whisky/餐飲券'}" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">${T('prod_desc')||'描述'}</label>
+    <textarea class="input" id="pf-desc" rows="3" placeholder="${T('prod_desc_ph')||'商品描述...'}" style="margin-bottom:0">${p.description||''}</textarea>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_price')||'價格'}</label><input class="input" id="pf-price" type="number" step="0.01" value="${p.price||0}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_currency')||'貨幣'}</label><select class="input" id="pf-currency" style="margin-bottom:0"><option value="CNY" ${(p.currency||'CNY')==='CNY'?'selected':''}>CNY</option><option value="HKD" ${p.currency==='HKD'?'selected':''}>HKD</option><option value="USD" ${p.currency==='USD'?'selected':''}>USD</option></select></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_stock')||'庫存(-1=無限)'}</label><input class="input" id="pf-stock" type="number" value="${p.stock===undefined?-1:p.stock}" style="margin-bottom:0"></div>
+      <div style="flex:1"><label style="font-size:12px;font-weight:600">${T('prod_sort')||'排序'}</label><input class="input" id="pf-sort" type="number" value="${p.sort_order||0}" style="margin-bottom:0"></div>
+    </div>
+    <label style="font-size:12px;font-weight:600">${T('prod_img_url')||'圖片URL'}</label>
+    <input class="input" id="pf-img" value="${p.image_url||''}" placeholder="https://..." style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600">${T('prod_file_url')||'檔案URL(舞曲下載)'}</label>
+    <input class="input" id="pf-file" value="${p.file_url||''}" placeholder="https://...mp3" style="margin-bottom:0">
+    <label style="font-size:12px;font-weight:600"><input type="checkbox" id="pf-active" ${p.active!==0?'checked':''}> ${T('prod_active')||'上架'}</label>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="admSaveProduct(${p.id||0})">💾 ${T('save')||'保存'}</button>
+      <button class="btn btn-outline" style="flex:1" onclick="admLoadShopProducts()">${T('cancel')||'取消'}</button>
+    </div>
+  </div>`;
+}
+
+function admSaveProduct(pid){
+  const d={name:document.getElementById('pf-name').value,name_en:document.getElementById('pf-name-en').value,category:document.getElementById('pf-category').value,sub_category:document.getElementById('pf-sub-cat').value,description:document.getElementById('pf-desc').value,price:parseFloat(document.getElementById('pf-price').value)||0,currency:document.getElementById('pf-currency').value,stock:parseInt(document.getElementById('pf-stock').value),sort_order:parseInt(document.getElementById('pf-sort').value)||0,image_url:document.getElementById('pf-img').value,file_url:document.getElementById('pf-file').value,active:document.getElementById('pf-active').checked?1:0};
+  if(pid)d.id=pid;
+  fetch(API_BASE+'/api/admin/products',{method:'POST',headers:_admH(),body:JSON.stringify(d)}).then(r=>r.json()).then(r=>{
+    if(r.ok){toast(pid?'商品已更新':'商品已新增','success');admLoadShopProducts()}
+    else toast(r.error||'保存失敗','error');
+  }).catch(()=>toast(T('net_err'),'error'));
+}
+
+function admDelProduct(pid){
+  if(!confirm(T('adm_confirm_del_product')))return;
+  fetch(API_BASE+'/api/admin/products/'+pid,{method:'DELETE',headers:_admH()}).then(r=>r.json()).then(r=>{if(r.ok){toast(T('adm_product_deleted'),'success');admLoadShopProducts()}else toast(r.error||'删除失敗','error')}).catch(()=>toast(T('net_err'),'error'));
+}
+
+function admLoadShopOrders(status){
+  status=status||document.getElementById('adm-order-filter')?.value||'';
+  let url='/api/admin/orders';
+  if(status)url+='?status='+status;
+  fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
+    if(!r.ok){const el=document.getElementById('adm-order-list');if(el)el.innerHTML=T('load_failed');return}
+    const orders=r.orders||[];
+    if(!orders.length){const el=document.getElementById('adm-order-list');if(el)el.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_order')+'</div>';return}
+    const sMap={pending:'待處理',paid:'已付款',shipped:'已發貨',delivered:'已送達',cancelled:'已取消',refunded:'已退款'};
+    const sClr={pending:'var(--amber)',paid:'#22c55e',shipped:'#3b82f6',delivered:'#8b5cf6',cancelled:'var(--danger)',refunded:'var(--sub)'};
+    const el=document.getElementById('adm-order-list');if(el)el.innerHTML=orders.map(o=>`<div style="padding:8px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <span><b>#${o.id}</b> · ${o.nickname||o.username||'User#'+o.user_id}</span>
+        <span style="font-size:11px;color:${sClr[o.status]||'var(--sub)'}">${sMap[o.status]||o.status}</span>
+      </div>
+      <div style="font-size:11px;color:var(--sub)">${(o.items||[]).map(i=>i.name+'×'+i.qty).join('、')}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px">
+        <span style="font-weight:700;color:var(--amber)">¥${Number(o.total_price).toFixed(2)}</span>
+        <select onchange="admUpdateOrder(${o.id},this.value)" style="font-size:10px;padding:2px 4px;border-radius:4px;border:1px solid var(--border)">
+          <option value="pending" ${o.status==='pending'?'selected':''}>待處理</option>
+          <option value="paid" ${o.status==='paid'?'selected':''}>已付款</option>
+          <option value="shipped" ${o.status==='shipped'?'selected':''}>已發貨</option>
+          <option value="delivered" ${o.status==='delivered'?'selected':''}>已送達</option>
+          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>已取消</option>
+        </select>
+      </div>
+      <div style="font-size:10px;color:var(--sub)">${o.created_at||''}</div>
+    </div>`).join('');
+    if(!r.ok){const el=document.getElementById('adm-liquor-list');if(el)el.innerHTML=T('load_failed');return}
+}
+
+function admUpdateOrder(oid,status){
+  fetch(API_BASE+'/api/admin/orders/'+oid,{method:'POST',headers:_admH(),body:JSON.stringify({status})}).then(r=>r.json()).then(r=>{if(r.ok)toast(T('adm_order_updated'),'success');else toast(r.error||T('grp_update_failed'),'error')}).catch(()=>toast(T('net_err'),'error'));
+}
+
+function admLoadLiquorDB(q){
+  q=q||document.getElementById('adm-liquor-search')?.value||'';
+  let url='/api/admin/liquor';
+  if(q)url+='?q='+encodeURIComponent(q);
+  fetch(API_BASE+url,{headers:_admH()}).then(r=>r.json()).then(r=>{
+    if(!liquors.length){const el=document.getElementById('adm-liquor-list');if(el)el.innerHTML='<div style="padding:16px;color:var(--sub);text-align:center">'+T('empty_no_liquor')+'數據，點擊➕新增</div>';return}
+    const liquors=r.liquors||[];
+    if(!liquors.length){const el=document.getElementById('adm-liquor-list');if(el)el.innerHTML='<div style="text-align:center;padding:16px;color:var(--sub)">'+T('empty_no_liquor')+'數據，點擊➕新增</div>';return}
+    const el=document.getElementById('adm-liquor-list');if(el)el.innerHTML=liquors.map(l=>`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-bottom:1px solid var(--border)">
+      <div style="width:36px;height:36px;border-radius:6px;overflow:hidden;flex-shrink:0;background:var(--bg2)">
+        ${l.image_url?`<img src="${l.image_url}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'">`:'<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">🍾</div>'}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.name||'-'} <span style="font-size:10px;color:var(--sub)">${l.brand||''}</span></div>
+        <div style="font-size:10px;color:var(--sub)">${l.barcode} · ${l.category||''} · ${l.origin||''} ${l.verified?'✅':'⚠️'}</div>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="admLiquorForm(${l.id})" style="font-size:10px;padding:2px 8px">✏️</button>
+      <button class="btn btn-outline btn-sm" onclick="admDelLiquor(${l.id})" style="font-size:10px;padding:2px 8px;color:var(--danger);border-color:var(--danger)">🗑️</button>
+    </div>`).join('');
+  }).catch(()=>{const el=document.getElementById('adm-liquor-list');if(el)el.innerHTML=T('adm_load_fail');});
+}
+
 function admLiquorForm(lid){
   if(lid){
     fetch(API_BASE+'/api/admin/liquor',{headers:_admH()}).then(r=>r.json()).then(r=>{
@@ -10022,7 +10706,7 @@ function grpShowDetail(gid){
       </div>`
     }).join('');
     // Collapsible member section
-    const el=document.getElementById('grp-detail-body');if(el)el.innerHTML=`
+    {const el=document.getElementById('grp-detail-body');if(el)el.innerHTML=`
       <div style="text-align:center;margin-bottom:8px">
         <div style="width:50px;height:50px;border-radius:50%;margin:0 auto 6px;background:var(--pink);display:flex;align-items:center;justify-content:center;font-size:24px">${g.avatar_url?`<img src="${g.avatar_url}" style="width:100%;height:100%;border-radius:50%">`:'👥'}</div>
         <div style="font-size:15px;font-weight:700;color:var(--text)">${g.name}</div>
