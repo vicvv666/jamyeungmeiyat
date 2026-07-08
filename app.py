@@ -3759,7 +3759,7 @@ def api_download_apk():
     if is_webview:
         resp.headers.pop('Content-Disposition', None)
     else:
-        resp.headers['Content-Disposition'] = 'attachment; filename="jymy-2.6.0.apk"'
+        resp.headers['Content-Disposition'] = 'attachment; filename="jymy-3.0.0.apk"'
     resp.headers['Cache-Control'] = 'public, max-age=3600'
     return resp
 
@@ -4614,7 +4614,7 @@ def admin_self_update():
     BASE = '/opt/jamyeungmeiyat'
     BRANCH = 'master'
     REPO = 'vicvv666/jamyeungmeiyat'
-    files_to_pull = ['app.py', 'static/index.html', 'static/sw.js']
+    files_to_pull = ['app.py', 'static/index.html', 'static/sw.js', 'static/leaflet.js', 'static/leaflet.css']
     results = []
     for f in files_to_pull:
         url = f'https://raw.githubusercontent.com/{REPO}/{BRANCH}/{f}'
