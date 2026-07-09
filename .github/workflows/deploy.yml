@@ -3,6 +3,7 @@ name: Deploy to Aliyun
 on:
   push:
     branches: [master]
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -17,6 +18,9 @@ jobs:
           script: |
             cd /opt/jamyeungmeiyat
             git pull origin master
+            curl -sL -o static/jamyeungmeiyat.apk "https://github.com/vicvv666/jamyeungmeiyat/releases/download/v2.6.1/jym-2.6.1-fixed.apk"
+            cp static/jamyeungmeiyat.apk /var/www/drunk.vic999.com/static/jamyeungmeiyat.apk
+            cp static/jamyeungmeiyat.apk /var/www/drunk.vic999.com/apk/jymy.apk
             pip3 install -q -r requirements.txt 2>/dev/null || true
             systemctl restart jamyeungmeiyat
             echo "Deployed at $(date)"
